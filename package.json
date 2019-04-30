@@ -1,0 +1,32 @@
+{
+  "name": "canihavethat",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.ts",
+  "scripts": {
+    "lint": "tslint lib/**/*.ts --force",
+    "tsc": "tsc",
+    "test": "mocha -r ts-node/register spec/**/*.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/johnameyer/can-i-have-that-server.git"
+  },
+  "author": "John Meyer",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/johnameyer/can-i-have-that-server/issues"
+  },
+  "homepage": "https://github.com/johnameyer/can-i-have-that-server#readme",
+  "dependencies": {
+    "typescript": "^3.4.5"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.1.7",
+    "@types/mocha": "^5.2.6",
+    "chai": "^4.2.0",
+    "mocha": "^6.1.4",
+    "ts-node": "^8.1.0",
+    "tslint": "^5.16.0"
+  }
+}
