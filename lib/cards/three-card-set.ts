@@ -1,15 +1,17 @@
 import { Card, potentialWilds } from './card';
 import { InvalidError } from './invalid-error';
 import { Rank } from './rank';
+import Run from './run';
 import { Suit } from './suit';
 import { ValueError } from './value-error';
 
-export default class ThreeCardSet {
+export default class ThreeCardSet extends Run {
     public cards: Card[];
     public wilds: Card[];
     public rank: Rank;
 
     constructor(cards: Card[]) {
+        super();
         this.cards = cards.sort(Card.compare);
         this.wilds = this.cards.filter((card) => card.isWild());
         const nonWild: Card | undefined = this.cards.find((card) => !card.isWild());
@@ -30,7 +32,7 @@ export default class ThreeCardSet {
         if (2 * this.wilds.length <= this.cards.length) {
             live = potentialWilds;
         }
-        [Suit.HEARTS, Suit.SPADES, Suit.CLUBS, Suit.DIAMONDS].forEach((suit: Suit) => live.push(new Card(suit, this.rank)));
+        Suit.suits.forEach((suit: Suit) => live.push(new Card(suit, this.rank)));
         return live;
     }
 
@@ -45,6 +47,10 @@ export default class ThreeCardSet {
             return;
         }
         throw new ValueError('Not a valid card');
+    }
+
+    public clone(): Run {
+        return new ThreeCardSet(this.cards);
     }
 
     private check() {

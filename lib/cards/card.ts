@@ -26,7 +26,11 @@ export class Card {
         return Suit.compare(one.suit, two.suit);
     }
 
-    constructor(public readonly suit: Suit, public readonly rank: Rank, public readonly deck: number = -1) {
+    constructor(public readonly suit: Suit,
+                public readonly rank: Rank,
+                public readonly deck: number = -1,
+                private readonly jokerNum: number = -1,
+                ) {
     }
 
     public toString() {
@@ -40,15 +44,15 @@ export class Card {
         return this.rank.isWild();
     }
 
-    public equals(other?: Card) {
+    public equals(other?: Card): boolean {
         if (!other) {
             return false;
         }
-        if (this.rank === Rank.JOKER) { // Joker has no suit
-            return true;
-        }
         if (this.deck + 1 && other.deck + 1 && this.deck !== other.deck) {
             return false;
+        }
+        if (this.rank === Rank.JOKER && other.rank === Rank.JOKER) { // Joker has no suit
+            return !(this.jokerNum + 1) || !(other.jokerNum + 1) || this.jokerNum === other.jokerNum;
         }
         if (this.rank !== other.rank) {
             return false;

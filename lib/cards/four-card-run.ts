@@ -1,10 +1,10 @@
 import { Card, potentialWilds } from './card';
 import { InvalidError } from './invalid-error';
 import { Rank } from './rank';
+import Run from './run';
 import { Suit } from './suit';
-import { ValueError } from './value-error';
 
-export class FourCardRun {
+export class FourCardRun extends Run {
     public numWilds: number;
     public suit: Suit;
 
@@ -13,6 +13,7 @@ export class FourCardRun {
     }*/
 
     constructor(public cards: Card[]) {
+        super();
         this.numWilds = cards.filter((card) => card.isWild()).length;
         const firstNonWild = this.cards.find((card) => !card.isWild());
         if (!firstNonWild) {
@@ -21,6 +22,9 @@ export class FourCardRun {
         this.suit = firstNonWild.suit as Suit;
 
         this.check();
+    }
+    public clone(): Run {
+        return new FourCardRun(this.cards);
     }
 
     public range(): [Rank, Rank] {
@@ -67,7 +71,7 @@ export class FourCardRun {
                 return 0;
             }
             let i;
-            for (i = 0; i < range[1].order - range[0].order; i++) {
+            for (i = 0; i <= range[1].order - range[0].order; i++) {
                 if (!this.cards[i].isWild()) { continue; }
                 const thisRank: Rank = range[0].displace(i);
                 if (thisRank.order === rank.order) {

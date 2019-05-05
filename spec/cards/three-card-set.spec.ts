@@ -1,22 +1,23 @@
-import { expect } from "chai";
-import { Card } from "../../lib/cards/card";
-import { InvalidError } from "../../lib/cards/invalid-error";
-import ThreeCardSet from "../../lib/cards/three-card-set";
+import { expect } from 'chai';
+import 'mocha';
+import { Card } from '../../lib/cards/card';
+import { InvalidError } from '../../lib/cards/invalid-error';
+import ThreeCardSet from '../../lib/cards/three-card-set';
 
-describe("ThreeCardSet", () => {
+describe('ThreeCardSet', () => {
     let J: Card, TH: Card, QS: Card, QH: Card, QC: Card, KH: Card;
 
     beforeEach(() => {
-        J = Card.fromString("*");
-        TH = Card.fromString("2H");
-        QS = Card.fromString("QS");
-        QH = Card.fromString("QH");
-        QC = Card.fromString("QC");
-        KH = Card.fromString("KH");
+        J = Card.fromString('*');
+        TH = Card.fromString('2H');
+        QS = Card.fromString('QS');
+        QH = Card.fromString('QH');
+        QC = Card.fromString('QC');
+        KH = Card.fromString('KH');
     });
 
-    describe("#constructor", () => {
-        it("should accept valid cards", () => {
+    describe('#constructor', () => {
+        it('should accept valid cards', () => {
             let set: ThreeCardSet = new ThreeCardSet([QS, QH, QC]);
             expect(set).to.be.ok;
             expect(set.cards).to.have.length(3);
@@ -38,23 +39,23 @@ describe("ThreeCardSet", () => {
             expect(set.wilds).to.have.length(3);
         });
 
-        it("should not accept invalid cards", () => {
+        it('should not accept invalid cards', () => {
             expect(() => {
                 new ThreeCardSet([J, J, J]);
-            }).to.throw(InvalidError, undefined, "all wilds");
+            }).to.throw(InvalidError, undefined, 'all wilds');
 
             expect(() => {
                 new ThreeCardSet([J, J, QH]);
-            }).to.throw(InvalidError, undefined, "too many wilds");
+            }).to.throw(InvalidError, undefined, 'too many wilds');
 
             expect(() => {
                 new ThreeCardSet([J, QH, KH]);
-            }).to.throw(InvalidError, undefined, "other rank");
+            }).to.throw(InvalidError, undefined, 'other rank');
         });
     });
 
-    describe("#isLive", () => {
-        it("should tell if card is live", () => {
+    describe('#isLive', () => {
+        it('should tell if card is live', () => {
             let set: ThreeCardSet = new ThreeCardSet([QS, QH, QC]);
             let result: boolean = set.isLive(QS);
             expect(result).to.be.true;
@@ -77,11 +78,11 @@ describe("ThreeCardSet", () => {
         });
     });
 
-    describe("#liveCards", () => {
+    describe('#liveCards', () => {
 
     });
 
-    describe("#add", () => {
+    describe('#add', () => {
 
     });
 });

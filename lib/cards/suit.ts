@@ -4,10 +4,12 @@ export class Suit {
 
     public static symbolic = false;
     public static readonly NONE = new Suit('-', '-');
-    public static readonly DIAMONDS = new Suit('♦', 'D');
-    public static readonly CLUBS = new Suit('♣', 'C');
-    public static readonly HEARTS = new Suit('♥', 'H');
-    public static readonly SPADES = new Suit('♠', 'S');
+    public static readonly DIAMONDS: Suit = new Suit('♦', 'D');
+    public static readonly CLUBS: Suit = new Suit('♣', 'C');
+    public static readonly HEARTS: Suit = new Suit('♥', 'H');
+    public static readonly SPADES: Suit = new Suit('♠', 'S');
+
+    public static readonly suits: Suit[] = [Suit.DIAMONDS, Suit.CLUBS, Suit.HEARTS, Suit.SPADES];
 
     public static fromString(str: string): Suit {
         const map: {[char: string]: Suit} = {
