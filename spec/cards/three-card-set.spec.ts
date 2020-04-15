@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import 'mocha';
 import { Card } from '../../lib/cards/card';
 import { InvalidError } from '../../lib/cards/invalid-error';
-import ThreeCardSet from '../../lib/cards/three-card-set';
+import { ThreeCardSet } from '../../lib/cards/three-card-set';
 
 describe('ThreeCardSet', () => {
     let J: Card, TH: Card, QS: Card, QH: Card, QC: Card, KH: Card;

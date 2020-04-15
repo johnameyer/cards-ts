@@ -1,20 +1,20 @@
+import { expect } from 'chai';
+import 'mocha';
 import { Card } from '../../lib/cards/card';
 import { FourCardRun } from '../../lib/cards/four-card-run';
 import { InvalidError } from '../../lib/cards/invalid-error';
-import { ValueError } from '../../lib/cards/value-error';
-
-import { expect } from 'chai';
-import 'mocha';
 import { Rank } from '../../lib/cards/rank';
 import { Suit } from '../../lib/cards/suit';
 
 const get = Card.fromString;
 
 describe('FourCardRun', () => {
-    let J: Card, JH: Card, QH: Card, KH: Card, AH: Card, JC: Card;
+    let J: Card, THREE: Card, FIVE: Card, JH: Card, QH: Card, KH: Card, AH: Card, JC: Card;
 
     beforeEach(() => {
         J = get('*');
+        THREE = get('3H');
+        FIVE = get('3H');
         JH = get('JH');
         QH = get('QH');
         KH = get('KH');
@@ -89,6 +89,11 @@ describe('FourCardRun', () => {
             range = run.range();
             expect(range[0]).to.equal(Rank.JACK);
             expect(range[1]).to.equal(Rank.ACE);
+            
+            run = new FourCardRun([THREE, J, FIVE, J]);
+            range = run.range();
+            expect(range[0]).to.equal(Rank.THREE);
+            expect(range[1]).to.equal(Rank.SIX);
         });
     });
 

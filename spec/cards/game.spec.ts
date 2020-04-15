@@ -2,9 +2,8 @@ import { expect } from 'chai';
 import { beforeEach } from 'mocha';
 import 'mocha';
 import { Card } from '../../lib/cards/card';
-import Game from '../../lib/cards/game';
-import Hand from '../../lib/cards/hand';
-import HandlerHelper from '../helper/handler-helper';
+import { Game } from '../../lib/cards/game';
+import { HandlerHelper } from '../helper/handler-helper';
 
 describe('Game', () => {
     let game: Game = new Game([]);
@@ -14,7 +13,7 @@ describe('Game', () => {
     beforeEach(() => {
         handlerOne = new HandlerHelper();
         handlerTwo = new HandlerHelper();
-        game = new Game([new Hand(handlerOne), new Hand(handlerTwo)]);
+        game = new Game([handlerOne, handlerTwo]);
     });
 
     describe('#constructor', () => {

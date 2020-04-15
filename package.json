@@ -1,25 +1,36 @@
 {
-  "name": "canihavethat",
+  "name": "can-i-have-that",
   "version": "1.0.0",
   "description": "",
-  "main": "index.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/**/*"
+  ],
   "scripts": {
     "lint": "tslint lib/**/*.ts --force",
-    "tsc": "tsc",
-    "test": "mocha -r ts-node/register spec/**/*.ts"
+    "clean": "rm -rf dist",
+    "build": "npm run clean && tsc",
+    "test": "mocha -r ts-node/register spec/**/*.ts",
+    "start": "ts-node lib/cards/index.ts",
+    "prepublishOnly": "npm test && npm run lint",
+    "prepare": "npm run build"
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/johnameyer/can-i-have-that-server.git"
+    "url": "git+ssh://git@github.com/johnameyer/can-i-have-that.git"
   },
   "author": "John Meyer",
   "license": "UNLICENSED",
   "bugs": {
-    "url": "https://github.com/johnameyer/can-i-have-that-server/issues"
+    "url": "https://github.com/johnameyer/can-i-have-that/issues"
   },
-  "homepage": "https://github.com/johnameyer/can-i-have-that-server#readme",
+  "homepage": "https://github.com/johnameyer/can-i-have-that#readme",
   "dependencies": {
-    "typescript": "^3.4.5"
+    "@types/inquirer": "^6.0.1",
+    "chalk": "^2.4.2",
+    "inquirer": "^6.3.1",
+    "inquirer-select-line": "^1.1.3"
   },
   "devDependencies": {
     "@types/chai": "^4.1.7",
@@ -27,6 +38,7 @@
     "chai": "^4.2.0",
     "mocha": "^6.1.4",
     "ts-node": "^8.1.0",
-    "tslint": "^5.16.0"
+    "tslint": "^5.16.0",
+    "typescript": "^3.4.5"
   }
 }

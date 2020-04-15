@@ -1,29 +1,44 @@
-import { Card } from './card';
-import Game from './game';
-import Handler from './handler';
-import Run from './run';
+import { Card } from "./card";
+import { Run } from "./run";
+import { Handler } from "./handler";
+import { Game } from "./game";
+import { checkRun } from "./run-util";
+import { Message } from "./messages/message";
+import { DealMessage } from "./messages/deal-message";
 
-export default class Hand {
+type Zip<T extends unknown[][]> = { [I in keyof T]: T[I] extends (infer U)[] ? U : never }[];
+function zip<T extends unknown[][]>(...args: T): Zip<T> {
+    return <Zip<T>><unknown>(args[0].map((_, c) => args.map(row => row[c])));
+}
+
+const mapToClone = <T extends {clone: () => T}>(arr: T[]) => arr.map((t: T) => t.clone());
+
+export class Hand {
     public score: number;
+    /**
+     * The cards in this hand
+     */
     public hand: Card[] = [];
+    /**
+     * This is where the three of a kind, four card runs are played
+     */
     public played: Run[] = [];
 
-    constructor(private readonly handler: Handler, public name: string = '') {
+    constructor(private readonly handler: Handler, public position: number) {
         this.score = 0;
-        handler.name().then((handlerName) => this.name = handlerName);
         this.resetHand();
     }
 
     public resetHand() {
         this.hand = [];
-        this.played = []; // this is where the three of a kind, four card runs are played
+        this.played = [];
     }
 
     public async wantCard(card: Card, game: Game, isTurn: boolean = false): Promise<boolean> {
         try {
-            const toReturn: boolean = await this.handler.wantCard(card, this.hand.slice(), this.played.slice(), game.getRound(), isTurn, game.isLastRound());
-            return toReturn;
-        } catch {
+            return await this.handler.wantCard(card, this.hand.slice(), this.played.slice(), game.getRound(), isTurn, game.isLastRound());
+        } catch (e) {
+            console.error(e);
             return false;
         }
     }
@@ -33,38 +48,42 @@ export default class Hand {
         if (extra) {
             this.hand.push(extra);
         }
-        try {
-            this.handler.dealCard(card, extra, dealt);
-        } catch {
-            return;
-        }
+        this.message(new DealMessage(card, extra, dealt));
     }
 
-    public message(bundle: any) {
+    public message(bundle: Message) {
         this.handler.message(bundle);
     }
 
     public async turn(game: Game): Promise<Card> {
         // set up copies
         const handClone = this.hand.slice();
-        const playedClone = this.played.map((run) => run.clone());
-        const otherPlayed = game.players.map((player) => player.played);
-        const otherPlayedClone = game.players.map((player) => player.played.slice());
+        const played = game.players.map((player) => mapToClone(player.played));
+        const playedClone = game.players.map((player) => mapToClone(player.played));
 
         try {
             // call handler
-            const {toDiscard, toPlay, forOthers} = await this.handler.turn(handClone, playedClone, otherPlayedClone, game.getRound(), game.isRoundOver());
+            const turn = await this.handler.turn(handClone, playedClone, this.position, game.getRound(), game.isRoundOver());
+            if (!turn) {
+                throw new Error();
+            }
+            const {toDiscard, toPlay} = turn;
 
             // run check on state
-            this.checkTurn(toDiscard, toPlay, forOthers, game);
+            this.hand = this.checkTurn(toDiscard, toPlay, game);
 
+            //handling played
+            for(let [hand, played] of zip(game.players, toPlay) ) {
+                hand.played = played;
+            }
             return toDiscard;
         } catch (e) {
             // handle if invalid
+            console.error(e);
 
-            const liveForNone = (card: Card) => otherPlayed.some((played) => played.some((play) => play.isLive(card)));
+            const liveForNone = (card: Card) => !played.some((runs) => runs.some((play) => play.isLive(card)));
             const possibleDiscard = this.hand.filter(liveForNone)[0];
-            // might use version that only filters as we go
+            // TODO might use version that only filters as we go
 
             return possibleDiscard;
         }
@@ -74,7 +93,93 @@ export default class Hand {
         return this.hand.map((card) => card.rank.value).reduce((a, b) => a + b, 0);
     }
 
-    private checkTurn(toDiscard: Card, toPlay: Run[], forOthers: Run[][], game: Game) {
-        return false;
+    public toString() {
+        const name = this.handler.getName() !== null ? this.handler.getName() : null;
+        if (name !== null) {
+            return name;
+        } else {
+            return 'Unnamed player #' + this.position;
+        }
+    }
+
+    private checkTurn(
+        toDiscard: Card,
+        toPlay: Run[][],
+        game: Game,
+    ) {
+        function checkExistenceAndRemove<T extends {equals: (t: T) => boolean}>(tarr: T[], t: T, errorMessage: string = 'Could not find card') {
+            const tIndex = tarr.findIndex((ti) => t.equals(ti));
+            if (tIndex === -1) {
+                throw new Error(errorMessage);
+            }
+            tarr.splice(tIndex, 1);
+        }
+        const runningHand: Card[] = this.hand.slice();
+
+        if (toPlay[this.position].length) {
+            for (const run of toPlay[this.position]) {
+                checkRun(run);
+                // TODO check of right type too
+            }
+            if (this.played.length) {
+                //figure out cards now played that were not played before
+                const newCardsPlayed = this.played.reduce<Card[]>((newCards, run, index) => {
+                    const newPlayCards = [...toPlay[this.position][index].cards];
+                    for (const card of run.cards) {
+                        checkExistenceAndRemove(newPlayCards, card);
+                    }
+                    newCards.push(...newPlayCards);
+                    return newCards;
+                }, []);
+                for (const card of newCardsPlayed) {
+                    checkExistenceAndRemove(runningHand, card);
+                }
+            } else {
+                for (const run of toPlay[this.position]) {
+                    for (const card of run.cards) {
+                        checkExistenceAndRemove(runningHand, card);
+                    }
+                }
+            }
+        }
+        if (toPlay.filter((item, index) => index != this.position).some((other) => other.length > 0)) {
+            for (let i = 0; i < toPlay.length; i++) {
+                if (i == this.position) {
+                    //already checked our own
+                    continue;
+                }
+                const newOther = mapToClone(toPlay[i]);
+                const originalOther = game.players[i].played.map((run) => run.clone());
+                if (originalOther.length >= 0) {
+                    for (const run of originalOther) {
+                        checkRun(run);
+                    }
+                    const newCardsPlayed = originalOther.reduce<Card[]>((reduction, run, index) => {
+                        const toPlayCards = newOther[index].cards;
+                        for (const card of run.cards) {
+                            checkExistenceAndRemove(toPlayCards, card);
+                        }
+                        reduction.push(...toPlayCards);
+                        return reduction;
+                    }, []);
+                    for (const card of newCardsPlayed) {
+                        checkExistenceAndRemove(runningHand, card);
+                    }
+                }
+            }
+        }
+
+        if (runningHand.length && toDiscard == null) {
+            throw new Error('must discard');
+        }
+        if (game.isLastRound() && toPlay && toDiscard !== null) {
+            throw new Error('cannot discard on last round');
+        }
+        if(toDiscard) {
+            checkExistenceAndRemove(runningHand, toDiscard);
+        }
+        //TODO where check discard is not live?
+
+        return runningHand;
     }
 }

@@ -1,6 +1,6 @@
-import { Rank } from './rank';
-import { Suit } from './suit';
-import { ValueError } from './value-error';
+import { Suit } from "./suit";
+import { Rank } from "./rank";
+import { ValueError } from "./value-error";
 
 export class Card {
 
@@ -17,6 +17,10 @@ export class Card {
         } catch {
             throw new ValueError('String is not valid card');
         }
+    }
+
+    public static fromObj(obj: any) {
+        return new Card(Suit.fromObj(obj.suit), Rank.fromObj(obj.rank), obj.deck, obj.jokerNum);
     }
 
     public static compare(one: Card, two: Card): number {

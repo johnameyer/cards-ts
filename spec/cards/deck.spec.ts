@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 import { Card } from '../../lib/cards/card';
-import Deck from '../../lib/cards/deck';
+import { Deck } from '../../lib/cards/deck';
 import { Rank } from '../../lib/cards/rank';
 import { Suit } from '../../lib/cards/suit';
 
@@ -21,7 +21,17 @@ describe('Deck', () => {
     });
 
     describe('#draw', () => {
-        it('should grab and return a card', () => {
+        it('should grab and return all 54 cards', () => {
+            const deck: Deck = new Deck(1);
+            const drawn: Card[] = [];
+            let card: Card;
+            card = deck.draw();
+            expect(card).to.be.ok;
+            expect(drawn.find((x) => card.equals(x))).to.be.undefined;
+            drawn.push(card);
+        });
+        
+        it('should grab and return all 54 cards', () => {
             const deck: Deck = new Deck(1);
             const drawn: Card[] = [];
             let card: Card;

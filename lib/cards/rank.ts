@@ -16,7 +16,7 @@ export class Rank {
     public static readonly KING: Rank	= new Rank('K', 10);
     public static readonly ACE: Rank	= new Rank('A', 15);
 
-    public static readonly ranks: Rank[] = Object.values(Rank).filter((item) => item instanceof Rank);
+    public static readonly ranks: Rank[] = [Rank.JOKER, Rank.TWO, Rank.THREE, Rank.FOUR, Rank.FIVE, Rank.SIX]//Object.values(Rank).filter((item) => item instanceof Rank);
 
     /**
      *  Returns a set of ranks that are wild
@@ -41,6 +41,15 @@ export class Rank {
         return Math.abs(one.order - two.order);
     }
 
+    /**
+     * Tells how far apart two cards are
+     * @param one
+     * @param two
+     */
+    public static difference(one: Rank, two: Rank) {
+        return one.order - two.order;
+    }
+
     public static fromString(str: string): Rank {
         const map: {[char: string]: Rank} = {
             '*': Rank.JOKER,
@@ -59,6 +68,10 @@ export class Rank {
             'A': Rank.ACE,
         };
         return map[str.toUpperCase()];
+    }
+
+    public static fromObj(obj: any) {
+        return Rank.ranks[obj.order];
     }
 
     public static compare(one: Rank, two: Rank): number {
@@ -84,6 +97,14 @@ export class Rank {
      */
     public distance(one: Rank) {
         return Math.abs(one.order - this.order);
+    }
+
+    /**
+     * Tells how far apart two cards are
+     * @param one
+     */
+    public difference(one: Rank) {
+        return one.order - this.order;
     }
 
     public isWild(): boolean {

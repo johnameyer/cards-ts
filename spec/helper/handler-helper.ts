@@ -1,9 +1,9 @@
 import { expect } from 'chai';
 import 'mocha';
 import { Card } from '../../lib/cards/card';
-import Handler from '../../lib/cards/handler';
+import { Handler } from '../../lib/cards/handler';
 
-export default class HandlerHelper extends Handler {
+export class HandlerHelper extends Handler {
     public cards: Card[] = [];
 
     public messages: any[][] = [];
@@ -15,8 +15,8 @@ export default class HandlerHelper extends Handler {
         }
     }
 
-    public async name(): Promise<string> {
-        return 'X';
+    public getName(): string {
+        return '';
     }
 
     public message(bundle: any): void {

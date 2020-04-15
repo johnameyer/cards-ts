@@ -1,6 +1,6 @@
-import { Card } from './card';
-import { Rank } from './rank';
-import { Suit } from './suit';
+import { Card } from "./card";
+import { Suit } from "./suit";
+import { Rank } from "./rank";
 
 function choiceAndRemove<T>(items: T[]): T {
     return items.splice(Math.floor(Math.random() * items.length), 1)[0];
@@ -16,7 +16,7 @@ function flatMap(arr: any[], func: (a: any) => (any)) {
 
 // TODO make deck keep discard and reverse automatically when empty
 
-export default class Deck {
+export class Deck {
     public cards: Card[];
     private discards: Card[] = [];
     private topAvailable = false;
@@ -32,8 +32,10 @@ export default class Deck {
                         }
                     }
                 }
-                this.cards.push(new Card(Suit.NONE, Rank.JOKER, deck, 0));
-                this.cards.push(new Card(Suit.NONE, Rank.JOKER, deck, 1));
+                if(Rank.ranks.indexOf(Rank.JOKER) >= 0) {
+                    this.cards.push(new Card(Suit.NONE, Rank.JOKER, deck, 0));
+                    this.cards.push(new Card(Suit.NONE, Rank.JOKER, deck, 1));
+                }
             }
         } else {
             // WHAT?
@@ -55,18 +57,23 @@ export default class Deck {
      * Shuffles the cards of this deck
      */
     public shuffle() {
-        shuffle(this.cards);
+        if(this.cards) {
+            shuffle(this.cards);
+            return true;
+        }
+        return false;
     }
 
     /**
      * Selects a card and removes it
      */
     public draw() {
-        if (this.cards.length === 0) {
-            this.cards = this.discards;
-            this.shuffle();
-        }
         return choiceAndRemove(this.cards);
+    }
+
+    public shuffleDiscard() {
+        this.cards = this.discards;
+        return this.shuffle();
     }
 
     public discard(card: Card) {
@@ -80,6 +87,10 @@ export default class Deck {
 
     public takeTop() {
         this.discards.pop();
+        this.topAvailable = false;
+    }
+
+    public clearTop() {
         this.topAvailable = false;
     }
 }

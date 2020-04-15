@@ -1,56 +1,94 @@
-import Game from './game';
-import Hand from './hand';
+import { InvalidError } from './invalid-error';
+import { Hand } from './hand';
+import { Handler } from './handler';
+import { Game } from './game';
+import { EndRoundMessage } from './messages/end-round-message';
+import { Message } from './messages/message';
+import { StartRoundMessage } from './messages/start-round-message';
+import { PickupMessage } from './messages/pickup-message';
+import { ReshuffleMessage } from './messages/reshuffle-message';
+import { DiscardMessage } from './messages/discard-message';
 
-function messageAll(players: Hand[], bundle: any) {
+function messageAll(players: Hand[], bundle: Message) {
     players.forEach((player) => player.message(bundle));
 }
 
-export default async function main() {
-    const g = new Game([]);
+function messageOthers(players: Hand[], excluded: Hand, bundle: Message) {
+    players.forEach((player) => {
+        if(player != excluded)
+            player.message(bundle)
+    });
+}
 
-    for (const player of g.players) {
-        player.message( ['Starting round:', g.getRound()] );
-    }
-    while (!g.isRoundOver()) {
+export async function main(players: Handler[]) {
+    console.log('Beginning');
+    const g = new Game(players);
+
+    messageAll(g.players, new StartRoundMessage(g.getRound()) );
+    while (!g.isLastRound()) { // while is not game over
         g.dealOut();
         g.deck.discard(g.deck.draw());
 
-        for (const player of g.players) {
-            player.message(['First card is', g.deck.top]);
+        if (g.deck.top === null) {
+            throw new Error('Already null');
         }
-        let whoseTurn: number = g.dealer + 1;
-        while (!g.isLastRound()) {
+        const top = g.deck.top;
+        messageAll(g.players, new DiscardMessage(top) );
+
+        let whoseTurn: number = (g.dealer + 1) % g.players.length;
+        while (!g.isRoundOver()) {
             // first player after dealer gets first pick
 
             const card = g.deck.top;
-            if (card == null) {
-                throw new Error('null card');
-            }
-            if (await g.players[whoseTurn].wantCard(card, g)) {
-                messageAll(g.players, [g.players[whoseTurn], 'picked up the', card]);
+            if (await (g.players[whoseTurn].wantCard(card, g))) {
+                messageOthers(g.players, g.players[whoseTurn], new PickupMessage(card, g.players[whoseTurn].toString(), false) );
                 g.players[whoseTurn].dealCard(card);
                 g.deck.takeTop();
             } else {
                 for (let i = 0; i < g.players.length - 1; i ++) {
-                    // account for flipped discard vs normal discard with dealer
                     const player = g.players[(i + whoseTurn + 1) % g.players.length];
-                    if (player.wantCard(card, g, true)) {
-                        messageAll(g.players, [player, 'grabbed the', card, 'and an extra']);
-                        player.dealCard(card, g.deck.draw());
+                    if (await (player.wantCard(card, g, true))) {
+                        messageOthers(g.players, player, new PickupMessage(card, player.toString(), true) );
+                        let draw = g.deck.draw();
+                        if (!card) {
+                            if(g.deck.shuffleDiscard()) {
+                                //TODO add another deck?
+                                throw new InvalidError("Deck ran out of cards");
+                            } else {
+                                messageAll(g.players, new ReshuffleMessage() );
+                                draw = g.deck.draw();
+                            }
+                        }
+                        player.dealCard(card, draw);
                         g.deck.takeTop();
+                        break;
                     }
                 }
-                if (g.deck.top) {
-                    messageAll(g.players, ['No player grabbed the card']);
-                    g.players[whoseTurn].dealCard(g.deck.draw());
+                if (g.deck.top !== null) {
+                    messageAll(g.players, new PickupMessage(g.deck.top));
+                    g.deck.clearTop();
                 }
+                let draw = g.deck.draw();
+                if (!draw) {
+                    if(g.deck.shuffleDiscard()) {
+                        //TODO add another deck?
+                        throw new InvalidError("Deck ran out of cards");
+                    } else {
+                        messageAll(g.players, new ReshuffleMessage());
+                        draw = g.deck.draw();
+                    }
+                }
+                g.players[whoseTurn].dealCard(draw);
             }
 
             const discard = await g.players[whoseTurn].turn(g);
+            if(!discard) {
+                continue;
+            }
 
             // check for final round
             g.deck.discard(discard);
-            messageAll(g.players, [g.players[whoseTurn], 'discarded', discard]);
+            messageOthers(g.players, g.players[whoseTurn], new DiscardMessage(discard, g.players[whoseTurn].toString()));
 
             whoseTurn = (whoseTurn + 1) % g.players.length;
         }
@@ -61,9 +99,6 @@ export default async function main() {
             player.resetHand();
         }
 
-        messageAll(g.players, ['Scores', g.players.reduce((arr: any[], person) => {
-            arr.push([person.name, person.score]);
-            return arr;
-        }, [])] );
+        messageAll(g.players, new EndRoundMessage(g.players.map(person => person.toString()), g.players.map(player => player.score)));
     }
 }

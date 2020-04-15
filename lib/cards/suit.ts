@@ -1,4 +1,4 @@
-let count = 0;
+let count = -1;
 
 export class Suit {
 
@@ -19,6 +19,13 @@ export class Suit {
             S: Suit.SPADES,
         };
         return map[str.toUpperCase()];
+    }
+
+    public static fromObj(obj: any) {
+        if(obj.letter === '-') {
+            return Suit.NONE;
+        }
+        return Suit.suits[obj.order];
     }
 
     public static compare(one: Suit, two: Suit): number {
