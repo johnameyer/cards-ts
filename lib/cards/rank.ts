@@ -16,7 +16,7 @@ export class Rank {
     public static readonly KING: Rank	= new Rank('K', 10);
     public static readonly ACE: Rank	= new Rank('A', 15);
 
-    public static readonly ranks: Rank[] = [Rank.JOKER, Rank.TWO, Rank.THREE, Rank.FOUR, Rank.FIVE, Rank.SIX]//Object.values(Rank).filter((item) => item instanceof Rank);
+    public static readonly ranks: Rank[] = Object.values(Rank).filter((item) => item instanceof Rank);
 
     /**
      *  Returns a set of ranks that are wild

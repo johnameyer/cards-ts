@@ -13,6 +13,16 @@ import { Rank } from './rank';
 import { Suit } from './suit';
 import { Message } from './messages/message';
 
+type Prompt<S extends string, T> = inquirer.Question<Record<S, T>> & {
+    name: S,
+    choices?: T[] | {name: string, value: T}[] | (() => T[]) | (() => {name: string, value: T}[]);
+};
+
+type MultiPrompt<S extends string, T> = inquirer.Question<Record<S, T[]>> & {
+    name: S,
+    choices?: T[] | {name: string, value: T}[] | (() => T[]) | (() => {name: string, value: T}[]);
+};
+
 function distinct(value: Card, index: number, arr: Card[]) {
     return arr.findIndex(other => value.equals(other)) === index;
 }
@@ -56,8 +66,8 @@ export class ConsoleHandler extends Handler {
 
     public async askForName() {
         const message = 'What is your name?';
-        const question: inquirer.Question<boolean> = {name: 'name', message, type: 'input'};
-        const { name } = await inquirer.prompt(question) as any;
+        const question: Prompt<'name', string> = {name: 'name', message, type: 'input'};
+        const { name } = await inquirer.prompt([question]);
         this.name = name;
     }
 
@@ -76,12 +86,13 @@ export class ConsoleHandler extends Handler {
         const found = find(handWith, roun, played);
         console.log('You have', formatFound(hand, found), 'on round', roun);
         const message = 'Do you want ' + formatFound([card], found);
-        const question: inquirer.Question<boolean> = {name: 'want', message, type: 'confirm', default: false};
-        const { want } = await inquirer.prompt(question) as any;
+        const question: Prompt<'want', boolean> = {name: 'want', message, type: 'confirm', default: false};
+        const { want } = await inquirer.prompt([question]);
         return want;
     }
 
-    public async turn(hand: Card[], played: Run[][], position: number, roun: number[], last: boolean) {
+    public async turn(hand: Card[], played: Run[][], position: number, roun: number[], last: boolean):
+        Promise<{ toDiscard: Card | null, toPlay: Run[][] } | null> {
         let toPlay: Run[][] = played;
 
         this.printHand(hand, roun, played[position]);
@@ -91,16 +102,16 @@ export class ConsoleHandler extends Handler {
         console.log('aiming for', roun);
         if (played[position].length === 0) {
             const message = 'Would you like to go down?';
-            const question = {name: 'goDown', type: 'confirm', message};
-            if ((await inquirer.prompt(question) as any).goDown) {
+            const question: Prompt<'goDown', boolean> = {name: 'goDown', type: 'confirm', message};
+            if ((await inquirer.prompt([question]) as any).goDown) {
                 ({toPlay: toPlay[position], hand} = await this.goDown(hand, roun, last));
             }
         } else {
-            const firstMessage = 'Would you like to play cards on your runs\'?';
-            const playQuestion = {name: 'playCard', type: 'confirm', message: firstMessage};
-            const additionalMessage = 'Would you like to play more cards on your runs\'?';
+            const firstMessage = 'Would you like to play cards on your runs?';
+            const playQuestion: Prompt<'playCard', boolean> = {name: 'playCard', type: 'confirm', message: firstMessage};
+            const additionalMessage = 'Would you like to play more cards on your runs?';
             const saved = played[position].slice();
-            if ((await inquirer.prompt(playQuestion) as {playCard: boolean}).playCard) {
+            if ((await inquirer.prompt([playQuestion])).playCard) {
                 const playQuestion = {name: 'playCard', type: 'confirm', message: additionalMessage};
                 do {
                     const question = {
@@ -109,32 +120,32 @@ export class ConsoleHandler extends Handler {
                         type: 'list',
                         choices: saved.map(toInquirerValue),
                     };
-                    const run: Run = (await inquirer.prompt(question) as any).run;
+                    const run: Run = (await inquirer.prompt([question]) as any).run;
                     if (!run) {
                         break;
                     }
                     await askToPlayOnRun(run, hand);
                     // TODO !(hand.length == 1 && !last || hand.length == 0 ) &&
-                } while ( (await inquirer.prompt(playQuestion) as {playCard: boolean}).playCard);
+                } while ( (await inquirer.prompt([playQuestion]) as {playCard: boolean}).playCard);
             }
         }
         const notMyHand = (item: Run[], index: number) => index != position;
         if (hand.length && played[position].length && !last) {
             if (played.filter(notMyHand).some((other) => other.length > 0)) {
                 console.log('You still have' + hand);
-                const wouldPlayOthers: inquirer.Question = {
+                const wouldPlayOthers: Prompt<'wouldPlay', boolean> = {
                     name: 'wouldPlay',
                     message: 'Would you like to play a card on others',
                     type: 'confirm',
                 };
-                while ((await inquirer.prompt(wouldPlayOthers) as any).wouldPlay) {
-                    const toPlayOn: inquirer.Question = {
+                while ((await inquirer.prompt([wouldPlayOthers])).wouldPlay) {
+                    const toPlayOn: Prompt<'toPlayOn', Run> = {
                         name: 'toPlayOn',
                         message: 'Please choose which run you would like to play on',
                         type: 'list',
                         choices: () => played.filter(notMyHand).reduce<Run[]>(flatten, []).map(toInquirerValue),
                     };
-                    const runToPlayOn = (await inquirer.prompt(toPlayOn) as any).toPlayOn;
+                    const runToPlayOn = (await inquirer.prompt([toPlayOn])).toPlayOn;
                     await askToPlayOnRun(runToPlayOn, hand);
                 }
             }
@@ -155,7 +166,7 @@ export class ConsoleHandler extends Handler {
         let cardsLeft: Card[] = hand.slice();
         const toPlay = [];
         for (const num of roun) {
-            const question = {
+            const question: MultiPrompt<'run', Card> = {
                 name: 'run',
                 message: 'Please enter cards in the '  + (num === 3 ? '3 of a kind' : '4 card run'),
                 type: 'checkbox',
@@ -172,7 +183,7 @@ export class ConsoleHandler extends Handler {
                     }
                 },
             };
-            const selected: Card[] = (await inquirer.prompt(question) as any).run as Card[];
+            const selected: Card[] = (await inquirer.prompt([question])).run;
             if (!selected.length) {
                 return { toPlay: [], hand };
             }
@@ -183,14 +194,14 @@ export class ConsoleHandler extends Handler {
                 let [wilds, nonwilds] = selected.bifilter(card => card.rank.isWild());
                 let run = nonwilds;
                 for (let wild of wilds) {
-                    let { position } = await inquirer.prompt({
+                    let { position } = await inquirer.prompt([{
                         name: 'position',
                         message: 'Please insert your wild cards',
                         choices: run,
                         //should support validate?
                         placeholder: wild.toString(),
                         type: 'selectLine'
-                    } as inquirer.Question);
+                    }]);
                     run.splice(position, 0, wild);
                 }
                 toPlay.push(new FourCardRun(run));
@@ -212,14 +223,14 @@ export class ConsoleHandler extends Handler {
             live = [];
         }
         // TODO all cards are live what to do?
-        const toDiscardQuestion = {
+        const toDiscardQuestion: Prompt<'toDiscard', Card> = {
             name: 'toDiscard',
             message: 'Select the card to discard',
             type: 'list',
             choices: cardsLeft.sort(Card.compare).map(toInquirerValue),
             validate: (choice: Card) => !live.some((card) => choice.equals(card)),
         };
-        const { toDiscard } = (await inquirer.prompt(toDiscardQuestion) as any);
+        const { toDiscard } = (await inquirer.prompt([toDiscardQuestion]));
         return toDiscard;
     }
 
@@ -396,7 +407,7 @@ async function askToPlayOnRun(run: Run, hand: Card[]) {
                 }
             }
         };
-        const cards: Card[] = (await inquirer.prompt(cardToPlayQuestion) as any).cards;
+        const cards: Card[] = (await inquirer.prompt([cardToPlayQuestion]) as any).cards;
         if (!cards) {
             return;
         }

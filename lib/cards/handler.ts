@@ -8,7 +8,7 @@ export abstract class Handler {
     }
 
     public async turn(hand: Card[], others: Run[][], position: number, roun: number[], last: boolean)
-    : Promise<{ toDiscard: Card, toPlay: Run[][] } | null> {
+    : Promise<{ toDiscard: Card | null, toPlay: Run[][] } | null> {
         return { toDiscard: hand[0], toPlay: others };
     }
 

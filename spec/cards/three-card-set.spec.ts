@@ -42,15 +42,15 @@ describe('ThreeCardSet', () => {
         it('should not accept invalid cards', () => {
             expect(() => {
                 new ThreeCardSet([J, J, J]);
-            }).to.throw(InvalidError, undefined, 'all wilds');
+            }).to.throw(InvalidError, 'No non-wilds');
 
             expect(() => {
                 new ThreeCardSet([J, J, QH]);
-            }).to.throw(InvalidError, undefined, 'too many wilds');
+            }).to.throw(InvalidError, 'too many wilds');
 
             expect(() => {
                 new ThreeCardSet([J, QH, KH]);
-            }).to.throw(InvalidError, undefined, 'other rank');
+            }).to.throw(InvalidError, 'other rank');
         });
     });
 

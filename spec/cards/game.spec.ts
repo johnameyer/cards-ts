@@ -70,8 +70,6 @@ describe('Game', () => {
 
             expect(game.round).to.equal(round + 1);
             expect(game.dealer).to.not.equal(player);
-            expect(handlerOne.messages).to.have.length(1);
-            expect(handlerTwo.messages).to.have.length(1);
         });
     });
 

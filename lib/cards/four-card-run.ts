@@ -179,7 +179,7 @@ export class FourCardRun extends Run {
                 } else if (first !== Rank.THREE) {
                     this.cards.unshift(card);
                 } else {
-                    throw new Error('');
+                    throw new InvalidError('');
                 }
             } else {
                 if (first !== Rank.THREE) {
@@ -191,6 +191,8 @@ export class FourCardRun extends Run {
                 }
             }
             this.numWilds++;
+        } else if (card.suit !== this.suit) {
+            throw new InvalidError('Wrong suit');
         } else if (card.rank.value < first.value) {
             this.cards.unshift(card);
         } else if (card.rank.value - last.value === 1) {

@@ -14,7 +14,7 @@ describe('FourCardRun', () => {
     beforeEach(() => {
         J = get('*');
         THREE = get('3H');
-        FIVE = get('3H');
+        FIVE = get('5H');
         JH = get('JH');
         QH = get('QH');
         KH = get('KH');
@@ -32,49 +32,21 @@ describe('FourCardRun', () => {
         });
 
         it('should not allow construction for unordered', () => {
-            try {
-                new FourCardRun([QH, KH, AH]);
-            } catch (e) {
-                expect(e).to.be.instanceof(InvalidError);
-            }
+            expect(() => new FourCardRun([QH, KH, AH, J])).to.throw(InvalidError);
 
-            try {
-                new FourCardRun([J, J, AH]);
-            } catch (e) {
-                expect(e).to.be.instanceof(InvalidError);
-            }
+            expect(() => new FourCardRun([J, J, AH])).to.throw(InvalidError);
 
-            try {
-                new FourCardRun([JC, QH, KH, AH]);
-            } catch (e) {
-                expect(e).to.be.instanceof(InvalidError);
-            }
+            expect(() => new FourCardRun([JC, QH, KH, AH])).to.throw(InvalidError);
         });
 
         it('should not allow construction with invalid', () => {
-            try {
-                new FourCardRun([QH, KH, AH]);
-            } catch (e) {
-                expect(e).to.be.instanceof(InvalidError);
-            }
+            expect(() =>  new FourCardRun([QH, KH, AH])).to.throw(InvalidError);
 
-            try {
-                new FourCardRun([J, J, AH]);
-            } catch (e) {
-                expect(e).to.be.instanceof(InvalidError);
-            }
+            expect(() =>  new FourCardRun([J, J, AH])).to.throw(InvalidError);
 
-            try {
-                new FourCardRun([JC, QH, KH, AH]);
-            } catch (e) {
-                expect(e).to.be.instanceof(InvalidError);
-            }
+            expect(() => new FourCardRun([JC, QH, KH, AH])).to.throw(InvalidError);
 
-            try {
-                new FourCardRun([QH, KH, AH, J]);
-            } catch (e) {
-                expect(e).to.be.instanceof(InvalidError);
-            }
+            expect(() => new FourCardRun([QH, KH, AH, J])).to.throw(InvalidError);
         });
     });
 
@@ -152,19 +124,11 @@ describe('FourCardRun', () => {
         it('should error for invalid add', () => {
             const run: FourCardRun = new FourCardRun([J, J, QH, KH]);
             let card: Card = new Card(Suit.SPADES, Rank.TEN, 1);
-            try {
-                run.add(card);
-            } catch (e) {
-                expect(e).to.be.instanceOf(InvalidError);
-            }
+            expect(() => run.add(card)).to.throw(InvalidError);
 
             card = new Card(Suit.HEARTS, Rank.JOKER, 2);
             run.add(card, false);
-            try {
-                run.add(card);
-            } catch (e) {
-                expect(e).to.be.instanceOf(InvalidError);
-            }
+            expect(() => run.add(card)).to.throw(InvalidError);
         });
     });
 

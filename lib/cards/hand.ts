@@ -55,7 +55,7 @@ export class Hand {
         this.handler.message(bundle);
     }
 
-    public async turn(game: Game): Promise<Card> {
+    public async turn(game: Game): Promise<Card | null> {
         // set up copies
         const handClone = this.hand.slice();
         const played = game.players.map((player) => mapToClone(player.played));
@@ -103,7 +103,7 @@ export class Hand {
     }
 
     private checkTurn(
-        toDiscard: Card,
+        toDiscard: Card | null,
         toPlay: Run[][],
         game: Game,
     ) {
