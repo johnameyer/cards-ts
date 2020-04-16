@@ -1,6 +1,6 @@
 import { InvalidError } from './invalid-error';
 import { Hand } from './hand';
-import { Handler } from './handler';
+import { Handler } from './handlers/handler';
 import { Game } from './game';
 import { EndRoundMessage } from './messages/end-round-message';
 import { Message } from './messages/message';

@@ -1,6 +1,6 @@
 import { Hand } from "./hand";
 import { Deck } from "./deck";
-import { Handler } from "./handler";
+import { Handler } from "./handlers/handler";
 import { InvalidError } from "./invalid-error";
 import { Message } from "./messages/message";
 import { ReshuffleMessage } from "./messages/reshuffle-message";
@@ -16,7 +16,7 @@ function rotate(li: any[], x: number) {
 }
 
 export class Game {
-    public static readonly rounds: number[][] = [ [3, 3], [3, 4], [4, 4], [3, 3, 3], [3, 3, 4], [3, 4, 4], [4, 4, 4] ];
+    public static readonly rounds: (3 | 4)[][] = [ [3, 3], [3, 4], [4, 4], [3, 3, 3], [3, 3, 4], [3, 4, 4], [4, 4, 4] ];
     public round: number = 0;
     public players: Hand[];
     public deck: Deck = new Deck(0);

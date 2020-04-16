@@ -2,7 +2,7 @@ import { Message } from "./message";
 import { Card } from "../card";
 
 function generateMessage(card: Card, player?: string, extra:boolean = false) {
-    if(player !== null) {
+    if(player !== undefined) {
         if(extra) {
             return player + ' picked up the ' + card.toString() + ' and an extra';
         } else {

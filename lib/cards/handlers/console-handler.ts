@@ -4,14 +4,14 @@
 import chalk from 'chalk';
 import inquirer = require('inquirer');
 import { Handler } from './handler';
-import { Card } from './card';
-import { Run } from './run';
-import { ThreeCardSet } from './three-card-set';
-import { FourCardRun, checkFourCardRunPossible } from './four-card-run';
-import { InvalidError } from './invalid-error';
-import { Rank } from './rank';
-import { Suit } from './suit';
-import { Message } from './messages/message';
+import { Card } from '../card';
+import { Run } from '../run';
+import { ThreeCardSet } from '../three-card-set';
+import { FourCardRun, checkFourCardRunPossible } from '../four-card-run';
+import { InvalidError } from '../invalid-error';
+import { Rank } from '../rank';
+import { Suit } from '../suit';
+import { Message } from '../messages/message';
 
 type Prompt<S extends string, T> = inquirer.Question<Record<S, T>> & {
     name: S,
@@ -79,11 +79,11 @@ export class ConsoleHandler extends Handler {
         console.log(bundle.message);
     }
 
-    public async wantCard(card: Card, hand: Card[], played: Run[], roun: number[], isTurn: boolean, last: boolean) {
+    public async wantCard(card: Card, hand: Card[], played: Run[][], position: number, roun: number[], isTurn: boolean, last: boolean) {
         hand = hand.sort(Card.compare);
         const handWith = hand.slice();
         handWith.push(card);
-        const found = find(handWith, roun, played);
+        const found = find(handWith, roun, played[position]);
         console.log('You have', formatFound(hand, found), 'on round', roun);
         const message = 'Do you want ' + formatFound([card], found);
         const question: Prompt<'want', boolean> = {name: 'want', message, type: 'confirm', default: false};

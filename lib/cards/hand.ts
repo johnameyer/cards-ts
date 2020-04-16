@@ -1,6 +1,6 @@
 import { Card } from "./card";
 import { Run } from "./run";
-import { Handler } from "./handler";
+import { Handler } from "./handlers/handler";
 import { Game } from "./game";
 import { checkRun } from "./run-util";
 import { Message } from "./messages/message";
@@ -35,8 +35,9 @@ export class Hand {
     }
 
     public async wantCard(card: Card, game: Game, isTurn: boolean = false): Promise<boolean> {
+        const playedClone = game.players.map((player) => mapToClone(player.played));
         try {
-            return await this.handler.wantCard(card, this.hand.slice(), this.played.slice(), game.getRound(), isTurn, game.isLastRound());
+            return await this.handler.wantCard(card, this.hand.slice(), playedClone, this.position, game.getRound(), isTurn, game.isLastRound());
         } catch (e) {
             console.error(e);
             return false;
@@ -74,6 +75,7 @@ export class Hand {
 
             //handling played
             for(let [hand, played] of zip(game.players, toPlay) ) {
+                //TODO need to send users messages
                 hand.played = played;
             }
             return toDiscard;
