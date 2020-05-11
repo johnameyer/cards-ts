@@ -8,6 +8,8 @@ import { StartRoundMessage } from './messages/start-round-message';
 import { PickupMessage } from './messages/pickup-message';
 import { ReshuffleMessage } from './messages/reshuffle-message';
 import { DiscardMessage } from './messages/discard-message';
+import { PlayedMessage } from './messages/played-message';
+import { zip } from './util/zip';
 
 function messageAll(players: Hand[], bundle: Message) {
     players.forEach((player) => player.message(bundle));
@@ -15,13 +17,12 @@ function messageAll(players: Hand[], bundle: Message) {
 
 function messageOthers(players: Hand[], excluded: Hand, bundle: Message) {
     players.forEach((player) => {
-        if(player != excluded)
-            player.message(bundle)
+        if(player !== excluded)
+            player.message(bundle);
     });
 }
 
 export async function main(players: Handler[]) {
-    console.log('Beginning');
     const g = new Game(players);
 
     messageAll(g.players, new StartRoundMessage(g.getRound()) );
@@ -49,11 +50,12 @@ export async function main(players: Handler[]) {
                     const player = g.players[(i + whoseTurn + 1) % g.players.length];
                     if (await (player.wantCard(card, g, true))) {
                         messageOthers(g.players, player, new PickupMessage(card, player.toString(), true) );
+                        // tslint:disable-next-line
                         let draw = g.deck.draw();
                         if (!card) {
                             if(g.deck.shuffleDiscard()) {
-                                //TODO add another deck?
-                                throw new InvalidError("Deck ran out of cards");
+                                // TODO add another deck?
+                                throw new InvalidError('Deck ran out of cards');
                             } else {
                                 messageAll(g.players, new ReshuffleMessage() );
                                 draw = g.deck.draw();
@@ -71,8 +73,8 @@ export async function main(players: Handler[]) {
                 let draw = g.deck.draw();
                 if (!draw) {
                     if(g.deck.shuffleDiscard()) {
-                        //TODO add another deck?
-                        throw new InvalidError("Deck ran out of cards");
+                        // TODO add another deck?
+                        throw new InvalidError('Deck ran out of cards');
                     } else {
                         messageAll(g.players, new ReshuffleMessage());
                         draw = g.deck.draw();
@@ -81,13 +83,22 @@ export async function main(players: Handler[]) {
                 g.players[whoseTurn].dealCard(draw);
             }
 
-            const discard = await g.players[whoseTurn].turn(g);
+            const { discard, played } = await g.players[whoseTurn].turn(g);
             if(!discard) {
+                // TODO check for final round
                 continue;
             }
 
-            // check for final round
             g.deck.discard(discard);
+            if(played) {
+                for(const [player, playedRuns] of zip(g.players, played)) {
+                    for(const [run, playedCards] of zip(player.played, playedRuns)) {
+                        if(playedCards && playedCards.length) {
+                            messageOthers(g.players, g.players[whoseTurn], new PlayedMessage(playedCards, run, g.players[whoseTurn].toString()));
+                        }
+                    }
+                }
+            }
             messageOthers(g.players, g.players[whoseTurn], new DiscardMessage(discard, g.players[whoseTurn].toString()));
 
             whoseTurn = (whoseTurn + 1) % g.players.length;

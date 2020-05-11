@@ -1,4 +1,4 @@
-import { Card } from "./card";
+import { Card } from './card';
 
 export abstract class Run {
     public cards: Card[] = [];

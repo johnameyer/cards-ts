@@ -1,6 +1,6 @@
-import { Suit } from "./suit";
-import { Rank } from "./rank";
-import { ValueError } from "./value-error";
+import { Suit } from './suit';
+import { Rank } from './rank';
+import { ValueError } from './value-error';
 
 export class Card {
 

@@ -1,19 +1,13 @@
 import { expect } from 'chai';
 import 'mocha';
 import { Card } from '../../lib/cards/card';
-import { Handler } from '../../lib/cards/handler';
+import { Handler } from '../../lib/cards/handlers/handler';
+import { DealMessage } from '../../lib';
 
 export class HandlerHelper extends Handler {
     public cards: Card[] = [];
 
     public messages: any[][] = [];
-
-    public dealCard(card: Card, extra?: Card, dealt?: boolean): void {
-        this.cards.push(card);
-        if (extra) {
-            this.cards.push(extra);
-        }
-    }
 
     public getName(): string {
         return '';
@@ -21,6 +15,12 @@ export class HandlerHelper extends Handler {
 
     public message(bundle: any): void {
         this.messages.push(bundle);
+        if(bundle instanceof DealMessage) {
+            this.cards.push(bundle.card);
+            if(bundle.extra) {
+                this.cards.push(bundle.extra);
+            }
+        }
     }
 
     public clear() {

@@ -1,15 +1,11 @@
-import { Card } from "./card";
-import { Run } from "./run";
-import { Handler } from "./handlers/handler";
-import { Game } from "./game";
-import { checkRun } from "./run-util";
-import { Message } from "./messages/message";
-import { DealMessage } from "./messages/deal-message";
-
-type Zip<T extends unknown[][]> = { [I in keyof T]: T[I] extends (infer U)[] ? U : never }[];
-function zip<T extends unknown[][]>(...args: T): Zip<T> {
-    return <Zip<T>><unknown>(args[0].map((_, c) => args.map(row => row[c])));
-}
+import { Card } from './card';
+import { Run } from './run';
+import { Handler } from './handlers/handler';
+import { Game } from './game';
+import { checkRun } from './run-util';
+import { Message } from './messages/message';
+import { DealMessage } from './messages/deal-message';
+import { zip } from './util/zip';
 
 const mapToClone = <T extends {clone: () => T}>(arr: T[]) => arr.map((t: T) => t.clone());
 
@@ -39,7 +35,8 @@ export class Hand {
         try {
             return await this.handler.wantCard(card, this.hand.slice(), playedClone, this.position, game.getRound(), isTurn, game.isLastRound());
         } catch (e) {
-            console.error(e);
+            // tslint:disable-next-line
+            console.error(e); 
             return false;
         }
     }
@@ -56,7 +53,7 @@ export class Hand {
         this.handler.message(bundle);
     }
 
-    public async turn(game: Game): Promise<Card | null> {
+    public async turn(game: Game): Promise<{discard: Card | null, played: Card[][][] | null}> {
         // set up copies
         const handClone = this.hand.slice();
         const played = game.players.map((player) => mapToClone(player.played));
@@ -73,21 +70,31 @@ export class Hand {
             // run check on state
             this.hand = this.checkTurn(toDiscard, toPlay, game);
 
-            //handling played
-            for(let [hand, played] of zip(game.players, toPlay) ) {
-                //TODO need to send users messages
-                hand.played = played;
+            // figure out what changed to send up to the game handler
+            // TODO can this be worked into checkTurn without making too clunky
+            const playedChanged = zip(game.players, toPlay)
+                .map(([old, modified]) => zip(old.played, modified)
+                .map(([oldRun, modifiedRun]) => {
+                    return modifiedRun.cards.filter(card => oldRun.cards.find(other => card.equals(other)) === undefined);
+                }
+            ));
+
+            // update played
+            for(const [hand, playedRuns] of zip(game.players, toPlay) ) {
+                hand.played = playedRuns;
             }
-            return toDiscard;
+
+            return {discard: toDiscard, played: playedChanged};
         } catch (e) {
             // handle if invalid
+            // tslint:disable-next-line
             console.error(e);
 
             const liveForNone = (card: Card) => !played.some((runs) => runs.some((play) => play.isLive(card)));
             const possibleDiscard = this.hand.filter(liveForNone)[0];
             // TODO might use version that only filters as we go
 
-            return possibleDiscard;
+            return {discard: possibleDiscard, played: null};
         }
     }
 
@@ -124,7 +131,7 @@ export class Hand {
                 // TODO check of right type too
             }
             if (this.played.length) {
-                //figure out cards now played that were not played before
+                // figure out cards now played that were not played before
                 const newCardsPlayed = this.played.reduce<Card[]>((newCards, run, index) => {
                     const newPlayCards = [...toPlay[this.position][index].cards];
                     for (const card of run.cards) {
@@ -144,10 +151,10 @@ export class Hand {
                 }
             }
         }
-        if (toPlay.filter((item, index) => index != this.position).some((other) => other.length > 0)) {
+        if (toPlay.filter((item, index) => index !== this.position).some((other) => other.length > 0)) {
             for (let i = 0; i < toPlay.length; i++) {
-                if (i == this.position) {
-                    //already checked our own
+                if (i === this.position) {
+                    // already checked our own
                     continue;
                 }
                 const newOther = mapToClone(toPlay[i]);
@@ -180,7 +187,7 @@ export class Hand {
         if(toDiscard) {
             checkExistenceAndRemove(runningHand, toDiscard);
         }
-        //TODO where check discard is not live?
+        // TODO where check discard is not live?
 
         return runningHand;
     }

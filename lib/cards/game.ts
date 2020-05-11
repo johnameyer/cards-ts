@@ -1,9 +1,9 @@
-import { Hand } from "./hand";
-import { Deck } from "./deck";
-import { Handler } from "./handlers/handler";
-import { InvalidError } from "./invalid-error";
-import { Message } from "./messages/message";
-import { ReshuffleMessage } from "./messages/reshuffle-message";
+import { Hand } from './hand';
+import { Deck } from './deck';
+import { Handler } from './handlers/handler';
+import { InvalidError } from './invalid-error';
+import { Message } from './messages/message';
+import { ReshuffleMessage } from './messages/reshuffle-message';
 
 function messageAll(players: Hand[], bundle: Message) {
     players.forEach((player) => player.message(bundle));
@@ -38,8 +38,8 @@ export class Game {
                 let card = this.deck.draw();
                 if (!card) {
                     if(this.deck.shuffleDiscard()) {
-                        //TODO add another deck?
-                        throw new InvalidError("Deck ran out of cards");
+                        // TODO add another deck?
+                        throw new InvalidError('Deck ran out of cards');
                     } else {
                         messageAll(this.players, new ReshuffleMessage());
                         card = this.deck.draw();

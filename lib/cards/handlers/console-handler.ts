@@ -132,7 +132,7 @@ export class ConsoleHandler extends Handler {
         const notMyHand = (item: Run[], index: number) => index != position;
         if (hand.length && played[position].length && !last) {
             if (played.filter(notMyHand).some((other) => other.length > 0)) {
-                console.log('You still have' + hand);
+                console.log('You still have ' + hand);
                 const wouldPlayOthers: Prompt<'wouldPlay', boolean> = {
                     name: 'wouldPlay',
                     message: 'Would you like to play a card on others',

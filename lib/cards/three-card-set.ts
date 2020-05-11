@@ -1,9 +1,9 @@
-import { InvalidError } from "./invalid-error";
-import { Run } from "./run";
-import { Card, potentialWilds } from "./card";
-import { Rank } from "./rank";
-import { Suit } from "./suit";
-import { ValueError } from "./value-error";
+import { InvalidError } from './invalid-error';
+import { Run } from './run';
+import { Card, potentialWilds } from './card';
+import { Rank } from './rank';
+import { Suit } from './suit';
+import { ValueError } from './value-error';
 
 function check(set: ThreeCardSet) {
     if (set.cards.length < 2 * set.wilds.length) { // 2 < count {
@@ -18,7 +18,7 @@ function check(set: ThreeCardSet) {
             continue;
         }
         if (card.rank !== set.rank) {
-            throw new InvalidError('Card not of the right suit');
+            throw new InvalidError('Card not of the right rank');
         }
     }
     return true;

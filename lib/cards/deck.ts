@@ -1,6 +1,6 @@
-import { Card } from "./card";
-import { Suit } from "./suit";
-import { Rank } from "./rank";
+import { Card } from './card';
+import { Suit } from './suit';
+import { Rank } from './rank';
 
 function choiceAndRemove<T>(items: T[]): T {
     return items.splice(Math.floor(Math.random() * items.length), 1)[0];

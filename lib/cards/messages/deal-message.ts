@@ -14,7 +14,7 @@ function generateMessage(card: Card, extra?: Card, dealt?: boolean) {
 }
 
 export class DealMessage extends Message {
-    constructor(card: Card, extra?: Card, dealt?: boolean) {
+    constructor(public readonly card: Card, public readonly extra?: Card, public readonly dealt?: boolean) {
         super(generateMessage(card, extra, dealt));
     }
 }

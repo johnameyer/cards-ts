@@ -1,8 +1,8 @@
-import { InvalidError } from "./invalid-error";
-import { Rank } from "./rank";
-import { Card, potentialWilds } from "./card";
-import { Run } from "./run";
-import { Suit } from "./suit";
+import { InvalidError } from './invalid-error';
+import { Rank } from './rank';
+import { Card, potentialWilds } from './card';
+import { Run } from './run';
+import { Suit } from './suit';
 
 declare global {
     interface Array<T> {
@@ -19,12 +19,12 @@ Array.prototype.bifilter = function<T>(filter: (item: T) => any): [T[], T[]] {
         }
         return [match, nonMatch];
     }, [[],[]]);
-}
+};
 
 /**
-* Checks if a given run is valid
-* @param run the run to check if valid
-*/
+ * Checks if a given run is valid
+ * @param run the run to check if valid
+ */
 function check(run: FourCardRun): void {
     if (run.cards.length - run.numWilds < run.numWilds) {
         throw new InvalidError('Too many wild cards');
@@ -32,7 +32,7 @@ function check(run: FourCardRun): void {
     if (run.cards.length < 4 ) {
         throw new InvalidError('Not enough cards');
     }
-    
+
     const [first, last]: [Rank, Rank] = run.range();
     if (!first || first.order < Rank.THREE.order || !last) {
         throw new InvalidError('Too many wilds on one side');
@@ -50,10 +50,10 @@ function check(run: FourCardRun): void {
 }
 
 export function checkFourCardRunPossible(cards: readonly Card[]) {
-    let sorted = [...cards].sort(Card.compare);
-    let [wilds, nonwilds] = sorted.bifilter(card => card.isWild());
+    const sorted = [...cards].sort(Card.compare);
+    const [wilds, nonwilds] = sorted.bifilter(card => card.isWild());
     for(let i = 0; i < nonwilds.length - 1; i++) {
-        if(nonwilds[i].rank == nonwilds[i+1].rank && nonwilds[i].suit == nonwilds[i+1].suit) {
+        if(nonwilds[i].rank === nonwilds[i+1].rank && nonwilds[i].suit === nonwilds[i+1].suit) {
             throw new InvalidError('Non wild card is repeated');
         }
     }
@@ -73,14 +73,14 @@ export function checkFourCardRunPossible(cards: readonly Card[]) {
         if (selected.rank === first.displace(i)) {
             continue;
         }
-        let difference = selected.rank.difference(nonwilds[i].rank) - 1; 
+        const difference = selected.rank.difference(nonwilds[i].rank) - 1;
         if(wilds.length > difference) {
             wilds.splice(0, difference);
             continue;
         }
         throw new InvalidError('Not enough wilds');
     }
-    
+
 }
 
 export function checkFourCardRun(run: FourCardRun) {
@@ -91,7 +91,7 @@ export class FourCardRun extends Run {
     public numWilds: number;
     public suit: Suit;
     public type = 4;
-    
+
     constructor(public cards: Card[]) {
         super();
         this.numWilds = cards.filter((card) => card.isWild()).length;
@@ -100,14 +100,14 @@ export class FourCardRun extends Run {
             throw new InvalidError('Entirely wildcards');
         }
         this.suit = firstNonWild.suit as Suit;
-        
+
         this.check();
     }
-    
+
     public clone(): FourCardRun {
         return new FourCardRun([...this.cards]);
     }
-    
+
     public range(): [Rank, Rank] {
         const firstNonWild: number = this.cards.findIndex((card) => !card.isWild());
         const first = this.cards[firstNonWild].rank.displace(-firstNonWild);
@@ -116,7 +116,7 @@ export class FourCardRun extends Run {
         const last = reversed[lastNonWild].rank.displace(lastNonWild);
         return [first, last];
     }
-    
+
     public * findSpots(): Iterable<Rank> {
         for (const rank of Rank.ranks) {
             if (this.findSpotFor(rank) >= 0) {
@@ -124,12 +124,12 @@ export class FourCardRun extends Run {
             }
         }
     }
-    
+
     /**
-    * Returns where in the array the card should go, or else -1.
-    * Note that wilds ought to be pushed or shifted, and cards to be spliced
-    * @param cardOrRank
-    */
+     * Returns where in the array the card should go, or else -1.
+     * Note that wilds ought to be pushed or shifted, and cards to be spliced
+     * @param cardOrRank
+     */
     public findSpotFor(cardOrRank: Card | Rank): number {
         let rank: Rank;
         if (cardOrRank instanceof Card) {
@@ -137,7 +137,7 @@ export class FourCardRun extends Run {
         } else {
             rank = cardOrRank as Rank;
         }
-        
+
         if (rank.isWild()) {
             if (this.cards.length - this.numWilds > this.numWilds) {
                 return 0;
@@ -165,7 +165,7 @@ export class FourCardRun extends Run {
         }
         return -1;
     }
-    
+
     public add(card: Card, moveWildTop: boolean = true): void {
         const index = this.findSpotFor(card);
         const [first, last]: [Rank, Rank] = this.range();
@@ -218,14 +218,14 @@ export class FourCardRun extends Run {
             }
         }
     }
-    
+
     public isLive(card: Card): boolean {
         if (card.isWild()) {
             return this.cards.length - this.numWilds > this.numWilds;
         }
         return this.findSpotFor(card) !== -1 && this.suit === card.suit;
     }
-    
+
     public liveCards(): Card[] {
         let live: Card[] = [];
         if (this.cards.length - this.numWilds > this.numWilds) {
@@ -236,11 +236,11 @@ export class FourCardRun extends Run {
         }
         return live;
     }
-    
+
     public toString(): string {
         return 'Run of ' + this.suit.toString() + ' <' + this.cards.map((card) => card.toString()).join(' ') + '>';
     }
-    
+
     private check() {
         return check(this);
     }

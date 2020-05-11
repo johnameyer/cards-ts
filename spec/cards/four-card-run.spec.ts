@@ -32,21 +32,21 @@ describe('FourCardRun', () => {
         });
 
         it('should not allow construction for unordered', () => {
-            expect(() => new FourCardRun([QH, KH, AH, J])).to.throw(InvalidError);
+            expect(() => new FourCardRun([QH, KH, AH, J])).to.throw(Error);
 
-            expect(() => new FourCardRun([J, J, AH])).to.throw(InvalidError);
+            expect(() => new FourCardRun([J, J, AH])).to.throw(Error);
 
-            expect(() => new FourCardRun([JC, QH, KH, AH])).to.throw(InvalidError);
+            expect(() => new FourCardRun([JC, QH, KH, AH])).to.throw(Error);
         });
 
         it('should not allow construction with invalid', () => {
-            expect(() =>  new FourCardRun([QH, KH, AH])).to.throw(InvalidError);
+            expect(() =>  new FourCardRun([QH, KH, AH])).to.throw(Error);
 
-            expect(() =>  new FourCardRun([J, J, AH])).to.throw(InvalidError);
+            expect(() =>  new FourCardRun([J, J, AH])).to.throw(Error);
 
-            expect(() => new FourCardRun([JC, QH, KH, AH])).to.throw(InvalidError);
+            expect(() => new FourCardRun([JC, QH, KH, AH])).to.throw(Error);
 
-            expect(() => new FourCardRun([QH, KH, AH, J])).to.throw(InvalidError);
+            expect(() => new FourCardRun([QH, KH, AH, J])).to.throw(Error);
         });
     });
 
@@ -124,11 +124,10 @@ describe('FourCardRun', () => {
         it('should error for invalid add', () => {
             const run: FourCardRun = new FourCardRun([J, J, QH, KH]);
             let card: Card = new Card(Suit.SPADES, Rank.TEN, 1);
-            expect(() => run.add(card)).to.throw(InvalidError);
+            expect(() => run.add(card)).to.throw(Error);
 
-            card = new Card(Suit.HEARTS, Rank.JOKER, 2);
-            run.add(card, false);
-            expect(() => run.add(card)).to.throw(InvalidError);
+            card = new Card(Suit.NONE, Rank.JOKER, 2);
+            expect(() => run.add(card)).to.throw(Error);
         });
     });
 
