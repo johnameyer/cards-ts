@@ -2,23 +2,23 @@ import { expect } from 'chai';
 import 'mocha';
 import { Card } from '../../lib/cards/card';
 import { Handler } from '../../lib/cards/handlers/handler';
-import { DealMessage } from '../../lib';
+import { DealMessage, Message } from '../../lib';
 
 export class HandlerHelper extends Handler {
     public cards: Card[] = [];
 
-    public messages: any[][] = [];
+    public messages: Message[] = [];
 
     public getName(): string {
         return '';
     }
 
-    public message(bundle: any): void {
-        this.messages.push(bundle);
-        if(bundle instanceof DealMessage) {
-            this.cards.push(bundle.card);
-            if(bundle.extra) {
-                this.cards.push(bundle.extra);
+    public message(message: Message): void {
+        this.messages.push(message);
+        if(message instanceof DealMessage) {
+            this.cards.push(message.card);
+            if(message.extra) {
+                this.cards.push(message.extra);
             }
         }
     }
