@@ -1,7 +1,7 @@
 import { Run } from './run';
 import { ThreeCardSet, checkThreeCardSet } from './three-card-set';
 import { FourCardRun, checkFourCardRun } from './four-card-run';
-import { Card } from '..';
+import { Card } from './card';
 
 export function checkRun(t: Run): void {
     if (t instanceof ThreeCardSet) {

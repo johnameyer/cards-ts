@@ -11,7 +11,8 @@ import { DiscardMessage } from './messages/discard-message';
 import { PlayedMessage } from './messages/played-message';
 import { zip } from './util/zip';
 import { GameParams } from './game-params';
-import { DealMessage, Card } from '..';
+import { DealMessage } from './messages/deal-message';
+import { Card } from './card';
 
 function messageAll(players: Hand[], bundle: Message) {
     players.forEach((player) => player.message(bundle));

@@ -1,6 +1,7 @@
 import { Deck } from './deck';
 import { GameParams } from './game-params';
-import { Card, Run } from '..';
+import { Card } from './card';
+import { Run } from './run';
 
 function rotate(li: any[], x: number) {
     const firstPart = li.slice(0, x);
