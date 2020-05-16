@@ -144,6 +144,7 @@ export class GameDriver {
 
                 if(state.hands[whoseTurn].length === 0) {
                     messageAll(this.players, new Message(this.players[whoseTurn].toString() + ' is out of cards'));
+                    this.gameState.scores[whoseTurn] -= 10;
                     break;
                 }
 

@@ -47,6 +47,19 @@ export class LocalMaximumHandler extends Handler {
                 // console.log(position, 'can play', found[2].toString());
                 toPlay[position] = found[2].map((cards, i) => round[i] == 3 ? new ThreeCardSet(cards) : new FourCardRun(cards));
                 found[2].forEach(run => run.forEach(card => hand.splice(hand.findIndex(c => card.equals(c)), 1)));
+                console.log(hand.length);
+                for(let i = 0; i < hand.length; i++) {
+                    let card = hand[i];
+                    for(let run of played.reduce((a, b) => { a.push(...b); return a; }, [])) {
+                        if(run.isLive(card)) {
+                            run.add(card);
+                            hand.splice(i, 1);
+                            i--;
+                            break;
+                        }
+                    }
+                }
+                console.log(hand.length);
                 toDiscard = hand[0]; //TODO better
             } else {
                 const finds = hand.map(card => find(without(hand, card), round) );
@@ -68,7 +81,19 @@ export class LocalMaximumHandler extends Handler {
             // console.log(toDiscard.toString());
             result = { toDiscard, toPlay };
         } else {
-            //TODO play live cards
+            console.log(hand.length);
+            for(let i = 0; i < hand.length; i++) {
+                let card = hand[i];
+                for(let run of played.reduce((a, b) => { a.push(...b); return a; }, [])) {
+                    if(run.isLive(card)) {
+                        run.add(card);
+                        hand.splice(i, 1);
+                        i--;
+                        break;
+                    }
+                }
+            }
+            console.log(hand.length);
             result = { toDiscard: hand[0], toPlay: played };
         }
         
