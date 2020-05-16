@@ -6,8 +6,17 @@ import { checkRun } from './run-util';
 import { Message } from './messages/message';
 import { DealMessage } from './messages/deal-message';
 import { zip } from './util/zip';
+import { InvalidError } from './invalid-error';
 
 const mapToClone = <T extends {clone: () => T}>(arr: T[]) => arr.map((t: T) => t.clone());
+
+function checkExistenceAndRemove<T extends {equals: (t: T) => boolean}>(tarr: T[], t: T, errorMessage: string = 'Could not find card') {
+    const tIndex = tarr.findIndex((ti) => t.equals(ti));
+    if (tIndex === -1) {
+        throw new Error(errorMessage + ' ' + t.toString() + ' in ' + tarr.toString());
+    }
+    tarr.splice(tIndex, 1);
+}
 
 /**
  * This class is a wrapper around handlers to verify that cards are correctly played and that players are not able to modify the state
@@ -50,7 +59,7 @@ export class Hand {
             game.hands[this.position] = this.checkTurn(toDiscard, toPlay, game);
 
             // figure out what changed to send up to the game handler
-            // TODO can this be worked into checkTurn without making too clunky
+            // TODO can this be worked into checkTurn without making too clunky?
             const playedChanged = zip(game.played, toPlay)
                 .map(([old, modified]) => zip(old, modified)
                 .map(([oldRun, modifiedRun]) => {
@@ -59,7 +68,6 @@ export class Hand {
             ));
 
             // update played
-            // TODO should also probably be checked through the checkTurn function
            game.played = toPlay;
 
             return {discard: toDiscard, played: playedChanged};
@@ -69,16 +77,15 @@ export class Hand {
             console.error(e);
 
             const liveForNone = (card: Card) => !game.played.some((runs) => runs.some((play) => play.isLive(card)));
-            const possibleDiscard = game.hands[this.position].filter(liveForNone)[0];
-            // TODO might use version that only filters as we go
+            const possibleDiscard = game.hands[this.position].find(liveForNone) || null;
 
             return {discard: possibleDiscard, played: null};
         }
     }
 
     public toString() {
-        const name = this.handler.getName() !== null ? this.handler.getName() : null;
-        if (name !== null) {
+        const name = this.handler.getName();
+        if (!!name) {
             return name;
         } else {
             return 'Unnamed player #' + this.position;
@@ -90,23 +97,18 @@ export class Hand {
         toPlay: Run[][],
         game: GameState,
     ) {
-        function checkExistenceAndRemove<T extends {equals: (t: T) => boolean}>(tarr: T[], t: T, errorMessage: string = 'Could not find card') {
-            const tIndex = tarr.findIndex((ti) => t.equals(ti));
-            if (tIndex === -1) {
-                throw new Error(errorMessage + ' ' + t.toString() + ' in ' + tarr.toString());
-            }
-            tarr.splice(tIndex, 1);
-        }
         const runningHand: Card[] = game.hands[this.position].slice();
 
         if (toPlay[this.position].length) {
-            for (const run of toPlay[this.position]) {
+            for (const [run, type] of zip(toPlay[this.position], game.getRound())) {
+                if(run.type !== type) {
+                    throw new InvalidError('Run is of the wrong type');
+                }
                 checkRun(run);
-                // TODO check of right type too
             }
             // figure out cards now played that were not played before
             const changedCards = [];
-            
+
             for(let player = 0; player < game.numPlayers; player++) {
                 if(player === this.position || game.played[player].length > 0){
                     for(let run = 0; run < toPlay[player].length; run++) {
@@ -126,15 +128,21 @@ export class Hand {
         }
 
         if (runningHand.length && toDiscard == null) {
-            throw new Error('Must discard');
+            throw new InvalidError('Must discard');
         }
         if (game.isLastRound() && toPlay && toDiscard !== null) {
-            throw new Error('Cannot discard with play on the last round');
+            throw new InvalidError('Cannot discard with play on the last round');
         }
         if(toDiscard) {
+            for (const plays of toPlay) {
+                for(const run of plays) {
+                    if(run.isLive(toDiscard)) {
+                        throw new InvalidError('Card is live');
+                    }
+                }
+            }
             checkExistenceAndRemove(runningHand, toDiscard);
         }
-        // TODO where check discard is not live?
 
         return runningHand;
     }

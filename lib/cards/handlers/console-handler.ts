@@ -289,6 +289,8 @@ function mintree(numbers: number[], maxGaps: number) {
     return size;
 }
 
+
+// TODO do we replace this implementation with the ones the bots have? Is there some way to make it more of a challenge for users?
 function find(cards: Card[], round: number[], played: Run[]): [Card[][], Card[][]] {
     if (played.length) {
         return [[], []];
