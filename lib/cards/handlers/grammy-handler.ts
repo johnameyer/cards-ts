@@ -2,7 +2,7 @@ import { Handler } from "./handler";
 import { Card } from "../card";
 import { Run } from "../run";
 
-export class GrammyHandler extends Handler {
+export class GrammyHandler implements Handler {
 
     public getName(): string {
         return "Grammy";

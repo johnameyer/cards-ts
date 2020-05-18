@@ -12,7 +12,13 @@ function generateMessage(round: readonly number[]) {
     }
 }
 
+/**
+ * A class designating that a new round has started
+ */
 export class StartRoundMessage extends Message {
+    /**
+     * @param round the new round
+     */
     constructor(public readonly round: readonly number[]) {
         super(generateMessage(round));
     }

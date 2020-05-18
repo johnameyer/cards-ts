@@ -7,13 +7,13 @@ import { find } from "../find";
 import { ThreeCardSet } from "../three-card-set";
 import { FourCardRun } from "../four-card-run";
 
-export class LocalMaximumHandler extends Handler {
+export class LocalMaximumHandler implements Handler {
     
     public getName(): string {
         return "Max";
     }
     
-    public message(bundle: any): void {
+    public message(bundle: any) {
     }
     
     public async wantCard(card: Card, hand: Card[], played: Run[][], position: number, round: (3 | 4)[], isTurn: boolean, last: boolean) {

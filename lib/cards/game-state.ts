@@ -3,33 +3,56 @@ import { GameParams } from './game-params';
 import { Card } from './card';
 import { Run } from './run';
 
-function rotate(li: any[], x: number) {
-    const firstPart = li.slice(0, x);
-    const lastPart = li.slice(x);
-    return [...lastPart, ...firstPart];
-}
-
+/**
+ * A class used to track the current state of the game
+ */
 export class GameState {
-    public readonly gameParams: GameParams;
-    public round: number = 0;
     /**
-     * TODO numPlayers is a field used to enable the utility methods in this file post-refactoring it is not certain if it actually needs to exist
+     * The settings that a game runs under
+     */
+    public readonly gameParams: GameParams;
+
+    /**
+     * The current round
+     */
+    public round: number = 0;
+
+    /**
+     * The number of players in the game, since the actual array is stored elsewhere
+     * @todo numPlayers is a field used to enable the utility methods in this file post-refactoring it is not certain if it actually needs to exist
      */
     public numPlayers: number;
 
+    /**
+     * The scores of the hands
+     */
     public scores: number[];
+
     /**
      * The cards of all hands
      */
     public hands!: Card[][];
+
     /**
-     * This is where the three of a kind, four card runs are played
+     * This is where the three of a kind, four card runs are played for each of the hands
      */
     public played!: Run[][];
 
+    /**
+     * The deck currently in use
+     */
     public deck: Deck;
+
+    /**
+     * The index of the dealer player
+     */
     public dealer: number;
 
+    /**
+     * Create a new game state
+     * @param numPlayers the number of players
+     * @param gameParams the settings to use
+     */
     constructor(numPlayers: number, gameParams: GameParams) {
         this.gameParams = gameParams;
         this.numPlayers = numPlayers;
@@ -39,30 +62,45 @@ export class GameState {
         this.setupRound();
     }
 
+    /**
+     * Sets up the state for a new round
+     */
     public setupRound() {
         this.hands = new Array(this.numPlayers).fill(0).map(() => []);
         this.played = new Array(this.numPlayers).fill(0).map(() => []);
     }
 
+    /**
+     * Returns the number to deal at the beginning for the current round
+     */
     public getNumToDeal() {
         const roundNeeded = this.getRound().reduce((one, two) => one + two, 0);
         if (this.getRound() === this.gameParams.rounds[-1]) {
-            return roundNeeded; // on the last hand,
+            return roundNeeded; // on the last hand, since there is no discard, deal one less
         }
         return roundNeeded + 1;
     }
 
-    // TODO rename
+    /**
+     * Returns whether it is the last round
+     * @todo consider renaming
+     */
     public isLastRound() {
         return this.round === this.gameParams.rounds.length - 1;
     }
 
+    /**
+     * Advance to the next round
+     */
     public nextRound() {
         this.round += 1;
         this.dealer = (this.dealer + 1) % this.numPlayers;
         return this.getRound();
     }
 
+    /**
+     * Return the current round
+     */
     public getRound() {
         return this.gameParams.rounds[this.round];
     }

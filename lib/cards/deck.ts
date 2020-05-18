@@ -1,6 +1,7 @@
 import { Card } from './card';
 import { Suit } from './suit';
 import { Rank } from './rank';
+import { InvalidError } from './invalid-error';
 
 function choiceAndRemove<T>(items: T[]): T {
     return items.splice(Math.floor(Math.random() * items.length), 1)[0];
@@ -14,15 +15,34 @@ function flatMap(arr: any[], func: (a: any) => (any)) {
     arr.reduce((acc, x) => acc.concat(func(x)), []);
 }
 
-// TODO make deck keep discard and reverse automatically when empty
-
+/**
+ * Class representing N standard 54 card decks' draw and discard pile, tracking the top card
+ */
 export class Deck {
+    /**
+     * The cards still in the deck
+     * @todo make private without breaking tests
+     */
     public cards: Card[];
-    private discards: Card[] = [];
+
+    /**
+     * The cards that have been discarded
+     */
+    public discards: Card[] = [];
+
+    /**
+     * Whether or not the top card can still be picked up
+     */
     private topAvailable = false;
 
-    constructor(num: number = -1, shouldShuffle: boolean = true) {
-        if (num + 1) { // note that even a number of 0 would be acceptable here
+    /**
+     * Create a new deck
+     * @param num the number of decks to include (0 or more)
+     * @param shouldShuffle whether the deck should be shuffled automatically
+     * @returns the new deck
+     */
+    constructor(num: number = 0, shouldShuffle: boolean = true) {
+        if (num >= 0) {
             this.cards = [];
             for (let deck = 0; deck < num; deck ++) {
                 for (const suit of Suit.suits) {
@@ -38,16 +58,19 @@ export class Deck {
                 }
             }
         } else {
-            // WHAT?
-            throw new Error();
+            throw new InvalidError('Must have a non-negative number of cards');
         }
         if (shouldShuffle) {
             shuffle(this.cards);
         }
     }
 
+    /**
+     * Get the top card of the discards, if available
+     * @returns the top card, or null available
+     */
     get top(): Card | null {
-        if (!this.topAvailable) {
+        if (!this.topAvailable || this.discards.length === 0) {
             return null;
         }
         return this.discards[this.discards.length - 1];
@@ -55,6 +78,7 @@ export class Deck {
 
     /**
      * Shuffles the cards of this deck
+     * @returns whether there are still cards in the deck
      */
     public shuffle() {
         if(this.cards) {
@@ -66,30 +90,49 @@ export class Deck {
 
     /**
      * Selects a card and removes it
+     * @returns the card
      */
     public draw() {
         return choiceAndRemove(this.cards);
     }
 
+    /**
+     * Shuffle the discards back into the deck
+     * @returns whether there are still cards in the deck
+     */
     public shuffleDiscard() {
-        this.cards = this.discards;
+        this.cards.push(...this.discards);
         return this.shuffle();
     }
 
+    /**
+     * Add a card to the discard pile and mark as available for pickup
+     * @param card the card being discarded
+     */
     public discard(card: Card) {
         this.topAvailable = true;
         this.discards.push(card);
     }
 
+    /**
+     * Convert to basic readable form
+     * @returns string representation
+     */
     public toString() {
         return 'Deck with ' + this.cards.length + ' cards left';
     }
 
+    /**
+     * Pop the top card of the discards and mark as no longer available
+     */
     public takeTop() {
         this.discards.pop();
-        this.topAvailable = false;
+        this.clearTop();
     }
 
+    /**
+     * Mark the top card as no longer available
+     */
     public clearTop() {
         this.topAvailable = false;
     }

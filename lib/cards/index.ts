@@ -1,9 +1,12 @@
 import { GameDriver } from './game-driver';
 import { ConsoleHandler } from './handlers/console-handler';
-import { GrammyHandler } from './handlers/grammy-handler';
 import { LocalMaximumHandler } from './handlers/local-maximum-handler';
 import { defaultParams } from './game-params';
 
+/**
+ * Start a game for the console user
+ * @param argv the arguments to run using
+ */
 async function run(argv: string[]) {
     const mainPlayer = new ConsoleHandler();
     await mainPlayer.askForName();

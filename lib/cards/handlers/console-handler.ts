@@ -56,13 +56,9 @@ const toInquirerValue = <T extends {toString: () => string}>(t: T) => ({
 
 inquirer.registerPrompt('selectLine', require('inquirer-select-line'));
 
-export class ConsoleHandler extends Handler {
+export class ConsoleHandler implements Handler {
 
     private name!: string;
-
-    constructor() {
-        super();
-    }
 
     public async askForName() {
         const message = 'What is your name?';

@@ -14,10 +14,21 @@ import { GameParams } from './game-params';
 import { DealMessage } from './messages/deal-message';
 import { Card } from './card';
 
+/**
+ * Send a message to all the players
+ * @param players the array of players
+ * @param bundle the message to send
+ */
 function messageAll(players: Hand[], bundle: Message) {
     players.forEach((player) => player.message(bundle));
 }
 
+/**
+ * Send a message to all the players minus the excluded
+ * @param players the array of players
+ * @param excluded the player to not send to
+ * @param bundle the message to send
+ */
 function messageOthers(players: Hand[], excluded: Hand, bundle: Message) {
     players.forEach((player) => {
         if(player !== excluded)
@@ -25,17 +36,29 @@ function messageOthers(players: Hand[], excluded: Hand, bundle: Message) {
     });
 }
 
+/**
+ * Class that handles the steps of the game
+ */
 export class GameDriver {
     private players: Hand[];
     private gameState: GameState;
 
+    /**
+     * Create the game driver
+     * @param players the players in the game
+     * @param gameParams the parameters to use for the game
+     */
     constructor(players: Handler[], gameParams: GameParams) {
         this.gameState = new GameState(players.length, gameParams);
         this.players = players.map((handler, i) => new Hand(handler, i));
     }
 
+    /**
+     * Deal out cards to all of the players' hands for the current round
+     */
     private dealOut() {
         const state = this.gameState;
+        // TODO migrate to message class
         this.players.forEach((p) => p.message(new Message(this.players[state.dealer].toString() + ' is dealer')));
         for (let num = 0; num < state.getNumToDeal(); num++) {
             for (let player = 0; player < this.players.length; player++) {
@@ -55,6 +78,13 @@ export class GameDriver {
         }
     }
 
+    /**
+     * Gives a card to the player and notifies them
+     * @param player the player to give the card to
+     * @param card the card to give
+     * @param extra the accompanying extra card, if applicable
+     * @param dealt whether or not the card was dealt to the player
+     */
     private giveCard(player: number, card: Card, extra?: Card, dealt = false) {
         this.gameState.hands[player].push(card);
         if (extra) {
@@ -63,6 +93,9 @@ export class GameDriver {
         this.players[player].message(new DealMessage(card, extra, dealt));
     }
 
+    /**
+     * Runs the game through to the end asyncronously
+     */
     public async start() {
         const state = this.gameState;
         messageAll(this.players, new StartRoundMessage(state.getRound()) );

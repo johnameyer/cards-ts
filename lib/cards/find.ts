@@ -21,10 +21,16 @@ Array.prototype.bifilter = function<T>(filter: (item: T) => any) {
     }, [[],[]]);
 };
 
-Array.prototype.toString = function<T>() {
+Array.prototype.toString = function() {
     return '[ ' + this.map(item => item.toString ? item.toString() : item ).join(', ') + ' ]';
 };
 
+/**
+ * Function that tries to find an optimal utilization of the current cards to achieve the goals of the round
+ * @param cards the cards to search over
+ * @param sought the type of runs that are being sought after
+ * @see findOptimimum for details
+ */
 export function find(cards: Card[], sought: (3 | 4)[]) {
     const [wilds, nonWilds] = cards.bifilter(card => card.isWild());
     nonWilds.sort(Card.compare);
@@ -32,11 +38,21 @@ export function find(cards: Card[], sought: (3 | 4)[]) {
     return findOptimimum(nonWilds, 0, wilds, 0, sought, sought.map(() => []));
 }
 
-// return number of cards left
-function findOptimimum(cards: Card[], cardIndex: number, wilds: Card[], wildsIndex: number, sought: (3 | 4)[], runs: Card[][]): [number, number, Card[][]] {
+/**
+ * Find the optimal runs on a part of the subtree described by cardIndex, wildsIndex, and runs
+ * Optimal is defined as firstly getting as close as possible to achieving the round goals, secondly by utilizing as many cards as possible
+ * @param cards the non-wild cards to search over
+ * @param cardIndex the current index in the non-wilds array
+ * @param wilds the wilds to search over
+ * @param wildsIndex the current index in the wilds array
+ * @param sought the runs being sought after
+ * @param runs the runs that have been recursively constructed
+ * @returns a tuple containing the number of cards needed, the number of points left over, the runs constucted, and the unused cards
+ */
+function findOptimimum(cards: Card[], cardIndex: number, wilds: Card[], wildsIndex: number, sought: (3 | 4)[], runs: Card[][]): [number, number, Card[][], Card[]] {
     // console.log(runs.map(run => run.map(card => card.toString())));
     if(wildsIndex > wilds.length) {
-        return [Infinity, Infinity, sought.map(() => [])];
+        return [Infinity, Infinity, sought.map(() => []), []];
     }
     if(cardIndex >= cards.length) {
         let missing = 0;
@@ -55,7 +71,8 @@ function findOptimimum(cards: Card[], cardIndex: number, wilds: Card[], wildsInd
             }
         }
         if(missing < 0) {
-            return [0, wilds.slice(wilds.length - missing - 1).map(card => card.rank.value).reduce((a,b) => a + b, 0), runs];
+            const unused = wilds.slice(wilds.length - missing - 1);
+            return [0, unused.map(card => card.rank.value).reduce((a,b) => a + b, 0), runs, unused];
         }
         if(wilds.length > wildsIndex) {
             for(let i = 0; i < sought.length; i++) {
@@ -67,9 +84,9 @@ function findOptimimum(cards: Card[], cardIndex: number, wilds: Card[], wildsInd
                 runs = newRuns;
             }
         }
-        return [missing, 0, runs];
+        return [missing, 0, runs, []];
     }
-    const reduction = <S, T>(a: [S, S, T], b: [S, S, T]): [S, S, T] => {
+    const reduction = <T extends {0: number, 1: number}>(a: T, b: T): T => {
         if(a[0] > b[0]) {
             return b;
         } else if(a[0] === b[0]) {
@@ -82,12 +99,13 @@ function findOptimimum(cards: Card[], cardIndex: number, wilds: Card[], wildsInd
             return a;
         }
     };
-    let noChoose: [number, number, Card[][]];
+    let noChoose: [number, number, Card[][], Card[]];
     {
         const recurse = findOptimimum(cards, cardIndex + 1, wilds, wildsIndex, sought, runs);
-        noChoose = [recurse[0], recurse[1] + cards[cardIndex].rank.value, recurse[2]];
+        const unused = [...recurse[3], cards[cardIndex]];
+        noChoose = [recurse[0], recurse[1] + cards[cardIndex].rank.value, recurse[2], unused];
     }
-    const choices: [number, number, Card[][]][] = sought.map((_, index) => index).filter(index => {
+    const choices: [number, number, Card[][], Card[]][] = sought.map((_, index) => index).filter(index => {
         if(runs[index].length > 0) {
             if(sought[index] === 4) {
                 if (runs[index][0].suit !== cards[cardIndex].suit || runs[index][runs[index].length - 1].rank === cards[cardIndex].rank) {
@@ -127,7 +145,7 @@ function findOptimimum(cards: Card[], cardIndex: number, wilds: Card[], wildsInd
             const chosen = runs[index].slice();
             wildsUsed = chosen[chosen.length - 1].rank.distance(cards[cardIndex].rank) - 1;
             if(wildsUsed + wildsIndex > wilds.length) {
-                return [Infinity, Infinity, sought.map(() => [])];
+                return [Infinity, Infinity, sought.map(() => []), []];
             }
             chosen.push(...wilds.slice(wildsIndex, wildsIndex + wildsUsed));
             chosen.push(cards[cardIndex]);

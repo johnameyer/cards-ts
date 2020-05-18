@@ -24,9 +24,20 @@ function checkExistenceAndRemove<T extends {equals: (t: T) => boolean}>(tarr: T[
  */
 export class Hand {
 
+    /**
+     * Create the hand
+     * @param handler the handler to wrap around
+     * @param position the position of this player at the table
+     */
     constructor(private readonly handler: Handler, public position: number) {
     }
 
+    /**
+     * Allow the handler to decide if it wants a card, and prevent it from throwing an error up the call stack
+     * @param card the card to be considered
+     * @param game the state of the game
+     * @param isTurn whether it will be the player's turn upon taking a card
+     */
     public async wantCard(card: Card, game: GameState, isTurn: boolean = false): Promise<boolean> {
         const playedClone = game.played.map((played) => mapToClone(played));
         try {
@@ -38,10 +49,23 @@ export class Hand {
         }
     }
 
+    /**
+     * Pass a message on to the handler
+     * @param bundle the message
+     */
     public message(bundle: Message) {
-        this.handler.message(bundle);
+        try {
+            this.handler.message(bundle);
+        } catch (e) {
+            // tslint:disable-next-line
+            console.error(e);
+        }
     }
 
+    /**
+     * Allow the handler to make its turn, and handle errors with default behavior
+     * @param game the current game state
+     */
     public async turn(game: GameState): Promise<{discard: Card | null, played: Card[][][] | null}> {
         // set up copies
         const handClone = game.hands[this.position].slice();
@@ -83,6 +107,9 @@ export class Hand {
         }
     }
 
+    /**
+     * Get the handler's name with sensible defaults
+     */
     public toString() {
         const name = this.handler.getName();
         if (!!name) {
@@ -92,6 +119,12 @@ export class Hand {
         }
     }
 
+    /**
+     * Checks whether moves made by the handler are legal
+     * @param toDiscard the card the handler is attempting to discard
+     * @param toPlay the cards on the table after the handler is finished making its turn
+     * @param game the game state as it was
+     */
     private checkTurn(
         toDiscard: Card | null,
         toPlay: Run[][],
