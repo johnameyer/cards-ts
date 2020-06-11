@@ -63,7 +63,8 @@ export class LocalMaximumHandler implements Handler {
                 }
                 toDiscard = hand[0]; //TODO better
             } else {
-                const finds = hand.filter(card => !played.some(player => player.some(play => play.isLive(card)))).map(card => find(without(hand, card), currentRound) );
+                const nonlive = hand.filter(card => !played.some(player => player.some(play => play.isLive(card))));
+                const finds = nonlive.map(card => find(without(hand, card), currentRound) );
                 let worst = 0;
                 for(let i = 0; i < finds.length; i++) {
                     //TODO can even add logic about discarding cards others don't desire
@@ -77,12 +78,10 @@ export class LocalMaximumHandler implements Handler {
                         }
                     }
                 }
-                toDiscard = hand[worst];
+                toDiscard = nonlive[worst];
             }
-            // console.log(toDiscard.toString());
             result = { toDiscard, toPlay };
         } else {
-            console.log(hand.length);
             for(let i = 0; i < hand.length; i++) {
                 let card = hand[i];
                 for(let run of played.reduce((a, b) => { a.push(...b); return a; }, [])) {
@@ -94,7 +93,6 @@ export class LocalMaximumHandler implements Handler {
                     }
                 }
             }
-            console.log(hand.length);
             result = { toDiscard: hand[0], toPlay: played };
         }
         

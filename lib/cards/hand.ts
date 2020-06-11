@@ -90,9 +90,12 @@ export class Hand {
 
             // figure out what changed to send up to the game handler
             // TODO can this be worked into checkTurn without making too clunky?
-            const playedChanged = zip(game.played, toPlay)
-                .map(([old, modified]) => zip(old, modified)
-                .map(([oldRun, modifiedRun]) => {
+            const playedChanged = zip(toPlay, game.played)
+                .map(([modified, old]) => zip(modified, old)
+                .map(([modifiedRun, oldRun]) => {
+                    if(!oldRun) {
+                        return modifiedRun.cards;
+                    }
                     return modifiedRun.cards.filter(card => oldRun.cards.find(other => card.equals(other)) === undefined);
                 }
             ));

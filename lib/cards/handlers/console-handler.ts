@@ -200,6 +200,7 @@ export class ConsoleHandler implements Handler {
                         name: 'position',
                         message: 'Please insert your wild cards',
                         choices: run.map(toInquirerValue),
+                        //TODO something up here
                         //should support validate?
                         placeholder: wild.toString(),
                         type: 'selectLine'
@@ -216,21 +217,16 @@ export class ConsoleHandler implements Handler {
     }
 
     public async discard(cardsLeft: Card[], roun: number[], played: Run[][]) {
-        let live: Card[];
-        if (played.some((arr) => arr.length > 0)) {
-            live = played.reduce(flatten, []).map((run) => run.liveCards()).reduce(flatten, []).filter(distinct);
-            live.sort(Card.compare);
-            // TODO console.log('Live cards are:', live.map((card) => card.toString()));
-        } else {
-            live = [];
-        }
+        const [live, nonlive] = cardsLeft.bifilter(card => played.some(runs => runs.some(run => run.isLive(card))));
         // TODO all cards are live what to do?
+        if(live.length) {
+            console.log('Your cards', live.map(card => card.toString()).join(', '), 'are live');
+        }
         const toDiscardQuestion: Prompt<'toDiscard', Card> = {
             name: 'toDiscard',
             message: 'Select the card to discard',
             type: 'list',
-            choices: cardsLeft.sort(Card.compare).map(toInquirerValue),
-            validate: (choice: Card) => !live.some((card) => choice.equals(card)),
+            choices: nonlive.sort(Card.compare).map(toInquirerValue)
         };
         const { toDiscard } = (await inquirer.prompt([toDiscardQuestion]));
         return toDiscard;

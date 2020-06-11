@@ -43,7 +43,7 @@ export class GameState {
     /**
      * The deck currently in use
      */
-    public deck: Deck;
+    public deck!: Deck;
 
     /**
      * The index of the dealer player
@@ -62,7 +62,6 @@ export class GameState {
         this.numPlayers = numPlayers;
         this.scores = new Array(numPlayers).fill(0, 0, numPlayers);
         this.dealer = 0;
-        this.deck = new Deck(2);
         this.data = new Array(this.numPlayers).fill(0).map(() => ({}));
         this.setupRound();
     }
@@ -73,6 +72,7 @@ export class GameState {
     public setupRound() {
         this.hands = new Array(this.numPlayers).fill(0).map(() => []);
         this.played = new Array(this.numPlayers).fill(0).map(() => []);
+        this.deck = new Deck(2, true);
     }
 
     /**

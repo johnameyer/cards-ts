@@ -3,6 +3,9 @@ import { Card } from "../card";
 import { Run } from "../run";
 
 function generateMessage(cards: Card[], run: Run, player?: string) {
+    if(cards.length == run.cards.length) {
+        return player + ' played ' + run.toString();
+    }
     return player + ' played ' + cards.map(card => card.toString()).join(', ') + ' on ' + run.toString();
 }
 

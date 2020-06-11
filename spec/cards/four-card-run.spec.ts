@@ -107,7 +107,7 @@ describe('FourCardRun', () => {
 
     describe('#add', () => {
         it('should add a card', () => {
-            const run: FourCardRun = new FourCardRun([J, JH, QH, KH]);
+            let run: FourCardRun = new FourCardRun([J, JH, QH, KH]);
             let card: Card = new Card(Suit.HEARTS, Rank.TEN, 1);
             run.add(card);
             expect(run.cards.findIndex((find) => find.deck === card.deck)).to.equal(0);
@@ -119,6 +119,11 @@ describe('FourCardRun', () => {
             card = new Card(Suit.HEARTS, Rank.JOKER, 3);
             run.add(card);
             expect(run.cards.findIndex((find) => find.deck === card.deck)).to.equal(0);
+            
+            run = new FourCardRun([JH, J, KH, AH]);
+            card = new Card(Suit.HEARTS, Rank.QUEEN, 4);
+            run.add(card);
+            expect(run.cards.findIndex((find) => find.deck === card.deck)).to.equal(2);
         });
 
         it('should error for invalid add', () => {

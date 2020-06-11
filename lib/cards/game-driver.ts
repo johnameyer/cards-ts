@@ -160,6 +160,9 @@ export class GameDriver {
                 const { discard, played } = await this.players[whoseTurn].turn(state);
                 if(!discard) {
                     // TODO check for final round
+                    if(state.hands[whoseTurn].length) {
+                        break;
+                    }
                     continue;
                 }
 

@@ -14,7 +14,7 @@
     "test": "mocha -r ts-node/register spec/**/*.ts",
     "prestart": "npm run build",
     "start": "node dist/cards/index.js start",
-    "dev": "ts-node-dev --clear --rs=false --expose-gc --inspect --respawn --transpileOnly lib/cards/index.ts",
+    "debug": "ts-node-dev --rs=false --inspect --transpileOnly lib/cards/index.ts",
     "prepublishOnly": "npm test && npm run lint",
     "prepare": "npm run build"
   },
