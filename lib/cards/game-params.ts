@@ -14,6 +14,10 @@ export class GameParams {
     constructor({rounds}: {rounds: (3 | 4)[][]}) {
         this.rounds = rounds;
     }
+
+    static fromObj(obj: any): GameParams {
+        return new GameParams({rounds: obj.rounds.map((round: any[]) => round.slice())});
+    }
 }
 
 /**

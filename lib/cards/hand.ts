@@ -41,7 +41,11 @@ export class Hand {
     public async wantCard(card: Card, game: GameState, isTurn: boolean = false): Promise<boolean> {
         const playedClone = game.played.map((played) => mapToClone(played));
         try {
-            return await this.handler.wantCard(card, game.hands[this.position].slice(), playedClone, this.position, game.getRound(), isTurn, game.isLastRound());
+            const [want, data] = await this.handler.wantCard(card, isTurn, game.transformToHandlerData(this.position));
+
+            game.data[this.position] = data ? data : {};
+
+            return want;
         } catch (e) {
             // tslint:disable-next-line
             console.error(e); 
@@ -73,11 +77,13 @@ export class Hand {
 
         try {
             // call handler
-            const turn = await this.handler.turn(handClone, playedClone, this.position, game.getRound(), game.isLastRound());
+            const turn = await this.handler.turn(game.transformToHandlerData(this.position));
             if (!turn) {
                 throw new Error();
             }
-            const {toDiscard, toPlay} = turn;
+            const {toDiscard, toPlay, data} = turn;
+
+            game.data[this.position] = data ? data : {};
 
             // run check on state
             game.hands[this.position] = this.checkTurn(toDiscard, toPlay, game);

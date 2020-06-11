@@ -2,6 +2,8 @@ import { Deck } from './deck';
 import { GameParams } from './game-params';
 import { Card } from './card';
 import { Run } from './run';
+import { HandlerData, HandlerCustomData } from './handlers/handler-data';
+import { runFromObj } from './run-util';
 
 /**
  * A class used to track the current state of the game
@@ -48,6 +50,8 @@ export class GameState {
      */
     public dealer: number;
 
+    public data: HandlerCustomData[];
+
     /**
      * Create a new game state
      * @param numPlayers the number of players
@@ -59,6 +63,7 @@ export class GameState {
         this.scores = new Array(numPlayers).fill(0, 0, numPlayers);
         this.dealer = 0;
         this.deck = new Deck(2);
+        this.data = new Array(this.numPlayers).fill(0).map(() => ({}));
         this.setupRound();
     }
 
@@ -103,5 +108,20 @@ export class GameState {
      */
     public getRound() {
         return this.gameParams.rounds[this.round];
+    }
+
+    public transformToHandlerData(position: number): HandlerData {
+        // TODO is cloneDeep needed and should deepFreeze be used
+        return {
+            gameParams: GameParams.fromObj(this.gameParams),
+            dealer: this.dealer,
+            hand: this.hands[position].map(card => Card.fromObj(card)),
+            numPlayers: this.numPlayers,
+            played: this.played.map(runs => runs.map(run => runFromObj(run))),
+            position,
+            round: this.round,
+            scores: this.scores.slice(),
+            data: this.data[position]
+        };
     }
 }

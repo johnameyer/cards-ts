@@ -3,6 +3,7 @@ import 'mocha';
 import { Card } from '../../lib/cards/card';
 import { Handler } from '../../lib/cards/handlers/handler';
 import { DealMessage, Message, Run } from '../../lib';
+import { HandlerData } from '../../lib/cards/handlers/handler-data';
 
 export class HandlerHelper implements Handler {
     public cards: Card[] = [];
@@ -28,11 +29,11 @@ export class HandlerHelper implements Handler {
         this.messages = [];
     }
     
-    wantCard(card: Card, hand: Card[], played: Run[][], position: number, round: (3 | 4)[], isTurn: boolean, last: boolean): Promise<boolean> {
+    wantCard(card: Card, isTurn: boolean, gameState: HandlerData): Promise<[boolean]> {
         throw new Error("Method not implemented.");
     }
 
-    turn(hand: Card[], others: Run[][], position: number, roun: (3 | 4)[], last: boolean): Promise<{ toDiscard: Card; toPlay: Run[][]; }> {
+    turn(gameState: HandlerData): Promise<{ toDiscard: Card; toPlay: Run[][]; }> {
         throw new Error("Method not implemented.");
     } 
 }

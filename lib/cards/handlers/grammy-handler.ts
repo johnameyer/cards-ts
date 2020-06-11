@@ -1,6 +1,8 @@
 import { Handler } from "./handler";
 import { Card } from "../card";
 import { Run } from "../run";
+import { GameState } from "../game-state";
+import { HandlerData, HandlerCustomData } from "./handler-data";
 
 export class GrammyHandler implements Handler {
 
@@ -8,17 +10,17 @@ export class GrammyHandler implements Handler {
         return "Grammy";
     }
 
-    public message(bundle: any): void {
+    public message(_bundle: any): void {
     }
 
-    public async wantCard(card: Card, hand: Card[], played: Run[][], position: number, roun: number[], isTurn: boolean, last: boolean) {
-        return true;
+    public async wantCard(_card: Card, _isTurn: boolean, gameState: HandlerData): Promise<[boolean, HandlerCustomData]> {
+        return [true, gameState.data];
     }
 
-    public async turn(hand: Card[], played: Run[][], position: number, roun: number[], last: boolean)
-    : Promise<{ toDiscard: Card, toPlay: Run[][] }> {
+    public async turn({hand, played, data}: HandlerData)
+    : Promise<{ toDiscard: Card, toPlay: Run[][], data: HandlerCustomData }> {
         hand.sort(Card.compare).reverse();
-        let result = { toDiscard: hand[0], toPlay: played };
+        let result = { toDiscard: hand[0], toPlay: played, data };
         return new Promise(resolve => {
             setTimeout(function() {
               resolve(result)

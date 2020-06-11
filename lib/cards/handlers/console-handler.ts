@@ -12,6 +12,7 @@ import { InvalidError } from '../invalid-error';
 import { Rank } from '../rank';
 import { Suit } from '../suit';
 import { Message } from '../messages/message';
+import { HandlerData } from './handler-data';
 
 type Prompt<S extends string, T> = inquirer.Question<Record<S, T>> & {
     name: S,
@@ -67,6 +68,10 @@ export class ConsoleHandler implements Handler {
         this.name = name;
     }
 
+    public setName(name: string) {
+        this.name = name;
+    }
+
     public getName(): string {
         return this.name;
     }
@@ -75,32 +80,33 @@ export class ConsoleHandler implements Handler {
         console.log(bundle.message);
     }
 
-    public async wantCard(card: Card, hand: Card[], played: Run[][], position: number, roun: number[], isTurn: boolean, last: boolean) {
+    public async wantCard(card: Card, isTurn: boolean, {hand, played, position, round, gameParams: {rounds}}: HandlerData): Promise<[boolean]> {
         hand = hand.sort(Card.compare);
         const handWith = hand.slice();
         handWith.push(card);
-        const found = find(handWith, roun, played[position]);
-        console.log('You have', formatFound(hand, found), 'on round', roun);
+        const found = find(handWith, rounds[round], played[position]);
+        console.log('You have', formatFound(hand, found), 'on round', rounds[round]);
         const message = 'Do you want ' + formatFound([card], found);
         const question: Prompt<'want', boolean> = {name: 'want', message, type: 'confirm', default: false};
         const { want } = await inquirer.prompt([question]);
-        return want;
+        return [want];
     }
 
-    public async turn(hand: Card[], played: Run[][], position: number, roun: number[], last: boolean):
+    public async turn({hand, played, position, round, gameParams: {rounds}}: HandlerData):
         Promise<{ toDiscard: Card | null, toPlay: Run[][] } | null> {
+        const last = round == rounds.length - 1;
         let toPlay: Run[][] = played;
 
-        this.printHand(hand, roun, played[position]);
+        this.printHand(hand, rounds[round], played[position]);
         if (played[position].length) {
             console.log('has played ', played[position].map((run) => run.toString()).join(' and '));
         }
-        console.log('aiming for', roun);
+        console.log('aiming for', rounds[round]);
         if (played[position].length === 0) {
             const message = 'Would you like to go down?';
             const question: Prompt<'goDown', boolean> = {name: 'goDown', type: 'confirm', message};
             if ((await inquirer.prompt([question]) as any).goDown) {
-                ({toPlay: toPlay[position], hand} = await this.goDown(hand, roun, last));
+                ({toPlay: toPlay[position], hand} = await this.goDown(hand, rounds[round], last));
             }
         } else {
             const firstMessage = 'Would you like to play cards on your runs?';
@@ -147,8 +153,8 @@ export class ConsoleHandler implements Handler {
             }
         }
         if (!last && hand.length) {
-            this.printHand(hand, roun, played[position]);
-            const toDiscard = await this.discard(hand, roun, played);
+            this.printHand(hand, rounds[round], played[position]);
+            const toDiscard = await this.discard(hand, rounds[round], played);
             hand.slice(hand.findIndex((card) => toDiscard.equals(card)));
             return { toDiscard, toPlay };
         } else if (!hand.length) {
@@ -193,11 +199,11 @@ export class ConsoleHandler implements Handler {
                     let { position } = await inquirer.prompt([{
                         name: 'position',
                         message: 'Please insert your wild cards',
-                        choices: run,
+                        choices: run.map(toInquirerValue),
                         //should support validate?
                         placeholder: wild.toString(),
                         type: 'selectLine'
-                    }]);
+                    } as any]);
                     run.splice(position, 0, wild);
                 }
                 toPlay.push(new FourCardRun(run));
