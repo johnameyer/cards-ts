@@ -121,6 +121,7 @@ export class Rank {
 
     private constructor(private readonly char: string, readonly value: number) {
         this.order = count++;
+        Object.freeze(this);
     }
 
     /**

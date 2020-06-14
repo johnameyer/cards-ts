@@ -13,6 +13,7 @@ import { zip } from './util/zip';
 import { GameParams } from './game-params';
 import { DealMessage } from './messages/deal-message';
 import { Card } from './card';
+import { Game } from '..';
 
 /**
  * Send a message to all the players
@@ -98,101 +99,244 @@ export class GameDriver {
      */
     public async start() {
         const state = this.gameState;
-        messageAll(this.players, new StartRoundMessage(state.getRound()) );
-        while (!state.isLastRound()) { // while is not game over
-            state.setupRound();
-            this.dealOut();
-            state.deck.discard(state.deck.draw());
-
-            if (state.deck.top === null) {
-                throw new Error('Already null');
-            }
-            const top = state.deck.top;
-            messageAll(this.players, new DiscardMessage(top) );
-
-            let whoseTurn: number = (state.dealer + 1) % this.players.length;
-            while (true) {
-                // first player after dealer gets first pick
-
-                const card = state.deck.top;
-                if (await (this.players[whoseTurn].wantCard(card, state))) {
-                    this.giveCard(whoseTurn, card);
-                    messageOthers(this.players, this.players[whoseTurn], new PickupMessage(card, this.players[whoseTurn].toString(), false));
-                    state.deck.takeTop();
-                } else {
-                    for (let i = 0; i < this.players.length - 1; i ++) {
-                        const player = this.players[(i + whoseTurn + 1) % this.players.length];
-                        if (await (player.wantCard(card, state, true))) {
-                            // tslint:disable-next-line
-                            let draw = state.deck.draw();
-                            if (!draw) {
-                                if(state.deck.shuffleDiscard()) {
-                                    // TODO add another deck?
-                                    throw new InvalidError('Deck ran out of cards');
-                                } else {
-                                    messageAll(this.players, new ReshuffleMessage() );
-                                    draw = state.deck.draw();
-                                }
-                            }
-                            this.giveCard((i + whoseTurn + 1) % this.players.length, card, draw);
-                            messageOthers(this.players, this.players[(i + whoseTurn + 1) % this.players.length], new PickupMessage(card, this.players[(i + whoseTurn + 1) % this.players.length].toString(), true));
-                            state.deck.takeTop();
-                            break;
-                        }
-                    }
-                    if (state.deck.top !== null) {
-                        messageAll(this.players, new PickupMessage(state.deck.top));
-                        state.deck.clearTop();
-                    }
-                    let draw = state.deck.draw();
-                    if (!draw) {
-                        if(state.deck.shuffleDiscard()) {
-                            // TODO add another deck?
-                            throw new InvalidError('Deck ran out of cards');
-                        } else {
-                            messageAll(this.players, new ReshuffleMessage());
-                            draw = state.deck.draw();
-                        }
-                    }
-                    this.giveCard(whoseTurn, draw);
-                }
-
-                const { discard, played } = await this.players[whoseTurn].turn(state);
-                if(!discard) {
-                    // TODO check for final round
-                    if(state.hands[whoseTurn].length) {
-                        break;
-                    }
-                    continue;
-                }
-
-                state.deck.discard(discard);
-                if(played) {
-                    for(const [player, playedRuns] of zip(state.played, played)) {
-                        for(const [run, playedCards] of zip(player, playedRuns)) {
-                            if(playedCards && playedCards.length) {
-                                messageOthers(this.players, this.players[whoseTurn], new PlayedMessage(playedCards, run, this.players[whoseTurn].toString()));
-                            }
-                        }
-                    }
-                }
-                messageOthers(this.players, this.players[whoseTurn], new DiscardMessage(discard, this.players[whoseTurn].toString()));
-
-                if(state.hands[whoseTurn].length === 0) {
-                    messageAll(this.players, new Message(this.players[whoseTurn].toString() + ' is out of cards'));
-                    this.gameState.scores[whoseTurn] -= 10;
-                    break;
-                }
-
-                whoseTurn = (whoseTurn + 1) % this.players.length;
-            }
-
-            state.nextRound();
-            for (let player = 0; player < state.numPlayers; player++) {
-                state.scores[player] += state.hands[player].map(card => card.rank.value).reduce((a, b) => a + b, 0);
-            }
-
-            messageAll(this.players, new EndRoundMessage(this.players.map(person => person.toString()), state.scores));
+        while(!state.completed) {
+            await this.iterate();
         }
+    }
+
+    public async iterate() {
+        const state = this.gameState;
+
+        switch(state.state) {
+            case GameState.State.START_GAME:
+                state.state = GameState.State.START_ROUND;
+                break;
+
+            case GameState.State.START_ROUND:
+                this.startRound();
+                break;
+
+            case GameState.State.WAIT_FOR_TURN_PLAYER_WANT:
+                await this.waitForTurnPlayerWant();
+                break;
+
+            case GameState.State.HANDLE_TURN_PLAYER_WANT:
+                this.handleTurnPlayerWant();
+                break;
+
+            case GameState.State.WAIT_FOR_PLAYER_WANT:
+                await this.waitForPlayerWant();
+                break;
+
+            case GameState.State.HANDLE_PLAYER_WANT:
+                this.handlePlayerWant();
+                break;
+
+            case GameState.State.HANDLE_NO_PLAYER_WANT:
+                this.handleNoPlayerWant();
+                break;
+
+            case GameState.State.START_TURN:
+                this.startTurn();
+                break;
+
+            case GameState.State.WAIT_FOR_TURN:
+                await this.waitForTurn();
+                break;
+
+            case GameState.State.HANDLE_TURN:
+                this.handleTurn();
+                break;
+
+            case GameState.State.END_ROUND:
+                this.endRound();
+                break;
+
+            case GameState.State.END_GAME:
+                state.completed = true;
+                break;
+        }
+
+    }
+
+    private startRound() {
+        const state = this.gameState;
+        messageAll(this.players, new StartRoundMessage(state.getRound()));
+        state.setupRound();
+        this.dealOut();
+        state.deck.discard(state.deck.draw());
+
+        if (state.deck.top === null) {
+            throw new Error('Already null');
+        }
+        const top = state.deck.top;
+        messageAll(this.players, new DiscardMessage(top));
+
+        state.whoseTurn = (state.dealer + 1) % this.players.length;
+
+        state.state = GameState.State.WAIT_FOR_TURN_PLAYER_WANT;
+    }
+
+    private endRound() {
+        const state = this.gameState;
+        state.nextRound();
+        for (let player = 0; player < state.numPlayers; player++) {
+            state.scores[player] += state.hands[player].map(card => card.rank.value).reduce((a, b) => a + b, 0);
+        }
+
+        messageAll(this.players, new EndRoundMessage(this.players.map(person => person.toString()), state.scores));
+
+        state.state = GameState.State.START_ROUND;
+    }
+
+    private async waitForTurnPlayerWant() {
+        const state = this.gameState;
+        const card = state.deck.top;
+        if(!card) {
+            throw new Error('Invalid State');
+        }
+        const wantCard = await this.players[state.whoseTurn].wantCard(card, state);
+
+        if(wantCard) {
+            state.state = GameState.State.HANDLE_TURN_PLAYER_WANT;
+        } else {
+            state.whoseAsk = (state.whoseTurn + 1) % this.players.length;
+            if(state.whoseAsk === state.whoseTurn) {
+                state.state = GameState.State.HANDLE_NO_PLAYER_WANT;
+            } else {
+                state.state = GameState.State.WAIT_FOR_PLAYER_WANT;
+            }
+        }
+    }
+
+    private handleNoPlayerWant() {
+        const state = this.gameState;
+        if (state.deck.top !== null) {
+            messageAll(this.players, new PickupMessage(state.deck.top));
+            state.deck.clearTop();
+        }
+
+        state.state = GameState.State.START_TURN;
+    }
+
+    private async waitForPlayerWant() {
+        const state = this.gameState;
+        const card = state.deck.top;
+        if(!card) {
+            throw new Error('Invalid State');
+        }
+        const wantCard = await this.players[state.whoseAsk].wantCard(card, state, true);
+
+        if(wantCard) {
+            state.state = GameState.State.HANDLE_PLAYER_WANT;
+        } else {
+            state.whoseAsk = (state.whoseAsk + 1) % this.players.length;
+            if(state.whoseAsk === state.whoseTurn) {
+                state.state = GameState.State.HANDLE_NO_PLAYER_WANT;
+            } else {
+                state.state = GameState.State.WAIT_FOR_PLAYER_WANT;
+            }
+        }
+    }
+
+    private handleTurnPlayerWant() {
+        const state = this.gameState;
+        const card = state.deck.top;
+        if(!card) {
+            throw new Error('Invalid State');
+        }
+        this.giveCard(state.whoseTurn, card);
+        messageOthers(this.players, this.players[state.whoseTurn], new PickupMessage(card, this.players[state.whoseTurn].toString(), false));
+        state.deck.takeTop();
+
+        state.state = GameState.State.START_TURN;
+    }
+
+    private async waitForTurn() {
+        const state = this.gameState;
+        // turn
+        state.turnPayload = await this.players[state.whoseTurn].turn(state);
+        state.state = GameState.State.HANDLE_TURN;
+    }
+
+    private handleTurn() {
+        const state = this.gameState;
+        const { discard, played } = state.turnPayload;
+
+        if(!discard) {
+            // TODO check for final round
+            if(state.hands[state.whoseTurn].length) {
+                state.state = GameState.State.END_ROUND;
+            }
+            return;
+        }
+
+        state.deck.discard(discard);
+        if(played) {
+            for(const [player, playedRuns] of zip(state.played, played)) {
+                for(const [run, playedCards] of zip(player, playedRuns)) {
+                    if(playedCards && playedCards.length) {
+                        messageOthers(this.players, this.players[state.whoseTurn], new PlayedMessage(playedCards, run, this.players[state.whoseTurn].toString()));
+                    }
+                }
+            }
+        }
+        messageOthers(this.players, this.players[state.whoseTurn], new DiscardMessage(discard, this.players[state.whoseTurn].toString()));
+
+        if(state.hands[state.whoseTurn].length === 0) {
+            messageAll(this.players, new Message(this.players[state.whoseTurn].toString() + ' is out of cards'));
+            this.gameState.scores[state.whoseTurn] -= 10;
+            state.state = GameState.State.END_ROUND;
+            return;
+        }
+
+        state.state = GameState.State.WAIT_FOR_TURN_PLAYER_WANT;
+        state.whoseTurn = (state.whoseTurn + 1) % this.players.length;
+    }
+
+    private handlePlayerWant() {
+        const state = this.gameState;
+        const whoseAsk = state.whoseAsk;
+        const card = state.deck.top;
+
+        if(!card) {
+            throw new Error('Invalid State');
+        }
+
+        // tslint:disable-next-line
+        let draw = state.deck.draw();
+        if (!draw) {
+            if(state.deck.shuffleDiscard()) {
+                // TODO add another deck?
+                throw new InvalidError('Deck ran out of cards');
+            } else {
+                messageAll(this.players, new ReshuffleMessage() );
+                draw = state.deck.draw();
+            }
+        }
+        this.giveCard(whoseAsk, card, draw);
+        messageOthers(this.players, this.players[whoseAsk], new PickupMessage(card, this.players[whoseAsk].toString(), true));
+        state.deck.takeTop();
+
+        state.state = GameState.State.START_TURN;
+    }
+
+    private startTurn() {
+        const state = this.gameState;
+        const whoseTurn = state.whoseTurn;
+
+        let draw = state.deck.draw();
+        if (!draw) {
+            if(state.deck.shuffleDiscard()) {
+                // TODO add another deck?
+                throw new InvalidError('Deck ran out of cards');
+            } else {
+                messageAll(this.players, new ReshuffleMessage());
+                draw = state.deck.draw();
+            }
+        }
+        this.giveCard(whoseTurn, draw);
+
+        state.state = GameState.State.WAIT_FOR_TURN;
     }
 }

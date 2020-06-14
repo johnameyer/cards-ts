@@ -70,6 +70,7 @@ export class Suit {
 
     private constructor(public readonly symbol: string, public readonly letter: string) {
         this.order = count++;
+        Object.freeze(this);
     }
 
     /**

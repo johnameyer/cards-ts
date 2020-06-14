@@ -11,8 +11,10 @@
             "preLaunchTask": "npm: build",
             "type": "node-terminal",
             "skipFiles": [
-                "<node_internals>/**"
-            ]
+                "<node_internals>/**",
+                "${workspaceFolder}/node_modules/**"
+            ],
+            "showAsyncStacks": true
         }
     ]
 }

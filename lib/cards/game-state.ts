@@ -50,6 +50,19 @@ export class GameState {
      */
     public dealer: number;
 
+    /**
+     * The index of the player who will be next
+     */
+    public whoseTurn!: number;
+
+    public turnPayload!: {discard: Card | null, played: Card[][][] | null}; // ReturnType<typeof Hand.turn>;
+
+    public whoseAsk!: number;
+
+    public state: GameState.State;
+
+    public completed: boolean;
+
     public data: HandlerCustomData[];
 
     /**
@@ -62,7 +75,9 @@ export class GameState {
         this.numPlayers = numPlayers;
         this.scores = new Array(numPlayers).fill(0, 0, numPlayers);
         this.dealer = 0;
+        this.completed = false;
         this.data = new Array(this.numPlayers).fill(0).map(() => ({}));
+        this.state = GameState.State.START_GAME;
         this.setupRound();
     }
 
@@ -123,5 +138,28 @@ export class GameState {
             scores: this.scores.slice(),
             data: this.data[position]
         };
+    }
+}
+
+export namespace GameState {
+    export enum State {
+        START_GAME,
+
+        START_ROUND,
+        WAIT_FOR_TURN_PLAYER_WANT,
+        HANDLE_TURN_PLAYER_WANT,
+
+        WAIT_FOR_PLAYER_WANT,
+        HANDLE_PLAYER_WANT,
+
+        HANDLE_NO_PLAYER_WANT,
+
+        START_TURN,
+        WAIT_FOR_TURN,
+        HANDLE_TURN,
+
+        END_ROUND,
+
+        END_GAME
     }
 }

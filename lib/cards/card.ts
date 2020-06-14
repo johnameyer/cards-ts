@@ -61,6 +61,7 @@ export class Card {
                 public readonly deck: number = -1,
                 private readonly jokerNum: number = -1,
                 ) {
+        Object.freeze(this);
     }
 
     /**
