@@ -14,7 +14,7 @@ export interface Handler {
      * @param gameState the current state of the game, as visible to the handler
      * @returns whether or not the card is wanted, along with the mutated custom data to be saved
      */
-    wantCard(card: Card, isTurn: boolean, gameState: HandlerData): Promise<[boolean, HandlerCustomData] | [boolean]>;
+    wantCard(card: Card, isTurn: boolean, gameState: HandlerData): Promise<[boolean, HandlerCustomData?]>;
 
     /**
      * Allow the player to make their turn

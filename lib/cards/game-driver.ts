@@ -249,7 +249,7 @@ export class GameDriver {
         messageOthers(this.players, this.players[state.whoseTurn], new PickupMessage(card, this.players[state.whoseTurn].toString(), false));
         state.deck.takeTop();
 
-        state.state = GameState.State.START_TURN;
+        state.state = GameState.State.WAIT_FOR_TURN;
     }
 
     private async waitForTurn() {
@@ -265,7 +265,7 @@ export class GameDriver {
 
         if(!discard) {
             // TODO check for final round
-            if(state.hands[state.whoseTurn].length) {
+            if(!state.hands[state.whoseTurn].length) {
                 state.state = GameState.State.END_ROUND;
             }
             return;

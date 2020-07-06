@@ -20,3 +20,4 @@ export { Message } from './cards/messages/message';
 export { PickupMessage } from './cards/messages/pickup-message';
 export { DealMessage } from './cards/messages/deal-message';
 export { HandlerData } from './cards/handlers/handler-data';
+export { ClientHandler } from './cards/handlers/client-handler';

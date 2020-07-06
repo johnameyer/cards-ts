@@ -4,6 +4,7 @@ import { Card, potentialWilds } from './card';
 import { Rank } from './rank';
 import { Suit } from './suit';
 import { ValueError } from './value-error';
+import { zip } from './util/zip';
 
 /**
  * Checks if a three card set is valid
@@ -130,7 +131,30 @@ export class ThreeCardSet extends Run {
      * @returns the string representation
      */
     public toString(): string {
-        return 'Set of ' + this.rank.toString() + ' <' + this.cards.map((card) => card.toString()).join(' ') + '>';
+        return 'Set of ' + this.rank.toString() + ' <' + this.cards.map((card) => card.toString()).join(', ') + '>';
+    }
+
+    public equals(other?: any): boolean {
+        if (!other) {
+            return false;
+        }
+        if(!(other instanceof ThreeCardSet)) {
+            return false;
+        }
+        if(this.rank !== other.rank) {
+            return false;
+        }
+        if(this.cards.length !== other.cards.length) {
+            return false;
+        }
+        if(this.wilds.length !== other.wilds.length) {
+            return false;
+        }
+        const whereInequal = ([first, second]: [Card, Card]) => !first.equals(second);
+        if(zip(this.cards.slice().sort(Card.compare), other.cards.slice().sort(Card.compare)).findIndex(whereInequal) >= 0){
+            return false;
+        }
+        return true;
     }
 
     /**

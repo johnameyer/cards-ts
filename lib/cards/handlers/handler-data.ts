@@ -1,7 +1,6 @@
 import { GameParams } from "../game-params";
 import { Card } from "../card";
 import { Run } from "../run";
-import { Deck } from "../deck";
 
 export type HandlerCustomData = {[key: string]: any};
 

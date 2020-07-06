@@ -9,10 +9,11 @@ import { Suit } from '../../lib/cards/suit';
 const get = Card.fromString;
 
 describe('FourCardRun', () => {
-    let J: Card, THREE: Card, FIVE: Card, JH: Card, QH: Card, KH: Card, AH: Card, JC: Card;
+    let J: Card, TWO: Card, THREE: Card, FIVE: Card, JH: Card, QH: Card, KH: Card, AH: Card, JC: Card;
 
     beforeEach(() => {
         J = get('*');
+        TWO = get('2S');
         THREE = get('3H');
         FIVE = get('5H');
         JH = get('JH');
@@ -138,7 +139,7 @@ describe('FourCardRun', () => {
 
     describe('#isLive', () => {
         it('should check if live', () => {
-            const run: FourCardRun = new FourCardRun([J, JH, QH, KH]);
+            const run: FourCardRun = new FourCardRun([TWO, J, JH, QH, KH]);
             let card: Card = new Card(Suit.HEARTS, Rank.TEN, 1);
             let live: boolean = run.isLive(card);
             expect(live).to.be.true;
@@ -153,21 +154,30 @@ describe('FourCardRun', () => {
         it('should contain live cards', () => {
             let run: FourCardRun = new FourCardRun([JH, QH, KH, AH]);
             let liveCards: Card[] = [...run.liveCards()];
-            [J, get('10H')].forEach((card) => {
+            [TWO, J, get('10H')].forEach((card) => {
                 expect(liveCards.find((x) => x.equals(card))).to.not.be.undefined;
+            });
+            [get('10S'), get('AS')].forEach((card) => {
+                expect(liveCards.find((x) => x.equals(card))).to.be.undefined;
             });
             // use member?
 
-            run = new FourCardRun([J, QH, KH, AH]);
+            run = new FourCardRun([J, TWO, KH, AH]);
             liveCards = [...run.liveCards()];
-            [J, get('10H'), JH].forEach((card) => {
+            [get('10H'), JH].forEach((card) => {
                 expect(liveCards.find((x) => x.equals(card))).to.not.be.undefined;
+            });
+            [TWO, J, get('10S'), get('AS')].forEach((card) => {
+                expect(liveCards.find((x) => x.equals(card))).to.be.undefined;
             });
 
             run = new FourCardRun([JH, QH, KH, J]);
             liveCards = [...run.liveCards()];
-            [J, get('10H'), AH].forEach((card) => {
+            [TWO, J, get('10H'), AH].forEach((card) => {
                 expect(liveCards.find((x) => x.equals(card))).to.not.be.undefined;
+            });
+            [get('10S'), get('AS')].forEach((card) => {
+                expect(liveCards.find((x) => x.equals(card))).to.be.undefined;
             });
         });
     });

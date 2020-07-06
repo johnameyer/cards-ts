@@ -43,4 +43,6 @@ export abstract class Run {
      * Member variable to distinguish between types of runs
      */
     public type: number = 0;
+
+    public abstract equals(other?: any): boolean;
 }

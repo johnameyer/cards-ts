@@ -3,6 +3,7 @@ import { Rank } from './rank';
 import { Card, potentialWilds } from './card';
 import { Run } from './run';
 import { Suit } from './suit';
+import { zip } from './util/zip';
 
 declare global {
     interface Array<T> {
@@ -32,6 +33,10 @@ function check(run: FourCardRun): void {
     }
     if (run.cards.length < 4 ) {
         throw new InvalidError('Not enough cards');
+    }
+
+    if(run.cards.findIndex(val => !val) >= 0) {
+        throw new InvalidError('Falsy value');
     }
 
     const [first, last]: [Rank, Rank] = run.range();
@@ -304,7 +309,27 @@ export class FourCardRun extends Run {
      * @returns string form
      */
     public toString(): string {
-        return 'Run of ' + this.suit.toString() + ' <' + this.cards.map((card) => card.toString()).join(' ') + '>';
+        return 'Run of ' + this.suit.toString() + ' <' + this.cards.map((card) => card.toString()).join(', ') + '>';
+    }
+
+    public equals(other?: any): boolean {
+        if (!other) {
+            return false;
+        }
+        if(!(other instanceof FourCardRun)) {
+            return false;
+        }
+        if(this.suit !== other.suit) {
+            return false;
+        }
+        if(this.cards.length !== other.cards.length) {
+            return false;
+        }
+        const whereInequal = ([first, second]: [Card, Card]) => !first.equals(second);
+        if(zip(this.cards.slice().sort(Card.compare), other.cards.slice().sort(Card.compare)).findIndex(whereInequal) >= 0){
+            return false;
+        }
+        return true;
     }
 
     /**

@@ -1,7 +1,7 @@
 {
   "name": "can-i-have-that",
-  "version": "1.0.0",
-  "description": "",
+  "version": "0.0.0",
+  "description": "Library and console implementation of the game 'Can I Have That' which is a house variation on Continental Rummy.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [

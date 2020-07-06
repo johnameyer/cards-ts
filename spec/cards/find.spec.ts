@@ -105,6 +105,22 @@ describe('find', () => {
             expect(unusedValue).to.equal(10);
             expect(lengths(chosen)).to.have.members([3, 4]);
         });
+
+        it('should use wilds properly', () => {
+            const cards = ['3S', '3S', '9H', '9C', '2C', '2C', '*', '*'].map(Card.fromString);
+            const [missing, unusedValue, chosen] = find(cards, sought);
+            expect(missing).to.equal(0);
+            expect(unusedValue).to.equal(0);
+            expect(lengths(chosen)).to.have.members([4, 4]);
+        });
+
+        it('should not use excess wilds', () => {
+            const cards = ['3S', '3S', '9H', '9C', '2C', '2C', '*', '*', '*'].map(Card.fromString);
+            const [missing, unusedValue, chosen] = find(cards, sought);
+            expect(missing).to.equal(0);
+            expect(unusedValue).to.equal(20);
+            expect(lengths(chosen)).to.have.members([4, 4]);
+        });
     });
 
     describe('3 3 3', () => {

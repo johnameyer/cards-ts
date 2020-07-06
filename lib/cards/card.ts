@@ -88,8 +88,11 @@ export class Card {
      * @param other the card to compare to
      * @returns if the cards are equivalent
      */
-    public equals(other?: Card): boolean {
+    public equals(other?: any): boolean {
         if (!other) {
+            return false;
+        }
+        if(typeof other !== typeof this) {
             return false;
         }
         if (this.deck + 1 && other.deck + 1 && this.deck !== other.deck) {

@@ -70,13 +70,13 @@ function findOptimimum(cards: Card[], cardIndex: number, wilds: Card[], wildsInd
                 runs = newRuns;
             }
         }
-        if(missing < 0) {
-            const unused = wilds.slice(wilds.length - missing - 1);
-            return [0, unused.map(card => card.rank.value).reduce((a,b) => a + b, 0), runs, unused];
-        }
+        // if(missing < 0) {
+        //     const unused = wilds.slice(wilds.length - missing - 1);
+        //     return [0, unused.map(card => card.rank.value).reduce((a,b) => a + b, 0), runs, unused];
+        // }
         if(wilds.length > wildsIndex) {
             for(let i = 0; i < sought.length; i++) {
-                const wildsToUse = Math.min(wilds.length - wildsIndex, runs[i].length);
+                const wildsToUse = Math.min(wilds.length - wildsIndex, runs[i].filter(card => !card.isWild()).length - runs[i].filter(card => card.isWild()).length);
                 const newRuns = runs.slice();
                 newRuns[i] = newRuns[i].slice();
                 newRuns[i].push(...wilds.slice(wildsIndex, wildsToUse + wildsIndex));
@@ -84,7 +84,8 @@ function findOptimimum(cards: Card[], cardIndex: number, wilds: Card[], wildsInd
                 runs = newRuns;
             }
         }
-        return [missing, 0, runs, []];
+        const unused = wilds.slice(wildsIndex);
+        return [missing, unused.map(wild => wild.rank.value).reduce((a, b) => a + b, 0), runs, unused];
     }
     const reduction = <T extends {0: number, 1: number}>(a: T, b: T): T => {
         if(a[0] > b[0]) {

@@ -13,6 +13,7 @@ import { Rank } from '../rank';
 import { Suit } from '../suit';
 import { Message } from '../messages/message';
 import { HandlerData } from './handler-data';
+import { ClientHandler } from './client-handler';
 
 type Prompt<S extends string, T> = inquirer.Question<Record<S, T>> & {
     name: S,
@@ -57,8 +58,7 @@ const toInquirerValue = <T extends {toString: () => string}>(t: T) => ({
 
 inquirer.registerPrompt('selectLine', require('inquirer-select-line'));
 
-export class ConsoleHandler implements Handler {
-
+export class ConsoleHandler extends ClientHandler {
     private name!: string;
 
     public async askForName() {
@@ -92,146 +92,6 @@ export class ConsoleHandler implements Handler {
         return [want];
     }
 
-    public async turn({hand, played, position, round, gameParams: {rounds}}: HandlerData):
-        Promise<{ toDiscard: Card | null, toPlay: Run[][] } | null> {
-        const last = round == rounds.length - 1;
-        let toPlay: Run[][] = played;
-
-        this.printHand(hand, rounds[round], played[position]);
-        if (played[position].length) {
-            console.log('has played ', played[position].map((run) => run.toString()).join(' and '));
-        }
-        console.log('aiming for', rounds[round]);
-        if (played[position].length === 0) {
-            const message = 'Would you like to go down?';
-            const question: Prompt<'goDown', boolean> = {name: 'goDown', type: 'confirm', message};
-            if ((await inquirer.prompt([question]) as any).goDown) {
-                ({toPlay: toPlay[position], hand} = await this.goDown(hand, rounds[round], last));
-            }
-        } else {
-            const firstMessage = 'Would you like to play cards on your runs?';
-            const playQuestion: Prompt<'playCard', boolean> = {name: 'playCard', type: 'confirm', message: firstMessage};
-            const additionalMessage = 'Would you like to play more cards on your runs?';
-            const saved = played[position].slice();
-            if ((await inquirer.prompt([playQuestion])).playCard) {
-                const playQuestion = {name: 'playCard', type: 'confirm', message: additionalMessage};
-                do {
-                    const question = {
-                        name: 'run',
-                        message: 'Please enter which set you would like to play on',
-                        type: 'list',
-                        choices: saved.map(toInquirerValue),
-                    };
-                    const run: Run = (await inquirer.prompt([question]) as any).run;
-                    if (!run) {
-                        break;
-                    }
-                    await askToPlayOnRun(run, hand);
-                    // TODO !(hand.length == 1 && !last || hand.length == 0 ) &&
-                } while ( (await inquirer.prompt([playQuestion]) as {playCard: boolean}).playCard);
-            }
-        }
-        const notMyHand = (item: Run[], index: number) => index != position;
-        if (hand.length && played[position].length && !last) {
-            if (played.filter(notMyHand).some((other) => other.length > 0)) {
-                console.log('You still have ' + hand);
-                const wouldPlayOthers: Prompt<'wouldPlay', boolean> = {
-                    name: 'wouldPlay',
-                    message: 'Would you like to play a card on others',
-                    type: 'confirm',
-                };
-                while ((await inquirer.prompt([wouldPlayOthers])).wouldPlay) {
-                    const toPlayOn: Prompt<'toPlayOn', Run> = {
-                        name: 'toPlayOn',
-                        message: 'Please choose which run you would like to play on',
-                        type: 'list',
-                        choices: () => played.filter(notMyHand).reduce<Run[]>(flatten, []).map(toInquirerValue),
-                    };
-                    const runToPlayOn = (await inquirer.prompt([toPlayOn])).toPlayOn;
-                    await askToPlayOnRun(runToPlayOn, hand);
-                }
-            }
-        }
-        if (!last && hand.length) {
-            this.printHand(hand, rounds[round], played[position]);
-            const toDiscard = await this.discard(hand, rounds[round], played);
-            hand.slice(hand.findIndex((card) => toDiscard.equals(card)));
-            return { toDiscard, toPlay };
-        } else if (!hand.length) {
-            return { toDiscard: null, toPlay };
-        }
-        // TODO need to handle live cards
-        return null;
-    }
-
-    public async goDown(hand: Card[], roun: number[], last: boolean): Promise<{toPlay: Run[], hand: Card[]}> {
-        let cardsLeft: Card[] = hand.slice();
-        const toPlay = [];
-        for (const num of roun) {
-            const question: MultiPrompt<'run', Card> = {
-                name: 'run',
-                message: 'Please enter cards in the '  + (num === 3 ? '3 of a kind' : '4 card run'),
-                type: 'checkbox',
-                choices: () => cardsLeft.sort(Card.compare).map((card) => ({ name: card.toString(), value: card })),
-                validate: async (input: Card[]) => {
-                    if (input.length === 0) {
-                        return true;
-                    }
-                    try {
-                        await validateSetSelection(num, input);
-                        return true;
-                    } catch (e) {
-                        return e;
-                    }
-                },
-            };
-            const selected: Card[] = (await inquirer.prompt([question])).run;
-            if (!selected.length) {
-                return { toPlay: [], hand };
-            }
-            cardsLeft = cardsLeft.filter((card) => !selected.find((w: Card | undefined) => card.equals(w)));
-            if (num === 3) {
-                toPlay.push(new ThreeCardSet(selected));
-            } else {
-                let [wilds, nonwilds] = selected.bifilter(card => card.rank.isWild());
-                let run = nonwilds;
-                for (let wild of wilds) {
-                    let { position } = await inquirer.prompt([{
-                        name: 'position',
-                        message: 'Please insert your wild cards',
-                        choices: run.map(toInquirerValue),
-                        //TODO something up here
-                        //should support validate?
-                        placeholder: wild.toString(),
-                        type: 'selectLine'
-                    } as any]);
-                    run.splice(position, 0, wild);
-                }
-                toPlay.push(new FourCardRun(run));
-            }
-        }
-        if (last && cardsLeft.length) {
-            throw new InvalidError('Must play all cards on the last round');
-        }
-        return {toPlay, hand: cardsLeft};
-    }
-
-    public async discard(cardsLeft: Card[], roun: number[], played: Run[][]) {
-        const [live, nonlive] = cardsLeft.bifilter(card => played.some(runs => runs.some(run => run.isLive(card))));
-        // TODO all cards are live what to do?
-        if(live.length) {
-            console.log('Your cards', live.map(card => card.toString()).join(', '), 'are live');
-        }
-        const toDiscardQuestion: Prompt<'toDiscard', Card> = {
-            name: 'toDiscard',
-            message: 'Select the card to discard',
-            type: 'list',
-            choices: nonlive.sort(Card.compare).map(toInquirerValue)
-        };
-        const { toDiscard } = (await inquirer.prompt([toDiscardQuestion]));
-        return toDiscard;
-    }
-
     public dealCard(card: Card, extra: Card | undefined, dealt: boolean) {
         if (dealt) {
             console.log('Received', card.toString());
@@ -248,6 +108,121 @@ export class ConsoleHandler implements Handler {
         hand.sort();
         const found = find(hand, roun, played);
         console.log('Player has', formatFound(hand, found, true));
+    }
+
+    showHand(hand: Card[], roun: (3 | 4)[], played: Run[]): void {
+        this.printHand(hand, roun, played);
+    }
+
+    
+    async selectCards(cardsLeft: Card[], num: number): Promise<Card[]> {
+        const question: MultiPrompt<'run', Card> = {
+            name: 'run',
+            message: 'Please enter cards in the '  + (num === 3 ? '3 of a kind' : '4 card run'),
+            type: 'checkbox',
+            choices: () => cardsLeft.sort(Card.compare).map((card) => ({ name: card.toString(), value: card })),
+            validate: async (input: Card[]) => {
+                if (input.length === 0) {
+                    return true;
+                }
+                try {
+                    await validateSetSelection(num, input);
+                    return true;
+                } catch (e) {
+                    return e;
+                }
+            },
+        };
+        return (await inquirer.prompt([question])).run;
+    }
+
+    async cardsToPlay(hand: Card[], run: Run): Promise<Card[]> {
+        const cardsToPlayQuestion = {
+            name: 'run',
+            message: 'Please select cards you\'d like to add',
+            type: 'checkbox',
+            choices: (x: inquirer.Answers) => {
+                return hand.sort(Card.compare).map(toInquirerValue);
+            },
+            validate: (input: Card | null) => {
+                if (!input) {
+                    return true;
+                }
+                try {
+                    run.clone().add(input);
+                } catch (e) {
+                    return e;
+                }
+            }
+        };
+        return (await inquirer.prompt([cardsToPlayQuestion])).run;
+    }
+
+    async moveToTop(): Promise<boolean> {
+        const moveToTop: Prompt<'moveToTop', boolean> = {
+            name: 'moveToTop',
+            message: 'Would you like to move the old card to the top (if applicable)',
+            // TODO change when to only ask when relevant
+            type: 'confirm',
+            when: (answers: any) => {
+                return answers.run !== null;
+            },
+        };
+        return (await inquirer.prompt([moveToTop])).moveToTop;
+    }
+
+    async wantToPlay(runOptions: Run[], hand: Card[]): Promise<boolean> {
+        console.log('Player has', hand.map(card => card.toString()).join(', '));
+        console.log('Others have played\n', runOptions.map(run => run.toString()).join('\n'));
+        const wouldPlayOthers: Prompt<'wouldPlay', boolean> = {
+            name: 'wouldPlay',
+            message: 'Would you like to play cards on runs',
+            type: 'confirm',
+        };
+        return (await inquirer.prompt([wouldPlayOthers])).wouldPlay;
+    }
+
+    async whichPlay(runOptions: Run[], hand: Card[]): Promise<Run> {
+        const toPlayOn: Prompt<'toPlayOn', Run> = {
+            name: 'toPlayOn',
+            message: 'Please choose which run you would like to play on',
+            type: 'list',
+            choices: () => runOptions.map(toInquirerValue),
+        };
+        return (await inquirer.prompt([toPlayOn])).toPlayOn;
+    }
+
+    async wantToGoDown(): Promise<boolean> {
+        const message = 'Would you like to go down?';
+        const question: Prompt<'goDown', boolean> = {name: 'goDown', type: 'confirm', message};
+        return (await inquirer.prompt([question])).goDown;
+    }
+
+    async discardChoice(cardsLeft: Card[], live: Card[]): Promise<Card> {
+        // TODO all cards are live what to do?
+        if(live.length) {
+            console.log('The cards', live.map(card => card.toString()).join(', '), 'are live');
+        }
+        const toDiscardQuestion: Prompt<'toDiscard', Card> = {
+            name: 'toDiscard',
+            message: 'Select the card to discard',
+            type: 'list',
+            choices: cardsLeft.filter(card => live.indexOf(card) === -1).sort(Card.compare).map(toInquirerValue)
+        };
+        return (await inquirer.prompt([toDiscardQuestion])).toDiscard;
+    }
+
+    async insertWild(run: Card[], wild: Card): Promise<number> {
+        let { position } = await inquirer.prompt([{
+            name: 'position',
+            message: 'Please insert your wild cards',
+            choices: run.map(toInquirerValue),
+            //TODO something up here
+            //should support validate?
+            placeholder: wild.toString(),
+            type: 'selectLine'
+        } as any]);
+        return position;
     }
 }
 
@@ -386,67 +361,4 @@ function formatFound(cards: Card[], found: [Card[][], Card[][]], high = false) {
         }
     }
     return str.reverse().join(' ');
-}
-
-async function askToPlayOnRun(run: Run, hand: Card[]) {
-    if (run instanceof ThreeCardSet) {
-        const cardToPlayQuestion = {
-            name: 'cards',
-            message: 'Please select cards you\'d like to play',
-            type: 'checkbox',
-            choices: () => hand.sort(Card.compare).map(toInquirerValue),
-            validate: (input: Card[]) => {
-                if (input.length === 0) {
-                    return true;
-                }
-                try {
-                    run.clone().add(...input);
-                    return true;
-                } catch (e) {
-                    return e;
-                }
-            }
-        };
-        const cards: Card[] = (await inquirer.prompt([cardToPlayQuestion]) as any).cards;
-        if (!cards) {
-            return;
-        }
-        cards.forEach((toRemove) => hand.splice(hand.findIndex((card) => toRemove.equals(card)), 1));
-        run.add(...cards);
-    } else if (run instanceof FourCardRun) {
-        const cardToPlayQuestions = [{
-            name: 'run',
-            message: 'Please select card you\'d like to add',
-            type: 'list',
-            choices: (x: inquirer.Answers) => {
-                const none = {name: 'Escape', value: null};
-                const cards = hand.sort(Card.compare).map(toInquirerValue);
-                return [none, ...cards];
-            },
-            validate: (input: Card | null) => {
-                if (!input) {
-                    return true;
-                }
-                try {
-                    run.clone().add(input);
-                } catch (e) {
-                    return e;
-                }
-            }
-        }, {
-            name: 'moveToTop',
-            message: 'Would you like to move the old card to the top (if applicable)',
-            // TODO change when to only ask when relevant
-            type: 'confirm',
-            when: (answers: any) => {
-                return answers.run !== null;
-            },
-        }];
-        const result = await inquirer.prompt(cardToPlayQuestions);
-        if (!result.cards) {
-            return;
-        }
-        run.add(result.card, result.moveToTop);
-        hand.splice(hand.findIndex(result.card.equals), 1);
-    }
 }
