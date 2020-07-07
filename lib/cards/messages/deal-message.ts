@@ -1,15 +1,11 @@
 import { Card } from "../card";
 import { Message } from "./message";
 
-function generateMessage(card: Card, extra?: Card, dealt?: boolean) {
-    if (dealt) {
-        return 'Received ' + card.toString();
+function generateMessage(card: Card, extra?: Card) {
+    if (extra) {
+        return 'Picked up ' + card.toString() + ' and ' + extra.toString();
     } else {
-        if (extra) {
-            return 'Picked up ' + card.toString() + ' and ' + extra.toString();
-        } else {
-            return 'Picked up ' + card.toString();
-        }
+        return 'Picked up ' + card.toString();
     }
 }
 
@@ -22,7 +18,7 @@ export class DealMessage extends Message {
      * @param extra the extra card that is drawn if applicable
      * @param dealt whether or not the card was dealt
      */
-    constructor(public readonly card: Card, public readonly extra?: Card, public readonly dealt?: boolean) {
-        super(generateMessage(card, extra, dealt));
+    constructor(public readonly card: Card, public readonly extra?: Card) {
+        super(generateMessage(card, extra));
     }
 }

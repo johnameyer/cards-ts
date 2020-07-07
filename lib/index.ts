@@ -19,5 +19,6 @@ export { ValueError } from './cards/value-error';
 export { Message } from './cards/messages/message';
 export { PickupMessage } from './cards/messages/pickup-message';
 export { DealMessage } from './cards/messages/deal-message';
+export { DealOutMessage } from './cards/messages/deal-out-message';
 export { HandlerData } from './cards/handlers/handler-data';
 export { ClientHandler } from './cards/handlers/client-handler';

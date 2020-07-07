@@ -3,12 +3,10 @@
 
 import chalk from 'chalk';
 import inquirer = require('inquirer');
-import { Handler } from './handler';
 import { Card } from '../card';
 import { Run } from '../run';
 import { ThreeCardSet } from '../three-card-set';
-import { FourCardRun, checkFourCardRunPossible } from '../four-card-run';
-import { InvalidError } from '../invalid-error';
+import { checkFourCardRunPossible } from '../four-card-run';
 import { Rank } from '../rank';
 import { Suit } from '../suit';
 import { Message } from '../messages/message';
@@ -25,9 +23,6 @@ type MultiPrompt<S extends string, T> = inquirer.Question<Record<S, T[]>> & {
     choices?: T[] | {name: string, value: T}[] | (() => T[]) | (() => {name: string, value: T}[]);
 };
 
-function distinct(value: Card, index: number, arr: Card[]) {
-    return arr.findIndex(other => value.equals(other)) === index;
-}
 
 function flatten<T>(reduction: T[], arr: T[]) {
     reduction.push(...arr);
@@ -137,11 +132,11 @@ export class ConsoleHandler extends ClientHandler {
     }
 
     async cardsToPlay(hand: Card[], run: Run): Promise<Card[]> {
-        const cardsToPlayQuestion = {
+        const cardsToPlayQuestion: MultiPrompt<'run', Card> = {
             name: 'run',
             message: 'Please select cards you\'d like to add',
             type: 'checkbox',
-            choices: (x: inquirer.Answers) => {
+            choices: () => {
                 return hand.sort(Card.compare).map(toInquirerValue);
             },
             validate: (input: Card | null) => {

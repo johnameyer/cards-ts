@@ -14,6 +14,7 @@ import { GameParams } from './game-params';
 import { DealMessage } from './messages/deal-message';
 import { Card } from './card';
 import { Game } from '..';
+import { DealOutMessage } from './messages/deal-out-message';
 
 /**
  * Send a message to all the players
@@ -74,8 +75,11 @@ export class GameDriver {
                         card = state.deck.draw();
                     }
                 }
-                this.giveCard((player + offset) % this.players.length, card, undefined, true);
+                this.giveCard((player + offset) % this.players.length, card, undefined, false);
             }
+        }
+        for (let player = 0; player < this.players.length; player++) {
+            this.players[player].message(new DealOutMessage(this.gameState.hands[player]));
         }
     }
 
@@ -86,12 +90,14 @@ export class GameDriver {
      * @param extra the accompanying extra card, if applicable
      * @param dealt whether or not the card was dealt to the player
      */
-    private giveCard(player: number, card: Card, extra?: Card, dealt = false) {
+    private giveCard(player: number, card: Card, extra?: Card, message: boolean = true) {
         this.gameState.hands[player].push(card);
         if (extra) {
             this.gameState.hands[player].push(extra);
         }
-        this.players[player].message(new DealMessage(card, extra, dealt));
+        if(message) {
+            this.players[player].message(new DealMessage(card, extra));
+        }
     }
 
     /**
