@@ -296,7 +296,7 @@ export class FourCardRun extends Run {
     public liveCards(): Card[] {
         let live: Card[] = [];
         if (this.cards.length - this.numWilds > this.numWilds) {
-            live = potentialWilds;
+            live = potentialWilds.slice();
         }
         for (const rank of this.findSpots()) {
             live.push(new Card(this.suit, rank));

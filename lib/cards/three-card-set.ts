@@ -94,7 +94,7 @@ export class ThreeCardSet extends Run {
     public liveCards(): Card[] {
         let live: Card[] = [];
         if (2 * this.wilds.length <= this.cards.length) {
-            live = potentialWilds;
+            live = potentialWilds.slice();
         }
         Suit.suits.forEach((suit: Suit) => live.push(new Card(suit, this.rank)));
         return live;

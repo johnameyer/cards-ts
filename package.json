@@ -1,6 +1,6 @@
 {
   "name": "can-i-have-that",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Library and console implementation of the game 'Can I Have That' which is a house variation on Continental Rummy.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -29,10 +29,10 @@
   },
   "homepage": "https://github.com/johnameyer/can-i-have-that#readme",
   "dependencies": {
-    "chalk": "^4.0.0",
-    "inquirer": "^7.1.0",
+    "chalk": "^4.1.0",
+    "inquirer": "^7.3.0",
     "inquirer-select-line": "^1.1.3",
-    "yargs": "^15.3.1"
+    "yargs": "^15.4.0"
   },
   "devDependencies": {
     "@types/chai": "^4.2.11",
@@ -40,9 +40,9 @@
     "@types/mocha": "^7.0.2",
     "@types/yargs": "^15.0.5",
     "chai": "^4.2.0",
-    "mocha": "^7.1.1",
-    "ts-node-dev": "^1.0.0-pre.44",
-    "tslint": "^6.1.1",
-    "typescript": "^3.8.3"
+    "mocha": "^7.2.0",
+    "ts-node-dev": "^1.0.0-pre.50",
+    "tslint": "^6.1.2",
+    "typescript": "^3.9.6"
   }
 }
