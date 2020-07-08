@@ -36,4 +36,7 @@ jobs:
         run: npm run lint
 
       - name: Unit Test
-        run: npm run test
+        run: npm run unit-test
+
+      - name: Integration Test
+        run: npm run integ-test

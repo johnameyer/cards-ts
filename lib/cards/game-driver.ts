@@ -67,7 +67,7 @@ export class GameDriver {
                 const offset = state.dealer + 1;
                 let card = state.deck.draw();
                 if (!card) {
-                    if(state.deck.shuffleDiscard()) {
+                    if(!state.deck.shuffleDiscard()) {
                         // TODO add another deck?
                         throw new InvalidError('Deck ran out of cards');
                     } else {
@@ -185,6 +185,7 @@ export class GameDriver {
 
     private endRound() {
         const state = this.gameState;
+
         state.nextRound();
         for (let player = 0; player < state.numPlayers; player++) {
             state.scores[player] += state.hands[player].map(card => card.rank.value).reduce((a, b) => a + b, 0);
@@ -192,7 +193,11 @@ export class GameDriver {
 
         messageAll(this.players, new EndRoundMessage(this.players.map(person => person.toString()), state.scores));
 
-        state.state = GameState.State.START_ROUND;
+        if(state.round !== state.gameParams.rounds.length) {
+            state.state = GameState.State.START_ROUND;
+        } else {
+            state.state = GameState.State.END_GAME;
+        }
     }
 
     private async waitForTurnPlayerWant() {
@@ -312,7 +317,7 @@ export class GameDriver {
         // tslint:disable-next-line
         let draw = state.deck.draw();
         if (!draw) {
-            if(state.deck.shuffleDiscard()) {
+            if(!state.deck.shuffleDiscard()) {
                 // TODO add another deck?
                 throw new InvalidError('Deck ran out of cards');
             } else {
@@ -333,7 +338,7 @@ export class GameDriver {
 
         let draw = state.deck.draw();
         if (!draw) {
-            if(state.deck.shuffleDiscard()) {
+            if(!state.deck.shuffleDiscard()) {
                 // TODO add another deck?
                 throw new InvalidError('Deck ran out of cards');
             } else {

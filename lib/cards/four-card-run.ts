@@ -29,19 +29,19 @@ Array.prototype.bifilter = function<T>(filter: (item: T) => any): [T[], T[]] {
  */
 function check(run: FourCardRun): void {
     if (run.cards.length - run.numWilds < run.numWilds) {
-        throw new InvalidError('Too many wild cards');
+        throw new InvalidError('Too many wild cards ' + run.cards.toString());
     }
     if (run.cards.length < 4 ) {
-        throw new InvalidError('Not enough cards');
+        throw new InvalidError('Not enough cards ' + run.cards.toString());
     }
 
     if(run.cards.findIndex(val => !val) >= 0) {
-        throw new InvalidError('Falsy value');
+        throw new InvalidError('Falsy value ' +  run.cards.toString());
     }
 
     const [first, last]: [Rank, Rank] = run.range();
     if (!first || first.order < Rank.THREE.order || !last) {
-        throw new InvalidError('Too many wilds on one side');
+        throw new InvalidError('Too many wilds on one side ' + run.cards.toString());
     }
     for (let i = 0; i < last.order - first.order; i++) {
         const selected: Card = run.cards[i];
@@ -51,7 +51,7 @@ function check(run: FourCardRun): void {
         if (selected.rank === first.displace(i) && selected.suit === run.suit) {
             continue;
         }
-        throw new InvalidError('Card is invalid suit or not ordered');
+        throw new InvalidError('Card is invalid suit or not ordered ' + run.cards.toString());
     }
 }
 
@@ -250,9 +250,9 @@ export class FourCardRun extends Run {
             this.numWilds++;
         } else if (card.suit !== this.suit) {
             throw new InvalidError('Wrong suit');
-        } else if (first.value - card.rank.value === 1) {
+        } else if (first.order - card.rank.order === 1) {
             this.cards.unshift(card);
-        } else if (card.rank.value - last.value === 1) {
+        } else if (card.rank.order - last.order === 1) {
             this.cards.push(card);
         } else {
             const [wild]: Card[] = this.cards.splice(index, 1, card);

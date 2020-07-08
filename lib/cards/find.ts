@@ -1,9 +1,11 @@
 import { Card } from './card';
+import { FourCardRun } from './four-card-run';
+import { Rank } from './rank';
 
 declare global {
     interface Array<T> {
         bifilter(filter: (item: T) => any): [T[], T[]];
-        toString(): string;
+        // toString(): string;
     }
 }
 
@@ -21,9 +23,19 @@ Array.prototype.bifilter = function<T>(filter: (item: T) => any) {
     }, [[],[]]);
 };
 
-Array.prototype.toString = function() {
-    return '[ ' + this.map(item => item.toString ? item.toString() : item ).join(', ') + ' ]';
-};
+// declare global {
+//     interface Object {
+//         toString(): string;
+//     }
+// }
+
+// Array.prototype.toString = function() {
+//     return '[ ' + this.map(item => item.toString ? item.toString() : item ).join(', ') + ' ]';
+// };
+
+// Object.prototype.toString = function() {
+//     return '{ ' + Object.entries(this).map(([key, value]) => key + ': ' + (value && value.toString && value.toString.call && value.toString()) + ',\n') + ' }';
+// };
 
 /**
  * Function that tries to find an optimal utilization of the current cards to achieve the goals of the round
@@ -35,6 +47,9 @@ export function find(cards: Card[], sought: (3 | 4)[]) {
     const [wilds, nonWilds] = cards.bifilter(card => card.isWild());
     nonWilds.sort(Card.compare);
     wilds.sort(Card.compare);
+    // if(sought.indexOf(3) === -1 || sought.indexOf(4) === -1){
+    //     return findHomogeneous(nonWilds, wilds, sought as 3[] | 4[]);
+    // }
     return findOptimimum(nonWilds, 0, wilds, 0, sought, sought.map(() => []));
 }
 
@@ -58,16 +73,37 @@ function findOptimimum(cards: Card[], cardIndex: number, wilds: Card[], wildsInd
         let missing = 0;
         for(let i = 0; i < sought.length; i++) {
             let missed = sought[i] - runs[i].length;
-            // console.log(missed);
+            if(runs[i].filter(card => !card.isWild()).length - runs[i].filter(card => card.isWild()).length < 0) {
+                return [Infinity, Infinity, sought.map(() => []), []];
+            }
             if(missed > 0) {
-                const wildsToUse = Math.min(missed, wilds.length - wildsIndex, runs[i].length);
-                missed -= wildsToUse;
-                const newRuns = runs.slice();
-                newRuns[i] = newRuns[i].slice();
-                newRuns[i].push(...wilds.slice(wildsIndex, wildsToUse + wildsIndex));
-                wildsIndex += wildsToUse;
+                if(runs[i].length === 0 || sought[i] === 3) {
+                    const wildsToUse = Math.min(missed, wilds.length - wildsIndex, runs[i].length);
+                    missed -= wildsToUse;
+                    const newRuns = runs.slice();
+                    newRuns[i] = newRuns[i].slice();
+                    newRuns[i].push(...wilds.slice(wildsIndex, wildsToUse + wildsIndex));
+                    wildsIndex += wildsToUse;
+                    runs = newRuns;
+                } else {
+                    const newRuns = runs.slice();
+                    const reversed: Card[] = newRuns[i].slice().reverse();
+                    const lastNonWild: number = reversed.findIndex((card) => !card.isWild());
+                    const last = reversed[lastNonWild].rank.displace(lastNonWild);
+                    const wildsToPushBack = Math.min(missed, wilds.length - wildsIndex, newRuns[i].filter(card => !card.isWild()).length - newRuns[i].filter(card => card.isWild()).length, sought[i] === 4 ? Rank.ACE.order - last.order : Infinity);
+                    missed -= wildsToPushBack;
+                    newRuns[i] = newRuns[i].slice();
+                    newRuns[i].push(...wilds.slice(wildsIndex, wildsToPushBack + wildsIndex));
+                    wildsIndex += wildsToPushBack;
+                    const firstNonWild: number = newRuns[i].findIndex((card) => !card.isWild());
+                    const first = newRuns[i][firstNonWild].rank.displace(-firstNonWild);
+                    const wildsToPushFront = Math.min(missed, wilds.length - wildsIndex, newRuns[i].filter(card => !card.isWild()).length - newRuns[i].filter(card => card.isWild()).length, first.order - Rank.THREE.order);
+                    missed -= wildsToPushFront;
+                    newRuns[i].unshift(...wilds.slice(wildsIndex, wildsToPushFront + wildsIndex));
+                    wildsIndex += wildsToPushFront;
+                    runs = newRuns;
+                }
                 missing += missed;
-                runs = newRuns;
             }
         }
         // if(missing < 0) {
@@ -76,11 +112,24 @@ function findOptimimum(cards: Card[], cardIndex: number, wilds: Card[], wildsInd
         // }
         if(wilds.length > wildsIndex) {
             for(let i = 0; i < sought.length; i++) {
-                const wildsToUse = Math.min(wilds.length - wildsIndex, runs[i].filter(card => !card.isWild()).length - runs[i].filter(card => card.isWild()).length);
+                if(!runs[i].length) {
+                    continue;
+                }
+                const reversed: Card[] = runs[i].slice().reverse();
+                const lastNonWild: number = reversed.findIndex((card) => !card.isWild());
+                const last = reversed[lastNonWild].rank.displace(lastNonWild);
+                const wildsToPushBack = Math.min(wilds.length - wildsIndex, runs[i].filter(card => !card.isWild()).length - runs[i].filter(card => card.isWild()).length, sought[i] === 4 ? Rank.ACE.order - last.order : Infinity);
                 const newRuns = runs.slice();
                 newRuns[i] = newRuns[i].slice();
-                newRuns[i].push(...wilds.slice(wildsIndex, wildsToUse + wildsIndex));
-                wildsIndex += wildsToUse;
+                newRuns[i].push(...wilds.slice(wildsIndex, wildsToPushBack + wildsIndex));
+                wildsIndex += wildsToPushBack;
+                if(sought[i] === 4) {
+                    const firstNonWild: number = runs[i].findIndex((card) => !card.isWild());
+                    const first = runs[i][firstNonWild].rank.displace(-firstNonWild);
+                    const wildsToPushFront = Math.min(wilds.length - wildsIndex, runs[i].filter(card => !card.isWild()).length - runs[i].filter(card => card.isWild()).length, first.order - Rank.THREE.order);
+                    newRuns[i].unshift(...wilds.slice(wildsIndex, wildsToPushFront + wildsIndex));
+                    wildsIndex += wildsToPushFront;
+                }
                 runs = newRuns;
             }
         }
@@ -161,3 +210,21 @@ function findOptimimum(cards: Card[], cardIndex: number, wilds: Card[], wildsInd
     choices.push(noChoose);
     return choices.reduce(reduction);
 }
+
+// function findHomogeneous(nonWilds: Card[], wilds: Card[], sought: 3[] | 4[]) {
+//     if(sought[0] === 3) {
+//         const availableRanks = nonWilds.reduce<{[rank: number]: Card[]}>((reduction, card) => {
+//             const ofSuit = reduction[card.rank.order] || [];
+//             ofSuit.push(card);
+//             reduction[card.rank.order] = ofSuit;
+//             return reduction;
+//         }, {});
+//     } else {
+//         const availableSuits = nonWilds.reduce<{[rank: number]: Card[]}>((reduction, card) => {
+//             const ofSuit = reduction[card.rank.order] || [];
+//             ofSuit.push(card);
+//             reduction[card.rank.order] = ofSuit;
+//             return reduction;
+//         }, {});
+//     }
+// }

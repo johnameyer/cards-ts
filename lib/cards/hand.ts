@@ -172,14 +172,14 @@ export class Hand {
         if (runningHand.length && toDiscard == null) {
             throw new InvalidError('Must discard');
         }
-        if (game.isLastRound() && toPlay && toDiscard !== null) {
+        if (game.isLastRound() && toPlay.some(arr => arr.length) && toDiscard !== null) {
             throw new InvalidError('Cannot discard with play on the last round');
         }
         if(toDiscard) {
             for (const plays of toPlay) {
                 for(const run of plays) {
                     if(run.isLive(toDiscard)) {
-                        throw new InvalidError('Card is live');
+                        throw new InvalidError('Card is live ' + toDiscard.toString() + ' on ' + run.toString());
                     }
                 }
             }

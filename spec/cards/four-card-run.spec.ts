@@ -122,9 +122,13 @@ describe('FourCardRun', () => {
             expect(run.cards.findIndex((find) => find.deck === card.deck)).to.equal(0);
             
             run = new FourCardRun([JH, J, KH, AH]);
-            card = new Card(Suit.HEARTS, Rank.QUEEN, 4);
+            card = new Card(Suit.HEARTS, Rank.TEN, 4);
             run.add(card);
-            expect(run.cards.findIndex((find) => find.deck === card.deck)).to.equal(2);
+            expect(run.cards.findIndex((find) => find.deck === card.deck)).to.equal(0);
+
+            card = new Card(Suit.HEARTS, Rank.QUEEN, 5);
+            run.add(card);
+            expect(run.cards.findIndex((find) => find.deck === card.deck)).to.equal(3);
         });
 
         it('should error for invalid add', () => {
