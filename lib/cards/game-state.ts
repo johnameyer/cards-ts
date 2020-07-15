@@ -26,6 +26,11 @@ export class GameState {
     public numPlayers: number;
 
     /**
+     * The names of all the players
+     */
+    public names!: string[];
+
+    /**
      * The scores of the hands
      */
     public scores: number[];
@@ -74,6 +79,7 @@ export class GameState {
         this.gameParams = gameParams;
         this.numPlayers = numPlayers;
         this.scores = new Array(numPlayers).fill(0, 0, numPlayers);
+        this.names = new Array(numPlayers);
         this.dealer = 0;
         this.completed = false;
         this.data = new Array(this.numPlayers).fill(0).map(() => ({}));

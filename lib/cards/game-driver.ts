@@ -53,6 +53,9 @@ export class GameDriver {
     constructor(players: Handler[], gameParams: GameParams) {
         this.gameState = new GameState(players.length, gameParams);
         this.players = players.map((handler, i) => new Hand(handler, i));
+        for(let i = 0; i < players.length; i++) {
+            this.gameState.names[i] = this.players[i].getName(this.gameState.names.slice(0, i));
+        }
     }
 
     /**
@@ -61,7 +64,7 @@ export class GameDriver {
     private dealOut() {
         const state = this.gameState;
         // TODO migrate to message class
-        this.players.forEach((p) => p.message(new Message(this.players[state.dealer].toString() + ' is dealer')));
+        this.players.forEach((p) => p.message(new Message(state.names[state.dealer] + ' is dealer')));
         for (let num = 0; num < state.getNumToDeal(); num++) {
             for (let player = 0; player < this.players.length; player++) {
                 const offset = state.dealer + 1;
@@ -191,7 +194,7 @@ export class GameDriver {
             state.scores[player] += state.hands[player].map(card => card.rank.value).reduce((a, b) => a + b, 0);
         }
 
-        messageAll(this.players, new EndRoundMessage(this.players.map(person => person.toString()), state.scores));
+        messageAll(this.players, new EndRoundMessage(state.names, state.scores));
 
         if(state.round !== state.gameParams.rounds.length) {
             state.state = GameState.State.START_ROUND;
@@ -257,7 +260,7 @@ export class GameDriver {
             throw new Error('Invalid State');
         }
         this.giveCard(state.whoseTurn, card);
-        messageOthers(this.players, this.players[state.whoseTurn], new PickupMessage(card, this.players[state.whoseTurn].toString(), false));
+        messageOthers(this.players, this.players[state.whoseTurn], new PickupMessage(card, state.names[state.whoseTurn], false));
         state.deck.takeTop();
 
         state.state = GameState.State.WAIT_FOR_TURN;
@@ -287,15 +290,15 @@ export class GameDriver {
             for(const [player, playedRuns] of zip(state.played, played)) {
                 for(const [run, playedCards] of zip(player, playedRuns)) {
                     if(playedCards && playedCards.length) {
-                        messageOthers(this.players, this.players[state.whoseTurn], new PlayedMessage(playedCards, run, this.players[state.whoseTurn].toString()));
+                        messageOthers(this.players, this.players[state.whoseTurn], new PlayedMessage(playedCards, run, state.names[state.whoseTurn]));
                     }
                 }
             }
         }
-        messageOthers(this.players, this.players[state.whoseTurn], new DiscardMessage(discard, this.players[state.whoseTurn].toString()));
+        messageOthers(this.players, this.players[state.whoseTurn], new DiscardMessage(discard, state.names[state.whoseTurn]));
 
         if(state.hands[state.whoseTurn].length === 0) {
-            messageAll(this.players, new Message(this.players[state.whoseTurn].toString() + ' is out of cards'));
+            messageAll(this.players, new Message(state.names[state.whoseTurn] + ' is out of cards'));
             this.gameState.scores[state.whoseTurn] -= 10;
             state.state = GameState.State.END_ROUND;
             return;
@@ -326,7 +329,7 @@ export class GameDriver {
             }
         }
         this.giveCard(whoseAsk, card, draw);
-        messageOthers(this.players, this.players[whoseAsk], new PickupMessage(card, this.players[whoseAsk].toString(), true));
+        messageOthers(this.players, this.players[whoseAsk], new PickupMessage(card, state.names[whoseAsk], true));
         state.deck.takeTop();
 
         state.state = GameState.State.START_TURN;

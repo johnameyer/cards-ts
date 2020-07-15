@@ -32,6 +32,21 @@ export class Hand {
     constructor(private readonly handler: Handler, public position: number) {
     }
 
+    public getName(taken: string[]): string {
+        let name = this.handler.getName(taken);
+        if(!name) {
+            name = 'Unnamed Player';
+        }
+        if(!taken.includes(name)) {
+            return name;
+        }
+        for(let i = 2; ; i++) {
+            if(!taken.includes(name + ' #' + i)) {
+                return name + ' #' + i;
+            }
+        }
+    }
+
     /**
      * Allow the handler to decide if it wants a card, and prevent it from throwing an error up the call stack
      * @param card the card to be considered
@@ -113,18 +128,6 @@ export class Hand {
             const possibleDiscard = game.hands[this.position].find(liveForNone) || null;
 
             return {discard: possibleDiscard, played: null};
-        }
-    }
-
-    /**
-     * Get the handler's name with sensible defaults
-     */
-    public toString() {
-        const name = this.handler.getName();
-        if (!!name) {
-            return name;
-        } else {
-            return 'Unnamed player #' + this.position;
         }
     }
 

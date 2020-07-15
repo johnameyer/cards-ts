@@ -25,8 +25,9 @@ export interface Handler {
 
     /**
      * The name the user is known by
+     * @param taken the names that are already taken by other users
      */
-    getName(): string;
+    getName(taken?: string[]): string;
 
     /**
      * Allows the player to be informed of changes in the game state

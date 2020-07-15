@@ -1,8 +1,6 @@
 import { Handler } from "./handler";
 import { Card } from "../card";
 import { Run } from "../run";
-import { Suit } from "../suit";
-import { Rank } from "../rank";
 import { find } from "../find";
 import { ThreeCardSet } from "../three-card-set";
 import { FourCardRun } from "../four-card-run";
@@ -12,8 +10,8 @@ export class LocalMaximumHandler implements Handler {
     constructor(private timeout?: number) {
     }
     
-    public getName(): string {
-        return "Max";
+    public getName(taken: string[]): string {
+        return ['Max', 'Maxwell', 'Maximilian', 'Maxine', 'Maximo', 'Maximus'].find(str => !taken.includes(str)) || 'Max';
     }
     
     public message(bundle: any) {
