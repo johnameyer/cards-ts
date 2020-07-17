@@ -33,5 +33,5 @@ export interface Handler {
      * Allows the player to be informed of changes in the game state
      * @param bundle the incoming message
      */
-    message(bundle: Message): void;
+    message(bundle: Message, data: HandlerData): void;
 }

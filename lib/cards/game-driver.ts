@@ -21,8 +21,8 @@ import { DealOutMessage } from './messages/deal-out-message';
  * @param players the array of players
  * @param bundle the message to send
  */
-function messageAll(players: Hand[], bundle: Message) {
-    players.forEach((player) => player.message(bundle));
+function messageAll(players: Hand[], bundle: Message, game: GameState) {
+    players.forEach((player) => player.message(bundle, game));
 }
 
 /**
@@ -31,10 +31,10 @@ function messageAll(players: Hand[], bundle: Message) {
  * @param excluded the player to not send to
  * @param bundle the message to send
  */
-function messageOthers(players: Hand[], excluded: Hand, bundle: Message) {
+function messageOthers(players: Hand[], excluded: Hand, bundle: Message, game: GameState) {
     players.forEach((player) => {
         if(player !== excluded)
-            player.message(bundle);
+            player.message(bundle, game);
     });
 }
 
@@ -64,7 +64,7 @@ export class GameDriver {
     private dealOut() {
         const state = this.gameState;
         // TODO migrate to message class
-        this.players.forEach((p) => p.message(new Message(state.names[state.dealer] + ' is dealer')));
+        this.players.forEach((p) => p.message(new Message(state.names[state.dealer] + ' is dealer'), state));
         for (let num = 0; num < state.getNumToDeal(); num++) {
             for (let player = 0; player < this.players.length; player++) {
                 const offset = state.dealer + 1;
@@ -74,7 +74,7 @@ export class GameDriver {
                         // TODO add another deck?
                         throw new InvalidError('Deck ran out of cards');
                     } else {
-                        messageAll(this.players, new ReshuffleMessage());
+                        messageAll(this.players, new ReshuffleMessage(), state);
                         card = state.deck.draw();
                     }
                 }
@@ -82,7 +82,7 @@ export class GameDriver {
             }
         }
         for (let player = 0; player < this.players.length; player++) {
-            this.players[player].message(new DealOutMessage(this.gameState.hands[player]));
+            this.players[player].message(new DealOutMessage(this.gameState.hands[player]), state);
         }
     }
 
@@ -99,7 +99,7 @@ export class GameDriver {
             this.gameState.hands[player].push(extra);
         }
         if(message) {
-            this.players[player].message(new DealMessage(card, extra));
+            this.players[player].message(new DealMessage(card, extra), this.gameState);
         }
     }
 
@@ -114,11 +114,9 @@ export class GameDriver {
     }
 
     public async iterate() {
-        const state = this.gameState;
-
-        switch(state.state) {
+        switch(this.gameState.state) {
             case GameState.State.START_GAME:
-                state.state = GameState.State.START_ROUND;
+                this.startGame();
                 break;
 
             case GameState.State.START_ROUND:
@@ -162,15 +160,23 @@ export class GameDriver {
                 break;
 
             case GameState.State.END_GAME:
-                state.completed = true;
+                this.endGame();
                 break;
         }
 
     }
 
+    private endGame() {
+        this.gameState.completed = true;
+    }
+
+    private startGame() {
+        this.gameState.state = GameState.State.START_ROUND;
+    }
+
     private startRound() {
         const state = this.gameState;
-        messageAll(this.players, new StartRoundMessage(state.getRound()));
+        messageAll(this.players, new StartRoundMessage(state.getRound()), state);
         state.setupRound();
         this.dealOut();
         state.deck.discard(state.deck.draw());
@@ -179,7 +185,7 @@ export class GameDriver {
             throw new Error('Already null');
         }
         const top = state.deck.top;
-        messageAll(this.players, new DiscardMessage(top));
+        messageAll(this.players, new DiscardMessage(top), state);
 
         state.whoseTurn = (state.dealer + 1) % this.players.length;
 
@@ -194,7 +200,7 @@ export class GameDriver {
             state.scores[player] += state.hands[player].map(card => card.rank.value).reduce((a, b) => a + b, 0);
         }
 
-        messageAll(this.players, new EndRoundMessage(state.names, state.scores));
+        messageAll(this.players, new EndRoundMessage(state.names, state.scores), state);
 
         if(state.round !== state.gameParams.rounds.length) {
             state.state = GameState.State.START_ROUND;
@@ -226,7 +232,7 @@ export class GameDriver {
     private handleNoPlayerWant() {
         const state = this.gameState;
         if (state.deck.top !== null) {
-            messageAll(this.players, new PickupMessage(state.deck.top));
+            messageAll(this.players, new PickupMessage(state.deck.top), state);
             state.deck.clearTop();
         }
 
@@ -260,7 +266,7 @@ export class GameDriver {
             throw new Error('Invalid State');
         }
         this.giveCard(state.whoseTurn, card);
-        messageOthers(this.players, this.players[state.whoseTurn], new PickupMessage(card, state.names[state.whoseTurn], false));
+        messageOthers(this.players, this.players[state.whoseTurn], new PickupMessage(card, state.names[state.whoseTurn], false), state);
         state.deck.takeTop();
 
         state.state = GameState.State.WAIT_FOR_TURN;
@@ -290,15 +296,15 @@ export class GameDriver {
             for(const [player, playedRuns] of zip(state.played, played)) {
                 for(const [run, playedCards] of zip(player, playedRuns)) {
                     if(playedCards && playedCards.length) {
-                        messageOthers(this.players, this.players[state.whoseTurn], new PlayedMessage(playedCards, run, state.names[state.whoseTurn]));
+                        messageOthers(this.players, this.players[state.whoseTurn], new PlayedMessage(playedCards, run, state.names[state.whoseTurn]), state);
                     }
                 }
             }
         }
-        messageOthers(this.players, this.players[state.whoseTurn], new DiscardMessage(discard, state.names[state.whoseTurn]));
+        messageOthers(this.players, this.players[state.whoseTurn], new DiscardMessage(discard, state.names[state.whoseTurn]), state);
 
         if(state.hands[state.whoseTurn].length === 0) {
-            messageAll(this.players, new Message(state.names[state.whoseTurn] + ' is out of cards'));
+            messageAll(this.players, new Message(state.names[state.whoseTurn] + ' is out of cards'), state);
             this.gameState.scores[state.whoseTurn] -= 10;
             state.state = GameState.State.END_ROUND;
             return;
@@ -324,12 +330,12 @@ export class GameDriver {
                 // TODO add another deck?
                 throw new InvalidError('Deck ran out of cards');
             } else {
-                messageAll(this.players, new ReshuffleMessage() );
+                messageAll(this.players, new ReshuffleMessage(), state);
                 draw = state.deck.draw();
             }
         }
         this.giveCard(whoseAsk, card, draw);
-        messageOthers(this.players, this.players[whoseAsk], new PickupMessage(card, state.names[whoseAsk], true));
+        messageOthers(this.players, this.players[whoseAsk], new PickupMessage(card, state.names[whoseAsk], true), state);
         state.deck.takeTop();
 
         state.state = GameState.State.START_TURN;
@@ -345,7 +351,7 @@ export class GameDriver {
                 // TODO add another deck?
                 throw new InvalidError('Deck ran out of cards');
             } else {
-                messageAll(this.players, new ReshuffleMessage());
+                messageAll(this.players, new ReshuffleMessage(), state);
                 draw = state.deck.draw();
             }
         }

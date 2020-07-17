@@ -7,6 +7,7 @@ import { Message } from './messages/message';
 import { DealMessage } from './messages/deal-message';
 import { zip } from './util/zip';
 import { InvalidError } from './invalid-error';
+import { HandlerCustomData, HandlerData } from './handlers/handler-data';
 
 const mapToClone = <T extends {clone: () => T}>(arr: T[]) => arr.map((t: T) => t.clone());
 
@@ -72,9 +73,9 @@ export class Hand {
      * Pass a message on to the handler
      * @param bundle the message
      */
-    public message(bundle: Message) {
+    public message(bundle: Message, game: GameState) {
         try {
-            this.handler.message(bundle);
+            this.handler.message(bundle, game.transformToHandlerData(this.position));
         } catch (e) {
             // tslint:disable-next-line
             console.error(e);

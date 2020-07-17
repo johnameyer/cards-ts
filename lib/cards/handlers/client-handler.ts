@@ -154,7 +154,7 @@ export abstract class ClientHandler implements Handler {
 
     abstract getName(): string;
     
-    abstract message(message: Message): void;
+    abstract message(message: Message, data: HandlerCustomData): void;
 }
 
 export namespace ClientHandler {
