@@ -50,14 +50,14 @@ export abstract class ClientHandler implements Handler {
         return null;
     }
 
-    private async playOnOthers(hand: Card[], played: Run[][], data: HandlerCustomData) {
+    async playOnOthers(hand: Card[], played: Run[][], data: HandlerCustomData) {
         while (await this.wantToPlay(played.reduce(flatten, []), hand, data)) {
             const runToPlayOn = await this.whichPlay(played.reduce(flatten, []), hand, data);
             await this.askToPlayOnRun(runToPlayOn, hand, data);
         }
     }
 
-    private async goDown(hand: Card[], roun: (3 | 4)[], last: boolean, data: HandlerCustomData): Promise<{toPlay: Run[], hand: Card[]}> {
+    async goDown(hand: Card[], roun: (3 | 4)[], last: boolean, data: HandlerCustomData): Promise<{toPlay: Run[], hand: Card[]}> {
         let cardsLeft: Card[] = hand.slice();
         const toPlay = [];
         for (const num of roun) {
@@ -78,7 +78,7 @@ export abstract class ClientHandler implements Handler {
         return {toPlay, hand: cardsLeft};
     }
 
-    private async discard(cardsLeft: Card[], roun: (3 | 4)[], played: Run[][], data: HandlerCustomData) {
+    async discard(cardsLeft: Card[], roun: (3 | 4)[], played: Run[][], data: HandlerCustomData) {
         let live: Card[];
         if (played.some((arr) => arr.length > 0)) {
             live = played.reduce(flatten, []).map((run) => run.liveCards()).reduce(flatten, []).filter(distinct);
@@ -92,7 +92,7 @@ export abstract class ClientHandler implements Handler {
         return toDiscard;
     }
 
-    private async askToPlayOnRun(run: Run, hand: Card[], data: HandlerCustomData) {
+    async askToPlayOnRun(run: Run, hand: Card[], data: HandlerCustomData) {
         if (run instanceof ThreeCardSet) {
             const cards: Card[] = await this.cardsToPlay(hand, run, data);
             if (!cards) {
