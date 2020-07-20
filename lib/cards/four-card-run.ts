@@ -40,6 +40,9 @@ function check(run: FourCardRun): void {
     }
 
     const [first, last]: [Rank, Rank] = run.range();
+    if(first.order > last.order) {
+        throw new InvalidError('Cards should be from lowest to highest');
+    }
     if (!first || first.order < Rank.THREE.order || !last) {
         throw new InvalidError('Too many wilds on one side ' + run.cards.toString());
     }

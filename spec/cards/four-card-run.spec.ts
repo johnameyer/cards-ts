@@ -35,9 +35,7 @@ describe('FourCardRun', () => {
         it('should not allow construction for unordered', () => {
             expect(() => new FourCardRun([QH, KH, AH, J])).to.throw(Error);
 
-            expect(() => new FourCardRun([J, J, AH])).to.throw(Error);
-
-            expect(() => new FourCardRun([JC, QH, KH, AH])).to.throw(Error);
+            expect(() => new FourCardRun([JH, QH, KH, AH].reverse())).to.throw(Error);
         });
 
         it('should not allow construction with invalid', () => {

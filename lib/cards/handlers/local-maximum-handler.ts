@@ -85,12 +85,16 @@ export class LocalMaximumHandler implements Handler {
                 }
                 toDiscard = hand[0] || null; //TODO better
             } else {
-                const nonlive = [];
+                let nonlive = [];
                 if(found[0] === 0) {
                     nonlive.push(...found[3].filter(card => !played.some(player => player.some(play => play.isLive(card)))));
                 }
                 if(!nonlive.length) {
                     nonlive.push(...hand.filter(card => !played.some(player => player.some(play => play.isLive(card)))));
+                }
+                if(nonlive.some(card => !card.isWild())) {
+                    // otherwise has a tendency to discard wilds which normally benefits other players more than us
+                    nonlive = nonlive.filter(card => !card.isWild());
                 }
                 const finds = nonlive.map(card => find(without(hand, card), currentRound) );
                 let worst = 0;

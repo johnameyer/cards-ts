@@ -1,6 +1,6 @@
 {
   "name": "can-i-have-that",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "Library and console implementation of the game 'Can I Have That' which is a house variation on Continental Rummy.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -13,6 +13,7 @@
     "build": "tsc",
     "unit-test": "mocha -r ts-node/register spec/*/*.spec.ts",
     "integ-test": "node -r ts-node/register spec/*.ts",
+    "test": "npm run unit-test && npm run integ-test",
     "prestart": "npm run build",
     "start": "node dist/cards/index.js start",
     "debug": "ts-node-dev --rs=false --inspect --transpileOnly lib/cards/index.ts",
