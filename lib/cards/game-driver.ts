@@ -215,7 +215,7 @@ export class GameDriver {
         if(!card) {
             throw new Error('Invalid State');
         }
-        const wantCard = await this.players[state.whoseTurn].wantCard(card, state);
+        const wantCard = await this.players[state.whoseTurn].wantCard(card, state, true);
 
         if(wantCard) {
             state.state = GameState.State.HANDLE_TURN_PLAYER_WANT;
@@ -245,7 +245,7 @@ export class GameDriver {
         if(!card) {
             throw new Error('Invalid State');
         }
-        const wantCard = await this.players[state.whoseAsk].wantCard(card, state, true);
+        const wantCard = await this.players[state.whoseAsk].wantCard(card, state);
 
         if(wantCard) {
             state.state = GameState.State.HANDLE_PLAYER_WANT;
