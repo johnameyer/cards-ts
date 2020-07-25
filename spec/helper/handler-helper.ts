@@ -24,6 +24,9 @@ export class HandlerHelper implements Handler {
         }
     }
 
+    waitingFor() {
+    }
+
     public clear() {
         this.cards = [];
         this.messages = [];

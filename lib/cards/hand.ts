@@ -83,6 +83,19 @@ export class Hand {
     }
 
     /**
+     * Pass a waiting notification on to the handler
+     * @param bundle the message
+     */
+    public waiting(who: string | undefined) {
+        try {
+            this.handler.waitingFor(who);
+        } catch (e) {
+            // tslint:disable-next-line
+            console.error(e);
+        }
+    }
+
+    /**
      * Allow the handler to make its turn, and handle errors with default behavior
      * @param game the current game state
      */

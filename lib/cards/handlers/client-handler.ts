@@ -153,6 +153,8 @@ export abstract class ClientHandler implements Handler {
     abstract getName(): string;
     
     abstract message(message: Message, data: HandlerCustomData): void;
+    
+    abstract waitingFor(who: string | undefined): void;
 }
 
 export namespace ClientHandler {

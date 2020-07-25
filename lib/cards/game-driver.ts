@@ -39,6 +39,19 @@ function messageOthers(players: Hand[], excluded: Hand, bundle: Message, game: G
 }
 
 /**
+ * Notify all the players minus the excluded
+ * @param players the array of players
+ * @param excluded the player to not send to
+ * @param bundle the message to send
+ */
+function waitingOthers(players: Hand[], waitingOn?: Hand, game?: GameState) {
+    players.forEach((player) => {
+        if(player !== waitingOn)
+            player.waiting(waitingOn && game ? game.names[waitingOn.position] : undefined);
+    });
+}
+
+/**
  * Class that handles the steps of the game
  */
 export class GameDriver {
@@ -219,7 +232,9 @@ export class GameDriver {
         if(!card) {
             throw new Error('Invalid State');
         }
+        waitingOthers(this.players, this.players[state.whoseTurn], state);
         const wantCard = await this.players[state.whoseTurn].wantCard(card, state, true);
+        waitingOthers(this.players);
 
         if(wantCard) {
             state.state = GameState.State.HANDLE_TURN_PLAYER_WANT;
@@ -252,7 +267,9 @@ export class GameDriver {
         if(state.whoseAsk === undefined) {
             throw new InvalidError('Invalid State');
         }
+        waitingOthers(this.players, this.players[state.whoseAsk], state);
         const wantCard = await this.players[state.whoseAsk].wantCard(card, state);
+        waitingOthers(this.players);
 
         if(wantCard) {
             state.state = GameState.State.HANDLE_PLAYER_WANT;
@@ -282,7 +299,9 @@ export class GameDriver {
     private async waitForTurn() {
         const state = this.gameState;
         // turn
+        waitingOthers(this.players, this.players[state.whoseTurn], state);
         state.turnPayload = await this.players[state.whoseTurn].turn(state);
+        waitingOthers(this.players);
         state.state = GameState.State.HANDLE_TURN;
     }
 

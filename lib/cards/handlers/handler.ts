@@ -1,12 +1,12 @@
 import { Card } from "../card";
 import { Run } from "../run";
-import { Message } from "../messages/message";
 import { HandlerData, HandlerCustomData } from "./handler-data";
+import { Observer } from "./observer";
 
 /**
  * Class that players interact with the game using
  */
-export interface Handler {
+export interface Handler extends Observer {
     /**
      * Whether this player wants the card or not
      * @param card the card being considered
@@ -28,10 +28,4 @@ export interface Handler {
      * @param taken the names that are already taken by other users
      */
     getName(taken?: string[]): string;
-
-    /**
-     * Allows the player to be informed of changes in the game state
-     * @param bundle the incoming message
-     */
-    message(bundle: Message, data: HandlerData): void;
 }

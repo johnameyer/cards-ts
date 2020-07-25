@@ -75,6 +75,9 @@ export class ConsoleHandler extends ClientHandler {
         console.log(bundle.message);
     }
 
+    waitingFor(who: string | undefined): void {
+    }
+
     public async wantCard(card: Card, isTurn: boolean, {hand, played, position, round, gameParams: {rounds}}: HandlerData): Promise<[boolean]> {
         hand = hand.sort(Card.compare);
         const handWith = hand.slice();

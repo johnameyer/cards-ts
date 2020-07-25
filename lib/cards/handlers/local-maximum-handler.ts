@@ -16,6 +16,9 @@ export class LocalMaximumHandler implements Handler {
     
     public message(bundle: any) {
     }
+
+    waitingFor(who: string | undefined): void {
+    }
     
     public async wantCard(card: Card, isTurn: boolean, {hand, played, position, round, gameParams: {rounds}}: HandlerData): Promise<[boolean]> {
         let currentRound = rounds[round];
