@@ -1,5 +1,5 @@
 import { Deck } from './deck';
-import { GameParams } from './game-params';
+import { GameParams, defaultParams } from './game-params';
 import { Card } from './card';
 import { Run } from './run';
 import { HandlerData, HandlerCustomData } from './handlers/handler-data';
@@ -60,9 +60,9 @@ export class GameState {
      */
     public whoseTurn!: number;
 
-    public turnPayload!: {discard: Card | null, played: Card[][][] | null}; // ReturnType<typeof Hand.turn>;
+    public turnPayload: {discard: Card | null, played: Card[][][] | null} | undefined = undefined; // ReturnType<typeof Hand.turn>;
 
-    public whoseAsk!: number;
+    public whoseAsk: number | undefined = undefined;
 
     public state: GameState.State;
 
@@ -81,6 +81,7 @@ export class GameState {
         this.scores = new Array(numPlayers).fill(0, 0, numPlayers);
         this.names = new Array(numPlayers);
         this.dealer = 0;
+        this.whoseTurn = 0;
         this.completed = false;
         this.data = new Array(this.numPlayers).fill(0).map(() => ({}));
         this.state = GameState.State.START_GAME;
@@ -144,6 +145,34 @@ export class GameState {
             scores: this.scores.slice(),
             data: this.data[position]
         };
+    }
+
+    public static fromObj(obj: any) {
+        // TODO better shape checking
+        if(!(obj instanceof Object)) {
+            throw new Error('Not an object');
+        }
+        if(!Array.isArray(obj.data) || !Array.isArray(obj.hands) || !Array.isArray(obj.names) || !Array.isArray(obj.played) || !Array.isArray(obj.scores)) {
+            throw new Error('Shape of object is wrong');
+        }
+        const params = obj.gameParams;
+        const state = new GameState(0, params);
+        state.completed = obj.completed;
+        state.data = obj.data;
+        state.dealer = obj.dealer;
+        state.deck = Deck.fromObj(obj.deck);
+        state.hands = obj.hands.map((hand: Card[]) => hand.map(card => Card.fromObj(card)));
+        state.names = obj.names;
+        state.numPlayers = obj.numPlayers;
+        state.played = obj.played.map((runs: Run[]) => runs.map(run => runFromObj(run)));
+        state.round = obj.round;
+        state.scores = obj.scores;
+        state.state = obj.state;
+        state.turnPayload = obj.turnPayload;
+        state.whoseAsk = obj.whoseAsk;
+        state.whoseTurn = obj.whoseTurn;
+
+        return state;
     }
 }
 

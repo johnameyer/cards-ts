@@ -249,6 +249,9 @@ export class GameDriver {
         if(!card) {
             throw new Error('Invalid State');
         }
+        if(state.whoseAsk === undefined) {
+            throw new InvalidError('Invalid State');
+        }
         const wantCard = await this.players[state.whoseAsk].wantCard(card, state);
 
         if(wantCard) {
@@ -285,6 +288,9 @@ export class GameDriver {
 
     private handleTurn() {
         const state = this.gameState;
+        if(!state.turnPayload) {
+            throw new InvalidError('Invalid State');
+        }
         const { discard, played } = state.turnPayload;
 
         if(!discard) {
@@ -337,6 +343,9 @@ export class GameDriver {
                 messageAll(this.players, new ReshuffleMessage(), state);
                 draw = state.deck.draw();
             }
+        }
+        if(whoseAsk === undefined) {
+            throw new InvalidError('Invalid State');
         }
         this.giveCard(whoseAsk, card, draw);
         messageOthers(this.players, this.players[whoseAsk], new PickupMessage(card, state.names[whoseAsk], true), state);

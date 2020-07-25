@@ -136,4 +136,19 @@ export class Deck {
     public clearTop() {
         this.topAvailable = false;
     }
+
+    public static fromObj(obj: any) {
+        if(!(obj instanceof Object)) {
+            throw new Error('Object is falsy');
+        }
+        if(!Array.isArray(obj.cards) || !Array.isArray(obj.discards)) {
+            throw new Error('Shape of object is wrong');
+        }
+        const deck = new Deck();
+        deck.cards = obj.cards.map((card: unknown) => Card.fromObj(card));
+        deck.discards = obj.discards.map((card: unknown) => Card.fromObj(card));
+        deck.topAvailable = obj.topAvailable;
+
+        return deck;
+    }
 }

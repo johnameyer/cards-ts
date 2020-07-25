@@ -74,6 +74,16 @@ describe('GameState', () => {
         });
     });
 
+    describe('#fromObj', () => {
+        it('should create same object', () => {
+            const state = new GameState(3, defaultParams);
+            state.setupRound();
+            const fromObj = GameState.fromObj(state);
+
+            expect(state).to.deep.equal(fromObj);
+        });
+    });
+
     // describe('#isRoundOver', () => {
     //     it('should check if any player is done', () => {
     //         game.players.forEach((hand) => hand.dealCard(Card.fromString('*')));
