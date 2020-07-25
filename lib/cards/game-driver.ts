@@ -43,7 +43,7 @@ function messageOthers(players: Hand[], excluded: Hand, bundle: Message, game: G
  */
 export class GameDriver {
     private players: Hand[];
-    private gameState: GameState;
+    protected gameState: GameState;
 
     /**
      * Create the game driver
