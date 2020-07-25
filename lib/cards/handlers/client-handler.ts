@@ -36,7 +36,7 @@ export abstract class ClientHandler implements Handler {
         }
 
         // If the player has cards left and they are not going down on the last round
-        if (hand.length && !(last && toPlay[position])) {
+        if (hand.length && !(last && toPlay[position].length)) {
             const toDiscard = await this.discard(hand, currentRound, played, data);
             hand.slice(hand.findIndex((card) => toDiscard.equals(card)));
             return { toDiscard, toPlay };
@@ -51,8 +51,8 @@ export abstract class ClientHandler implements Handler {
     }
 
     async playOnOthers(hand: Card[], played: Run[][], data: HandlerCustomData) {
-        while (await this.wantToPlay(played.reduce(flatten, []), hand, data)) {
-            const runToPlayOn = await this.whichPlay(played.reduce(flatten, []), hand, data);
+        let runToPlayOn: Run | null;
+        while (hand.length && (runToPlayOn = await this.whichPlay(played.reduce(flatten, []), hand, data))) {
             await this.askToPlayOnRun(runToPlayOn, hand, data);
         }
     }
@@ -141,10 +141,8 @@ export abstract class ClientHandler implements Handler {
     abstract async cardsToPlay(hand: Card[], run: Run, data: HandlerCustomData): Promise<Card[]>;
 
     abstract async moveToTop(handlerData: HandlerCustomData): Promise<boolean>;
-    
-    abstract async wantToPlay(played: Run[], hand: Card[], data: HandlerCustomData): Promise<boolean>;
 
-    abstract async whichPlay(runOptions: Run[], hand: Card[], data: HandlerCustomData): Promise<Run>;
+    abstract async whichPlay(runOptions: Run[], hand: Card[], data: HandlerCustomData): Promise<Run | null>;
 
     abstract async wantToGoDown(hand: Card[], data: HandlerCustomData): Promise<boolean>;
 

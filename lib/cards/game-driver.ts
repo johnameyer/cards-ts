@@ -50,8 +50,12 @@ export class GameDriver {
      * @param players the players in the game
      * @param gameParams the parameters to use for the game
      */
-    constructor(players: Handler[], gameParams: GameParams) {
-        this.gameState = new GameState(players.length, gameParams);
+    constructor(players: Handler[], gameParams: GameParams, gameState?: GameState) {
+        if(gameState) {
+            this.gameState = gameState;
+        } else {
+            this.gameState = new GameState(players.length, gameParams);
+        }
         this.players = players.map((handler, i) => new Hand(handler, i));
         for(let i = 0; i < players.length; i++) {
             this.gameState.names[i] = this.players[i].getName(this.gameState.names.slice(0, i));

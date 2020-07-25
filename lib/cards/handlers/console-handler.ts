@@ -10,7 +10,7 @@ import { checkFourCardRunPossible } from '../four-card-run';
 import { Rank } from '../rank';
 import { Suit } from '../suit';
 import { Message } from '../messages/message';
-import { HandlerData } from './handler-data';
+import { HandlerData, HandlerCustomData } from './handler-data';
 import { ClientHandler } from './client-handler';
 
 type Prompt<S extends string, T> = inquirer.Question<Record<S, T>> & {
@@ -109,6 +109,12 @@ export class ConsoleHandler extends ClientHandler {
         this.printHand(hand, roun, played);
     }
 
+    async playOnOthers(hand: Card[], played: Run[][], data: HandlerCustomData) {
+        while (hand.length && await this.wantToPlay(played.reduce(flatten, []), hand)) {
+            const runToPlayOn = await this.whichPlay(played.reduce(flatten, []), hand);
+            await this.askToPlayOnRun(runToPlayOn, hand, data);
+        }
+    }
     
     async selectCards(cardsLeft: Card[], num: number): Promise<Card[]> {
         const question: MultiPrompt<'run', Card> = {
