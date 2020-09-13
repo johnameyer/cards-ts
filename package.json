@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "lint": "tslint lib/**/*.ts --force",
-    "clean": "rm -rf dist",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "build": "tsc",
     "unit-test": "mocha -r ts-node/register spec/*/*.spec.ts",
     "integ-test": "node -r ts-node/register spec/*.ts",

@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "command": "node dist/cards/index.js start",
+            "command": "node dist/can-i-have-that/index.js start",
             "name": "Run",
             "request": "launch",
             "preLaunchTask": "npm: build",

@@ -4,7 +4,7 @@ import { Card, potentialWilds } from './card';
 import { Rank } from './rank';
 import { Suit } from './suit';
 import { ValueError } from './value-error';
-import { zip } from './util/zip';
+import { zip } from '../util/zip';
 
 /**
  * Checks if a three card set is valid

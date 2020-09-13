@@ -3,7 +3,7 @@ import { Rank } from './rank';
 import { Card, potentialWilds } from './card';
 import { Run } from './run';
 import { Suit } from './suit';
-import { zip } from './util/zip';
+import { zip } from '../util/zip';
 
 declare global {
     interface Array<T> {
