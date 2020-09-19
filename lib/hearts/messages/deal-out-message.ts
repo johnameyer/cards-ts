@@ -1,7 +1,8 @@
 import { Card } from "../../cards/card";
 import { Message } from "../../games/message";
+import { Serializable } from "../../intermediary/presenter";
 
-function generateMessage(cards: Card[]): Message.Component[] {
+function generateMessage(cards: Card[]): Serializable[] {
     return ['Received', cards];
 }
 

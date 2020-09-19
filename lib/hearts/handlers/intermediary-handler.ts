@@ -2,9 +2,9 @@ import { Handler } from "../handler";
 import { HandlerData } from "../handler-data";
 import { Card } from "../../cards/card";
 import { Message } from "../../games/message";
-import { Intermediary } from "../../intermediary/intermediary";
 import { Suit } from "../../cards/suit";
 import { Rank } from "../../cards/rank";
+import { Intermediary } from "../../intermediary/intermediary";
 
 const QS = new Card(Suit.SPADES, Rank.QUEEN);
 
@@ -28,11 +28,14 @@ export class IntermediaryHandler extends Handler {
     private name!: string;
 
     async pass({ hand, gameParams: { numToPass } }: HandlerData): Promise<[Card[], unknown?]> {
-        return [await this.intermediary.checkbox({
+        return [(await this.intermediary.form({
+            type: 'checkbox',
             message: ['Select the cards to pass'],
             choices: hand.sort(compare).map(toInquirerValue),
-            validate: (cards) => cards.length === numToPass ? true : 'Need to pass ' + numToPass + ' cards'
-        })];
+            // @ts-ignore
+            validate: validatePass,
+            validateParam: { numToPass }
+        }))[0] as Card[]];
     }
 
     async turn({ hand, tricks, currentTrick, pointsTaken }: HandlerData): Promise<[Card, unknown?]> {
@@ -46,10 +49,11 @@ export class IntermediaryHandler extends Handler {
         } else if(pointsTaken.every(points => points === 0)) {
             choices = choices.filter(card => card.suit !== Suit.HEARTS);
         }
-        return [await this.intermediary.list({
+        return [(await this.intermediary.form({
+            type: 'list',
             message: ['Select the card to play'],
             choices: choices.sort(compare).map(toInquirerValue)
-        })];
+        }))[0] as Card];
     }
 
     message(message: Message, data: HandlerData): void {
@@ -60,8 +64,10 @@ export class IntermediaryHandler extends Handler {
     }
 
     public async askForName() {
-        const message = ['What is your name?'];
-        const name = await this.intermediary.input({message});
+        const name = (await this.intermediary.form({
+            type: 'input',
+            message: ['What is your name?']
+        }))[0];
         this.name = name;
     }
 
@@ -72,4 +78,8 @@ export class IntermediaryHandler extends Handler {
     public getName(): string {
         return this.name;
     }
+}
+
+function validatePass(cards: Card[], { numToPass }: { numToPass: number }) {
+    return cards.length === numToPass ? true : 'Need to pass ' + numToPass + ' cards';
 }

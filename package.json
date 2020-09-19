@@ -15,7 +15,7 @@
     "integ-test": "node -r ts-node/register spec/*.ts",
     "test": "npm run unit-test && npm run integ-test",
     "prestart": "npm run build",
-    "start": "node dist/cards/index.js start",
+    "start": "node dist/can-i-have-that/index.js start",
     "debug": "ts-node-dev --rs=false --inspect --transpileOnly lib/cards/index.ts",
     "prepublishOnly": "npm run unit-test && npm run integ-test && npm run lint && npm run build"
   },
@@ -44,6 +44,6 @@
     "mocha": "^7.2.0",
     "ts-node-dev": "^1.0.0-pre.50",
     "tslint": "^6.1.2",
-    "typescript": "^3.9.6"
+    "typescript": "^4.0.2"
   }
 }

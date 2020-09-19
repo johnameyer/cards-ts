@@ -1,6 +1,7 @@
 import { Message } from "../../games/message";
+import { Serializable } from "../../intermediary/presenter";
 
-function generateMessage(): Message.Component[] {
+function generateMessage(): Serializable[] {
     return ['No passing this round'];
 }
 

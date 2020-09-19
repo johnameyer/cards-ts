@@ -1,7 +1,8 @@
 import { Message } from "../../games/message";
 import { Card } from "../../cards/card";
+import { Serializable } from "../../intermediary/presenter";
 
-function generateMessage(card: Card, player?: string, extra:boolean = false): Message.Component[] {
+function generateMessage(card: Card, player?: string, extra:boolean = false): Serializable[] {
     if(player !== undefined) {
         if(extra) {
             return [player, 'picked up the', card, 'and an extra'];

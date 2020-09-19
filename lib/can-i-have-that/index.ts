@@ -6,7 +6,8 @@ import { LocalMaximumHandler } from './handlers/local-maximum-handler';
 import { defaultParams } from './game-params';
 import yargs from 'yargs';
 import { IntermediaryHandler } from './handlers/intermediary-handler';
-import { InquirerIntermediary } from '../intermediary/inquirer-intermediary';
+import { InquirerPresenter } from '../intermediary/inquirer-presenter';
+import { IncrementalIntermediary } from '../intermediary/incremental-intermediary';
 
 yargs.command(['start', '$0'], 'begin a new game', yargs => {
     yargs.option('players', {
@@ -20,7 +21,7 @@ yargs.command(['start', '$0'], 'begin a new game', yargs => {
         description: 'Player\'s name'
     });
 }, async argv => {
-    const mainPlayer = new IntermediaryHandler(new InquirerIntermediary());
+    const mainPlayer = new IntermediaryHandler(new IncrementalIntermediary(new InquirerPresenter()));
     if(!argv.name) {        
         await mainPlayer.askForName();
     } else {

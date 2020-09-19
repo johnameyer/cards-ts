@@ -1,6 +1,6 @@
 import { Handler } from "../handler";
 import { Card } from "../../cards/card";
-import { Run } from "../../cards/run";
+import { Meld } from "../../cards/meld";
 import { GameState } from "../game-state";
 import { HandlerData } from "../handler-data";
 
@@ -21,7 +21,7 @@ export class GrammyHandler implements Handler {
     }
 
     public async turn({hand, played, data}: HandlerData)
-    : Promise<{ toDiscard: Card, toPlay: Run[][], data: unknown }> {
+    : Promise<{ toDiscard: Card, toPlay: Meld[][], data: unknown }> {
         hand.sort(Card.compare).reverse();
         let result = { toDiscard: hand[0], toPlay: played, data };
         return new Promise(resolve => {

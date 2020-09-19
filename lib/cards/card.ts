@@ -6,6 +6,7 @@ import { ValueError } from './value-error';
  * Class to represent cards in a deck
  */
 export class Card {
+    public readonly type = 'card';
 
     /**
      * Create a card from a string representation

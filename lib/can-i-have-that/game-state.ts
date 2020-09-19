@@ -1,6 +1,6 @@
 import { GameParams } from './game-params';
 import { Deck } from '../cards/deck';
-import { Run } from '../cards/run';
+import { Meld } from '../cards/meld';
 import { Card } from '../cards/card';
 import { runFromObj } from '../cards/run-util';
 import { AbstractGameState } from '../games/abstract-game-state';
@@ -23,7 +23,7 @@ export class GameState extends AbstractGameState<GameParams, GameState.State, Ha
     /**
      * This is where the three of a kind, four card runs are played for each of the hands
      */
-    public played!: Run[][];
+    public played!: Meld[][];
 
     /**
      * The index of the dealer player
@@ -128,7 +128,7 @@ export class GameState extends AbstractGameState<GameParams, GameState.State, Ha
         state.hands = obj.hands.map((hand: Card[]) => hand.map(card => Card.fromObj(card)));
         state.names = obj.names;
         state.numPlayers = obj.numPlayers;
-        state.played = obj.played.map((runs: Run[]) => runs.map(run => runFromObj(run)));
+        state.played = obj.played.map((runs: Meld[]) => runs.map(run => runFromObj(run)));
         state.round = obj.round;
         state.points = obj.scores;
         state.state = obj.state;

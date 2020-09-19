@@ -1,5 +1,5 @@
 import { Card } from "../cards/card";
-import { Run } from "../cards/run";
+import { Meld } from "../cards/meld";
 import { HandlerData } from "./handler-data";
 import { AbstractHandler } from "../games/abstract-handler";
 
@@ -21,5 +21,5 @@ export interface Handler extends AbstractHandler<HandlerData> {
      * @param gameState the current state of the game, as visible to the handler
      * @returns the card to discard and the state of the table after having played cards
      */
-    turn(gameState: HandlerData): Promise<{ toDiscard: Card | null, toPlay: Run[][], data?: unknown } | null>;
+    turn(gameState: HandlerData): Promise<{ toDiscard: Card | null, toPlay: Meld[][], data?: unknown } | null>;
 }

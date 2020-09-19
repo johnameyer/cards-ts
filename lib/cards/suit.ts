@@ -4,6 +4,7 @@ let count = -1;
  * Class / Enum representing the possible suits in a deck
  */
 export class Suit {
+    public readonly type = 'suit';
 
     /**
      * Whether to use the symbol version when printing or the letter version

@@ -1,6 +1,7 @@
 import { Message } from "../../games/message";
+import { Serializable } from "../../intermediary/presenter";
 
-function generateMessage(round: readonly number[]): Message.Component[] {
+function generateMessage(round: readonly number[]): Serializable[] {
     const threes = round.filter(n => n == 3).length;
     const fours = round.filter(n => n == 4).length;
     if(threes && fours) {

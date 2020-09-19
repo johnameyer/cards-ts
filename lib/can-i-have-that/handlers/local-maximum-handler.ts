@@ -1,6 +1,6 @@
 import { Handler } from "../handler";
 import { Card } from "../../cards/card";
-import { Run } from "../../cards/run";
+import { Meld } from "../../cards/meld";
 import { find } from "../../cards/find";
 import { ThreeCardSet } from "../../cards/three-card-set";
 import { FourCardRun } from "../../cards/four-card-run";
@@ -60,9 +60,9 @@ export class LocalMaximumHandler implements Handler {
     }
     
     public async turn({hand, played, position, round, gameParams: {rounds}}: HandlerData)
-    : Promise<{ toDiscard: Card, toPlay: Run[][] }> {
+    : Promise<{ toDiscard: Card, toPlay: Meld[][] }> {
         let currentRound = rounds[round];
-        let result: { toDiscard: Card, toPlay: Run[][] };
+        let result: { toDiscard: Card, toPlay: Meld[][] };
         if(played[position].length === 0) {
             const found = find([...hand], currentRound);
             // console.log(currentRound.toString(), position, found.toString());

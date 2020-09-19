@@ -1,5 +1,5 @@
 import { GameParams } from "./game-params";
-import { Run } from "../cards/run";
+import { Meld } from "../cards/meld";
 import { Card } from "../cards/card";
 
 /**
@@ -36,7 +36,7 @@ export interface HandlerData {
     /**
      * This is where the three of a kind, four card runs are played for each of the hands
      */
-    played: Run[][];
+    played: Meld[][];
 
     /**
      * The index of the dealer player

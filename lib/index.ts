@@ -10,7 +10,7 @@ export { GameDriver } from './can-i-have-that/game-driver';
 export { defaultParams, GameParams } from './can-i-have-that/game-params';
 export { GameState } from './can-i-have-that/game-state';
 export { Rank } from './cards/rank';
-export { Run } from './cards/run';
+export { Meld as Run } from './cards/meld';
 export { runFromObj } from './cards/run-util';
 export { Suit } from './cards/suit';
 export { ThreeCardSet } from './cards/three-card-set'
@@ -20,3 +20,9 @@ export { PickupMessage } from './can-i-have-that/messages/pickup-message';
 export { DealMessage } from './can-i-have-that/messages/deal-message';
 export { DealOutMessage } from './can-i-have-that/messages/deal-out-message';
 export { ClientHandler } from './can-i-have-that/handlers/client-handler';
+export { Presenter, Serializable } from './intermediary/presenter';
+export { Intermediary } from './intermediary/intermediary';
+export { IntermediaryHandler } from './can-i-have-that/handlers/intermediary-handler';
+export { Protocol } from './intermediary/protocol';
+export { DisplayElement } from './intermediary/display-element';
+export { ProtocolIntermediary } from './intermediary/protocol-intermediary';

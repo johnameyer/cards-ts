@@ -4,6 +4,8 @@ let count = 0;
  * A class for the rank of a card like 'TWO' or 'KING'
  */
 export class Rank {
+    public readonly type = 'rank';
+
     public static readonly JOKER: Rank	= new Rank('*', 50);
     public static readonly TWO: Rank	= new Rank('2', 20);
     public static readonly THREE: Rank	= new Rank('3', 5);
@@ -119,7 +121,7 @@ export class Rank {
      */
     public readonly order: number;
 
-    private constructor(private readonly char: string, readonly value: number) {
+    private constructor(readonly char: string, readonly value: number) {
         this.order = count++;
         Object.freeze(this);
     }

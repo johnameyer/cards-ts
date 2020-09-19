@@ -1,7 +1,7 @@
 import { InvalidError } from './invalid-error';
 import { Rank } from './rank';
 import { Card, potentialWilds } from './card';
-import { Run } from './run';
+import { Meld } from './meld';
 import { Suit } from './suit';
 import { zip } from '../util/zip';
 
@@ -109,7 +109,9 @@ export function checkFourCardRun(run: FourCardRun) {
 /**
  * A class representing a run (or straight flush) of at least four cards being in sequential order and of the same suit, potentially containing wilds
  */
-export class FourCardRun extends Run {
+export class FourCardRun extends Meld {
+    public readonly type = 'straight';
+
     /**
      * The number of wilds contained
      */
@@ -123,7 +125,7 @@ export class FourCardRun extends Run {
     /**
      * Number to distinguish runs of this type from a three card set
      */
-    public type = 4;
+    public runType = 4;
 
     /**
      * Create a four card run from the given cards
@@ -340,5 +342,9 @@ export class FourCardRun extends Run {
      */
     private check() {
         return check(this);
+    }
+
+    public static fromObj(obj: any) {
+        return new FourCardRun(obj.cards.map((card: any) => Card.fromObj(card)));
     }
 }

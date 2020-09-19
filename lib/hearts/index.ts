@@ -2,12 +2,13 @@
 
 import yargs from "yargs";
 import { IntermediaryHandler } from "./handlers/intermediary-handler";
-import { InquirerIntermediary } from "../intermediary/inquirer-intermediary";
 import { HeuristicHandler } from "./handlers/heuristic-handler";
 import { GameDriver } from "./game-driver";
 import { defaultParams } from "./game-params";
 import { GameState } from "./game-state";
 import { Hand } from "./hand";
+import { IncrementalIntermediary } from "../intermediary/incremental-intermediary";
+import { InquirerPresenter } from "../intermediary/inquirer-presenter";
 
 yargs.command(['start', '$0'], 'begin a new game', yargs => {
     yargs.option('players', {
@@ -21,7 +22,7 @@ yargs.command(['start', '$0'], 'begin a new game', yargs => {
         description: 'Player\'s name'
     });
 }, async argv => {
-    const mainPlayer = new IntermediaryHandler(new InquirerIntermediary());
+    const mainPlayer = new IntermediaryHandler(new IncrementalIntermediary(new InquirerPresenter()));
     if(!argv.name) {        
         await mainPlayer.askForName();
     } else {

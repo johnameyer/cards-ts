@@ -1,6 +1,7 @@
 import { Message } from "../../games/message";
+import { Serializable } from "../../intermediary/presenter";
 
-function generateMessage(leader: string): Message.Component[] {
+function generateMessage(leader: string): Serializable[] {
     return [leader, 'leads next trick'];
 }
 

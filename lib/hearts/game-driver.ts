@@ -234,7 +234,7 @@ export class GameDriver extends AbstractGameDriver<HandlerData, Handler, Hand, G
             if(newPoints === 26) { // MAX POINTS, not set upfront but by the number of cards in the deck
                 for(let otherPlayer = 0; otherPlayer < this.gameState.numPlayers; otherPlayer++) {
                     if(otherPlayer !== player) {
-                        this.gameState.points[player] += newPoints;
+                        this.gameState.points[otherPlayer] += newPoints;
                     }
                 }
                 this.messageAll(new ShotTheMoonMessage(this.gameState.names[player]));

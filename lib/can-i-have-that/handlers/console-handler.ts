@@ -4,7 +4,7 @@
 import chalk from 'chalk';
 import inquirer = require('inquirer');
 import { Card } from '../../cards/card';
-import { Run } from '../../cards/run';
+import { Meld } from '../../cards/meld';
 import { ThreeCardSet } from '../../cards/three-card-set';
 import { checkFourCardRunPossible } from '../../cards/four-card-run';
 import { Rank } from '../../cards/rank';
@@ -102,17 +102,17 @@ export class ConsoleHandler extends ClientHandler {
         }
     }
 
-    public printHand(hand: Card[], roun: number[], played: Run[]) {
+    public printHand(hand: Card[], roun: number[], played: Meld[]) {
         hand.sort();
         const found = find(hand, roun, played);
         console.log('Player has', formatFound(hand, found, true));
     }
 
-    showHand(hand: Card[], roun: (3 | 4)[], played: Run[]): void {
+    showHand(hand: Card[], roun: (3 | 4)[], played: Meld[]): void {
         this.printHand(hand, roun, played);
     }
 
-    async playOnOthers(hand: Card[], played: Run[][], data: unknown) {
+    async playOnOthers(hand: Card[], played: Meld[][], data: unknown) {
         while (hand.length && await this.wantToPlay(played.reduce(flatten, []), hand)) {
             const runToPlayOn = await this.whichPlay(played.reduce(flatten, []), hand);
             await this.askToPlayOnRun(runToPlayOn, hand, data);
@@ -140,7 +140,7 @@ export class ConsoleHandler extends ClientHandler {
         return (await inquirer.prompt([question])).run;
     }
 
-    async cardsToPlay(hand: Card[], run: Run): Promise<Card[]> {
+    async cardsToPlay(hand: Card[], run: Meld): Promise<Card[]> {
         const cardsToPlayQuestion: MultiPrompt<'run', Card> = {
             name: 'run',
             message: 'Please select cards you\'d like to add',
@@ -175,7 +175,7 @@ export class ConsoleHandler extends ClientHandler {
         return (await inquirer.prompt([moveToTop])).moveToTop;
     }
 
-    async wantToPlay(runOptions: Run[], hand: Card[]): Promise<boolean> {
+    async wantToPlay(runOptions: Meld[], hand: Card[]): Promise<boolean> {
         console.log('Player has', hand.map(card => card.toString()).join(', '));
         console.log('Others have played\n', runOptions.map(run => run.toString()).join('\n'));
         const wouldPlayOthers: Prompt<'wouldPlay', boolean> = {
@@ -186,8 +186,8 @@ export class ConsoleHandler extends ClientHandler {
         return (await inquirer.prompt([wouldPlayOthers])).wouldPlay;
     }
 
-    async whichPlay(runOptions: Run[], hand: Card[]): Promise<Run> {
-        const toPlayOn: Prompt<'toPlayOn', Run> = {
+    async whichPlay(runOptions: Meld[], hand: Card[]): Promise<Meld> {
+        const toPlayOn: Prompt<'toPlayOn', Meld> = {
             name: 'toPlayOn',
             message: 'Please choose which run you would like to play on',
             type: 'list',
@@ -268,7 +268,7 @@ function mintree(numbers: number[], maxGaps: number) {
 
 
 // TODO do we replace this implementation with the ones the bots have? Is there some way to make it more of a challenge for users?
-function find(cards: Card[], round: number[], played: Run[]): [Card[][], Card[][]] {
+function find(cards: Card[], round: number[], played: Meld[]): [Card[][], Card[][]] {
     if (played.length) {
         return [[], []];
     } else {

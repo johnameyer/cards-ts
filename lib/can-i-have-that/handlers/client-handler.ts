@@ -1,6 +1,6 @@
 import { Handler } from "../handler";
 import { Card } from "../../cards/card";
-import { Run } from "../../cards/run";
+import { Meld } from "../../cards/meld";
 import { ThreeCardSet } from "../../cards/three-card-set";
 import { FourCardRun } from "../../cards/four-card-run";
 import { InvalidError } from "../../cards/invalid-error";
@@ -16,10 +16,10 @@ export abstract class ClientHandler implements Handler {
     public abstract async wantCard(card: Card, isTurn: boolean, {hand, played, position, round, gameParams: {rounds}, data}: HandlerData): Promise<[boolean, unknown?]>;
     
     public async turn({hand, played, position, round, gameParams: {rounds}, data}: HandlerData)
-    : Promise<{ toDiscard: Card | null, toPlay: Run[][] } | null> {
+    : Promise<{ toDiscard: Card | null, toPlay: Meld[][] } | null> {
         let currentRound = rounds[round];
         const last = round == rounds.length - 1;
-        let toPlay: Run[][] = played;
+        let toPlay: Meld[][] = played;
 
         // Allow player to go down if they have not yet
         if (played[position].length === 0) {
@@ -48,14 +48,14 @@ export abstract class ClientHandler implements Handler {
         return null;
     }
 
-    async playOnOthers(hand: Card[], played: Run[][], data: unknown) {
-        let runToPlayOn: Run | null;
+    async playOnOthers(hand: Card[], played: Meld[][], data: unknown) {
+        let runToPlayOn: Meld | null;
         while (hand.length && (runToPlayOn = await this.whichPlay(played.reduce(flatten, []), hand, data))) {
             await this.askToPlayOnRun(runToPlayOn, hand, data);
         }
     }
 
-    async goDown(hand: Card[], roun: (3 | 4)[], last: boolean, data: unknown): Promise<{toPlay: Run[], hand: Card[]}> {
+    async goDown(hand: Card[], roun: (3 | 4)[], last: boolean, data: unknown): Promise<{toPlay: Meld[], hand: Card[]}> {
         let cardsLeft: Card[] = hand.slice();
         const toPlay = [];
         for (const num of roun) {
@@ -76,7 +76,7 @@ export abstract class ClientHandler implements Handler {
         return {toPlay, hand: cardsLeft};
     }
 
-    async discard(cardsLeft: Card[], roun: (3 | 4)[], played: Run[][], data: unknown) {
+    async discard(cardsLeft: Card[], roun: (3 | 4)[], played: Meld[][], data: unknown) {
         let live: Card[];
         if (played.some((arr) => arr.length > 0)) {
             live = played.reduce(flatten, []).map((run) => run.liveCards()).reduce(flatten, []).filter(distinct);
@@ -90,7 +90,7 @@ export abstract class ClientHandler implements Handler {
         return toDiscard;
     }
 
-    async askToPlayOnRun(run: Run, hand: Card[], data: unknown) {
+    async askToPlayOnRun(run: Meld, hand: Card[], data: unknown) {
         if (run instanceof ThreeCardSet) {
             const cards: Card[] = await this.cardsToPlay(hand, run, data);
             if (!cards) {
@@ -134,11 +134,11 @@ export abstract class ClientHandler implements Handler {
     
     abstract async selectCards(cardsLeft: Card[], num: 3 | 4, data: unknown): Promise<Card[]>;
 
-    abstract async cardsToPlay(hand: Card[], run: Run, data: unknown): Promise<Card[]>;
+    abstract async cardsToPlay(hand: Card[], run: Meld, data: unknown): Promise<Card[]>;
 
     abstract async moveToTop(handlerData: unknown): Promise<boolean>;
 
-    abstract async whichPlay(runOptions: Run[], hand: Card[], data: unknown): Promise<Run | null>;
+    abstract async whichPlay(runOptions: Meld[], hand: Card[], data: unknown): Promise<Meld | null>;
 
     abstract async wantToGoDown(hand: Card[], data: unknown): Promise<boolean>;
 

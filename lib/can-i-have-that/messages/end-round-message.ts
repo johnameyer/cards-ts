@@ -1,6 +1,7 @@
 import { Message } from "../../games/message";
+import { Serializable } from "../../intermediary/presenter";
 
-function generateMessage(players: readonly string[], scores: readonly number[]): Message.Component[] {
+function generateMessage(players: readonly string[], scores: readonly number[]): Serializable[] {
     const arr: string[] = [];
     for(let i = 0; i < players.length; i++) {
         arr[i] = players[i] + ': ' + scores[i];

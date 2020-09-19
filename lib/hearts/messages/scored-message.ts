@@ -1,6 +1,7 @@
 import { Message } from "../../games/message";
+import { Serializable } from "../../intermediary/presenter";
 
-function generateMessage(points: number): Message.Component[] {
+function generateMessage(points: number): Serializable[] {
     return ['Received', points, 'points'];
 }
 

@@ -1,7 +1,7 @@
 import { Message } from "../../games/message";
-import { number } from "yargs";
+import { Serializable } from "../../intermediary/presenter";
 
-function generateMessage(numToPass: number, passing: number, numPlayers: number): Message.Component[] {
+function generateMessage(numToPass: number, passing: number, numPlayers: number): Serializable[] {
     if(passing === numPlayers / 2) {
         return ['Passing', numToPass, 'cards across'];
     } else if(passing < 0) {

@@ -1,7 +1,8 @@
 import { Card } from "../../cards/card";
 import { Message } from "../../games/message";
+import { Serializable } from "../../intermediary/presenter";
 
-function generateMessage(card: Card, extra?: Card): Message.Component[] {
+function generateMessage(card: Card, extra?: Card): Serializable[] {
     if (extra) {
         return ['Picked up', card, 'and', extra];
     } else {

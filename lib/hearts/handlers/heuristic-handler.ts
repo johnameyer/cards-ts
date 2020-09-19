@@ -13,6 +13,15 @@ interface HeuristicHandlerData {
     numTimesPlayed: {[letter: string]: number}
 };
 
+const emptyGrouper = () => {
+    const obj: {[letter: string]: Card[]} = {};
+    obj[Suit.SPADES.letter] = [];
+    obj[Suit.CLUBS.letter] = [];
+    obj[Suit.HEARTS.letter] = [];
+    obj[Suit.DIAMONDS.letter] = [];
+    return obj;
+};
+
 const emptyCounter = () => {
     const obj: {[letter: string]: number} = {};
     obj[Suit.SPADES.letter] = 0;
@@ -26,19 +35,15 @@ const QS = new Card(Suit.SPADES, Rank.QUEEN);
 
 export class HeuristicHandler extends Handler {
 
-
     async pass({ hand, gameParams: { numToPass } }: HandlerData): Promise<[Card[], unknown?]> {
         const toPass = [];
         const sorted = hand.reduce<{[s: string]: Card[]}>((obj, card) => {
             const suit = card.suit;
-            if(obj[suit.letter] === undefined) {
-                obj[suit.letter] = [];
-            }
             obj[suit.letter].push(card);
             return obj;
-        }, {});
+        }, emptyGrouper());
 
-        const count = (arr: Suit[]) => arr.map(suit => sorted[suit.letter].length || 0).reduce((a, b) => a + b, 0);
+        const count = (arr: Suit[]) => arr.map(suit => sorted[suit.letter].length).reduce((a, b) => a + b, 0);
         const throwawaySuits = [Suit.CLUBS, Suit.DIAMONDS, Suit.HEARTS];
         const countSorted = combinations(throwawaySuits).sort((a, b) => count(a) - count(b));
         let i = 0;
@@ -88,12 +93,9 @@ export class HeuristicHandler extends Handler {
         const { hand, currentTrick, tricks } = handlerData;
         const sorted = hand.reduce<{[s: string]: Card[]}>((obj, card) => {
             const suit = card.suit;
-            if(obj[suit.letter] === undefined) {
-                obj[suit.letter] = [];
-            }
             obj[suit.letter].push(card);
             return obj;
-        }, {});
+        }, emptyGrouper());
 
         if(tricks === 0) {
             // if the first trick

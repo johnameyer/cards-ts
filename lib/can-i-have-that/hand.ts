@@ -1,5 +1,5 @@
 import { Card } from '../cards/card';
-import { Run } from '../cards/run';
+import { Meld } from '../cards/meld';
 import { Handler } from './handler';
 import { GameState } from './game-state';
 import { checkRun } from '../cards/run-util';
@@ -104,14 +104,14 @@ export class Hand extends AbstractHand<GameParams, GameState.State, HandlerData,
      */
     private checkTurn(
         toDiscard: Card | null,
-        toPlay: Run[][],
+        toPlay: Meld[][],
         game: GameState,
     ) {
         const runningHand: Card[] = game.hands[this.position].slice();
 
         if (toPlay[this.position].length) {
             for (const [run, type] of zip(toPlay[this.position], game.getRound())) {
-                if(run.type !== type) {
+                if(run.runType !== type) {
                     throw new InvalidError('Run is of the wrong type');
                 }
                 checkRun(run);
