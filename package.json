@@ -31,8 +31,11 @@
   "homepage": "https://github.com/johnameyer/can-i-have-that#readme",
   "dependencies": {
     "chalk": "^4.1.0",
-    "inquirer": "^7.3.0",
+    "inquirer": "^7.3.3",
+    "inquirer-orderedcheckbox": "^1.0.0",
+    "inquirer-ordinal-prompt": "^1.0.0",
     "inquirer-select-line": "^1.1.3",
+    "inquirer-table-prompt": "^0.2.1",
     "yargs": "^15.4.0"
   },
   "devDependencies": {

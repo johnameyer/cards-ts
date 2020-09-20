@@ -53,6 +53,11 @@ export class GameState extends AbstractGameState<GameParams, GameState.State, Ha
         };
         return handlerData;
     }
+
+    static fromObj(data: any) {
+        // TODO
+        return this;
+    }
 }
 
 export namespace GameState {

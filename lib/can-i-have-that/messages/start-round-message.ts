@@ -1,16 +1,9 @@
 import { Message } from "../../games/message";
 import { Serializable } from "../../intermediary/presenter";
+import { roundToString } from "../util/round-to-string";
 
 function generateMessage(round: readonly number[]): Serializable[] {
-    const threes = round.filter(n => n == 3).length;
-    const fours = round.filter(n => n == 4).length;
-    if(threes && fours) {
-        return ['This round is', threes, 'three-of-a-kinds and', fours, 'four-card-runs'];
-    } else if(threes) {
-        return ['This round is', threes, 'three-of-a-kinds'];
-    } else {
-        return ['This round is', fours, 'four-card-runs'];
-    }
+    return roundToString(round);
 }
 
 /**

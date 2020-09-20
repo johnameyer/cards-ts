@@ -17,7 +17,9 @@ export class ProtocolIntermediary implements Intermediary {
     async form<T extends keyof Presenter, U extends keyof Presenter, V extends keyof Presenter, W extends keyof Presenter, X extends keyof Presenter, Y extends keyof Presenter>(first: DisplayElement<T>, second: DisplayElement<U>, third: DisplayElement<V>, fourth: DisplayElement<W>, fifth: DisplayElement<X>, sixth: DisplayElement<Y>): Promise<[DisplayElementCallReturn<T>, DisplayElementCallReturn<U>, DisplayElementCallReturn<V>, DisplayElementCallReturn<W>, DisplayElementCallReturn<X>, DisplayElementCallReturn<Y>]>;
     async form<T extends keyof Presenter, U extends keyof Presenter, V extends keyof Presenter, W extends keyof Presenter, X extends keyof Presenter, Y extends keyof Presenter, Z extends keyof Presenter>(first: DisplayElement<T>, second: DisplayElement<U>, third: DisplayElement<V>, fourth: DisplayElement<W>, fifth: DisplayElement<X>, sixth: DisplayElement<Y>, seventh: DisplayElement<Z>): Promise<[DisplayElementCallReturn<T>, DisplayElementCallReturn<U>, DisplayElementCallReturn<V>, DisplayElementCallReturn<W>, DisplayElementCallReturn<X>, DisplayElementCallReturn<Y>, DisplayElementCallReturn<Z>]>;
     async form(...components: DisplayElement<keyof Presenter>[]): Promise<DisplayElementCallReturn<keyof Presenter>[]> {
-        // @ts-ignore
-        return Intermediary.deserializeSerializables(await this.protocol.sendAndReceive('form', Intermediary.serializeComponents(components)));
+        const form = Intermediary.serializeComponents(components);
+        const result = await this.protocol.sendAndReceive('form', form);
+        const values = Intermediary.deserializeSerializable(result) as Serializable[];
+        return values;
     }
 }

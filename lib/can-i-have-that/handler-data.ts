@@ -48,5 +48,5 @@ export interface HandlerData {
      */
     position: number;
 
-    data: unknown;
+    data: any;
 }

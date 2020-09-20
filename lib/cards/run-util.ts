@@ -23,9 +23,10 @@ export function checkRun(t: Meld): void {
  * @returns a valid ThreeCardSet or FourCardRun
  */
 export function runFromObj(t: any): Meld {
-    if (t.type === 3) {
+    // TODO different from individual fromObj methods?
+    if (t.runType === 3) {
         return new ThreeCardSet(t.cards.map(Card.fromObj));
-    } else if (t.type === 4) {
+    } else if (t.runType === 4) {
         return new FourCardRun(t.cards.map(Card.fromObj));
     } else {
         throw new Error('Unknown run type');

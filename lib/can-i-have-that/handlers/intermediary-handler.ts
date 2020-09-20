@@ -9,6 +9,7 @@ import { Message } from '../../games/message';
 import { ClientHandler } from './client-handler';
 import { HandlerData } from '../handler-data';
 import { Intermediary } from '../../intermediary/intermediary';
+import { roundToString } from '../util/round-to-string';
 
 function flatten<T>(reduction: T[], arr: T[]) {
     reduction.push(...arr);
@@ -37,6 +38,26 @@ const toInquirerValue = <T extends {toString: () => string}>(t: T) => ({
     value: t,
 });
 
+function reconcileDataAndHand(hand: Card[], data: any) {
+    if(!data.hand) {
+        data.hand = hand;
+    } else {
+        // TODO handle duplicates?
+        for(let i = 0; i < hand.length; i++) {
+            if(!(data.hand as Card[]).find(card => hand[i].equals(card))) {
+                data.hand.push(hand[i]);
+            }
+        }
+
+        for(let i = 0; i < data.hand.length; i++) {
+            if(!hand.find(card => data.hand[i].equals(card))) {
+                data.hand.splice(i, 1);
+                i--;
+            }
+        }
+    }
+}
+
 export class IntermediaryHandler extends ClientHandler {
     private name!: string;
 
@@ -59,15 +80,15 @@ export class IntermediaryHandler extends ClientHandler {
     }
 
     public message(message: Message) {
-        console.log(Message.defaultTransformer(message.components));
-        this.intermediary.print(message.components);
+        this.intermediary.print(...message.components);
     }
 
     waitingFor(who: string | undefined): void {
     }
 
-    public async wantCard(card: Card, isTurn: boolean, {hand, round, gameParams: {rounds}}: HandlerData): Promise<[boolean]> {
-        hand = hand.sort(Card.compare);
+    public async wantCard(card: Card, isTurn: boolean, {hand, round, gameParams: {rounds}, data}: HandlerData): Promise<[boolean, unknown]> {
+        reconcileDataAndHand(hand, data);
+
         const handWith = hand.slice();
         handWith.push(card);
         const message = ['Do you want', card];
@@ -76,14 +97,29 @@ export class IntermediaryHandler extends ClientHandler {
         } else {
             message.push('?');
         }
-        return [(await this.intermediary.form(
-            { type: 'print', message: ['It is round', rounds[round]]},
-            {type: 'printCards', cards: hand},
+        const [, orderedHand, want] = (await this.intermediary.form(
+            { type: 'print', message: roundToString(rounds[round])},
+            { type: 'printCards', cards: data.hand },
             { type: 'confirm', message })
-        )[2]];
+        );
+
+        // @ts-ignore
+        data.hand = orderedHand;
+
+        return [want, data];
+    }
+
+    async turn(gameState: HandlerData): Promise<{ toDiscard: Card | null, toPlay: Meld[][], data?: any } | null> {
+        reconcileDataAndHand(gameState.hand, gameState.data);
+        const result = await super.turn(gameState);
+        if(!result) {
+            return null;
+        }
+        return {...result, data: gameState.data};
     }
 
     public dealCard(card: Card, extra: Card | undefined, dealt: boolean) {
+        // TODO wire this into driver or something
         if (dealt) {
             this.intermediary.print(['Received', card]);
         } else {
@@ -96,7 +132,7 @@ export class IntermediaryHandler extends ClientHandler {
     }
 
     async playOnOthers(hand: Card[], played: (ThreeCardSet | FourCardRun)[][], data: unknown) {
-        while (hand.length && await this.wantToPlay(played.reduce(flatten, []), hand)) {
+        while (hand.length && await this.wantToPlay(played.reduce(flatten, []), hand, data)) {
             const runToPlayOn = await this.whichPlay(played.reduce(flatten, []), hand);
             await this.askToPlayOnRun(runToPlayOn, hand, data);
         }
@@ -113,11 +149,11 @@ export class IntermediaryHandler extends ClientHandler {
         }))[0] as Card[];
     }
 
-    async cardsToPlay(hand: Card[], run: Meld): Promise<Card[]> {
+    async cardsToPlay(hand: Card[], run: Meld, data: any): Promise<Card[]> {
         return (await this.intermediary.form({
             type: 'checkbox',
             message: ['Please select cards you\'d like to add'],
-            choices: hand.sort(Card.compare).map(toInquirerValue),
+            choices: data.hand.map(toInquirerValue),
             // @ts-ignore
             validate: validateCardsToPlay,
             validateParam: { run: run as ThreeCardSet | FourCardRun }
@@ -131,17 +167,24 @@ export class IntermediaryHandler extends ClientHandler {
         }))[0];
     }
 
-    async wantToPlay(runOptions: Meld[], hand: Card[]): Promise<boolean> {
-        return (await this.intermediary.form({
-            type: 'print',
-            message: ['Player has', hand],
+    async wantToPlay(runOptions: Meld[], hand: Card[], data: any): Promise<boolean> {
+        reconcileDataAndHand(hand, data);
+
+        const [orderedHand ,, wantTo] = await this.intermediary.form({
+            type: 'printCards',
+            cards: data.hand
         }, {
             type: 'print',
             message: ['Others have played', runOptions as (ThreeCardSet | FourCardRun)[]],
         }, {
             type:'confirm',
             message: ['Would you like to play cards on runs'],
-        }))[2];
+        });
+        
+        // @ts-ignore
+        data.hand = orderedHand;
+
+        return wantTo;
     }
 
     async whichPlay(runOptions: (ThreeCardSet | FourCardRun)[], hand: Card[]): Promise<Meld> {
@@ -152,14 +195,21 @@ export class IntermediaryHandler extends ClientHandler {
         }))[0] as Meld;
     }
 
-    async wantToGoDown(hand: Card[]): Promise<boolean> {
-        return (await this.intermediary.form({
+    async wantToGoDown(hand: Card[], data: any): Promise<boolean> {
+        reconcileDataAndHand(hand, data);
+
+        const [orderedHand, wantTo] = await this.intermediary.form({
             type: 'printCards',
-            cards: hand,
+            cards: data.hand,
         },{
             type: 'confirm',
             message: ['Would you like to go down']
-        }))[1];
+        });
+
+        // @ts-ignore
+        data.hand = orderedHand;
+
+        return wantTo;
     }
 
     async discardChoice(cardsLeft: Card[], live: Card[]): Promise<Card> {
@@ -210,7 +260,12 @@ function validateSelectCards(input: Card[], { num }: { num: 3 | 4 }) {
         return true;
     }
     try {
-        validateSetSelection(num, input);
+        if (num === 3) {
+            new ThreeCardSet(input);
+        } else {
+            // TODO need to pull in
+            checkFourCardRunPossible(input);
+        }
         return true;
     } catch (e) {
         return e.toString();

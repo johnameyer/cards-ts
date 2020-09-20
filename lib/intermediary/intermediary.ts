@@ -41,14 +41,14 @@ export namespace Intermediary {
             message: component.message ? deserializeSerializable(component.message) : undefined,
             cards: component.cards ? deserializeSerializable(component.cards) : undefined,
             // @ts-ignore
-            choices: component.choices ? component.choices.map(({ name, value }) => ({ name, value: deserializePresentable(value) })) : undefined,
+            choices: component.choices ? component.choices.map(({ name, value }) => ({ name, value: deserializeSerializable(value) })) : undefined,
             validate: component.validate ? new Function('return ' +component.validate)() : undefined,
             validateParam: component.validateParam ? Object.fromEntries(Object.entries<any>(component.validateParam).map(([key, value]) => [key, deserializeSerializable(value)])) : undefined
         }));
     }
 
     export function deserializeSerializable(result: Serializable): Serializable {
-        if (result === undefined) {
+        if (result === undefined || result === null) {
             return undefined;
         }
         if (typeof result === 'number' || typeof result === 'string' || typeof result === 'boolean') {
