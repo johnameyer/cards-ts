@@ -1,10 +1,8 @@
 import { expect } from 'chai';
 import { beforeEach } from 'mocha';
 import 'mocha';
-import { Card } from '../../lib/cards/card';
-import { GameState } from '../../lib/cards/game-state';
 import { HandlerHelper } from '../helper/handler-helper';
-import { defaultParams } from '../../lib';
+import { defaultParams, GameState } from '../../lib';
 
 describe('GameState', () => {
     let game: GameState;

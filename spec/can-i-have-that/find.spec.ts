@@ -1,5 +1,5 @@
 import { Card } from '../../lib/cards/card';
-import { find } from '../../lib/cards/find';
+import { find } from '../../lib/can-i-have-that/util/find';
 import 'mocha';
 import { expect } from 'chai';
 

@@ -1,6 +1,5 @@
-import { Card } from './card';
-import { FourCardRun } from './four-card-run';
-import { Rank } from './rank';
+import { Card } from "../../cards/card";
+import { Rank } from "../../cards/rank";
 
 declare global {
     interface Array<T> {

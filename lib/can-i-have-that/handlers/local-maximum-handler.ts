@@ -1,10 +1,10 @@
 import { Handler } from "../handler";
 import { Card } from "../../cards/card";
 import { Meld } from "../../cards/meld";
-import { find } from "../../cards/find";
 import { ThreeCardSet } from "../../cards/three-card-set";
 import { FourCardRun } from "../../cards/four-card-run";
 import { HandlerData } from "../handler-data";
+import { find } from "../util/find";
 
 export class LocalMaximumHandler implements Handler {
     constructor(private timeout?: number) {

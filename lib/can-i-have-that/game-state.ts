@@ -113,10 +113,10 @@ export class GameState extends AbstractGameState<GameParams, GameState.State, Ha
 
     public static fromObj(obj: any) {
         // TODO better shape checking
-        if(!(obj instanceof Object)) {
+        if(typeof obj !== 'object' || !obj) {
             throw new Error('Not an object');
         }
-        if(!Array.isArray(obj.data) || !Array.isArray(obj.hands) || !Array.isArray(obj.names) || !Array.isArray(obj.played) || !Array.isArray(obj.scores)) {
+        if(!Array.isArray(obj.data) || !Array.isArray(obj.hands) || !Array.isArray(obj.names) || !Array.isArray(obj.played) || !Array.isArray(obj.points)) {
             throw new Error('Shape of object is wrong');
         }
         const params = obj.gameParams;
@@ -130,7 +130,7 @@ export class GameState extends AbstractGameState<GameParams, GameState.State, Ha
         state.numPlayers = obj.numPlayers;
         state.played = obj.played.map((runs: Meld[]) => runs.map(run => runFromObj(run)));
         state.round = obj.round;
-        state.points = obj.scores;
+        state.points = obj.points;
         state.state = obj.state;
         state.turnPayload = obj.turnPayload;
         state.whoseAsk = obj.whoseAsk;
