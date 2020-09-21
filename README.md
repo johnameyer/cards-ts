@@ -17,8 +17,9 @@ We use lerna to support a number of games on top of the core library.
 ### Running a card game
 
 ```bash
-lerna run build
-lerna exec npm run start --scope=@cards-ts/can-i-have-that # or @cards-ts/hearts, etc.
+GAME=can-i-have-that # or @cards-ts/hearts, etc.
+lerna run build --include-dependencies --scope=@cards-ts/$GAME
+lerna exec npm run start --scope=@cards-ts/$GAME
 ```
 
 ## Versioning

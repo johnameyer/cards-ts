@@ -1,7 +1,12 @@
 {
   "name": "root",
   "private": "true",
-  "scripts": {},
+  "scripts": {
+      "madge": "lerna run madge",
+      "build": "lerna run build",
+      "lint": "lerna run lint",
+      "test": "lerna run test"
+  },
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/johnameyer/can-i-have-that.git"

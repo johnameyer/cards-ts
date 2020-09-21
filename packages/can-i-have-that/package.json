@@ -21,6 +21,7 @@
     "lint": "tslint src/**/*.ts --force",
     "build": "tsc",
     "clean": "rm -rf lib tsconfig.tsbuildinfo",
+    "madge": "npx madge --circular --extensions ts ./src",
     "prestart": "npm run build",
     "start": "node lib/index.js start",
     "debug": "ts-node-dev --rs=false --inspect --transpileOnly src/index.ts",

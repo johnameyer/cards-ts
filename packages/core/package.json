@@ -21,6 +21,7 @@
     "lint": "tslint src/**/*.ts --force",
     "build": "tsc",
     "clean": "rm -rf lib tsconfig.tsbuildinfo",
+    "madge": "npx madge --circular --extensions ts ./src",
     "test": "mocha -r ts-node/register spec/**/*.spec.ts"
   },
   "bugs": {
