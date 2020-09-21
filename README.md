@@ -14,10 +14,17 @@ Other implementations of card games or expansions of the core library are welcom
 
 We use lerna to support a number of games on top of the core library.
 
-### Running a card game
+### Running a card game with npx
 
 ```bash
-GAME=can-i-have-that # or @cards-ts/hearts, etc.
+GAME=can-i-have-that # or hearts, etc.
+npx @cards-ts/$GAME
+```
+
+### Running a card game locally
+
+```bash
+GAME=can-i-have-that # or hearts, etc.
 lerna bootstrap
 lerna run build --include-dependencies --scope=@cards-ts/$GAME
 lerna exec npm run start --scope=@cards-ts/$GAME
