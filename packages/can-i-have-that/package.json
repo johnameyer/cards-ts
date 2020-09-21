@@ -17,6 +17,9 @@
     "type": "git",
     "url": "git+ssh://git@github.com/johnameyer/can-i-have-that.git"
   },
+  "bin": {
+    "can-i-have-that": "./lib/start.js"
+  },
   "scripts": {
     "lint": "tslint src/**/*.ts --force",
     "build": "tsc",
