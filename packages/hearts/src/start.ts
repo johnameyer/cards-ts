@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// this is provided for the sake of npx and being able to run the generated file
+// TODO this is provided for the sake of npx and being able to run the generated file
 
 /* tslint:disable */
 

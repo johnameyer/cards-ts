@@ -28,7 +28,8 @@
     "prestart": "npm run build",
     "start": "node lib/start.js start",
     "debug": "ts-node-dev --rs=false --inspect --transpileOnly src/start.ts start",
-    "test": "exit && mocha -r ts-node/register spec/**/*.spec.ts"
+    "test": "exit && mocha -r ts-node/register spec/**/*.spec.ts",
+    "prepublishOnly": "npm run build"
   },
   "bugs": {
     "url": "https://github.com/johnameyer/can-i-have-that/issues"

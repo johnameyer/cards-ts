@@ -18,7 +18,7 @@
     "url": "git+ssh://git@github.com/johnameyer/can-i-have-that.git"
   },
   "bin": {
-    "can-i-have-that": "./lib/run.js"
+    "can-i-have-that": "./lib/start.js"
   },
   "scripts": {
     "lint": "tslint src/**/*.ts --force",
@@ -28,7 +28,8 @@
     "prestart": "npm run build",
     "start": "node lib/start.js start",
     "debug": "ts-node-dev --rs=false --inspect --transpileOnly src/start.ts start",
-    "test": "mocha -r ts-node/register spec/**/*.spec.ts"
+    "test": "mocha -r ts-node/register spec/**/*.spec.ts",
+    "prepublishOnly": "npm run build"
   },
   "bugs": {
     "url": "https://github.com/johnameyer/can-i-have-that/issues"

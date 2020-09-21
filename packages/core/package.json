@@ -1,7 +1,7 @@
 {
   "name": "@cards-ts/core",
   "version": "0.1.1",
-  "description": "Framework for creating new card games.",
+  "description": "Framework for creating and running new card games.",
   "author": "John Meyer",
   "homepage": "https://github.com/johnameyer/can-i-have-that/tree/master/packages/core#readme",
   "license": "UNLICENSED",
@@ -22,7 +22,8 @@
     "build": "tsc",
     "clean": "rm -rf lib tsconfig.tsbuildinfo",
     "madge": "npx madge --circular --extensions ts ./src",
-    "test": "mocha -r ts-node/register spec/**/*.spec.ts"
+    "test": "mocha -r ts-node/register spec/**/*.spec.ts",
+    "prepublishOnly": "npm run build"
   },
   "bugs": {
     "url": "https://github.com/johnameyer/can-i-have-that/issues"
