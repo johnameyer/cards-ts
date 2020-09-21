@@ -32,5 +32,6 @@
   },
   "dependencies": {
     "@cards-ts/core": "^0.1.0"
-  }
+  },
+  "gitHead": "04053409da080fb7d2a72de32a6392d3968f9442"
 }
