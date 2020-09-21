@@ -18,13 +18,11 @@
   },
   "homepage": "https://github.com/johnameyer/can-i-have-that#readme",
   "dependencies": {
-    "chalk": "^4.1.0",
-    "yargs": "^15.4.0"
+    "chalk": "^4.1.0"
   },
   "devDependencies": {
     "@types/chai": "^4.2.11",
     "@types/mocha": "^7.0.2",
-    "@types/yargs": "^15.0.5",
     "chai": "^4.2.0",
     "lerna": "^3.22.1",
     "mocha": "^7.2.0",
