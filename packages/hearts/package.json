@@ -1,7 +1,7 @@
 {
   "name": "@cards-ts/hearts",
-  "version": "0.0.0",
-  "description": "> TODO: description",
+  "version": "0.1.0",
+  "description": "Implementation of the card game hearts.",
   "author": "John Meyer",
   "homepage": "https://github.com/johnameyer/can-i-have-that/tree/master/packages/hearts#readme",
   "license": "UNLICENSED",
@@ -23,8 +23,8 @@
     "clean": "rm -rf lib tsconfig.tsbuildinfo",
     "madge": "npx madge --circular --extensions ts ./src",
     "prestart": "npm run build",
-    "start": "node lib/index.js start",
-    "debug": "ts-node-dev --rs=false --inspect --transpileOnly src/index.ts",
+    "start": "node lib/start.js start",
+    "debug": "ts-node-dev --rs=false --inspect --transpileOnly src/start.ts start",
     "test": "exit && mocha -r ts-node/register spec/**/*.spec.ts"
   },
   "bugs": {
