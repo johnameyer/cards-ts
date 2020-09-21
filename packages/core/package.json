@@ -1,0 +1,40 @@
+{
+  "name": "@cards-ts/core",
+  "version": "0.1.0",
+  "description": "Framework for creating new card games.",
+  "author": "John Meyer",
+  "homepage": "https://github.com/johnameyer/can-i-have-that/tree/master/packages/core#readme",
+  "license": "UNLICENSED",
+  "main": "lib/index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "spec"
+  },
+  "files": [
+    "lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/johnameyer/can-i-have-that.git"
+  },
+  "scripts": {
+    "lint": "tslint src/**/*.ts --force",
+    "build": "tsc",
+    "clean": "rm -rf lib tsconfig.tsbuildinfo",
+    "madge": "npx madge --circular --extensions ts ./src",
+    "test": "mocha -r ts-node/register spec/**/*.spec.ts"
+  },
+  "bugs": {
+    "url": "https://github.com/johnameyer/can-i-have-that/issues"
+  },
+  "dependencies": {
+    "inquirer": "^7.3.3",
+    "inquirer-orderedcheckbox": "^1.0.0",
+    "inquirer-ordinal-prompt": "^1.0.0",
+    "inquirer-select-line": "^1.1.3",
+    "inquirer-table-prompt": "^0.2.1"
+  },
+  "devDependencies": {
+    "@types/inquirer": "^6.5.0"
+  }
+}

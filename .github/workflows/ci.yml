@@ -26,8 +26,11 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
+      - name: Lerna Bootstrap
+        run: npx lerna bootstrap
+
       - name: Check Circular Dependencies
-        run: npx madge --circular --extensions ts ./lib
+        run: npm run madge
 
       - name: Build
         run: npm run build
@@ -35,8 +38,5 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Unit Test
-        run: npm run unit-test
-
-      - name: Integration Test
-        run: npm run integ-test
+      - name: Test
+        run: npm run test

@@ -4,12 +4,23 @@
 ![GitHub last commit](https://img.shields.io/github/last-commit/johnameyer/can-i-have-that)
 </div>
 
-This is an implementation of the game 'Can I Have That' which is a house variation on [Continental Rummy](https://en.wikipedia.org/wiki/Continental_Rummy). It currently supports one local player, though is easily extensible.
+This is a card game framework and implementation. The core package contains the framework and useful components, including functionality to display a card game in the command line. The various other packages are card game implementations.
+
+Can I Have That is a house variation on [Continental Rummy](https://en.wikipedia.org/wiki/Continental_Rummy).
+[Hearts](https://en.wikipedia.org/wiki/Hearts_(card_game)) is a trick-taking game.
+Other implementations of card games or expansions of the core library are welcome.
 
 ## Getting Started
 
-```
-npm run start
+We use lerna to support a number of games on top of the core library.
+
+### Running a card game
+
+```bash
+GAME=can-i-have-that # or @cards-ts/hearts, etc.
+lerna bootstrap
+lerna run build --include-dependencies --scope=@cards-ts/$GAME
+lerna exec npm run start --scope=@cards-ts/$GAME
 ```
 
 ## Versioning
