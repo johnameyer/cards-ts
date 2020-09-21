@@ -26,7 +26,7 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      - name: Lerna Boostrap
+      - name: Lerna Bootstrap
         run: npx lerna bootstrap
 
       - name: Check Circular Dependencies

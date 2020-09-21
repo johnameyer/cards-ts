@@ -31,6 +31,6 @@
     "url": "https://github.com/johnameyer/can-i-have-that/issues"
   },
   "dependencies": {
-    "@cards-ts/core": "^0.0.0"
+    "@cards-ts/core": "^0.1.0"
   }
 }
