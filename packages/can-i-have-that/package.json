@@ -1,6 +1,6 @@
 {
   "name": "@cards-ts/can-i-have-that",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Library and console implementation of the game 'Can I Have That' which is a house variation on Continental Rummy.",
   "author": "John Meyer",
   "homepage": "https://github.com/johnameyer/can-i-have-that/tree/master/packages/can-i-have-that#readme",
@@ -35,7 +35,7 @@
     "url": "https://github.com/johnameyer/can-i-have-that/issues"
   },
   "dependencies": {
-    "@cards-ts/core": "^0.1.1"
+    "@cards-ts/core": "^0.1.3"
   },
   "gitHead": "04053409da080fb7d2a72de32a6392d3968f9442"
 }
