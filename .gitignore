@@ -1,3 +1,5 @@
-dist/
+/packages/*/lib/
 node_modules/
 tsconfig.tsbuildinfo
+lerna-debug.log
+npm-debug.log

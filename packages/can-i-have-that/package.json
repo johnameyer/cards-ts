@@ -1,0 +1,35 @@
+{
+  "name": "@cards-ts/can-i-have-that",
+  "version": "0.0.0",
+  "description": "Library and console implementation of the game 'Can I Have That' which is a house variation on Continental Rummy.",
+  "author": "John Meyer",
+  "homepage": "https://github.com/johnameyer/can-i-have-that/tree/master/packages/can-i-have-that#readme",
+  "license": "UNLICENSED",
+  "main": "lib/index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "spec"
+  },
+  "files": [
+    "lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/johnameyer/can-i-have-that.git"
+  },
+  "scripts": {
+    "lint": "tslint src/**/*.ts --force",
+    "build": "tsc",
+    "clean": "rm -rf lib tsconfig.tsbuildinfo",
+    "prestart": "npm run build",
+    "start": "node lib/index.js start",
+    "debug": "ts-node-dev --rs=false --inspect --transpileOnly src/index.ts",
+    "test": "mocha -r ts-node/register spec/**/*.spec.ts"
+  },
+  "bugs": {
+    "url": "https://github.com/johnameyer/can-i-have-that/issues"
+  },
+  "dependencies": {
+    "@cards-ts/core": "^0.0.0"
+  }
+}
