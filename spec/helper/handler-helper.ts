@@ -1,9 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 import { Card } from '../../lib/cards/card';
-import { Handler } from '../../lib/cards/handlers/handler';
-import { DealMessage, Message, Run } from '../../lib';
-import { HandlerData } from '../../lib/cards/handlers/handler-data';
+import { DealMessage, Handler, Message, Run } from '../../lib';
 
 export class HandlerHelper implements Handler {
     public cards: Card[] = [];
@@ -32,11 +30,11 @@ export class HandlerHelper implements Handler {
         this.messages = [];
     }
     
-    wantCard(card: Card, isTurn: boolean, gameState: HandlerData): Promise<[boolean]> {
+    wantCard(card: Card, isTurn: boolean, gameState: any): Promise<[boolean]> {
         throw new Error("Method not implemented.");
     }
 
-    turn(gameState: HandlerData): Promise<{ toDiscard: Card; toPlay: Run[][]; }> {
+    turn(gameState: any): Promise<{ toDiscard: Card; toPlay: Run[][]; }> {
         throw new Error("Method not implemented.");
     } 
 }

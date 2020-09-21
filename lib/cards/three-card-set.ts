@@ -1,10 +1,10 @@
 import { InvalidError } from './invalid-error';
-import { Run } from './run';
+import { Meld } from './meld';
 import { Card, potentialWilds } from './card';
 import { Rank } from './rank';
 import { Suit } from './suit';
 import { ValueError } from './value-error';
-import { zip } from './util/zip';
+import { zip } from '../util/zip';
 
 /**
  * Checks if a three card set is valid
@@ -42,7 +42,9 @@ export function checkThreeCardSet(set: ThreeCardSet) {
 /**
  * A class representing a three (or more) of a kind
  */
-export class ThreeCardSet extends Run {
+export class ThreeCardSet extends Meld {
+    public readonly type = 'pair';
+
     /**
      * The wilds of this set
      */
@@ -56,7 +58,7 @@ export class ThreeCardSet extends Run {
     /**
      * Marker to designate this set as being a three of a kind
      */
-    public type = 3;
+    public runType = 3;
 
     /**
      * Creates a ThreeCardSet
@@ -163,5 +165,9 @@ export class ThreeCardSet extends Run {
      */
     private check() {
         return check(this);
+    }
+
+    public static fromObj(obj: any) {
+        return new ThreeCardSet(obj.cards.map((card: any) => Card.fromObj(card)));
     }
 }

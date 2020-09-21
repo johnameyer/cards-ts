@@ -41,7 +41,7 @@ export class Deck {
      * @param shouldShuffle whether the deck should be shuffled automatically
      * @returns the new deck
      */
-    constructor(num: number = 0, shouldShuffle: boolean = true) {
+    constructor(num: number = 0, shouldShuffle: boolean = true, includeJokers: boolean = true) {
         if (num >= 0) {
             this.cards = [];
             for (let deck = 0; deck < num; deck ++) {
@@ -52,7 +52,8 @@ export class Deck {
                         }
                     }
                 }
-                if(Rank.ranks.indexOf(Rank.JOKER) >= 0) {
+                if(includeJokers && Rank.ranks.indexOf(Rank.JOKER) >= 0) {
+                    // TODO revisit
                     this.cards.push(new Card(Suit.NONE, Rank.JOKER, deck, 0));
                     this.cards.push(new Card(Suit.NONE, Rank.JOKER, deck, 1));
                 }

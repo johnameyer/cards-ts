@@ -9,13 +9,13 @@
   ],
   "scripts": {
     "lint": "tslint lib/**/*.ts --force",
-    "clean": "rm -rf dist",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "build": "tsc",
     "unit-test": "mocha -r ts-node/register spec/*/*.spec.ts",
     "integ-test": "node -r ts-node/register spec/*.ts",
     "test": "npm run unit-test && npm run integ-test",
     "prestart": "npm run build",
-    "start": "node dist/cards/index.js start",
+    "start": "node dist/can-i-have-that/index.js start",
     "debug": "ts-node-dev --rs=false --inspect --transpileOnly lib/cards/index.ts",
     "prepublishOnly": "npm run unit-test && npm run integ-test && npm run lint && npm run build"
   },
@@ -31,8 +31,11 @@
   "homepage": "https://github.com/johnameyer/can-i-have-that#readme",
   "dependencies": {
     "chalk": "^4.1.0",
-    "inquirer": "^7.3.0",
+    "inquirer": "^7.3.3",
+    "inquirer-orderedcheckbox": "^1.0.0",
+    "inquirer-ordinal-prompt": "^1.0.0",
     "inquirer-select-line": "^1.1.3",
+    "inquirer-table-prompt": "^0.2.1",
     "yargs": "^15.4.0"
   },
   "devDependencies": {
@@ -44,6 +47,6 @@
     "mocha": "^7.2.0",
     "ts-node-dev": "^1.0.0-pre.50",
     "tslint": "^6.1.2",
-    "typescript": "^3.9.6"
+    "typescript": "^4.0.2"
   }
 }
