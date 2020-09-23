@@ -1,0 +1,9 @@
+{
+  "$schema": "../node_modules/@angular-devkit/schematics/collection-schema.json",
+  "schematics": {
+    "card-game": {
+      "description": "A blank schematic.",
+      "factory": "./lib/card-game/index#cardGame"
+    }
+  }
+}
