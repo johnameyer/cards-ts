@@ -3,7 +3,8 @@
   "schematics": {
     "card-game": {
       "description": "A blank schematic.",
-      "factory": "./lib/card-game/index#cardGame"
+      "factory": "./lib/card-game/index#cardGame",
+      "schema": "./src/card-game/schema.json"
     }
   }
 }

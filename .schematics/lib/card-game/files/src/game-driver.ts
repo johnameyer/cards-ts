@@ -35,29 +35,11 @@ export class GameDriver extends AbstractGameDriver<HandlerData, Handler, Hand, G
                 this.startRound();
                 break;
 
-                
-            case GameState.State.START_PASS:
-                this.startPass();
-                break;
-
-            case GameState.State.WAIT_FOR_PASS:
-                await this.waitForPass();
-                break;
-
-            case GameState.State.HANDLE_PASS:
-                this.handlePass();
-                break;
-
-            case GameState.State.START_FIRST_TRICK:
-                this.startFirstTrick();
-                break;
-
             case GameState.State.START_TRICK:
                 this.startTrick();
                 break;
 
             case GameState.State.START_PLAY:
-                
                 this.startPlay();
                 break;
 
@@ -91,43 +73,6 @@ export class GameDriver extends AbstractGameDriver<HandlerData, Handler, Hand, G
         this.gameState.state = GameState.State.START_TRICK;
     }
 
-    async waitForAction() {
-        // TODO rewrite waitingOthers to support this promise all
-        // this.waitingOthers(this.players, this.players[this.gameState.whoseTurn]);
-        this.gameState.passed = await Promise.all(this.players.map(player => player.pass(this.gameState)));
-        // this.waitingOthers(this.players);
-        
-        this.gameState.state = GameState.State.HANDLE_PASS;
-    }
-
-    handlePass() {
-        for(let player = 0; player < this.gameState.numPlayers; player++) {
-            const passedFrom = (player + this.gameState.pass + this.gameState.numPlayers) % this.gameState.numPlayers; // TODO consider +- here
-            const passed = this.gameState.passed[passedFrom];
-            this.gameState.hands[passedFrom] = this.gameState.hands[passedFrom].filter(card => !passed.includes(card));
-            this.message(player, new PassedMessage(passed, this.gameState.names[passedFrom]));
-            this.gameState.hands[player].push(...passed);
-        }
-
-        this.gameState.leader = (this.gameState.dealer + 1) % this.gameState.numPlayers;
-        this.gameState.state = GameState.State.START_FIRST_TRICK;
-    }
-
-    startFirstTrick() {
-        const startingCard = new Card(Suit.CLUBS, Rank.TWO);
-        this.gameState.leader = this.gameState.hands.findIndex(hand => hand.find(card => card.equals(startingCard)) !== undefined);
-        
-        this.messageAll(new LeadsMessage(this.gameState.names[this.gameState.leader]));
-
-        const [removed] = this.gameState.hands[this.gameState.leader].splice(this.gameState.hands[this.gameState.leader].findIndex(card => card.equals(startingCard)), 1);
-        this.gameState.currentTrick = [removed];
-        this.messageOthers(this.gameState.leader, new PlayedMessage(this.gameState.names[this.gameState.leader], removed))
-
-        this.gameState.whoseTurn = (this.gameState.leader + 1) % this.gameState.numPlayers;
-
-        this.gameState.state = GameState.State.START_PLAY;
-    }
-
     startTrick() {
         this.messageAll(new LeadsMessage(this.gameState.names[this.gameState.leader]));
         this.gameState.currentTrick = [];
@@ -142,7 +87,7 @@ export class GameDriver extends AbstractGameDriver<HandlerData, Handler, Hand, G
 
     async waitForPlay() {
         this.waitingOthers(this.players, this.players[this.gameState.whoseTurn]);
-        this.gameState.playedCard = await this.players[this.gameState.whoseTurn].turn(this.gameState);
+        this.gameState.playedCard = await this.players[this.gameState.whoseTurn].play(this.gameState);
         this.waitingOthers(this.players);
         
         this.gameState.state = GameState.State.HANDLE_PLAY;
@@ -198,33 +143,11 @@ export class GameDriver extends AbstractGameDriver<HandlerData, Handler, Hand, G
 
         for(let player = 0; player < this.gameState.numPlayers; player++) {
             const newPoints = this.gameState.pointsTaken[player];
-
-            if(newPoints === 26) { // MAX POINTS, not set upfront but by the number of cards in the deck
-                for(let otherPlayer = 0; otherPlayer < this.gameState.numPlayers; otherPlayer++) {
-                    if(otherPlayer !== player) {
-                        this.gameState.points[otherPlayer] += newPoints;
-                    }
-                }
-                this.messageAll(new ShotTheMoonMessage(this.gameState.names[player]));
-            } else {
-                this.gameState.points[player] += newPoints;
-                this.message(player, new ScoredMessage(newPoints));
-            }
+            this.gameState.points[player] += newPoints;
+            this.message(player, new ScoredMessage(newPoints));
         }
         
         this.messageAll(new EndRoundMessage(this.gameState.names, this.gameState.points));
-
-        if(this.gameState.pass === this.gameState.numPlayers / 2) { // handles even number going from across to keep
-            this.gameState.pass = 0;
-        } else if(this.gameState.pass > 0){ // 1 to the right goes to 1 to the left
-            this.gameState.pass = -this.gameState.pass;
-        } else { // 1 to the left goes to 2 to the right
-            this.gameState.pass = -this.gameState.pass + 1;
-        }
-
-        if(this.gameState.pass > this.gameState.numPlayers / 2) { // 2 to the left in 5 person game goes to keep
-            this.gameState.pass = 0;
-        }
         
         if(this.gameState.points.some(points => points >= this.gameState.gameParams.maxScore)) {
             this.gameState.state = GameState.State.END_GAME;

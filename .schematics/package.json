@@ -3,8 +3,11 @@
   "version": "0.0.0",
   "description": "A blank schematics",
   "scripts": {
+    "lint": "tslint src/**/*.ts --force",
     "build": "tsc -p tsconfig.json",
-    "test": "npm run build && jasmine src/**/*_spec.js"
+    "test": "npm run build && jasmine src/**/*_spec.js",
+    "clean": "find ./lib -mindepth 2 -prune -not -path './lib/*/files*' -delete",
+    "madge": "npx madge --circular --extensions ts src"
   },
   "keywords": [
     "schematics"

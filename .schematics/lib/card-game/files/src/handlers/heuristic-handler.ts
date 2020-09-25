@@ -8,7 +8,7 @@ import { Message } from '@cards-ts/core';
 
 export class HeuristicHandler extends Handler {
 
-    async action({ hand, gameParams: { numToPass } }: HandlerData): Promise<[unknown, unknown?]> {
+    async play({ hand, gameParams: { numToPass } }: HandlerData): Promise<[unknown, unknown?]> {
         /*
             Here the bot makes its decision for the particular action type.
          */

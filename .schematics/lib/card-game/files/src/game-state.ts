@@ -1,4 +1,5 @@
 import { AbstractGameState, Card } from "@cards-ts/core";
+import { number } from "yargs";
 import { GameParams } from "./game-params";
 import { HandlerData } from "./handler-data";
 
@@ -9,30 +10,26 @@ import { HandlerData } from "./handler-data";
 export class GameState extends AbstractGameState<GameParams, GameState.State, HandlerData> {
     pointsTaken!: number[];
 
+    dealer: number;
+// <% if(trickTaking){ %>
+    leader!: number;
+    
     points: number[];
 
-    dealer: number;
-
-    leader!: number;
+    pointsTaken: number[];
 
     currentTrick!: Card[];
 
+    tricks: number;
+// <% } %>
     playedCard!: Card;
 
     whoseTurn!: number;
 
-    pass!: number;
-
-    passed!: Card[][];
-
-    tricks: number;
-
     constructor(numPlayers: number, gameParams: GameParams, initialState: GameState.State) {
         super(numPlayers, gameParams, initialState);
         this.dealer = 0;
-        this.pass = 1;
         this.tricks = 0;
-        this.passed = [];
 
         this.points = new Array(this.numPlayers).fill(0);
     }
@@ -47,8 +44,6 @@ export class GameState extends AbstractGameState<GameParams, GameState.State, Ha
             dealer: this.dealer,
             whoseTurn: this.whoseTurn,
             leader: this.leader,
-            passed: this.passed[position],
-            pass: this.pass,
             currentTrick: this.currentTrick,
             position,
             data: this.data[position],
@@ -74,9 +69,17 @@ export namespace GameState {
 
         START_ROUND,
 
+// <% if(trickTaking){ %>
         START_TRICK,
+// <% } %>
 
+        START_PLAY,
+        WAIT_FOR_PLAY,
+        HANDLE_PLAY,
+
+// <% if(trickTaking){ %>
         END_TRICK,
+// <% } %>
 
         END_ROUND,
 

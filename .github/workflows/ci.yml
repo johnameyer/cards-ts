@@ -2,7 +2,7 @@ name: ci
 on: [push]
 
 jobs:
-  ci:
+  cards-ts:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -40,3 +40,50 @@ jobs:
 
       - name: Test
         run: npm run test
+
+  schematic:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [12.x]
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Cache Node Modules
+        uses: actions/cache@v1
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install Dependencies
+        run: npm ci
+        working-directory: .schematics
+
+      - name: Check Circular Dependencies
+        run: npm run madge
+        working-directory: .schematics
+
+      - name: Build
+        run: npm run build
+        working-directory: .schematics
+
+      - name: Lint
+        run: npm run lint
+        working-directory: .schematics
+
+      - name: Test
+        run: npm run test
+        working-directory: .schematics
+
+      - name: Create
+        run: npm run new -- --name test --description description --author author --trickTaking --dry-run=true
+
+        # TODO build new package

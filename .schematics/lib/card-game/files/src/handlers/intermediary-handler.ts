@@ -14,7 +14,7 @@ export class IntermediaryHandler extends Handler {
         super();
     }
 
-    async action({ hand, gameParams: { numToPass } }: HandlerData): Promise<[unknown, unknown?]> {
+    async play({ hand, gameParams: { numToPass } }: HandlerData): Promise<[unknown, unknown?]> {
         /*
             Here you let the player make an action through the intermediary,
                 which provides an interface to a series of form elements.

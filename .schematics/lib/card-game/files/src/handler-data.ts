@@ -12,23 +12,21 @@ export interface HandlerData extends AbstractHandlerData {
 
     hand: Card[];
 
-    pointsTaken: number[];
-
-    points: number[];
-
-    tricks: number;
-
     dealer: number;
 
     whoseTurn: number;
 
+// <% if(trickTaking){ %>
     leader: number;
+    
+    tricks: number;
 
-    pass: number
+    pointsTaken: number[];
+
+    points: number[];
 
     currentTrick: Card[];
-
-    passed: Card[];
+// <% } %>
 
     position: number;
 

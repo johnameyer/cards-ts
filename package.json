@@ -5,7 +5,9 @@
       "madge": "lerna run madge",
       "build": "lerna run build",
       "lint": "lerna run lint",
-      "test": "lerna run test"
+      "test": "lerna run test",
+
+      "new": "npx schematics .:card-game --debug=false"
   },
   "repository": {
     "type": "git",

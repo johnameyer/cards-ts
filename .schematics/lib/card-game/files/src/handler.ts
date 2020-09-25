@@ -7,5 +7,5 @@ export abstract class Handler extends AbstractHandler<HandlerData> {
         Usually you will want to return the custom handler-specific data
             alongside the result you expect so it can be preserved.
      */
-    abstract async action(handlerData: HandlerData): Promise<[unknown, unknown?]>;
+    abstract async play(handlerData: HandlerData): Promise<[Card, unknown?]>;
 }
