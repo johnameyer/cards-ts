@@ -25,7 +25,7 @@ function valueOfCard(card: Card): number {
 }
 
 export class GameDriver extends AbstractGameDriver<HandlerData, Handler, Hand, GameParams, GameState.State, GameState> {
-    public async iterate(): Promise<void> {
+    public async iterate() {
         switch(this.gameState.state) {
             case GameState.State.START_GAME:
                 this.startGame();
@@ -41,8 +41,7 @@ export class GameDriver extends AbstractGameDriver<HandlerData, Handler, Hand, G
                 break;
 
             case GameState.State.WAIT_FOR_PASS:
-                await this.waitForPass();
-                break;
+                return this.waitForPass();
 
             case GameState.State.HANDLE_PASS:
                 this.handlePass();
@@ -57,13 +56,11 @@ export class GameDriver extends AbstractGameDriver<HandlerData, Handler, Hand, G
                 break;
 
             case GameState.State.START_PLAY:
-                
                 this.startPlay();
                 break;
 
             case GameState.State.WAIT_FOR_PLAY:
-                await this.waitForPlay();
-                break;
+                return this.waitForPlay();
 
             case GameState.State.HANDLE_PLAY:
                 this.handlePlay();
@@ -119,13 +116,15 @@ export class GameDriver extends AbstractGameDriver<HandlerData, Handler, Hand, G
         this.gameState.state = GameState.State.WAIT_FOR_PASS;
     }
 
-    async waitForPass() {
+    waitForPass() {
         // TODO rewrite waitingOthers to support this promise all
         // this.waitingOthers(this.players, this.players[this.gameState.whoseTurn]);
-        this.gameState.passed = await Promise.all(this.players.map(player => player.pass(this.gameState)));
+        const passed = Promise.all(this.players.map(player => player.pass(this.gameState)));
         // this.waitingOthers(this.players);
         
         this.gameState.state = GameState.State.HANDLE_PASS;
+
+        return passed;
     }
 
     handlePass() {
@@ -168,12 +167,14 @@ export class GameDriver extends AbstractGameDriver<HandlerData, Handler, Hand, G
         this.gameState.state = GameState.State.WAIT_FOR_PLAY;
     }
 
-    async waitForPlay() {
-        this.waitingOthers(this.players, this.players[this.gameState.whoseTurn]);
-        this.gameState.playedCard = await this.players[this.gameState.whoseTurn].turn(this.gameState);
+    waitForPlay() {
+        this.waitingOthers(this.players, [this.players[this.gameState.whoseTurn]]);
+        const playedCard = this.players[this.gameState.whoseTurn].turn(this.gameState);
         this.waitingOthers(this.players);
         
         this.gameState.state = GameState.State.HANDLE_PLAY;
+
+        return playedCard;
     }
 
     handlePlay() {

@@ -9,6 +9,7 @@ import { AbstractHandler } from './abstract-handler';
 export abstract class AbstractGameDriver<HandlerData, Handler extends AbstractHandler<HandlerData>, Hand extends AbstractHand<GameParams, State, HandlerData, Handler, GameState>, GameParams, State, GameState extends AbstractGameState<GameParams, State, HandlerData>> {
     protected players: Hand[];
     protected gameState: GameState;
+    protected readonly outgoingData: Promise<void>[];
 
     /**
      * Create the game driver
@@ -22,6 +23,8 @@ export abstract class AbstractGameDriver<HandlerData, Handler extends AbstractHa
         for(let i = 0; i < players.length; i++) {
             this.gameState.names[i] = this.players[i].getName(this.gameState.names.slice(0, i));
         }
+
+        this.outgoingData = [];
     }
 
     /**
@@ -30,18 +33,39 @@ export abstract class AbstractGameDriver<HandlerData, Handler extends AbstractHa
     public async start() {
         const state = this.gameState;
         while(!state.completed) {
-            await this.iterate();
+            const next = this.iterate();
+            if(next !== undefined) {
+                this.gameState.merge(await next);
+            }
+            await this.handleOutgoing();
         }
     }
 
-    public abstract async iterate(): Promise<void>;
+    /**
+     * Runs the game until the next time it would have to wait
+     */
+    public resume() {
+        const state = this.gameState;
+        while(!state.completed) {
+            const next = this.iterate();
+            if(next !== undefined) {
+                return next;
+            }
+        }
+    }
+
+    /**
+     * Proceed to the next state of the game
+     * @returns void if the state is not waiting for a user, or a promise to the data returned from a user
+     */
+    public abstract iterate(): void | Promise<any>;
     
     /**
      * Send a message to a player
      * @param message the message to send
      */
     message(position: number, message: Message) {
-        this.players[position].message(message, this.gameState);
+        this.outgoingData.push(this.players[position].message(message, this.gameState));
     }
 
     /**
@@ -49,7 +73,7 @@ export abstract class AbstractGameDriver<HandlerData, Handler extends AbstractHa
      * @param message the message to send
      */
     messageAll(message: Message) {
-        this.players.forEach((player) => player.message(message, this.gameState));
+        this.outgoingData.push(...this.players.map(player => player.message(message, this.gameState)));
     }
 
     /**
@@ -59,11 +83,9 @@ export abstract class AbstractGameDriver<HandlerData, Handler extends AbstractHa
      * @param message the message to send
      */
     messageOthers(excludedPosition: number, message: Message) {
-        this.players.forEach((player, index) => {
-            if(index !== excludedPosition) {
-                player.message(message, this.gameState);
-            }
-        });
+        this.outgoingData.push(...this.players.filter((_, index) => index !== excludedPosition).map(player =>
+            player.message(message, this.gameState)
+        ));
     }
 
     /**
@@ -72,11 +94,14 @@ export abstract class AbstractGameDriver<HandlerData, Handler extends AbstractHa
      * @param excluded the player to not send to
      * @param bundle the message to send
      */
-    waitingOthers(players: Hand[], waitingOn?: Hand) {
-        players.forEach((player) => {
-            if(player !== waitingOn)
-                player.waiting(waitingOn && this.gameState ? this.gameState.names[waitingOn.position] : undefined);
-        });
+    waitingOthers(players: Hand[], waitingOn?: Hand[]) {
+        this.outgoingData.push(...players.filter(player => !waitingOn?.includes(player)).map(player => 
+            player.waiting(waitingOn && this.gameState ? waitingOn.map(player => player.position).map(position => this.gameState.names[position]) : undefined, this.gameState)
+        ));
     }
 
+    async handleOutgoing() {
+        await Promise.all(this.outgoingData);
+        this.outgoingData.splice(0, this.outgoingData.length);
+    }
 }

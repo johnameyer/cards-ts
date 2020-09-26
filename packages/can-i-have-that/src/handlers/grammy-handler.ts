@@ -11,7 +11,7 @@ export class GrammyHandler implements Handler {
     public message(_bundle: any): void {
     }
     
-    waitingFor(who: string | undefined): void {
+    waitingFor(who: string[] | undefined): void {
     }
 
 

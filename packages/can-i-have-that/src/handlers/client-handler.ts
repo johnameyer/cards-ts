@@ -143,7 +143,7 @@ export abstract class ClientHandler implements Handler {
     
     abstract message(message: Message, data: unknown): void;
     
-    abstract waitingFor(who: string | undefined): void;
+    abstract waitingFor(who: string[] | undefined): void;
 }
 
 export namespace ClientHandler {

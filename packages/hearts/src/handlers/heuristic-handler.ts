@@ -33,7 +33,7 @@ const QS = new Card(Suit.SPADES, Rank.QUEEN);
 
 export class HeuristicHandler extends Handler {
 
-    async pass({ hand, gameParams: { numToPass } }: HandlerData): Promise<[Card[], unknown?]> {
+    pass({ hand, gameParams: { numToPass } }: HandlerData): [Card[], unknown?] {
         const toPass = [];
         const sorted = hand.reduce<{[s: string]: Card[]}>((obj, card) => {
             const suit = card.suit;
@@ -86,7 +86,7 @@ export class HeuristicHandler extends Handler {
         return [toPass.slice(0, numToPass)];
     }
 
-    async turn(handlerData: HandlerData): Promise<[Card, unknown?]> {
+    turn(handlerData: HandlerData): [Card, unknown?] {
         const data = this.wrapData(handlerData);
         const { hand, currentTrick, tricks } = handlerData;
         const sorted = hand.reduce<{[s: string]: Card[]}>((obj, card) => {
@@ -157,7 +157,7 @@ export class HeuristicHandler extends Handler {
         }
     }
 
-    waitingFor(who: string | undefined): void {
+    waitingFor(): void {
     }
 
     getName(taken: string[]): string {

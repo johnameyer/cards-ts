@@ -76,7 +76,7 @@ export class IntermediaryHandler extends ClientHandler {
         this.intermediary.print(...message.components);
     }
 
-    waitingFor(who: string | undefined): void {
+    waitingFor(who: string[] | undefined): void {
     }
 
     public async wantCard(card: Card, isTurn: boolean, {hand, round, gameParams: {rounds}, data}: HandlerData): Promise<[boolean, unknown]> {

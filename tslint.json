@@ -9,7 +9,8 @@
         "interface-over-type-literal": false,
         "quotemark": [true, "single"],
         "semicolon": [true, "always"],
-        "no-namespace": [false]
+        "no-namespace": [false],
+        "no-submodule-imports": true
     },
     "rulesDirectory": []
 }

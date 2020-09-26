@@ -55,6 +55,8 @@ export abstract class AbstractGameState<GameParams, State, HandlerData extends A
 
     abstract transformToHandlerData(position: number): HandlerData;
 
+    abstract merge(incomingData: any): AbstractGameState<GameParams, State, HandlerData>;
+
     fromObj(obj: any) {
         // TODO better shape checking
         if(!(obj instanceof Object)) {

@@ -33,6 +33,10 @@ export class GameState extends AbstractGameState<GameParams, GameState.State, Ha
         this.points = new Array(this.numPlayers).fill(0);
     }
 
+    apply(incomingData: any): GameState {
+        throw new Error("Method not implemented.");
+    }
+
     transformToHandlerData(position: number) {
         const handlerData: HandlerData = {
             gameParams: {...this.gameParams},

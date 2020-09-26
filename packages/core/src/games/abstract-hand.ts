@@ -33,7 +33,7 @@ export abstract class AbstractHand<GameParams, State, HandlerData, Handler exten
      * Pass a message on to the handler
      * @param message the message
      */
-    public message(message: Message, game: GameState) {
+    public async message(message: Message, game: GameState) {
         try {
             this.handler.message(message, game.transformToHandlerData(this.position));
         } catch (e) {
@@ -46,9 +46,9 @@ export abstract class AbstractHand<GameParams, State, HandlerData, Handler exten
      * Pass a waiting notification on to the handler
      * @param bundle the message
      */
-    public waiting(who: string | undefined) {
+    public async waiting(who: string[] | undefined, game: GameState) {
         try {
-            this.handler.waitingFor(who);
+            this.handler.waitingFor(who, game.transformToHandlerData(this.position));
         } catch (e) {
             // tslint:disable-next-line
             console.error(e);

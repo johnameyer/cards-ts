@@ -107,6 +107,10 @@ export class GameState extends AbstractGameState<GameParams, GameState.State, Ha
         };
     }
 
+    apply(incomingData: any): AbstractGameState<GameParams, GameState.State, HandlerData> {
+        throw new Error('Method not implemented.');
+    }
+
     public static fromObj(obj: any) {
         // TODO better shape checking
         if(typeof obj !== 'object' || !obj) {

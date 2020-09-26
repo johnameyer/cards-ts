@@ -60,7 +60,8 @@ export class IntermediaryHandler extends Handler {
         this.intermediary.print(...message.components);
     }
 
-    waitingFor(who: string | undefined): void {
+    waitingFor(who: string[] | undefined): void {
+        // TODO this.intermediary
     }
 
     public async askForName() {

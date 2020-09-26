@@ -195,7 +195,7 @@ export class GameDriver extends AbstractGameDriver<HandlerData, Handler, Hand, G
         if(!card) {
             throw new Error('Invalid State');
         }
-        this.waitingOthers(this.players, this.players[state.whoseTurn]);
+        this.waitingOthers(this.players, [this.players[state.whoseTurn]]);
         const wantCard = await this.players[state.whoseTurn].wantCard(card, state, true);
         this.waitingOthers(this.players);
 
@@ -230,7 +230,7 @@ export class GameDriver extends AbstractGameDriver<HandlerData, Handler, Hand, G
         if(state.whoseAsk === undefined) {
             throw new InvalidError('Invalid State');
         }
-        this.waitingOthers(this.players, this.players[state.whoseAsk]);
+        this.waitingOthers(this.players, [this.players[state.whoseAsk]]);
         const wantCard = await this.players[state.whoseAsk].wantCard(card, state);
         this.waitingOthers(this.players);
 
@@ -262,7 +262,7 @@ export class GameDriver extends AbstractGameDriver<HandlerData, Handler, Hand, G
     private async waitForTurn() {
         const state = this.gameState;
         // turn
-        this.waitingOthers(this.players, this.players[state.whoseTurn]);
+        this.waitingOthers(this.players, [this.players[state.whoseTurn]]);
         state.turnPayload = await this.players[state.whoseTurn].turn(state);
         this.waitingOthers(this.players);
         state.state = GameState.State.HANDLE_TURN;
