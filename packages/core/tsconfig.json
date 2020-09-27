@@ -4,6 +4,6 @@
         "outDir": "./lib"
     },
     "include": [
-        "./src"
+        "./src", "src/games/handler-wrapper.ts"
     ]
 }

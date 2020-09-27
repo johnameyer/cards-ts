@@ -19,7 +19,6 @@ export { IncrementalIntermediary } from './intermediary/incremental-intermediary
 
 export { AbstractGameDriver } from './games/abstract-game-driver';
 export { AbstractGameState } from './games/abstract-game-state';
-export { AbstractHand } from './games/abstract-hand';
 export { AbstractHandler } from './games/abstract-handler';
 export { AbstractHandlerData } from './games/abstract-handler-data';
 export { Message } from './games/message';

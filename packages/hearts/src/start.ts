@@ -32,9 +32,9 @@ yargs.command(['start', '$0'], 'begin a new game', yargs => {
     }
 
     const players = Array(argv.players as number + 1);
-    players[0] = new Hand(mainPlayer, 0);
+    players[0] = mainPlayer;
     for(let i = 1; i < players.length; i++) {
-        players[i] = new Hand(new HeuristicHandler(), i);
+        players[i] = new HeuristicHandler();
     }
 
     const driver = new GameDriver(players, new StateTransformer().initialState({ numPlayers: players.length, gameParams: defaultParams }));

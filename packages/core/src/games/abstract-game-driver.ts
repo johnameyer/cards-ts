@@ -1,14 +1,15 @@
 import { AbstractGameState } from './abstract-game-state';
 import { Message } from './message';
-import { AbstractHand } from './abstract-hand';
 import { AbstractHandler } from './abstract-handler';
 import { AbstractStateTransformer } from './abstract-state-transformer';
+import { zip } from '../util/zip';
+import { defined } from '../util/defined';
 
 /**
  * Class that handles the steps of the game
  */
-export abstract class AbstractGameDriver<HandlerData, Handler extends AbstractHandler<HandlerData>, Hand extends AbstractHand<GameParams, State, HandlerData, Handler, GameState>, GameParams, State, GameState extends AbstractGameState<GameParams, State>, ResponseMessage extends Message, StateTransformer extends AbstractStateTransformer<GameParams, State, HandlerData, GameState, ResponseMessage>> {
-    protected players: Hand[];
+export abstract class AbstractGameDriver<HandlerData, Handler extends AbstractHandler<HandlerData>, GameParams, State, GameState extends AbstractGameState<GameParams, State>, ResponseMessage extends Message, StateTransformer extends AbstractStateTransformer<GameParams, State, HandlerData, GameState, ResponseMessage>> {
+    protected players: Handler[];
     protected readonly outgoingData: Promise<void>[];
 
     /**
@@ -16,7 +17,7 @@ export abstract class AbstractGameDriver<HandlerData, Handler extends AbstractHa
      * @param players the players in the game
      * @param gameParams the parameters to use for the game
      */
-    constructor(players: Hand[], protected gameState: GameState, protected stateTransformer: StateTransformer) {
+    constructor(players: Handler[], protected gameState: GameState, protected stateTransformer: StateTransformer) {
         // this.players = players.map((handler, i) => new Hand(handler, i));
         this.players = players;
         for(let i = 0; i < players.length; i++) {
@@ -64,7 +65,7 @@ export abstract class AbstractGameDriver<HandlerData, Handler extends AbstractHa
      * @param message the message to send
      */
     message(position: number, message: Message) {
-        this.outgoingData.push(this.players[position].message(message, this.gameState));
+        this.outgoingData.push(Promise.resolve(this.players[position].message(this.stateTransformer.transformToHandlerData(this.gameState, position), message)[0]));
     }
 
     /**
@@ -72,7 +73,7 @@ export abstract class AbstractGameDriver<HandlerData, Handler extends AbstractHa
      * @param message the message to send
      */
     messageAll(message: Message) {
-        this.outgoingData.push(...this.players.map(player => player.message(message, this.gameState)));
+        this.outgoingData.push(...this.players.map((player, position) => Promise.resolve(player.message(this.stateTransformer.transformToHandlerData(this.gameState, position), message)[0])));
     }
 
     /**
@@ -82,8 +83,8 @@ export abstract class AbstractGameDriver<HandlerData, Handler extends AbstractHa
      * @param message the message to send
      */
     messageOthers(excludedPosition: number, message: Message) {
-        this.outgoingData.push(...this.players.filter((_, index) => index !== excludedPosition).map(player =>
-            player.message(message, this.gameState)
+        this.outgoingData.push(...this.players.filter((_, position) => position !== excludedPosition).map((player, position) =>
+            Promise.resolve(player.message(this.stateTransformer.transformToHandlerData(this.gameState, position), message)[0])
         ));
     }
 
@@ -93,10 +94,27 @@ export abstract class AbstractGameDriver<HandlerData, Handler extends AbstractHa
      * @param excluded the player to not send to
      * @param bundle the message to send
      */
-    waitingOthers(players: Hand[], waitingOn?: Hand[]) {
-        this.outgoingData.push(...players.filter(player => !waitingOn?.includes(player)).map(player => 
-            player.waiting(waitingOn && this.gameState ? waitingOn.map(player => player.position).map(position => this.gameState.names[position]) : undefined, this.gameState)
+    waitingOthers(waitingOn?: Handler[]) {
+        this.outgoingData.push(...this.players.filter(player => !waitingOn?.includes(player)).map((player, position) => 
+            Promise.resolve(player.waiting(this.stateTransformer.transformToHandlerData(this.gameState, position), waitingOn && this.gameState ? waitingOn.map(this.players.indexOf).map(position => this.gameState.names[position]) : undefined)[0])
         ));
+    }
+
+    handlerCall(position: number, action: keyof Handler, ...args: any[]) {
+        const [send, receive] = this.players[position][action](this.stateTransformer.transformToHandlerData(this.gameState, position), args)
+
+        if(send) {
+            this.outgoingData.push(send);
+        }
+        return receive;
+    }
+
+    handlerCallAll(action: keyof Handler, ...args: any[]) {
+        const [sent, received] = zip(...this.players.map((player, position) =>
+            player[action](this.stateTransformer.transformToHandlerData(this.gameState, position), args)
+        )) as [(void | Promise<void>)[], []];
+        this.outgoingData.push(...sent.filter(defined));
+        return received;
     }
 
     async handleOutgoing() {

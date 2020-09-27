@@ -1,8 +1,5 @@
 import { Serializable } from "../intermediary/presenter";
-
-const isDefined = function<T>(t: T | undefined): t is T {
-    return t !== undefined;
-}
+import { defined } from "../util/defined";
 
 /**
  * Parent class for any message to be delivered to handlers
@@ -29,5 +26,5 @@ export namespace Message {
             return defaultTransformer(component, ', ');
         }
         return component.toString();
-    }).filter(isDefined).reduce((a: string, b: string) => a + joiner + b);
+    }).filter(defined).reduce((a: string, b: string) => a + joiner + b);
 }

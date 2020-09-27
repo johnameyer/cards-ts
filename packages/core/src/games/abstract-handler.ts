@@ -11,13 +11,9 @@ export abstract class AbstractHandler<HandlerData extends AbstractHandlerData> i
     // TODO [action: string]: (state: HandlerData) => any ?
     // TODO can be interface?
 
-    abstract message(message: Message, gameState: HandlerData): void | Promise<void>;
+    abstract message(gameState: HandlerData, message: Message): [sent?: Promise<void>];
 
-    abstract waitingFor(who: string[] | undefined, gameState: HandlerData): void | Promise<void>;
+    abstract waitingFor(gameState: HandlerData, who: string[] | undefined): [sent?: Promise<void>];
 
-    /**
-     * The name the user is known by
-     * @param taken the names that are already taken by other users
-     */
-    abstract getName(taken: string[]): string;
+    [action: string]: (gameState: HandlerData, ...args: any[]) => [sent?: Promise<void>, responded?: any | Promise<any>];
 }

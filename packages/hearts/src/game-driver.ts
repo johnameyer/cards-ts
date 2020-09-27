@@ -2,9 +2,10 @@ import { GameState } from "./game-state";
 import { GameParams } from "./game-params";
 import { HandlerData } from "./handler-data";
 import { Handler } from "./handler";
-import { Hand } from "./hand";
 import { AbstractGameDriver, Card, Deck, Rank, Suit } from '@cards-ts/core';
 import { DealOutMessage, NoPassingMessage, PassingMessage, PassedMessage, LeadsMessage, PlayedMessage, ShotTheMoonMessage, ScoredMessage, EndRoundMessage } from "./messages/status";
+import { ResponseMessage } from "./messages/response-message";
+import { StateTransformer } from "./state-transformer";
 
 function valueOfCard(card: Card): number {
     if(card.equals(Card.fromString('QS'))) {
@@ -16,7 +17,7 @@ function valueOfCard(card: Card): number {
     return 0;
 }
 
-export class GameDriver extends AbstractGameDriver<HandlerData, Handler, Hand, GameParams, GameState.State, GameState> {
+export class GameDriver extends AbstractGameDriver<HandlerData, Handler, GameParams, GameState.State, GameState, ResponseMessage, StateTransformer> {
     public async iterate() {
         switch(this.gameState.state) {
             case GameState.State.START_GAME:
@@ -111,7 +112,7 @@ export class GameDriver extends AbstractGameDriver<HandlerData, Handler, Hand, G
     waitForPass() {
         // TODO rewrite waitingOthers to support this promise all
         // this.waitingOthers(this.players, this.players[this.gameState.whoseTurn]);
-        const passed = Promise.all(this.players.map(player => player.pass(this.gameState)));
+        const passed = Promise.all(this.handlerCallAll('pass'));
         // this.waitingOthers(this.players);
         
         this.gameState.state = GameState.State.HANDLE_PASS;
@@ -160,9 +161,9 @@ export class GameDriver extends AbstractGameDriver<HandlerData, Handler, Hand, G
     }
 
     waitForPlay() {
-        this.waitingOthers(this.players, [this.players[this.gameState.whoseTurn]]);
-        const playedCard = this.players[this.gameState.whoseTurn].turn(this.gameState);
-        this.waitingOthers(this.players);
+        this.waitingOthers([this.players[this.gameState.whoseTurn]]);
+        const playedCard = this.handlerCall(this.gameState.whoseTurn, 'turn');
+        this.waitingOthers();
         
         this.gameState.state = GameState.State.HANDLE_PLAY;
 
