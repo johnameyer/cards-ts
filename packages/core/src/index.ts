@@ -24,6 +24,8 @@ export { AbstractHandler } from './games/abstract-handler';
 export { AbstractHandlerData } from './games/abstract-handler-data';
 export { Message } from './games/message';
 export { Observer } from './games/observer';
+export { AbstractResponseValidator } from './games/abstract-response-validator';
+export { AbstractStateTransformer } from './games/abstract-state-transformer';
 
 export { combinations } from './util/combinations';
 export { distinct } from './util/distinct';

@@ -4,6 +4,9 @@ import { IntermediaryHandler, defaultParams, GameDriver } from ".";
 import { GameState } from "./game-state";
 import { Hand } from "./hand";
 import { HeuristicHandler } from "./handlers/heuristic-handler";
+import { ResponseMessage } from "./messages/response-message";
+import { ResponseValidator } from "./response-validator";
+import { StateTransformer } from "./state-transformer";
 
 (async function() {
     const mainPlayer = new IntermediaryHandler(new IncrementalIntermediary(new InquirerPresenter()));
@@ -20,15 +23,23 @@ import { HeuristicHandler } from "./handlers/heuristic-handler";
     }
     
     // Receive the event
-    const incomingEvent = {};
+    const incomingEvent = {} as ResponseMessage;
+
+    const stateTransformer = new StateTransformer();
+    const responseValidator = new ResponseValidator();
     
     // Load the old state
-    const currentState = new GameState(players.length, defaultParams, GameState.State.START_GAME);
+    const currentState = stateTransformer.initialState({ numPlayers: players.length, gameParams: defaultParams });
     
     // ??? Check the event
+    const validatedEvent = responseValidator.validate(currentState, incomingEvent);
+    
+    if(!validatedEvent) {
+        throw new Error('Received invalid event: ' + JSON.stringify(incomingEvent));
+    }
     
     // Merge the data from the event
-    const updatedState = currentState.apply(incomingEvent);
+    const updatedState = stateTransformer.merge(currentState, validatedEvent);
     
     // Create the driver
     const driver = new GameDriver(players, updatedState);

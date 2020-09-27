@@ -3,16 +3,8 @@ import { GameParams } from "./game-params";
 import { HandlerData } from "./handler-data";
 import { Handler } from "./handler";
 import { Hand } from "./hand";
-import { DealOutMessage } from "./messages/deal-out-message";
-import { PassedMessage } from "./messages/passed-message";
-import { LeadsMessage } from "./messages/leads-message";
-import { PlayedMessage } from "./messages/played-message";
-import { EndRoundMessage } from "./messages/end-round-message";
-import { ScoredMessage } from "./messages/scored-message";
-import { ShotTheMoonMessage } from "./messages/shot-the-moon-message";
-import { NoPassingMessage } from "./messages/no-passing-message";
-import { PassingMessage } from "./messages/passing-message";
 import { AbstractGameDriver, Card, Deck, Rank, Suit } from '@cards-ts/core';
+import { DealOutMessage, NoPassingMessage, PassingMessage, PassedMessage, LeadsMessage, PlayedMessage, ShotTheMoonMessage, ScoredMessage, EndRoundMessage } from "./messages/status";
 
 function valueOfCard(card: Card): number {
     if(card.equals(Card.fromString('QS'))) {

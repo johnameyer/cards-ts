@@ -7,11 +7,13 @@ const isDefined = function<T>(t: T | undefined): t is T {
 /**
  * Parent class for any message to be delivered to handlers
  */
-export class Message {
+export abstract class Message {
+    public readonly type!: string;
+
     /**
      * @param components the pieces a message could be made of
      */
-    constructor(public readonly components: Serializable[]) { }
+    protected constructor(public readonly components: Serializable[]) { }
 }
 
 export namespace Message {

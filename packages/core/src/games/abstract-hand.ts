@@ -2,7 +2,7 @@ import { AbstractGameState } from "./abstract-game-state";
 import { AbstractHandler } from "./abstract-handler";
 import { Message } from "./message";
 
-export abstract class AbstractHand<GameParams, State, HandlerData, Handler extends AbstractHandler<HandlerData>, GameState extends AbstractGameState<GameParams, State, HandlerData>> {
+export abstract class AbstractHand<GameParams, State, HandlerData, Handler extends AbstractHandler<HandlerData>, GameState extends AbstractGameState<GameParams, State>> {
     /**
      * Create the hand
      * @param handler the handler to wrap around
@@ -35,6 +35,7 @@ export abstract class AbstractHand<GameParams, State, HandlerData, Handler exten
      */
     public async message(message: Message, game: GameState) {
         try {
+            // @ts-ignore
             this.handler.message(message, game.transformToHandlerData(this.position));
         } catch (e) {
             // tslint:disable-next-line
@@ -48,6 +49,7 @@ export abstract class AbstractHand<GameParams, State, HandlerData, Handler exten
      */
     public async waiting(who: string[] | undefined, game: GameState) {
         try {
+            // @ts-ignore
             this.handler.waitingFor(who, game.transformToHandlerData(this.position));
         } catch (e) {
             // tslint:disable-next-line

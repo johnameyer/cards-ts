@@ -9,8 +9,8 @@ import { HeuristicHandler } from "./handlers/heuristic-handler";
 import { GameDriver } from "./game-driver";
 import { defaultParams } from "./game-params";
 import { GameState } from "./game-state";
-import { Hand } from "./hand";
 import { IncrementalIntermediary, InquirerPresenter } from "@cards-ts/core";
+import { StateTransformer } from "./state-transformer";
 
 yargs.command(['start', '$0'], 'begin a new game', yargs => {
     yargs.option('players', {
@@ -37,7 +37,7 @@ yargs.command(['start', '$0'], 'begin a new game', yargs => {
         players[i] = new Hand(new HeuristicHandler(), i);
     }
 
-    const driver = new GameDriver(players, new GameState(players.length, defaultParams, GameState.State.START_GAME));
+    const driver = new GameDriver(players, new StateTransformer().initialState({ numPlayers: players.length, gameParams: defaultParams }));
 
     await driver.start();
 })

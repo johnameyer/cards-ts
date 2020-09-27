@@ -2,13 +2,13 @@ import { AbstractGameState } from './abstract-game-state';
 import { Message } from './message';
 import { AbstractHand } from './abstract-hand';
 import { AbstractHandler } from './abstract-handler';
+import { AbstractStateTransformer } from './abstract-state-transformer';
 
 /**
  * Class that handles the steps of the game
  */
-export abstract class AbstractGameDriver<HandlerData, Handler extends AbstractHandler<HandlerData>, Hand extends AbstractHand<GameParams, State, HandlerData, Handler, GameState>, GameParams, State, GameState extends AbstractGameState<GameParams, State, HandlerData>> {
+export abstract class AbstractGameDriver<HandlerData, Handler extends AbstractHandler<HandlerData>, Hand extends AbstractHand<GameParams, State, HandlerData, Handler, GameState>, GameParams, State, GameState extends AbstractGameState<GameParams, State>, ResponseMessage extends Message, StateTransformer extends AbstractStateTransformer<GameParams, State, HandlerData, GameState, ResponseMessage>> {
     protected players: Hand[];
-    protected gameState: GameState;
     protected readonly outgoingData: Promise<void>[];
 
     /**
@@ -16,8 +16,7 @@ export abstract class AbstractGameDriver<HandlerData, Handler extends AbstractHa
      * @param players the players in the game
      * @param gameParams the parameters to use for the game
      */
-    constructor(players: Hand[], gameState: GameState) {
-        this.gameState = gameState;
+    constructor(players: Hand[], protected gameState: GameState, protected stateTransformer: StateTransformer) {
         // this.players = players.map((handler, i) => new Hand(handler, i));
         this.players = players;
         for(let i = 0; i < players.length; i++) {
@@ -34,10 +33,10 @@ export abstract class AbstractGameDriver<HandlerData, Handler extends AbstractHa
         const state = this.gameState;
         while(!state.completed) {
             const next = this.iterate();
-            if(next !== undefined) {
-                this.gameState.merge(await next);
-            }
             await this.handleOutgoing();
+            if(next !== undefined) {
+                this.stateTransformer.merge(this.gameState, await next);
+            }
         }
     }
 
