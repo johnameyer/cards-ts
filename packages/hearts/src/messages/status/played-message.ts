@@ -10,6 +10,9 @@ function generateMessage(player: string, card: Card): Serializable[] {
  * Class that denotes to a handler that they have been dealt or drawn a card
  */
 export class PlayedMessage extends Message {
+
+    public readonly type = 'played-message';
+
     /**
      * @param player the hand that is leading
      */

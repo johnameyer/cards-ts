@@ -2,10 +2,11 @@ import { GameState } from "./game-state";
 import { GameParams } from "./game-params";
 import { HandlerData } from "./handler-data";
 import { Handler } from "./handler";
-import { AbstractGameDriver, Card, Deck, Rank, Suit } from '@cards-ts/core';
+import { AbstractGameDriver, Card, Deck, isPromise, Rank, Suit } from '@cards-ts/core';
 import { DealOutMessage, NoPassingMessage, PassingMessage, PassedMessage, LeadsMessage, PlayedMessage, ShotTheMoonMessage, ScoredMessage, EndRoundMessage } from "./messages/status";
 import { ResponseMessage } from "./messages/response-message";
 import { StateTransformer } from "./state-transformer";
+import { PassResponseMessage, TurnResponseMessage } from "./messages/response";
 
 function valueOfCard(card: Card): number {
     if(card.equals(Card.fromString('QS'))) {
@@ -18,7 +19,7 @@ function valueOfCard(card: Card): number {
 }
 
 export class GameDriver extends AbstractGameDriver<HandlerData, Handler, GameParams, GameState.State, GameState, ResponseMessage, StateTransformer> {
-    public async iterate() {
+    public iterate(): void | [number, ResponseMessage | Promise<ResponseMessage>] | [number, ResponseMessage | Promise<ResponseMessage>][] {
         switch(this.gameState.state) {
             case GameState.State.START_GAME:
                 this.startGame();
@@ -90,30 +91,31 @@ export class GameDriver extends AbstractGameDriver<HandlerData, Handler, GamePar
             }
         }
         for(let player = 0; player < this.gameState.numPlayers; player++) {
-            this.message(player, new DealOutMessage(this.gameState.hands[player]));
+            this.handlerProxy.message(this.gameState, player, new DealOutMessage(this.gameState.hands[player]));
         }
 
         this.gameState.pointsTaken = new Array(this.gameState.numPlayers).fill(0);
 
         if(this.gameState.pass === 0) {
             this.gameState.state = GameState.State.START_FIRST_TRICK;
-            this.messageAll(new NoPassingMessage());
+            this.handlerProxy.messageAll(this.gameState, new NoPassingMessage());
         } else {
             this.gameState.state = GameState.State.START_PASS;
         }
     }
 
     startPass() {
-        this.messageAll(new PassingMessage(this.gameState.gameParams.numToPass, this.gameState.pass, this.gameState.numPlayers));
+        this.handlerProxy.messageAll(this.gameState, new PassingMessage(this.gameState.gameParams.numToPass, this.gameState.pass, this.gameState.numPlayers));
 
         this.gameState.state = GameState.State.WAIT_FOR_PASS;
+        this.gameState.passed = new Array(this.gameState.numPlayers).fill(undefined);
     }
 
-    waitForPass() {
+    waitForPass(): [number, PassResponseMessage | Promise<PassResponseMessage>][] {
         // TODO rewrite waitingOthers to support this promise all
-        // this.waitingOthers(this.players, this.players[this.gameState.whoseTurn]);
-        const passed = Promise.all(this.handlerCallAll('pass'));
-        // this.waitingOthers(this.players);
+        // this.handlerProxy.waitingOthers(this.gameState, this.players[this.gameState.whoseTurn]);
+        const passed = this.handlerProxy.handlerCallAll(this.gameState, 'pass').map((value, index) => [index, value] as [number, PassResponseMessage]);
+        this.handlerProxy.waitingOthers(this.gameState);
         
         this.gameState.state = GameState.State.HANDLE_PASS;
 
@@ -125,7 +127,7 @@ export class GameDriver extends AbstractGameDriver<HandlerData, Handler, GamePar
             const passedFrom = (player + this.gameState.pass + this.gameState.numPlayers) % this.gameState.numPlayers; // TODO consider +- here
             const passed = this.gameState.passed[passedFrom];
             this.gameState.hands[passedFrom] = this.gameState.hands[passedFrom].filter(card => !passed.includes(card));
-            this.message(player, new PassedMessage(passed, this.gameState.names[passedFrom]));
+            this.handlerProxy.message(this.gameState, player, new PassedMessage(passed, this.gameState.names[passedFrom]));
             this.gameState.hands[player].push(...passed);
         }
 
@@ -137,11 +139,11 @@ export class GameDriver extends AbstractGameDriver<HandlerData, Handler, GamePar
         const startingCard = new Card(Suit.CLUBS, Rank.TWO);
         this.gameState.leader = this.gameState.hands.findIndex(hand => hand.find(card => card.equals(startingCard)) !== undefined);
         
-        this.messageAll(new LeadsMessage(this.gameState.names[this.gameState.leader]));
+        this.handlerProxy.messageAll(this.gameState, new LeadsMessage(this.gameState.names[this.gameState.leader]));
 
         const [removed] = this.gameState.hands[this.gameState.leader].splice(this.gameState.hands[this.gameState.leader].findIndex(card => card.equals(startingCard)), 1);
         this.gameState.currentTrick = [removed];
-        this.messageOthers(this.gameState.leader, new PlayedMessage(this.gameState.names[this.gameState.leader], removed))
+        this.handlerProxy.messageOthers(this.gameState, this.gameState.leader, new PlayedMessage(this.gameState.names[this.gameState.leader], removed))
 
         this.gameState.whoseTurn = (this.gameState.leader + 1) % this.gameState.numPlayers;
 
@@ -149,7 +151,7 @@ export class GameDriver extends AbstractGameDriver<HandlerData, Handler, GamePar
     }
 
     startTrick() {
-        this.messageAll(new LeadsMessage(this.gameState.names[this.gameState.leader]));
+        this.handlerProxy.messageAll(this.gameState, new LeadsMessage(this.gameState.names[this.gameState.leader]));
         this.gameState.currentTrick = [];
         this.gameState.whoseTurn = this.gameState.leader;
 
@@ -160,14 +162,14 @@ export class GameDriver extends AbstractGameDriver<HandlerData, Handler, GamePar
         this.gameState.state = GameState.State.WAIT_FOR_PLAY;
     }
 
-    waitForPlay() {
-        this.waitingOthers([this.players[this.gameState.whoseTurn]]);
-        const playedCard = this.handlerCall(this.gameState.whoseTurn, 'turn');
-        this.waitingOthers();
+    waitForPlay(): [number, TurnResponseMessage | Promise<TurnResponseMessage>] {
+        this.handlerProxy.waitingOthers(this.gameState, [this.gameState.whoseTurn]);
+        const result = this.handlerProxy.handlerCall(this.gameState, this.gameState.whoseTurn, 'turn');
+        this.handlerProxy.waitingOthers(this.gameState);
         
         this.gameState.state = GameState.State.HANDLE_PLAY;
 
-        return playedCard;
+        return [this.gameState.whoseTurn, result];
     }
 
     handlePlay() {
@@ -178,7 +180,7 @@ export class GameDriver extends AbstractGameDriver<HandlerData, Handler, GamePar
             throw new Error('Nonexistent card?');
         }
         hands[whoseTurn].splice(index, 1);
-        this.messageOthers(whoseTurn, new PlayedMessage(this.gameState.names[whoseTurn], playedCard))
+        this.handlerProxy.messageOthers(this.gameState, whoseTurn, new PlayedMessage(this.gameState.names[whoseTurn], playedCard))
 
         if(this.gameState.currentTrick.length === this.gameState.numPlayers) {
             this.gameState.state = GameState.State.END_TRICK;
@@ -227,14 +229,14 @@ export class GameDriver extends AbstractGameDriver<HandlerData, Handler, GamePar
                         this.gameState.points[otherPlayer] += newPoints;
                     }
                 }
-                this.messageAll(new ShotTheMoonMessage(this.gameState.names[player]));
+                this.handlerProxy.messageAll(this.gameState, new ShotTheMoonMessage(this.gameState.names[player]));
             } else {
                 this.gameState.points[player] += newPoints;
-                this.message(player, new ScoredMessage(newPoints));
+                this.handlerProxy.message(this.gameState, player, new ScoredMessage(newPoints));
             }
         }
         
-        this.messageAll(new EndRoundMessage(this.gameState.names, this.gameState.points));
+        this.handlerProxy.messageAll(this.gameState, new EndRoundMessage(this.gameState.names, this.gameState.points));
 
         if(this.gameState.pass === this.gameState.numPlayers / 2) { // handles even number going from across to keep
             this.gameState.pass = 0;

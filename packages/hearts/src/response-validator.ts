@@ -8,11 +8,11 @@ import { TurnResponseMessage } from "./messages/response/turn-response-message";
 const QS = new Card(Suit.SPADES, Rank.QUEEN);
 
 export class ResponseValidator extends AbstractResponseValidator<GameParams, GameState.State, GameState, ResponseMessage> {
-    validate(gameState: GameState, sourceHandler: number, event: ResponseMessage): ResponseMessage | undefined {
+    validate(gameState: GameState, source: number, event: ResponseMessage): ResponseMessage | undefined {
         switch(event.type) {
             case 'pass-response': {
                 const { cards, data } = event;
-                if(sourceHandler !== gameState.whoseTurn) {
+                if(source !== gameState.whoseTurn) {
                     return undefined;
                 }
                 try {
@@ -24,7 +24,7 @@ export class ResponseValidator extends AbstractResponseValidator<GameParams, Gam
                     console.error('Invalid pass', e);
                 }
 
-                return new PassResponseMessage(gameState.hands[sourceHandler].slice(0, gameState.gameParams.numToPass), data);
+                return new PassResponseMessage(gameState.hands[source].slice(0, gameState.gameParams.numToPass), data);
             }
             case 'turn-response': {
                 const { card, data } = event;
@@ -37,7 +37,7 @@ export class ResponseValidator extends AbstractResponseValidator<GameParams, Gam
                         throw new Error('Blood has not been shed yet');
                     }
         
-                    if(gameState.currentTrick[0]?.suit && card.suit !== gameState.currentTrick[0].suit && gameState.hands[sourceHandler].some(card => card.suit === gameState.currentTrick[0]?.suit)) {
+                    if(gameState.currentTrick[0]?.suit && card.suit !== gameState.currentTrick[0].suit && gameState.hands[source].some(card => card.suit === gameState.currentTrick[0]?.suit)) {
                         throw new Error('Must follow suit if possible');
                     }
                     return new TurnResponseMessage(card, data);
@@ -45,7 +45,7 @@ export class ResponseValidator extends AbstractResponseValidator<GameParams, Gam
                     console.error('Invalid turn', e);
                 }
 
-                return new TurnResponseMessage(gameState.hands[sourceHandler].filter(card => card.suit === gameState.currentTrick[0]?.suit)[0] || gameState.hands[sourceHandler].filter(card => card.suit !== Suit.HEARTS)[0] || gameState.hands[sourceHandler][0], data);
+                return new TurnResponseMessage(gameState.hands[source].filter(card => card.suit === gameState.currentTrick[0]?.suit)[0] || gameState.hands[source].filter(card => card.suit !== Suit.HEARTS)[0] || gameState.hands[source][0], data);
 
             }
         }

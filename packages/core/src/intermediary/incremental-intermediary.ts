@@ -1,5 +1,5 @@
 import { Message } from "../games/message";
-import { DisplayElement, DisplayElementReturnType } from "./display-element";
+import { DisplayElement, DisplayElementCallReturn, DisplayElementReturnType } from "./display-element";
 import { Presenter, Serializable } from "./presenter";
 import { Intermediary } from "./intermediary";
 
@@ -9,24 +9,28 @@ import { Intermediary } from "./intermediary";
 export class IncrementalIntermediary implements Intermediary {
     constructor(private readonly presenter: Presenter) {}
 
-    print(...printables: Serializable[]): void {
+    print(...printables: Serializable[]): [] {
         this.presenter.print({message: printables})();
+        return [];
     }
 
-    async form<T extends keyof Presenter>(first: DisplayElement<T>): Promise<[DisplayElementReturnType<T>]>;
-    async form<T extends keyof Presenter, U extends keyof Presenter>(first: DisplayElement<T>, second: DisplayElement<U>): Promise<[DisplayElementReturnType<T>, DisplayElementReturnType<U>]>;
-    async form<T extends keyof Presenter, U extends keyof Presenter, V extends keyof Presenter>(first: DisplayElement<T>, second: DisplayElement<U>, third: DisplayElement<V>): Promise<[DisplayElementReturnType<T>, DisplayElementReturnType<U>, DisplayElementReturnType<V>]>;
-    async form<T extends keyof Presenter, U extends keyof Presenter, V extends keyof Presenter, W extends keyof Presenter>(first: DisplayElement<T>, second: DisplayElement<U>, third: DisplayElement<V>, fourth: DisplayElement<W>): Promise<[DisplayElementReturnType<T>, DisplayElementReturnType<U>, DisplayElementReturnType<V>, DisplayElementReturnType<W>]>;
-    async form<T extends keyof Presenter, U extends keyof Presenter, V extends keyof Presenter, W extends keyof Presenter, X extends keyof Presenter>(first: DisplayElement<T>, second: DisplayElement<U>, third: DisplayElement<V>, fourth: DisplayElement<W>, fifth: DisplayElement<X>): Promise<[DisplayElementReturnType<T>, DisplayElementReturnType<U>, DisplayElementReturnType<V>, DisplayElementReturnType<W>, DisplayElementReturnType<X>]>;
-    async form<T extends keyof Presenter, U extends keyof Presenter, V extends keyof Presenter, W extends keyof Presenter, X extends keyof Presenter, Y extends keyof Presenter>(first: DisplayElement<T>, second: DisplayElement<U>, third: DisplayElement<V>, fourth: DisplayElement<W>, fifth: DisplayElement<X>, sixth: DisplayElement<Y>): Promise<[DisplayElementReturnType<T>, DisplayElementReturnType<U>, DisplayElementReturnType<V>, DisplayElementReturnType<W>, DisplayElementReturnType<X>, DisplayElementReturnType<Y>]>;
-    async form<T extends keyof Presenter, U extends keyof Presenter, V extends keyof Presenter, W extends keyof Presenter, X extends keyof Presenter, Y extends keyof Presenter, Z extends keyof Presenter>(first: DisplayElement<T>, second: DisplayElement<U>, third: DisplayElement<V>, fourth: DisplayElement<W>, fifth: DisplayElement<X>, sixth: DisplayElement<Y>, seventh: DisplayElement<Z>): Promise<[DisplayElementReturnType<T>, DisplayElementReturnType<U>, DisplayElementReturnType<V>, DisplayElementReturnType<W>, DisplayElementReturnType<X>, DisplayElementReturnType<Y>, DisplayElementReturnType<Z>]>;
-    async form(...components: DisplayElement<keyof Presenter>[]): Promise<DisplayElementReturnType<keyof Presenter>[]> {
-        let results: DisplayElementReturnType<keyof Presenter>[] = [];
-        for(const component of components) {
-            const func = this.presenter[component.type];
-            // @ts-ignore
-            results.push(await func(component)());
-        }
-        return results;
+    form<T extends keyof Presenter>(first: DisplayElement<T>): [sent: undefined | Promise<void>, received: Promise<[DisplayElementCallReturn<T>]>];
+    form<T extends keyof Presenter, U extends keyof Presenter>(first: DisplayElement<T>, second: DisplayElement<U>): [sent: undefined | Promise<void>, received: Promise<[DisplayElementCallReturn<T>, DisplayElementCallReturn<U>]>];
+    form<T extends keyof Presenter, U extends keyof Presenter, V extends keyof Presenter>(first: DisplayElement<T>, second: DisplayElement<U>, third: DisplayElement<V>): [sent: undefined | Promise<void>, received: Promise<[DisplayElementCallReturn<T>, DisplayElementCallReturn<U>, DisplayElementCallReturn<V>]>];
+    form<T extends keyof Presenter, U extends keyof Presenter, V extends keyof Presenter, W extends keyof Presenter>(first: DisplayElement<T>, second: DisplayElement<U>, third: DisplayElement<V>, fourth: DisplayElement<W>): [sent: undefined | Promise<void>, received: Promise<[DisplayElementCallReturn<T>, DisplayElementCallReturn<U>, DisplayElementCallReturn<V>, DisplayElementCallReturn<W>]>];
+    form<T extends keyof Presenter, U extends keyof Presenter, V extends keyof Presenter, W extends keyof Presenter, X extends keyof Presenter>(first: DisplayElement<T>, second: DisplayElement<U>, third: DisplayElement<V>, fourth: DisplayElement<W>, fifth: DisplayElement<X>): [sent: undefined | Promise<void>, received: Promise<[DisplayElementCallReturn<T>, DisplayElementCallReturn<U>, DisplayElementCallReturn<V>, DisplayElementCallReturn<W>, DisplayElementCallReturn<X>]>];
+    form<T extends keyof Presenter, U extends keyof Presenter, V extends keyof Presenter, W extends keyof Presenter, X extends keyof Presenter, Y extends keyof Presenter>(first: DisplayElement<T>, second: DisplayElement<U>, third: DisplayElement<V>, fourth: DisplayElement<W>, fifth: DisplayElement<X>, sixth: DisplayElement<Y>): [sent: undefined | Promise<void>, received: Promise<[DisplayElementCallReturn<T>, DisplayElementCallReturn<U>, DisplayElementCallReturn<V>, DisplayElementCallReturn<W>, DisplayElementCallReturn<X>, DisplayElementCallReturn<Y>]>];
+    form<T extends keyof Presenter, U extends keyof Presenter, V extends keyof Presenter, W extends keyof Presenter, X extends keyof Presenter, Y extends keyof Presenter, Z extends keyof Presenter>(first: DisplayElement<T>, second: DisplayElement<U>, third: DisplayElement<V>, fourth: DisplayElement<W>, fifth: DisplayElement<X>, sixth: DisplayElement<Y>, seventh: DisplayElement<Z>): [sent: undefined | Promise<void>, received: Promise<[DisplayElementCallReturn<T>, DisplayElementCallReturn<U>, DisplayElementCallReturn<V>, DisplayElementCallReturn<W>, DisplayElementCallReturn<X>, DisplayElementCallReturn<Y>, DisplayElementCallReturn<Z>]>];
+    form(...components: DisplayElement<keyof Presenter>[]): [sent: undefined | Promise<void>, received: Promise<DisplayElementCallReturn<keyof Presenter>[]>] {
+        const results = new Promise<DisplayElementCallReturn<keyof Presenter>[]>(resolver => {
+            let results: DisplayElementCallReturn<keyof Presenter>[] = [];
+            for(const component of components) {
+                const func = this.presenter[component.type];
+                // @ts-ignore
+                results.push(func(component)());
+            }
+            resolver(Promise.all(results));
+        });
+        return [, results];
     }
 }

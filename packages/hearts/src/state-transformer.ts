@@ -1,18 +1,18 @@
-import { AbstractStateTransformer } from '@cards-ts/core';
+import { AbstractStateTransformer, isDefined } from '@cards-ts/core';
 import { GameParams } from './game-params';
 import { GameState } from './game-state';
 import { HandlerData } from './handler-data';
 import { ResponseMessage } from './messages/response-message';
 
 export class StateTransformer extends AbstractStateTransformer<GameParams, GameState.State, HandlerData, GameState, ResponseMessage> {
-    initialState({ numPlayers, gameParams }: { numPlayers: number, gameParams: GameParams }) {
-        const state = super.initialState({ numPlayers, gameParams, initialState: GameState.State.START_GAME });
+    initialState({ names, gameParams }: { names: string[], gameParams: GameParams }) {
+        const state = super.initialState({ names, gameParams, initialState: GameState.State.START_GAME });
 
         state.dealer = 0;
         state.pass = 1;
         state.tricks = 0;
         state.passed = [];
-        state.points = new Array(numPlayers).fill(0);
+        state.points = names.map(() => 0);
 
         return state;
     }
@@ -37,20 +37,28 @@ export class StateTransformer extends AbstractStateTransformer<GameParams, GameS
         return handlerData;
     }
 
-    merge(gameState: GameState, incomingEvent: ResponseMessage): GameState {
+    merge(gameState: GameState, source: number, incomingEvent: ResponseMessage): [shouldContinue: boolean, gameState: GameState] {
         switch(incomingEvent.type) {
             case 'pass-response': {
-                return {
+                const newState: GameState = {
                     ...gameState,
-                    passed: [...gameState.passed.slice(0, gameState.whoseTurn), incomingEvent.cards, ...gameState.passed.slice(gameState.whoseTurn + 1)]
+                    passed: [...gameState.passed.slice(0, source), incomingEvent.cards, ...gameState.passed.slice(source + 1)]
                 };
-                // TODO what if not everyone has passed
+                return [newState.passed.every(isDefined), newState];
             }
             case 'turn-response': {
-                return {
+                const newState: GameState = {
                     ...gameState,
-                    currentTrick: [...gameState.currentTrick, incomingEvent.card]
+                    playedCard: incomingEvent.card
                 };
+                return [true, newState];
+            }
+            case 'data-response': {
+                const newState: GameState = {
+                    ...gameState,
+                    data: [...gameState.data.slice(0, source), incomingEvent.data, ...gameState.data.slice(source + 1)]
+                };
+                return [false, newState];
             }
         }
     }

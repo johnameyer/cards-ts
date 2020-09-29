@@ -6,14 +6,14 @@ import { Message } from "./message";
 
 export abstract class AbstractStateTransformer<GameParams, State, HandlerData extends AbstractHandlerData, GameState extends AbstractGameState<GameParams, State>, ResponseMessage extends Message> {
     
-    initialState({gameParams, numPlayers, initialState}: {gameParams: GameParams, numPlayers: number, initialState: State}): GameState {
+    initialState({gameParams, names, initialState}: {gameParams: GameParams, names: string[], initialState: State}): GameState {
         return {
             gameParams: gameParams,
-            numPlayers: numPlayers,
-            names: new Array(numPlayers),
+            numPlayers: names.length,
+            names: names,
             completed: false,
-            data: new Array(numPlayers).fill(0).map(() => ({})),
-            hands: new Array(numPlayers).fill(0).map(() => new Array()),
+            data: names.map(() => ({})),
+            hands: names.map(() => new Array()),
             state: initialState,
         } as GameState;
     }
@@ -46,5 +46,5 @@ export abstract class AbstractStateTransformer<GameParams, State, HandlerData ex
 
     abstract transformToHandlerData(gameState: GameState, position: number): HandlerData;
 
-    abstract merge(gameState: GameState, incomingEvent: ResponseMessage): GameState;
+    abstract merge(gameState: GameState, sourceHandler: number, incomingEvent: ResponseMessage): [shouldContinue: boolean, gameState: GameState];
 }

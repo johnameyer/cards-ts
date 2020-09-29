@@ -1,5 +1,5 @@
 import { Serializable } from "../intermediary/presenter";
-import { defined } from "../util/defined";
+import { isDefined } from "../util/is-defined";
 
 /**
  * Parent class for any message to be delivered to handlers
@@ -26,5 +26,5 @@ export namespace Message {
             return defaultTransformer(component, ', ');
         }
         return component.toString();
-    }).filter(defined).reduce((a: string, b: string) => a + joiner + b);
+    }).filter(isDefined).reduce((a: string, b: string) => a + joiner + b);
 }

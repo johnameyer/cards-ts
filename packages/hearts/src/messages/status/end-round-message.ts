@@ -13,6 +13,9 @@ function generateMessage(players: readonly string[], scores: readonly number[]):
  * Class denoting to handlers that the round has ended
  */
 export class EndRoundMessage extends Message {
+
+    public readonly type = 'end-round-message';
+
     /**
      * @param players the players' names
      * @param scores the culmulative scores

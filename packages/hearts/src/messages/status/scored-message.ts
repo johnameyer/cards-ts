@@ -9,6 +9,9 @@ function generateMessage(points: number): Serializable[] {
  * Class that denotes to a handler that they have been dealt or drawn a card
  */
 export class ScoredMessage extends Message {
+
+    public readonly type = 'scored-message';
+
     /**
      * @param card the card being received
      */

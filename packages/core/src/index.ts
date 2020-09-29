@@ -30,3 +30,6 @@ export { combinations } from './util/combinations';
 export { distinct } from './util/distinct';
 export { flatten } from './util/flatten';
 export { zip } from './util/zip';
+export { isDefined } from './util/is-defined';
+export { isPromise } from './util/is-promise';
+export { isNestedArray } from './util/is-nested-array';

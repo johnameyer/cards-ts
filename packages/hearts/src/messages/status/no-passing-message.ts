@@ -9,6 +9,9 @@ function generateMessage(): Serializable[] {
  * Class that denotes to a handler that they have been dealt or drawn a card
  */
 export class NoPassingMessage extends Message {
+
+    public readonly type = 'no-passing-message';
+
     /**
      * @param shooter the hand that is leading
      */

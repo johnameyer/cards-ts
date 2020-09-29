@@ -9,6 +9,9 @@ function generateMessage(leader: string): Serializable[] {
  * Class that denotes to a handler that they have been dealt or drawn a card
  */
 export class LeadsMessage extends Message {
+
+    public readonly type = 'leads-message';
+
     /**
      * @param leader the hand that is leading
      */

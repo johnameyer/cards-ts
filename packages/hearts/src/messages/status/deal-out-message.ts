@@ -10,6 +10,9 @@ function generateMessage(cards: Card[]): Serializable[] {
  * Class that denotes to a handler that they have been dealt or drawn a card
  */
 export class DealOutMessage extends Message {
+
+    public readonly type = 'deal-out-message';
+
     /**
      * @param card the card being received
      */

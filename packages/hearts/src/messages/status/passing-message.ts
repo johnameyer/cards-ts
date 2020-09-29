@@ -15,6 +15,9 @@ function generateMessage(numToPass: number, passing: number, numPlayers: number)
  * Class that denotes to a handler that they have been dealt or drawn a card
  */
 export class PassingMessage extends Message {
+    
+    public readonly type = 'passing-message';
+
     /**
      * @param shooter the hand that is leading
      */

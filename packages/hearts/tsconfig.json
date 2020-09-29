@@ -4,7 +4,7 @@
         "outDir": "./lib"
     },
     "include": [
-        "./src", "../core/src/games/handler-wrapper.ts"
+        "./src"
     ]
 }
 
