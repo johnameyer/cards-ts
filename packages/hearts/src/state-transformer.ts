@@ -22,27 +22,27 @@ export class StateTransformer extends AbstractStateTransformer<GameParams, GameS
             gameParams: {...gameState.gameParams},
             numPlayers: gameState.numPlayers,
             pointsTaken: gameState.pointsTaken,
-            points: gameState.points,
+            points: gameState.points.slice(),
             tricks: gameState.tricks,
             dealer: gameState.dealer,
             whoseTurn: gameState.whoseTurn,
             leader: gameState.leader,
-            passed: gameState.passed[position],
+            passed: gameState.passed[position].slice(),
             pass: gameState.pass,
-            currentTrick: gameState.currentTrick,
+            currentTrick: gameState.currentTrick.slice(),
             position,
             data: gameState.data[position],
-            hand: gameState.hands[position]
+            hand: gameState.hands[position].slice()
         };
         return handlerData;
     }
 
-    merge(gameState: GameState, source: number, incomingEvent: ResponseMessage): [shouldContinue: boolean, gameState: GameState] {
+    merge(gameState: GameState, sourceHandler: number, incomingEvent: ResponseMessage): [shouldContinue: boolean, gameState: GameState] {
         switch(incomingEvent.type) {
             case 'pass-response': {
                 const newState: GameState = {
                     ...gameState,
-                    passed: [...gameState.passed.slice(0, source), incomingEvent.cards, ...gameState.passed.slice(source + 1)]
+                    passed: [...gameState.passed.slice(0, sourceHandler), incomingEvent.cards, ...gameState.passed.slice(sourceHandler + 1)]
                 };
                 return [newState.passed.every(isDefined), newState];
             }
@@ -56,7 +56,7 @@ export class StateTransformer extends AbstractStateTransformer<GameParams, GameS
             case 'data-response': {
                 const newState: GameState = {
                     ...gameState,
-                    data: [...gameState.data.slice(0, source), incomingEvent.data, ...gameState.data.slice(source + 1)]
+                    data: [...gameState.data.slice(0, sourceHandler), incomingEvent.data, ...gameState.data.slice(sourceHandler + 1)]
                 };
                 return [false, newState];
             }

@@ -1,5 +1,6 @@
 import { Card, Intermediary, Message, ThreeCardSet, FourCardRun, checkFourCardRunPossible } from "@cards-ts/core";
 import { Meld } from "@cards-ts/core/lib/cards/meld";
+import { GameState } from "../game-state";
 import { HandlerData } from "../handler-data";
 import { roundToString } from "../util/round-to-string";
 import { ClientHandler } from "./client-handler";
@@ -52,31 +53,16 @@ function reconcileDataAndHand(hand: Card[], data: any) {
 }
 
 export class IntermediaryHandler extends ClientHandler {
-    private name!: string;
-
     constructor(private intermediary: Intermediary) {
         super();
     }
 
-    public async askForName() {
-        const message = ['What is your name?'];
-        const [name] = await this.intermediary.form({ type:'input', message });
-        this.name = name;
+    public message(_: HandlerData, message: Message) {
+        return this.intermediary.print(...message.components);
     }
 
-    public setName(name: string) {
-        this.name = name;
-    }
-
-    public getName(): string {
-        return this.name;
-    }
-
-    public message(message: Message) {
-        this.intermediary.print(...message.components);
-    }
-
-    waitingFor(who: string[] | undefined): void {
+    waitingFor(_: HandlerData, who: string[] | undefined): [] {
+        return [];
     }
 
     public async wantCard(card: Card, isTurn: boolean, {hand, round, gameParams: {rounds}, data}: HandlerData): Promise<[boolean, unknown]> {

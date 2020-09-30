@@ -1,5 +1,5 @@
 import { Serializable, Message } from "@cards-ts/core";
-import { roundToString } from "../util/round-to-string";
+import { roundToString } from "../../util/round-to-string";
 
 function generateMessage(round: readonly number[]): Serializable[] {
     return roundToString(round);

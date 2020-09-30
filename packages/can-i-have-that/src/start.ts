@@ -9,6 +9,7 @@ import { defaultParams } from './game-params';
 import yargs from 'yargs';
 import { IntermediaryHandler } from './handlers/intermediary-handler';
 import { IncrementalIntermediary, InquirerPresenter } from '@cards-ts/core';
+import { StateTransformer } from './state-transformer';
 
 yargs.command(['start', '$0'], 'begin a new game', yargs => {
     yargs.option('players', {
@@ -22,20 +23,29 @@ yargs.command(['start', '$0'], 'begin a new game', yargs => {
         description: 'Player\'s name'
     });
 }, async argv => {
-    const mainPlayer = new IntermediaryHandler(new IncrementalIntermediary(new InquirerPresenter()));
-    if(!argv.name) {        
-        await mainPlayer.askForName();
-    } else {
-        mainPlayer.setName(argv.name as string);
-    }
+    // const mainPlayer = new IntermediaryHandler(new IncrementalIntermediary(new InquirerPresenter()));
+    // if(!argv.name) {        
+    //     await mainPlayer.askForName();
+    // } else {
+    //     mainPlayer.setName(argv.name as string);
+    // }
 
     const players = Array(argv.players as number + 1);
-    players[0] = mainPlayer;
+    players[0] = new LocalMaximumHandler(); //mainPlayer;
     for(let i = 1; i < players.length; i++) {
         players[i] = new LocalMaximumHandler();
     }
 
-    const driver = new GameDriver(players, defaultParams);
+    const names: string[] = []; //TODO
+
+    const stateTransformer = new StateTransformer();
+
+    const initialState = stateTransformer.initialState({
+        names: names,
+        gameParams: defaultParams
+    });
+
+    const driver = new GameDriver(players, initialState, stateTransformer);
 
     await driver.start();
 })

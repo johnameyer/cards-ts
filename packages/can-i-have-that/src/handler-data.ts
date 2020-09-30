@@ -47,5 +47,7 @@ export interface HandlerData {
      */
     position: number;
 
+    deckCard: Card;
+
     data: any;
 }

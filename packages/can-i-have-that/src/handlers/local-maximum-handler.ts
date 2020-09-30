@@ -2,45 +2,41 @@ import { Card, ThreeCardSet, FourCardRun } from "@cards-ts/core";
 import { Meld } from "@cards-ts/core/lib/cards/meld";
 import { Handler } from "../handler";
 import { HandlerData } from "../handler-data";
+import { WantCardResponseMessage } from "../messages/response";
 import { find } from "../util/find";
 
 export class LocalMaximumHandler implements Handler {
-    constructor(private timeout?: number) {
-    }
-    
-    public getName(taken: string[]): string {
-        return ['Max', 'Maxwell', 'Maximilian', 'Maxine', 'Maximo', 'Maximus'].find(str => !taken.includes(str)) || 'Max';
-    }
-    
-    public message(bundle: any) {
+    public message(): [] {
+        return [];
     }
 
-    waitingFor(who: string[] | undefined): void {
+    public waitingFor(): [] {
+        return [];
     }
     
-    public async wantCard(card: Card, isTurn: boolean, {hand, played, position, round, gameParams: {rounds}}: HandlerData): Promise<[boolean]> {
+    public wantCard({hand, played, position, round, deckCard, gameParams: {rounds}}: HandlerData): [undefined, WantCardResponseMessage] {
         let currentRound = rounds[round];
         if(played[position].length > 0) {
-            return [false];
+            return [, new WantCardResponseMessage(false)];
         }
-        if(card.isWild()) {
+        if(deckCard.isWild()) {
             // console.log(position, 'want wild', card.toString());
-            return [true];
+            return [, new WantCardResponseMessage(true)];
         }
         const oldFound = find([...hand], currentRound);
-        const newFound = find([card, ...hand], currentRound);
+        const newFound = find([deckCard, ...hand], currentRound);
         const advantage = newFound[0] - oldFound[0];
         if(oldFound[0] === 0 && newFound[0] === 0 && isTurn && newFound[1] <= oldFound[1]) {
             // pickup card if it is our turn, we have already completed, and it doesn't add value to us
             // console.log(position, 'want card', card.toString());
             // console.log(oldFound.toString());
             // console.log(newFound.toString());
-            return [true];
+            return [, new WantCardResponseMessage(true)];
         }
         if(round !== rounds.length - 1) {
             if(advantage < 0) {
                 // if not last round and card would benefit us, grab it
-                return [true];
+            return [, new WantCardResponseMessage(true)];
             }
         } else {
             if(advantage < 0) {
@@ -50,11 +46,11 @@ export class LocalMaximumHandler implements Handler {
                     // console.log(position, 'want card', card.toString());
                     // console.log(oldFound.toString());
                     // console.log(newFound.toString());
-                    return [true];
+                    return [, new WantCardResponseMessage(true)];
                 }
             }
         }
-        return [false];
+        return [, new WantCardResponseMessage(false)];
     }
     
     public async turn({hand, played, position, round, gameParams: {rounds}}: HandlerData)

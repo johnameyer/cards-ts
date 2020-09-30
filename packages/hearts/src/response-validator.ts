@@ -46,7 +46,9 @@ export class ResponseValidator extends AbstractResponseValidator<GameParams, Gam
                 }
 
                 return new TurnResponseMessage(gameState.hands[source].filter(card => card.suit === gameState.currentTrick[0]?.suit)[0] || gameState.hands[source].filter(card => card.suit !== Suit.HEARTS)[0] || gameState.hands[source][0], data);
-
+            }
+            case 'data-response': {
+                return event;
             }
         }
     }
