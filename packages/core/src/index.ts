@@ -25,6 +25,7 @@ export { Message } from './games/message';
 export { Observer } from './games/observer';
 export { AbstractResponseValidator } from './games/abstract-response-validator';
 export { AbstractStateTransformer } from './games/abstract-state-transformer';
+export { ResponseQueue, HandlerResponsesQueue } from './games/response-queue';
 
 export { combinations } from './util/combinations';
 export { distinct } from './util/distinct';

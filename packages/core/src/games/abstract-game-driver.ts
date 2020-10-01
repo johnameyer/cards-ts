@@ -3,22 +3,21 @@ import { Message } from './message';
 import { AbstractHandler } from './abstract-handler';
 import { AbstractStateTransformer } from './abstract-state-transformer';
 import { HandlerProxy } from './handler-proxy';
-import { isNestedArray } from '../util/is-nested-array';
 import { AbstractResponseValidator } from './abstract-response-validator';
 
 /**
  * Class that handles the steps of the game
  */
-export abstract class AbstractGameDriver<HandlerData, Handler extends AbstractHandler<HandlerData>, GameParams, State, GameState extends AbstractGameState<GameParams, State>, ResponseMessage extends Message, StateTransformer extends AbstractStateTransformer<GameParams, State, HandlerData, GameState, ResponseMessage>> {
+export abstract class AbstractGameDriver<HandlerData, Handler extends AbstractHandler<HandlerData, ResponseMessage>, GameParams, State, GameState extends AbstractGameState<GameParams, State>, ResponseMessage extends Message, StateTransformer extends AbstractStateTransformer<GameParams, State, HandlerData, GameState, ResponseMessage>, ResponseValidator extends AbstractResponseValidator<GameParams, State, GameState, ResponseMessage>> {
 
-    protected handlerProxy: HandlerProxy<HandlerData, Handler, GameParams, State, GameState, ResponseMessage, StateTransformer>;
+    protected handlerProxy: HandlerProxy<HandlerData, ResponseMessage, Handler, GameParams, State, GameState, StateTransformer>;
 
     /**
      * Create the game driver
      * @param players the players in the game
      * @param gameParams the parameters to use for the game
      */
-    constructor(handlers: Handler[], protected gameState: GameState, protected stateTransformer: StateTransformer) {
+    constructor(handlers: Handler[], protected gameState: GameState, protected stateTransformer: StateTransformer, protected responseValidator: ResponseValidator) {
         // this.gameState.names = handlerProxy.getNames();
         this.handlerProxy = new HandlerProxy(handlers, stateTransformer);
     }
@@ -29,23 +28,30 @@ export abstract class AbstractGameDriver<HandlerData, Handler extends AbstractHa
     public async start() {
         const state = this.gameState;
         while(!state.completed) {
-            const next = this.iterate();
+            const waitingForUser = this.iterate();
             await this.handlerProxy.handleOutgoing();
-            if(next !== undefined) {
-                if(isNestedArray(next)) {
-                    const items = next.map(([number, item]) => Promise.resolve(item).then(item => [number, item] as [number, ResponseMessage]));
-                    let shouldContinue: boolean = false;
-                    while(!shouldContinue) {
-                        const [promise] = await Promise.race(items.map(promise => promise.then(() => [promise])));
-                        items.splice(items.indexOf(promise), 1);
-                        const [player, response] = await promise;
-                        // const validated = validator.validate(this.gameState, player, response);
-                        ([shouldContinue, this.gameState] = this.stateTransformer.merge(this.gameState, player, response));
-                    }
-                } else {
-                    const [player, response] = next;
-                    ([, this.gameState] = this.stateTransformer.merge(this.gameState, player, await response));
+            let shouldContinue: boolean = false;
+            for(const [position, message] of this.handlerProxy.receiveSyncResponses()) {
+                const updatedMessage = this.responseValidator.validate(this.gameState, position, message);
+
+                if(updatedMessage) {
+                    let canContinue: boolean;
+                    ([canContinue, this.gameState] = this.stateTransformer.merge(this.gameState, position, updatedMessage));
+                    shouldContinue ||= canContinue;
                 }
+            }
+
+            while(waitingForUser && !shouldContinue) {
+                await this.handlerProxy.asyncResponseAvailable();
+                for await(const [position, message] of this.handlerProxy.receiveAsyncResponses()) {
+                    const updatedMessage = this.responseValidator.validate(this.gameState, position, message);
+    
+                    if(updatedMessage) {
+                        let canContinue: boolean;
+                        ([canContinue, this.gameState] = this.stateTransformer.merge(this.gameState, position, updatedMessage));
+                        shouldContinue ||= canContinue;
+                    }
+                }    
             }
         }
     }
@@ -56,16 +62,16 @@ export abstract class AbstractGameDriver<HandlerData, Handler extends AbstractHa
     public resume() {
         const state = this.gameState;
         while(!state.completed) {
-            const next = this.iterate();
-            if(next !== undefined) {
-                return next;
+            const waitingForUser = this.iterate();
+            if(waitingForUser) {
+                return;
             }
         }
     }
 
     /**
      * Proceed to the next state of the game
-     * @returns void if the state is not waiting for a user, or a promise to the data returned from a user
+     * @returns true if waiting for user input, false if not
      */
-    public abstract iterate(): void | [number, ResponseMessage | Promise<ResponseMessage>] | [number, ResponseMessage | Promise<ResponseMessage>][];
+    public abstract iterate(): boolean;
 }

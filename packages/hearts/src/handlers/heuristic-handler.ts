@@ -1,11 +1,12 @@
 import { Handler } from "../handler";
 import { HandlerData } from "../handler-data";
-import { Card, combinations } from "@cards-ts/core";
+import { Card, combinations, HandlerResponsesQueue } from "@cards-ts/core";
 import { Message } from "@cards-ts/core";
 import { Suit } from "@cards-ts/core";
 import { Rank } from "@cards-ts/core";
 import { DataResponseMessage, PassResponseMessage, TurnResponseMessage } from "../messages/response";
 import { StatusMessage } from "../messages/status-message";
+import { ResponseMessage } from "../messages/response-message";
 
 interface HeuristicHandlerData {
     playerOutOfSuit: {[player: string]: Suit[]},
@@ -62,7 +63,7 @@ function wrapData(handlerData: HandlerData) {
 }
 
 export class HeuristicHandler extends Handler {
-    pass(handlerData: HandlerData): [undefined, PassResponseMessage] {
+    pass(handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): void {
         const data = wrapData(handlerData);
         const { hand, gameParams: { numToPass } } = handlerData;
         const toPass = [];
@@ -84,7 +85,8 @@ export class HeuristicHandler extends Handler {
 
         toPass.push(...deleteSuit);
         if(toPass.length === numToPass) {
-            return [, new PassResponseMessage(toPass, data)];
+            responsesQueue.push(new PassResponseMessage(toPass, data));
+            return;
         }
 
         const spades = sorted[Suit.SPADES.letter];
@@ -109,15 +111,17 @@ export class HeuristicHandler extends Handler {
         }
 
         if(toPass.length >= numToPass) {
-            return [, new PassResponseMessage(toPass.slice(0, numToPass), data)];
+            responsesQueue.push(new PassResponseMessage(toPass.slice(0, numToPass), data));
+            return;
         }
 
         toPass.push(...hand.filter(card => [Suit.CLUBS, Suit.DIAMONDS].includes(card.suit)).sort(Card.compare).reverse());
 
-        return [, new PassResponseMessage(toPass.slice(0, numToPass), data)];
+        responsesQueue.push(new PassResponseMessage(toPass.slice(0, numToPass), data));
+        return;
     }
 
-    turn(handlerData: HandlerData): [undefined, TurnResponseMessage] {
+    turn(handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): void {
         const data = wrapData(handlerData);
         const { hand, currentTrick, tricks } = handlerData;
         try {
@@ -131,9 +135,11 @@ export class HeuristicHandler extends Handler {
                 // if the first trick
                 if(sorted[Suit.CLUBS.letter]?.length) {
                     // throw out our highest club if possible
-                    return [, new TurnResponseMessage(sorted[Suit.CLUBS.letter].sort(Card.compare).reverse()[0], data)];
+                    responsesQueue.push(new TurnResponseMessage(sorted[Suit.CLUBS.letter].sort(Card.compare).reverse()[0], data));
+                    return;
                 } else {
-                    return [, new TurnResponseMessage(throwAwayRisk(hand, sorted, false, data), data)];
+                    responsesQueue.push(new TurnResponseMessage(throwAwayRisk(hand, sorted, false, data), data));
+                    return;
                 }
             }
 
@@ -143,23 +149,27 @@ export class HeuristicHandler extends Handler {
                 const cardsOfSuit = hand.filter(card => card.suit === follow);
 
                 if(cardsOfSuit.length > 0) {
-                    return [, new TurnResponseMessage(cardsOfSuit[0], data)];
+                    responsesQueue.push(new TurnResponseMessage(cardsOfSuit[0], data));
+                    return;
                 } else {
-                    return [, new TurnResponseMessage(hand.slice().sort(Card.compare).reverse()[0], data)];
+                    responsesQueue.push(new TurnResponseMessage(hand.slice().sort(Card.compare).reverse()[0], data));
+                    return;
                 }
             } else {
                 if(sorted[Suit.SPADES.letter]?.length > 3){
-                    return [, new TurnResponseMessage(sorted[Suit.SPADES.letter][0], data)];
+                    responsesQueue.push(new TurnResponseMessage(sorted[Suit.SPADES.letter][0], data));
+                    return;
                 }
                 const suitOfLeast = Object.entries(sorted).filter(entry => entry[0] !== Suit.HEARTS.letter).filter(entry => entry[1].length > 0).sort((first, second) => second[1].length - first[1].length).map(entry => entry[0])[0];
                 
-                return [, new TurnResponseMessage(sorted[suitOfLeast][0], data)];
+                responsesQueue.push(new TurnResponseMessage(sorted[suitOfLeast][0], data));
+                return;
             }
         } catch {}
-        return [, new TurnResponseMessage(hand[0], data)];
+        responsesQueue.push(new TurnResponseMessage(hand[0], data));
     }
 
-    message(gameState: HandlerData, message: StatusMessage): [sent: undefined, received: DataResponseMessage] {
+    message(gameState: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>, message: StatusMessage): void {
         const data = wrapData(gameState);
         const { currentTrick } = gameState;
         if(message.type === 'played-message') {
@@ -169,12 +179,11 @@ export class HeuristicHandler extends Handler {
             if(currentTrick.length > 1 && message.card.suit !== currentTrick[0].suit) {
                 data.playerOutOfSuit[message.player] = [...(data.playerOutOfSuit[message.player] || []) as Suit[], currentTrick[0].suit].filter((val, index, arr) => arr.indexOf(val) === index);
             }
+            responsesQueue.push(new DataResponseMessage(data));
         }
-        return [undefined, new DataResponseMessage(data)];
     }
 
-    waitingFor(): [] {
-        return [];
+    waitingFor(): void {
     }
 
     // shouldTryToShootTheMoon(handlerData: HandlerData) {

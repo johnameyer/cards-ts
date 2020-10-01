@@ -7,6 +7,7 @@ import { DealOutMessage, NoPassingMessage, PassingMessage, PassedMessage, LeadsM
 import { ResponseMessage } from "./messages/response-message";
 import { StateTransformer } from "./state-transformer";
 import { PassResponseMessage, TurnResponseMessage } from "./messages/response";
+import { ResponseValidator } from "./response-validator";
 
 function valueOfCard(card: Card): number {
     if(card.equals(Card.fromString('QS'))) {
@@ -18,8 +19,8 @@ function valueOfCard(card: Card): number {
     return 0;
 }
 
-export class GameDriver extends AbstractGameDriver<HandlerData, Handler, GameParams, GameState.State, GameState, ResponseMessage, StateTransformer> {
-    public iterate(): void | [number, ResponseMessage | Promise<ResponseMessage>] | [number, ResponseMessage | Promise<ResponseMessage>][] {
+export class GameDriver extends AbstractGameDriver<HandlerData, Handler, GameParams, GameState.State, GameState, ResponseMessage, StateTransformer, ResponseValidator> {
+    public iterate() {
         switch(this.gameState.state) {
             case GameState.State.START_GAME:
                 this.startGame();
@@ -35,7 +36,8 @@ export class GameDriver extends AbstractGameDriver<HandlerData, Handler, GamePar
                 break;
 
             case GameState.State.WAIT_FOR_PASS:
-                return this.waitForPass();
+                this.waitForPass();
+                return true;
 
             case GameState.State.HANDLE_PASS:
                 this.handlePass();
@@ -54,7 +56,8 @@ export class GameDriver extends AbstractGameDriver<HandlerData, Handler, GamePar
                 break;
 
             case GameState.State.WAIT_FOR_PLAY:
-                return this.waitForPlay();
+                this.waitForPlay();
+                return true;
 
             case GameState.State.HANDLE_PLAY:
                 this.handlePlay();
@@ -72,6 +75,7 @@ export class GameDriver extends AbstractGameDriver<HandlerData, Handler, GamePar
                 this.endGame();
                 break;
         }
+        return false;
     }
 
     startGame() {
@@ -111,15 +115,13 @@ export class GameDriver extends AbstractGameDriver<HandlerData, Handler, GamePar
         this.gameState.passed = new Array(this.gameState.numPlayers).fill(undefined);
     }
 
-    waitForPass(): [number, PassResponseMessage | Promise<PassResponseMessage>][] {
+    waitForPass() {
         // TODO rewrite waitingOthers to support this promise all
         // this.handlerProxy.waitingOthers(this.gameState, this.players[this.gameState.whoseTurn]);
-        const passed = this.handlerProxy.handlerCallAll(this.gameState, 'pass').map((value, index) => [index, value] as [number, PassResponseMessage]);
+        this.handlerProxy.handlerCallAll(this.gameState, 'pass');
         this.handlerProxy.waitingOthers(this.gameState);
         
         this.gameState.state = GameState.State.HANDLE_PASS;
-
-        return passed;
     }
 
     handlePass() {
@@ -162,14 +164,12 @@ export class GameDriver extends AbstractGameDriver<HandlerData, Handler, GamePar
         this.gameState.state = GameState.State.WAIT_FOR_PLAY;
     }
 
-    waitForPlay(): [number, TurnResponseMessage | Promise<TurnResponseMessage>] {
+    waitForPlay() {
         this.handlerProxy.waitingOthers(this.gameState, [this.gameState.whoseTurn]);
-        const result = this.handlerProxy.handlerCall(this.gameState, this.gameState.whoseTurn, 'turn');
+        this.handlerProxy.handlerCall(this.gameState, this.gameState.whoseTurn, 'turn');
         this.handlerProxy.waitingOthers(this.gameState);
         
         this.gameState.state = GameState.State.HANDLE_PLAY;
-
-        return [this.gameState.whoseTurn, result];
     }
 
     handlePlay() {

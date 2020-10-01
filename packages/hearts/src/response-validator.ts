@@ -12,9 +12,6 @@ export class ResponseValidator extends AbstractResponseValidator<GameParams, Gam
         switch(event.type) {
             case 'pass-response': {
                 const { cards, data } = event;
-                if(source !== gameState.whoseTurn) {
-                    return undefined;
-                }
                 try {
                     if(cards.length !== gameState.gameParams.numToPass) {
                         throw new Error('Wrong number of cards passed');
@@ -27,6 +24,9 @@ export class ResponseValidator extends AbstractResponseValidator<GameParams, Gam
                 return new PassResponseMessage(gameState.hands[source].slice(0, gameState.gameParams.numToPass), data);
             }
             case 'turn-response': {
+                if(source !== gameState.whoseTurn) {
+                    return undefined;
+                }
                 const { card, data } = event;
                 try {
                     if(gameState.tricks === 0 && (card.suit === Suit.HEARTS || card.equals(QS))) {

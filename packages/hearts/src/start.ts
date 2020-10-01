@@ -13,6 +13,7 @@ import { IncrementalIntermediary, InquirerPresenter } from "@cards-ts/core";
 import { StateTransformer } from "./state-transformer";
 import { HandlerProxy } from "../../core/lib/games/handler-proxy";
 import { Handler } from "./handler";
+import { ResponseValidator } from "./response-validator";
 
 yargs.command(['start', '$0'], 'begin a new game', yargs => {
     yargs.option('players', {
@@ -43,8 +44,9 @@ yargs.command(['start', '$0'], 'begin a new game', yargs => {
     }
 
     const stateTransformer = new StateTransformer();
+    const responseValidator = new ResponseValidator();
 
-    const driver = new GameDriver(players, stateTransformer.initialState({ names: names, gameParams: defaultParams }), stateTransformer);
+    const driver = new GameDriver(players, stateTransformer.initialState({ names: names, gameParams: defaultParams }), stateTransformer, responseValidator);
 
     await driver.start();
 })

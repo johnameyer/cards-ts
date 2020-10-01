@@ -10,12 +10,12 @@ export interface Observer<HandlerData extends AbstractHandlerData>  {
      * @param bundle the incoming message
      * @returns a promise that resolves once the notification is delivered (at least to another service) 
      */
-    message(gameState: HandlerData, bundle: Message): [sent?: Promise<void>];
+    message(gameState: HandlerData, bundle: Message): void | Promise<void>;
 
     /**
      * Notifies the player that we are waiting for another player to make their move
      * @param who who we are waiting for, or undefined if no one currently
      * @returns a promise that resolves once the notification is delivered (at least to another service)
      */
-    waitingFor(gameState: HandlerData, who: string[] | undefined): [sent?: Promise<void>];
+    waitingFor(gameState: HandlerData, who: string[] | undefined): void | Promise<void>;
 }

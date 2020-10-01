@@ -27,12 +27,12 @@ export class StateTransformer extends AbstractStateTransformer<GameParams, GameS
             dealer: gameState.dealer,
             whoseTurn: gameState.whoseTurn,
             leader: gameState.leader,
-            passed: gameState.passed[position].slice(),
+            passed: gameState.passed[position]?.slice(),
             pass: gameState.pass,
-            currentTrick: gameState.currentTrick.slice(),
+            currentTrick: gameState.currentTrick?.slice(),
             position,
             data: gameState.data[position],
-            hand: gameState.hands[position].slice()
+            hand: gameState.hands[position]?.slice()
         };
         return handlerData;
     }
