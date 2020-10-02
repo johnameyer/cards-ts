@@ -1,4 +1,4 @@
-import { Suit, AbstractResponseValidator, Card, Rank, AbstractGameState } from "@cards-ts/core";
+import { Suit, AbstractResponseValidator, Card, Rank, AbstractGameState, distinct, isDefined } from "@cards-ts/core";
 import { GameParams } from "./game-params";
 import { GameState } from "./game-state";
 import { ResponseMessage } from "./messages/response-message";
@@ -13,9 +13,23 @@ export class ResponseValidator extends AbstractResponseValidator<GameParams, Gam
             case 'pass-response': {
                 const { cards, data } = event;
                 try {
+                    if(!cards.every(isDefined)) {
+                        // TODO better condition
+                        throw new Error('Not all are cards');
+                    }
+
                     if(cards.length !== gameState.gameParams.numToPass) {
                         throw new Error('Wrong number of cards passed');
                     }
+
+                    if(cards.filter(distinct).length !== gameState.gameParams.numToPass) {
+                        throw new Error('Cannot pass same card multiple times');
+                    }
+
+                    if(cards.some(card => gameState.hands[source].find(card.equals.bind(card)) === undefined)) {
+                        throw new Error('Can only pass cards that are in hand');
+                    }
+
                     return new PassResponseMessage(cards, data);
                 } catch (e) {
                     console.error('Invalid pass', e);
@@ -29,6 +43,14 @@ export class ResponseValidator extends AbstractResponseValidator<GameParams, Gam
                 }
                 const { card, data } = event;
                 try {
+                    if(!card) {
+                        throw new Error('No card provided');
+                    }
+
+                    if(gameState.hands[source].find(card.equals.bind(card)) === undefined) {
+                        throw new Error('Cannot play card that is not in hand');
+                    }
+                    
                     if(gameState.tricks === 0 && (card.suit === Suit.HEARTS || card.equals(QS))) {
                         throw new Error('Cannot give points on the first round');
                     }
@@ -40,6 +62,7 @@ export class ResponseValidator extends AbstractResponseValidator<GameParams, Gam
                     if(gameState.currentTrick[0]?.suit && card.suit !== gameState.currentTrick[0].suit && gameState.hands[source].some(card => card.suit === gameState.currentTrick[0]?.suit)) {
                         throw new Error('Must follow suit if possible');
                     }
+
                     return new TurnResponseMessage(card, data);
                 } catch (e) {
                     console.error('Invalid turn', e);

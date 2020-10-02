@@ -1,15 +1,15 @@
 import { Handler } from "../handler";
-import { Card, distinct, flatten, FourCardRun, InvalidError, Meld, Message, ThreeCardSet } from "@cards-ts/core";
+import { Card, distinct, flatten, FourCardRun, HandlerResponsesQueue, InvalidError, Meld, Message, ThreeCardSet } from "@cards-ts/core";
 import { HandlerData } from "../handler-data";
+import { DataResponseMessage, TurnResponseMessage, WantCardResponseMessage } from "../messages/response";
 
 /**
  * Breaks up the decisions made during a turn into individual components
  */
 export abstract class ClientHandler implements Handler {
-    public abstract async wantCard(card: Card, isTurn: boolean, {hand, played, position, round, gameParams: {rounds}, data}: HandlerData): Promise<[boolean, unknown?]>;
+    public abstract async wantCard({hand, played, position, round, wouldBeTurn, gameParams: {rounds}, data}: HandlerData, queue: HandlerResponsesQueue<WantCardResponseMessage>): Promise<void>;
     
-    public async turn({hand, played, position, round, gameParams: {rounds}, data}: HandlerData)
-    : Promise<{ toDiscard: Card | null, toPlay: Meld[][] } | null> {
+    public async turn({hand, played, position, round, gameParams: {rounds}, data}: HandlerData, responsesQueue: HandlerResponsesQueue<TurnResponseMessage>): Promise<void> {
         let currentRound = rounds[round];
         const last = round == rounds.length - 1;
         let toPlay: Meld[][] = played;
@@ -30,15 +30,17 @@ export abstract class ClientHandler implements Handler {
         if (hand.length && !(last && toPlay[position].length)) {
             const toDiscard = await this.discard(hand, currentRound, played, data);
             hand.slice(hand.findIndex((card) => toDiscard.equals(card)));
-            return { toDiscard, toPlay };
+            responsesQueue.push(new TurnResponseMessage(toDiscard, toPlay));
+            return;
         }
         
         if (!hand.length) {
-            return { toDiscard: null, toPlay };
+            responsesQueue.push(new TurnResponseMessage(null, toPlay));
+            return;
         }
 
         // TODO need to handle live cards - should go back and allow player to play?
-        return null;
+        return;
     }
 
     async playOnOthers(hand: Card[], played: Meld[][], data: unknown) {
@@ -139,11 +141,11 @@ export abstract class ClientHandler implements Handler {
 
     abstract async insertWild(run: Card[], wild: Card, data: unknown): Promise<number>;
 
-    abstract getName(): string;
+    // abstract getName(): string;
     
-    abstract message(message: Message, data: unknown): void;
+    abstract message(handlerData: HandlerData, _: HandlerResponsesQueue<DataResponseMessage>, message: Message): Promise<void>;
     
-    abstract waitingFor(who: string[] | undefined): void;
+    abstract waitingFor(handlerData: HandlerData, _: HandlerResponsesQueue<DataResponseMessage>, who: string[] | undefined): Promise<void>;
 }
 
 export namespace ClientHandler {

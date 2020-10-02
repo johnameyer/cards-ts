@@ -1,23 +1,21 @@
 import { Handler } from "../handler";
-import { Card } from "@cards-ts/core";
+import { Card, HandlerResponsesQueue } from "@cards-ts/core";
 import { HandlerData } from "../handler-data";
 import { TurnResponseMessage, WantCardResponseMessage } from "../messages/response";
 
 export class GrammyHandler implements Handler {
-    public message(): [] {
-        return [];
+    public message() {
     }
     
-    public waitingFor(): [] {
-        return [];
+    public waitingFor() {
     }
 
 
-    public wantCard(gameState: HandlerData): [undefined, WantCardResponseMessage] {
-        return [, new WantCardResponseMessage(true, gameState.data)];
+    public wantCard(gameState: HandlerData, responsesQueue: HandlerResponsesQueue<WantCardResponseMessage>) {
+        responsesQueue.push(new WantCardResponseMessage(true, gameState.data));
     }
 
-    public turn({hand, played, data}: HandlerData): [undefined, TurnResponseMessage] {
-        return [, new TurnResponseMessage(hand.sort(Card.compare).reverse()[0], played, data)];
+    public turn({hand, played, data}: HandlerData, responsesQueue: HandlerResponsesQueue<TurnResponseMessage>) {
+        responsesQueue.push(new TurnResponseMessage(hand.sort(Card.compare).reverse()[0], played, data));
     }
 }

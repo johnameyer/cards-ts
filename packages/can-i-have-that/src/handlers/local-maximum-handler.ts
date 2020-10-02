@@ -1,60 +1,63 @@
-import { Card, ThreeCardSet, FourCardRun } from "@cards-ts/core";
+import { Card, ThreeCardSet, FourCardRun, HandlerResponsesQueue } from "@cards-ts/core";
 import { Meld } from "@cards-ts/core/lib/cards/meld";
 import { Handler } from "../handler";
 import { HandlerData } from "../handler-data";
-import { WantCardResponseMessage } from "../messages/response";
+import { TurnResponseMessage, WantCardResponseMessage } from "../messages/response";
 import { find } from "../util/find";
 
 export class LocalMaximumHandler implements Handler {
-    public message(): [] {
-        return [];
+    public message() {
     }
 
-    public waitingFor(): [] {
-        return [];
+    public waitingFor() {
     }
     
-    public wantCard({hand, played, position, round, deckCard, gameParams: {rounds}}: HandlerData): [undefined, WantCardResponseMessage] {
+    public wantCard({hand, played, position, round, deckCard, wouldBeTurn, gameParams: {rounds}}: HandlerData, responsesQueue: HandlerResponsesQueue<WantCardResponseMessage>): void {
         let currentRound = rounds[round];
         if(played[position].length > 0) {
-            return [, new WantCardResponseMessage(false)];
+            responsesQueue.push(new WantCardResponseMessage(false));
+            return;
         }
         if(deckCard.isWild()) {
             // console.log(position, 'want wild', card.toString());
-            return [, new WantCardResponseMessage(true)];
+            responsesQueue.push(new WantCardResponseMessage(true));
+            return;
         }
         const oldFound = find([...hand], currentRound);
         const newFound = find([deckCard, ...hand], currentRound);
         const advantage = newFound[0] - oldFound[0];
-        if(oldFound[0] === 0 && newFound[0] === 0 && isTurn && newFound[1] <= oldFound[1]) {
+        if(oldFound[0] === 0 && newFound[0] === 0 && wouldBeTurn && newFound[1] <= oldFound[1]) {
             // pickup card if it is our turn, we have already completed, and it doesn't add value to us
             // console.log(position, 'want card', card.toString());
             // console.log(oldFound.toString());
             // console.log(newFound.toString());
-            return [, new WantCardResponseMessage(true)];
+            responsesQueue.push(new WantCardResponseMessage(true));
+            return;
         }
         if(round !== rounds.length - 1) {
             if(advantage < 0) {
                 // if not last round and card would benefit us, grab it
-            return [, new WantCardResponseMessage(true)];
+                responsesQueue.push(new WantCardResponseMessage(true));
+                return;
             }
         } else {
             if(advantage < 0) {
                 //if last round and card would benefit us
                 // grab only if we are lacking many cards or it will be our turn
-                if(oldFound[0] > 3 || isTurn) {
+                if(oldFound[0] > 3 || wouldBeTurn) {
                     // console.log(position, 'want card', card.toString());
                     // console.log(oldFound.toString());
                     // console.log(newFound.toString());
-                    return [, new WantCardResponseMessage(true)];
+                    responsesQueue.push(new WantCardResponseMessage(true));
+                    return;
                 }
             }
         }
-        return [, new WantCardResponseMessage(false)];
+        responsesQueue.push(new WantCardResponseMessage(false));
+        return;
     }
     
-    public async turn({hand, played, position, round, gameParams: {rounds}}: HandlerData)
-    : Promise<{ toDiscard: Card, toPlay: Meld[][] }> {
+    public turn({hand, played, position, round, gameParams: {rounds}}: HandlerData, responsesQueue: HandlerResponsesQueue<TurnResponseMessage>) {
         let currentRound = rounds[round];
         let result: { toDiscard: Card, toPlay: Meld[][] };
         if(played[position].length === 0) {
@@ -125,10 +128,7 @@ export class LocalMaximumHandler implements Handler {
             result = { toDiscard: hand[0], toPlay: played };
         }
         
-        return new Promise(resolve => {
-            setTimeout(function() {
-                resolve(result)
-            }, this.timeout || 500);
-        });
+        responsesQueue.push(new TurnResponseMessage(result.toDiscard, result.toPlay));
+        return;
     }
 }

@@ -7,7 +7,6 @@ import { ResponseMessage } from "./messages/response-message";
 export class StateTransformer extends AbstractStateTransformer<GameParams, GameState.State, HandlerData, GameState, ResponseMessage> {
     transformToHandlerData(gameState: GameState, position: number): HandlerData {
         // TODO is cloneDeep needed and should deepFreeze be used
-        console.log(gameState.hands);
         return {
             gameParams: GameParams.fromObj(gameState.gameParams),
             dealer: gameState.dealer,
@@ -18,6 +17,7 @@ export class StateTransformer extends AbstractStateTransformer<GameParams, GameS
             round: gameState.round,
             points: gameState.points.slice(),
             deckCard: gameState.deck.top as Card,
+            wouldBeTurn: gameState.whoseAsk === gameState.whoseTurn,
             data: gameState.data[position]
         };
     }
@@ -30,7 +30,7 @@ export class StateTransformer extends AbstractStateTransformer<GameParams, GameS
                     wantCard: incomingEvent.wantCard,
                     data: [...gameState.data.slice(0, sourceHandler), incomingEvent.data, ...gameState.data.slice(sourceHandler + 1)]
                 };
-                return [false, newState];
+                return [true, newState];
             }
             case 'turn-card-response': {
                 const newState: GameState = {
@@ -39,7 +39,7 @@ export class StateTransformer extends AbstractStateTransformer<GameParams, GameS
                     toPlay: incomingEvent.toPlay,
                     data: [...gameState.data.slice(0, sourceHandler), incomingEvent.data, ...gameState.data.slice(sourceHandler + 1)]
                 };
-                return [false, newState];
+                return [true, newState];
             }
             case 'data-response': {
                 const newState: GameState = {

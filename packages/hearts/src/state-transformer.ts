@@ -42,21 +42,23 @@ export class StateTransformer extends AbstractStateTransformer<GameParams, GameS
             case 'pass-response': {
                 const newState: GameState = {
                     ...gameState,
-                    passed: [...gameState.passed.slice(0, sourceHandler), incomingEvent.cards, ...gameState.passed.slice(sourceHandler + 1)]
+                    passed: [...gameState.passed.slice(0, sourceHandler) || [], incomingEvent.cards, ...gameState.passed.slice(sourceHandler + 1) || []],
+                    data: [...gameState.data.slice(0, sourceHandler) || [], incomingEvent.data, ...gameState.data.slice(sourceHandler + 1) || []]
                 };
                 return [newState.passed.every(isDefined), newState];
             }
             case 'turn-response': {
                 const newState: GameState = {
                     ...gameState,
-                    playedCard: incomingEvent.card
+                    playedCard: incomingEvent.card,
+                    data: [...gameState.data.slice(0, sourceHandler) || [], incomingEvent.data, ...gameState.data.slice(sourceHandler + 1) || []]
                 };
                 return [true, newState];
             }
             case 'data-response': {
                 const newState: GameState = {
                     ...gameState,
-                    data: [...gameState.data.slice(0, sourceHandler), incomingEvent.data, ...gameState.data.slice(sourceHandler + 1)]
+                    data: [...gameState.data.slice(0, sourceHandler) || [], incomingEvent.data, ...gameState.data.slice(sourceHandler + 1) || []]
                 };
                 return [false, newState];
             }

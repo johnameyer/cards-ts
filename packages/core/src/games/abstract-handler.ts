@@ -15,6 +15,6 @@ export abstract class AbstractHandler<HandlerData extends AbstractHandlerData, R
     abstract message(gameState: HandlerData, response: HandlerResponsesQueue<ResponseMessage>, message: Message): void | Promise<void>;
 
     abstract waitingFor(gameState: HandlerData, response: HandlerResponsesQueue<ResponseMessage>, who: string[] | undefined): void | Promise<void>;
-
-    [action: string]: (gameState: HandlerData, response: HandlerResponsesQueue<ResponseMessage>, ...args: any[]) => void | Promise<void>;
 }
+
+export type HandlerAction<HandlerData, ResponseMessage> = (gameState: HandlerData, response: HandlerResponsesQueue<ResponseMessage>, ...args: any[]) => void | Promise<void>;

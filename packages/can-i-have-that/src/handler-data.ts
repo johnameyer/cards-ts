@@ -47,6 +47,8 @@ export interface HandlerData {
      */
     position: number;
 
+    wouldBeTurn: boolean;
+
     deckCard: Card;
 
     data: any;

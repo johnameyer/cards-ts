@@ -6,18 +6,18 @@ import { GameParams } from './game-params';
 import { ReshuffleMessage, DealOutMessage, DealMessage, StartRoundMessage, DiscardMessage, EndRoundMessage, PickupMessage, PlayedMessage, DealerMessage, OutOfCardsMessage } from './messages/status';
 import { ResponseMessage } from './messages/response-message';
 import { StateTransformer } from './state-transformer';
-import { TurnResponseMessage, WantCardResponseMessage } from './messages/response';
+import { ResponseValidator } from './response-validator';
 
 /**
  * Class that handles the steps of the game
  */
-export class GameDriver extends AbstractGameDriver<HandlerData, Handler, GameParams, GameState.State, GameState, ResponseMessage, StateTransformer> {
+export class GameDriver extends AbstractGameDriver<HandlerData, Handler, GameParams, GameState.State, GameState, ResponseMessage, StateTransformer, ResponseValidator> {
     /**
      * Deal out cards to all of the players' hands for the current round
      */
     private dealOut() {
         const state = this.gameState;
-        this.ResponseValidator.messageAll(this.gameState, new DealerMessage(state.names[state.dealer]));
+        this.handlerProxy.messageAll(this.gameState, new DealerMessage(state.names[state.dealer]));
         for (let num = 0; num < GameState.Helper.getNumToDeal(state); num++) {
             for (let player = 0; player < this.gameState.numPlayers; player++) {
                 const offset = state.dealer + 1;
@@ -27,7 +27,7 @@ export class GameDriver extends AbstractGameDriver<HandlerData, Handler, GamePar
                         // TODO add another deck?
                         throw new InvalidError('Deck ran out of cards');
                     } else {
-                        this.ResponseValidator.messageAll(this.gameState, new ReshuffleMessage());
+                        this.handlerProxy.messageAll(this.gameState, new ReshuffleMessage());
                         card = state.deck.draw();
                     }
                 }
@@ -35,7 +35,7 @@ export class GameDriver extends AbstractGameDriver<HandlerData, Handler, GamePar
             }
         }
         for (let player = 0; player < this.gameState.numPlayers; player++) {
-            this.ResponseValidator.message(this.gameState, player, new DealOutMessage(this.gameState.hands[player]));
+            this.handlerProxy.message(this.gameState, player, new DealOutMessage(this.gameState.hands[player]));
         }
     }
 
@@ -52,11 +52,11 @@ export class GameDriver extends AbstractGameDriver<HandlerData, Handler, GamePar
             this.gameState.hands[player].push(extra);
         }
         if(message) {
-            this.ResponseValidator.message(this.gameState, player, new DealMessage(card, extra));
+            this.handlerProxy.message(this.gameState, player, new DealMessage(card, extra));
         }
     }
 
-    public iterate(): void | [number, ResponseMessage | Promise<ResponseMessage>] {
+    public iterate(): boolean {
         switch(this.gameState.state) {
             case GameState.State.START_GAME:
                 this.startGame();
@@ -67,15 +67,16 @@ export class GameDriver extends AbstractGameDriver<HandlerData, Handler, GamePar
                 break;
 
             case GameState.State.WAIT_FOR_TURN_PLAYER_WANT:
-                return this.waitForTurnPlayerWant();
+                this.waitForTurnPlayerWant();
+                return true;
 
             case GameState.State.HANDLE_TURN_PLAYER_WANT:
                 this.handleTurnPlayerWant();
                 break;
 
             case GameState.State.WAIT_FOR_PLAYER_WANT:
-                return this.waitForPlayerWant();
-                break;
+                this.waitForPlayerWant();
+                return true;
 
             case GameState.State.HANDLE_PLAYER_WANT:
                 this.handlePlayerWant();
@@ -90,8 +91,8 @@ export class GameDriver extends AbstractGameDriver<HandlerData, Handler, GamePar
                 break;
 
             case GameState.State.WAIT_FOR_TURN:
-                return this.waitForTurn();
-                break;
+                this.waitForTurn();
+                return true;
 
             case GameState.State.HANDLE_TURN:
                 this.handleTurn();
@@ -105,6 +106,7 @@ export class GameDriver extends AbstractGameDriver<HandlerData, Handler, GamePar
                 this.endGame();
                 break;
         }
+        return false;
 
     }
 
@@ -115,7 +117,7 @@ export class GameDriver extends AbstractGameDriver<HandlerData, Handler, GamePar
     private startGame() {
         this.gameState.state = GameState.State.START_ROUND;
 
-        this.gameState.numPlayers = this.ResponseValidator.getNumberOfPlayers();
+        this.gameState.numPlayers = this.handlerProxy.getNumberOfPlayers();
 
         GameState.Helper.setupRound(this.gameState);
     }
@@ -123,7 +125,7 @@ export class GameDriver extends AbstractGameDriver<HandlerData, Handler, GamePar
     private startRound() {
         const state = this.gameState;
         GameState.Helper.setupRound(this.gameState);
-        this.ResponseValidator.messageAll(this.gameState, new StartRoundMessage(GameState.Helper.getRound(this.gameState)));
+        this.handlerProxy.messageAll(this.gameState, new StartRoundMessage(GameState.Helper.getRound(this.gameState)));
         this.dealOut();
         state.deck.discard(state.deck.draw());
 
@@ -131,9 +133,10 @@ export class GameDriver extends AbstractGameDriver<HandlerData, Handler, GamePar
             throw new Error('Already null');
         }
         const top = state.deck.top;
-        this.ResponseValidator.messageAll(this.gameState, new DiscardMessage(top));
+        this.handlerProxy.messageAll(this.gameState, new DiscardMessage(top));
 
         state.whoseTurn = (state.dealer + 1) % this.gameState.numPlayers;
+        state.whoseAsk = state.whoseTurn;
 
         state.state = GameState.State.WAIT_FOR_TURN_PLAYER_WANT;
     }
@@ -146,7 +149,7 @@ export class GameDriver extends AbstractGameDriver<HandlerData, Handler, GamePar
             state.points[player] += state.hands[player].map(card => card.rank.value).reduce((a, b) => a + b, 0);
         }
 
-        this.ResponseValidator.messageAll(this.gameState, new EndRoundMessage(state.names, state.points));
+        this.handlerProxy.messageAll(this.gameState, new EndRoundMessage(state.names, state.points));
 
         if(state.round !== state.gameParams.rounds.length) {
             state.state = GameState.State.START_ROUND;
@@ -155,33 +158,31 @@ export class GameDriver extends AbstractGameDriver<HandlerData, Handler, GamePar
         }
     }
 
-    private waitForTurnPlayerWant(): [number, WantCardResponseMessage | Promise<WantCardResponseMessage>] {
+    private waitForTurnPlayerWant() {
         const state = this.gameState;
         const card = state.deck.top;
         if(!card) {
             throw new Error('Invalid State');
         }
 
-        this.ResponseValidator.waitingOthers(this.gameState, [state.whoseTurn]);
-        const result = this.ResponseValidator.handlerCall(this.gameState, state.whoseTurn, 'wantCard');
-        this.ResponseValidator.waitingOthers(this.gameState);
+        this.handlerProxy.waitingOthers(this.gameState, [state.whoseTurn]);
+        this.handlerProxy.handlerCall(this.gameState, state.whoseTurn, 'wantCard');
+        this.handlerProxy.waitingOthers(this.gameState);
 
         state.state = GameState.State.HANDLE_TURN_PLAYER_WANT;
-
-        return [state.whoseAsk, result];
     }
 
     private handleNoPlayerWant() {
         const state = this.gameState;
         if (state.deck.top !== null) {
-            this.ResponseValidator.messageAll(this.gameState, new PickupMessage(state.deck.top));
+            this.handlerProxy.messageAll(this.gameState, new PickupMessage(state.deck.top));
             state.deck.clearTop();
         }
 
         state.state = GameState.State.START_TURN;
     }
 
-    private waitForPlayerWant(): [number, WantCardResponseMessage | Promise<WantCardResponseMessage>] {
+    private waitForPlayerWant() {
         const state = this.gameState;
         const card = state.deck.top;
         if(!card) {
@@ -190,13 +191,11 @@ export class GameDriver extends AbstractGameDriver<HandlerData, Handler, GamePar
         if(state.whoseAsk === undefined) {
             throw new InvalidError('Invalid State');
         }
-        this.ResponseValidator.waitingOthers(this.gameState, [state.whoseAsk]);
-        const result = this.ResponseValidator.handlerCall(this.gameState, state.whoseAsk, 'wantCard');
-        this.ResponseValidator.waitingOthers(this.gameState);
+        this.handlerProxy.waitingOthers(this.gameState, [state.whoseAsk]);
+        this.handlerProxy.handlerCall(this.gameState, state.whoseAsk, 'wantCard');
+        this.handlerProxy.waitingOthers(this.gameState);
 
         state.state = GameState.State.HANDLE_PLAYER_WANT;
-
-        return [state.whoseAsk, result];
     }
 
     private handleTurnPlayerWant() {
@@ -210,7 +209,7 @@ export class GameDriver extends AbstractGameDriver<HandlerData, Handler, GamePar
 
         if(wantCard) {
             this.giveCard(state.whoseTurn, card);
-            this.ResponseValidator.messageOthers(this.gameState, state.whoseTurn, new PickupMessage(card, state.names[state.whoseTurn], false));
+            this.handlerProxy.messageOthers(this.gameState, state.whoseTurn, new PickupMessage(card, state.names[state.whoseTurn], false));
             state.deck.takeTop();
 
             state.state = GameState.State.WAIT_FOR_TURN;
@@ -227,15 +226,13 @@ export class GameDriver extends AbstractGameDriver<HandlerData, Handler, GamePar
 
     }
 
-    private waitForTurn(): [number, TurnResponseMessage | Promise<TurnResponseMessage>] {
+    private waitForTurn() {
         const state = this.gameState;
 
-        this.ResponseValidator.waitingOthers(this.gameState, [state.whoseTurn]);
-        const result = this.ResponseValidator.handlerCall(this.gameState, state.whoseTurn, 'turn');
-        this.ResponseValidator.waitingOthers(this.gameState);
+        this.handlerProxy.waitingOthers(this.gameState, [state.whoseTurn]);
+        this.handlerProxy.handlerCall(this.gameState, state.whoseTurn, 'turn');
+        this.handlerProxy.waitingOthers(this.gameState);
         state.state = GameState.State.HANDLE_TURN;
-
-        return [state.whoseTurn, result];
     }
 
     private handleTurn() {
@@ -261,15 +258,15 @@ export class GameDriver extends AbstractGameDriver<HandlerData, Handler, GamePar
                 for(const [playedCards, toPlayCards] of zip(playedRuns, toPlayRuns)) {
                     const newCards = toPlayCards.cards.filter(card => playedCards.cards.find(card.equals.bind(card)) === null);
                     if(newCards && newCards.length) {
-                        this.ResponseValidator.messageOthers(state, state.whoseTurn, new PlayedMessage(newCards, playedCards, state.names[state.whoseTurn]));
+                        this.handlerProxy.messageOthers(state, state.whoseTurn, new PlayedMessage(newCards, playedCards, state.names[state.whoseTurn]));
                     }
                 }
             }
         }
-        this.ResponseValidator.messageOthers(this.gameState, state.whoseTurn, new DiscardMessage(discard, state.names[state.whoseTurn]));
+        this.handlerProxy.messageOthers(this.gameState, state.whoseTurn, new DiscardMessage(discard, state.names[state.whoseTurn]));
 
         if(state.hands[state.whoseTurn].length === 0) {
-            this.ResponseValidator.messageAll(this.gameState, new OutOfCardsMessage(state.names[state.whoseTurn]));
+            this.handlerProxy.messageAll(this.gameState, new OutOfCardsMessage(state.names[state.whoseTurn]));
             this.gameState.points[state.whoseTurn] -= 10;
             state.state = GameState.State.END_ROUND;
             return;
@@ -298,7 +295,7 @@ export class GameDriver extends AbstractGameDriver<HandlerData, Handler, GamePar
                     // TODO add another deck?
                     throw new InvalidError('Deck ran out of cards');
                 } else {
-                    this.ResponseValidator.messageAll(this.gameState, new ReshuffleMessage());
+                    this.handlerProxy.messageAll(this.gameState, new ReshuffleMessage());
                     draw = state.deck.draw();
                 }
             }
@@ -306,7 +303,7 @@ export class GameDriver extends AbstractGameDriver<HandlerData, Handler, GamePar
                 throw new InvalidError('Invalid State');
             }
             this.giveCard(whoseAsk, card, draw);
-            this.ResponseValidator.messageOthers(this.gameState, whoseAsk, new PickupMessage(card, state.names[whoseAsk], true));
+            this.handlerProxy.messageOthers(this.gameState, whoseAsk, new PickupMessage(card, state.names[whoseAsk], true));
             state.deck.takeTop();
 
             state.state = GameState.State.START_TURN;
@@ -330,7 +327,7 @@ export class GameDriver extends AbstractGameDriver<HandlerData, Handler, GamePar
                 // TODO add another deck?
                 throw new InvalidError('Deck ran out of cards');
             } else {
-                this.ResponseValidator.messageAll(this.gameState, new ReshuffleMessage());
+                this.handlerProxy.messageAll(this.gameState, new ReshuffleMessage());
                 draw = state.deck.draw();
             }
         }

@@ -1,10 +1,14 @@
 import { isDefined } from "../util/is-defined";
 import { zip } from "../util/zip";
 import { AbstractGameState } from "./abstract-game-state";
-import { AbstractHandler } from "./abstract-handler";
+import { AbstractHandler, HandlerAction } from "./abstract-handler";
 import { AbstractStateTransformer } from "./abstract-state-transformer";
 import { Message } from "./message";
 import { ResponseQueue } from "./response-queue";
+
+type ExtractOfType<Type, ExpectedType> = {
+    [key in keyof Type]: Type[key] extends ExpectedType ? key : never;
+}[keyof Type];
 
 // TODO convert to inner class of game driver when properly supported
 export class HandlerProxy<HandlerData, ResponseMessage extends Message, Handler extends AbstractHandler<HandlerData, ResponseMessage>, GameParams, State, GameState extends AbstractGameState<GameParams, State>, StateTransformer extends AbstractStateTransformer<GameParams, State, HandlerData, GameState, ResponseMessage>> {
@@ -71,7 +75,7 @@ export class HandlerProxy<HandlerData, ResponseMessage extends Message, Handler 
         );
     }
 
-    handlerCall<Action extends keyof Handler>(gameState: GameState, position: number, action: Action, ...args: any[]): void {
+    handlerCall<Action extends ExtractOfType<Handler, HandlerAction<HandlerData, ResponseMessage>>>(gameState: GameState, position: number, action: Action, ...args: any[]): void {
         const send = this.players[position][action](this.stateTransformer.transformToHandlerData(gameState, position), this.incomingData.for(position), args)
 
         if(send) {
@@ -79,7 +83,7 @@ export class HandlerProxy<HandlerData, ResponseMessage extends Message, Handler 
         }
     }
 
-    handlerCallAll<Action extends keyof Handler>(gameState: GameState, action: Action, ...args: any[]): void {
+    handlerCallAll<Action extends ExtractOfType<Handler, HandlerAction<HandlerData, ResponseMessage>>>(gameState: GameState, action: Action, ...args: any[]): void {
         this.outgoingData.push(...this.players
             .map((player, position) => {
                 try {
