@@ -75,14 +75,14 @@ function handleEvent(sourceHandler: number, incomingEvent: ResponseMessage) {
         // Play through all of synchronous actions
         driver.resume();
         
+        // Make sure all the outgoing data goes out
+        await driver.handleOutgoing();
+
+        driver.handleSyncResponses();
+
+        database.set(driver.gameState);
 
         while(!database.get().completed && !GameDriver.isWaitingOnPlayer(driver.gameState)) {
-            // Make sure all the outgoing data goes out
-            await driver.handleOutgoing();
-
-            driver.handleSyncResponses();
-
-            database.set(driver.gameState);
 
             await driver.asyncResponseAvailable();
             // Receive the event
@@ -90,6 +90,13 @@ function handleEvent(sourceHandler: number, incomingEvent: ResponseMessage) {
                 // Process the event
                 handleEvent(sourceHandler, message);
             }
+
+            // Make sure all the outgoing data goes out
+            await driver.handleOutgoing();
+
+            driver.handleSyncResponses();
+
+            database.set(driver.gameState);
         }
     }
 })();

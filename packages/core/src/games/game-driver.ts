@@ -64,15 +64,20 @@ export class GameDriver<HandlerData, Handler extends GenericHandler<HandlerData,
         while(!this.gameState.completed) {
             this.iterator.iterate(this.gameState, this.handlerProxy);
 
+            // TODO consider this ordering
+            await this.handlerProxy.handleOutgoing();
+            this.handleSyncResponses();
+
             while(!this.gameState.completed && GameDriver.isWaitingOnPlayer(this.gameState)) {
-                // TODO consider this ordering
-                await this.handlerProxy.handleOutgoing();
-                this.handleSyncResponses();
 
                 await this.handlerProxy.asyncResponseAvailable();
                 for await(const [position, message] of this.handlerProxy.receiveAsyncResponses()) {
                     this.handleEvent(position, message);
                 }
+                
+                // TODO consider this ordering
+                await this.handlerProxy.handleOutgoing();
+                this.handleSyncResponses();
             }
         }
     }
