@@ -207,16 +207,13 @@ export class GameStateIterator implements GenericGameStateIterator<HandlerData, 
 
             gameState.state = GameState.State.WAIT_FOR_TURN;
         } else {
-            gameState.whoseAsk = (gameState.whoseTurn + 1) % gameState.numPlayers;
+            gameState.whoseAsk = (gameState.whoseAsk + 1) % gameState.numPlayers;
             if(gameState.whoseAsk === gameState.whoseTurn) {
                 gameState.state = GameState.State.HANDLE_NO_PLAYER_WANT;
             } else {
                 gameState.state = GameState.State.WAIT_FOR_PLAYER_WANT;
             }
         }
-
-        
-
     }
 
     private waitForTurn(gameState: GameState, handlerProxy: HandlerProxy) {
@@ -264,6 +261,7 @@ export class GameStateIterator implements GenericGameStateIterator<HandlerData, 
 
         gameState.state = GameState.State.WAIT_FOR_TURN_PLAYER_WANT;
         gameState.whoseTurn = (gameState.whoseTurn + 1) % gameState.numPlayers;
+        gameState.whoseAsk = gameState.whoseTurn;
     }
 
     private handlePlayerWant(gameState: GameState, handlerProxy: HandlerProxy) {

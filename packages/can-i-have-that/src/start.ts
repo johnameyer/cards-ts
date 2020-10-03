@@ -36,8 +36,14 @@ yargs.command(['start', '$0'], 'begin a new game', yargs => {
     for(let i = 1; i < players.length; i++) {
         players[i] = new LocalMaximumHandler();
     }
-
-    const names: string[] = []; //TODO
+    let names: string[] = [];
+    let name: string = argv.name as string;
+    if(!argv.name) {        
+        // await mainPlayer.askForName();
+        name = 'Jerome';
+    }
+    names.push(name);
+    names.push('Greg', 'Hugh', 'Leah');
 
     const stateTransformer = new StateTransformer();
     const responseValidator = new ResponseValidator();

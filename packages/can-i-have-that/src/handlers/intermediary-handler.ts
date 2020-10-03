@@ -80,16 +80,19 @@ export class IntermediaryHandler extends ClientHandler {
         } else {
             message.push('?');
         }
-        const [, orderedHand, want] = await (this.intermediary.form(
+        const [sent, received] = (this.intermediary.form(
             { type: 'print', message: roundToString(rounds[round])},
             { type: 'printCards', cards: data.hand },
             { type: 'confirm', message }
-        ))[1];
+        ));
 
-        data.hand = orderedHand;
 
-        responsesQueue.push(new WantCardResponseMessage(want, data));
-        return;
+        responsesQueue.push(received.then(([, orderedHand, want] ) => {
+            data.hand = orderedHand;
+            return new WantCardResponseMessage(want, data);
+        }));
+
+        return sent;
     }
 
     async turn(gameState: HandlerData, responsesQueue: HandlerResponsesQueue<TurnResponseMessage>) {
