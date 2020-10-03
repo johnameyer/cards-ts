@@ -1,5 +1,5 @@
-import { Message } from "./message";
-import { HandlerResponsesQueue } from "./response-queue";
+import { Message } from './message';
+import { HandlerResponsesQueue } from './response-queue';
 
 /**
  * Abstract class that defines a handler - an actor in the game who modifies the state through actions

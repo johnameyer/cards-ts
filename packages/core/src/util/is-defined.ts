@@ -1,3 +1,1 @@
-export const isDefined = function <T>(t: T | undefined | void): t is T {
-    return t !== undefined;
-};
+export const isDefined = <T>(t: T | undefined | void): t is T => t !== undefined;

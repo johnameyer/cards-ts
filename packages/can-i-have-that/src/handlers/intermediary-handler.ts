@@ -1,9 +1,9 @@
-import { Card, Intermediary, Message, ThreeCardSet, FourCardRun, checkFourCardRunPossible, HandlerResponsesQueue } from "@cards-ts/core";
-import { Meld } from "@cards-ts/core/lib/cards/meld";
-import { HandlerData } from "../handler-data";
-import { DataResponseMessage, TurnResponseMessage, WantCardResponseMessage } from "../messages/response";
-import { roundToString } from "../util/round-to-string";
-import { ClientHandler } from "./client-handler";
+import { Card, Intermediary, Message, ThreeCardSet, FourCardRun, checkFourCardRunPossible, HandlerResponsesQueue } from '@cards-ts/core';
+import { Meld } from '@cards-ts/core/lib/cards/meld';
+import { HandlerData } from '../handler-data';
+import { DataResponseMessage, TurnResponseMessage, WantCardResponseMessage } from '../messages/response';
+import { roundToString } from '../util/round-to-string';
+import { ClientHandler } from './client-handler';
 
 function flatten<T>(reduction: T[], arr: T[]) {
     reduction.push(...arr);
@@ -25,7 +25,7 @@ Array.prototype.bifilter = function<T>(filter: (item: T) => any): [T[], T[]] {
         }
         return [match, nonMatch];
     }, [[],[]]);
-}
+};
 
 const toInquirerValue = <T extends {toString: () => string}>(t: T) => ({
     name: t.toString(),
@@ -61,11 +61,11 @@ export class IntermediaryHandler extends ClientHandler {
         super();
     }
 
-    public async message(handlerData: HandlerData, _: HandlerResponsesQueue<DataResponseMessage>, message: Message) {
+    public async message(_handlerData: HandlerData, _: HandlerResponsesQueue<DataResponseMessage>, message: Message) {
         await this.intermediary.print(...message.components)[0];
     }
 
-    public async waitingFor(handlerData: HandlerData, _: HandlerResponsesQueue<DataResponseMessage>, who: string[] | undefined): Promise<void> {
+    public async waitingFor(_handlerData: HandlerData, _: HandlerResponsesQueue<DataResponseMessage>, _who: string[] | undefined): Promise<void> {
         return;
     }
 
@@ -103,7 +103,7 @@ export class IntermediaryHandler extends ClientHandler {
             await this.askToPlayOnRun(runToPlayOn, hand, data);
         }
     }
-    
+
     async selectCards(cardsLeft: Card[], num: 3 | 4): Promise<Card[]> {
         return (await this.intermediary.form({
             type: 'checkbox',
@@ -115,7 +115,7 @@ export class IntermediaryHandler extends ClientHandler {
         })[1])[0] as Card[];
     }
 
-    async cardsToPlay(hand: Card[], run: Meld, data: any): Promise<Card[]> {
+    async cardsToPlay(_hand: Card[], run: Meld, data: any): Promise<Card[]> {
         return (await this.intermediary.form({
             type: 'checkbox',
             message: ['Please select cards you\'d like to add'],
@@ -146,14 +146,14 @@ export class IntermediaryHandler extends ClientHandler {
             type:'confirm',
             message: ['Would you like to play cards on runs'],
         })[1];
-        
+
         // @ts-ignore
         data.hand = orderedHand;
 
         return wantTo;
     }
 
-    async whichPlay(runOptions: (ThreeCardSet | FourCardRun)[], hand: Card[]): Promise<Meld> {
+    async whichPlay(runOptions: (ThreeCardSet | FourCardRun)[], _hand: Card[]): Promise<Meld> {
         return (await this.intermediary.form({
             type: 'list',
             message: ['Please choose which run you would like to play on'],
@@ -195,8 +195,8 @@ export class IntermediaryHandler extends ClientHandler {
             type: 'place',
             message: ['Please insert your wild card'],
             choices: run.map(toInquirerValue),
-            //TODO something up here
-            //should support validate?
+            // TODO something up here
+            // should support validate?
             placeholder: wild.toString(),
         })[1])[0];
     }

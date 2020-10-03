@@ -1,15 +1,15 @@
-import { Card } from "../cards/card";
-import { Deck } from "../cards/deck";
-import { GenericGameState } from "./generic-game-state";
-import { Message } from "./message";
+import { Card } from '../cards/card';
+import { Deck } from '../cards/deck';
+import { GenericGameState } from './generic-game-state';
+import { Message } from './message';
 
 export abstract class AbstractStateTransformer<GameParams, State, HandlerData, GameState extends GenericGameState<GameParams, State>, ResponseMessage extends Message> {
-    
+
     initialState({gameParams, names, initialState}: {gameParams: GameParams, names: string[], initialState: State}): GameState {
         return {
-            gameParams: gameParams,
+            gameParams,
             numPlayers: names.length,
-            names: names,
+            names,
             completed: false,
             data: names.map(() => ({})),
             hands: names.map(() => new Array()),

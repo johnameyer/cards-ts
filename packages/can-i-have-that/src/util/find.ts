@@ -1,5 +1,5 @@
-import { Card } from "@cards-ts/core";
-import { Rank } from "@cards-ts/core";
+import { Card } from '@cards-ts/core';
+import { Rank } from '@cards-ts/core';
 
 declare global {
     interface Array<T> {

@@ -1,7 +1,7 @@
-import { Presenter, Serializable } from "./presenter";
-import inquirer from "inquirer";
-import { Message } from "../games/message";
-import { Card } from "..";
+import { Presenter, Serializable } from './presenter';
+import inquirer from 'inquirer';
+import { Message } from '../games/message';
+import { Card } from '..';
 
 inquirer.registerPrompt('selectLine', require('inquirer-select-line'));
 
@@ -70,6 +70,6 @@ export class InquirerPresenter implements Presenter {
             if(options.message) {
                 console.log(Message.defaultTransformer(options.message));
             }
-        }
+        };
     }
 }

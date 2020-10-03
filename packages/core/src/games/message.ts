@@ -1,5 +1,5 @@
-import { Serializable } from "../intermediary/presenter";
-import { isDefined } from "../util/is-defined";
+import { Serializable } from '../intermediary/presenter';
+import { isDefined } from '../util/is-defined';
 
 /**
  * Parent class for any message to be delivered to handlers

@@ -1,7 +1,7 @@
-import { DisplayElement, DisplayElementCallReturn } from "./display-element";
-import { Presenter, Serializable } from "./presenter";
-import { Intermediary } from "./intermediary";
-import { Protocol } from "./protocol";
+import { DisplayElement, DisplayElementCallReturn } from './display-element';
+import { Presenter, Serializable } from './presenter';
+import { Intermediary } from './intermediary';
+import { Protocol } from './protocol';
 
 export class ProtocolIntermediary implements Intermediary {
     constructor(private readonly protocol: Protocol<'print' | 'form'>) {}

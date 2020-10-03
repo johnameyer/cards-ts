@@ -1,9 +1,9 @@
-import { isDefined } from "../util/is-defined";
-import { GenericGameState } from "./generic-game-state";
-import { GenericHandler, HandlerAction } from "./generic-handler";
-import { AbstractStateTransformer } from "./abstract-state-transformer";
-import { Message } from "./message";
-import { ResponseQueue } from "./response-queue";
+import { isDefined } from '../util/is-defined';
+import { GenericGameState } from './generic-game-state';
+import { GenericHandler, HandlerAction } from './generic-handler';
+import { AbstractStateTransformer } from './abstract-state-transformer';
+import { Message } from './message';
+import { ResponseQueue } from './response-queue';
 
 type ExtractOfType<Type, ExpectedType> = {
     [key in keyof Type]: Type[key] extends ExpectedType ? key : never;
@@ -67,14 +67,14 @@ export class HandlerProxy<HandlerData, ResponseMessage extends Message, Handler 
     waitingOthers(gameState: GameState, waitingOn?: number[]) {
         this.outgoingData.push(...this.players
             .filter((player, index) => !waitingOn?.includes(index))
-            .map((player, position) => 
+            .map((player, position) =>
                 Promise.resolve(player.waitingFor(this.stateTransformer.transformToHandlerData(gameState, position), this.incomingData.for(position), waitingOn && gameState ? waitingOn.map(position => gameState.names[position]) : undefined))
             ).filter(isDefined)
         );
     }
 
     handlerCall<Action extends ExtractOfType<Handler, HandlerAction<HandlerData, ResponseMessage>>>(gameState: GameState, position: number, action: Action, ...args: any[]): void {
-        const send = this.players[position][action](this.stateTransformer.transformToHandlerData(gameState, position), this.incomingData.for(position), args)
+        const send = this.players[position][action](this.stateTransformer.transformToHandlerData(gameState, position), this.incomingData.for(position), args);
 
         if(send) {
             this.outgoingData.push(send);

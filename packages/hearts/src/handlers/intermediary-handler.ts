@@ -1,12 +1,12 @@
-import { Handler } from "../handler";
-import { HandlerData } from "../handler-data";
-import { Card, HandlerResponsesQueue } from "@cards-ts/core";
-import { Message } from "@cards-ts/core";
-import { Suit } from "@cards-ts/core";
-import { Rank } from "@cards-ts/core";
-import { Intermediary } from "@cards-ts/core";
-import { PassResponseMessage, TurnResponseMessage } from "../messages/response";
-import { ResponseMessage } from "../messages/response-message";
+import { Handler } from '../handler';
+import { HandlerData } from '../handler-data';
+import { Card, HandlerResponsesQueue } from '@cards-ts/core';
+import { Message } from '@cards-ts/core';
+import { Suit } from '@cards-ts/core';
+import { Rank } from '@cards-ts/core';
+import { Intermediary } from '@cards-ts/core';
+import { PassResponseMessage, TurnResponseMessage } from '../messages/response';
+import { ResponseMessage } from '../messages/response-message';
 
 const QS = new Card(Suit.SPADES, Rank.QUEEN);
 
@@ -59,12 +59,12 @@ export class IntermediaryHandler implements Handler {
         return sent;
     }
 
-    message(handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>, message: Message) {
+    message(_handlerData: HandlerData, _responsesQueue: HandlerResponsesQueue<ResponseMessage>, message: Message) {
         const [sent] = this.intermediary.print(...message.components);
         return sent;
     }
 
-    waitingFor(handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>, who: string[] | undefined) {
+    waitingFor(_handlerData: HandlerData, _responsesQueue: HandlerResponsesQueue<ResponseMessage>, _who: string[] | undefined) {
         // TODO this.intermediary
         return;
     }

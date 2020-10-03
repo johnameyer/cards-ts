@@ -1,17 +1,17 @@
-import { Handler } from "../handler";
-import { HandlerData } from "../handler-data";
-import { Card, combinations, HandlerResponsesQueue } from "@cards-ts/core";
-import { Message } from "@cards-ts/core";
-import { Suit } from "@cards-ts/core";
-import { Rank } from "@cards-ts/core";
-import { DataResponseMessage, PassResponseMessage, TurnResponseMessage } from "../messages/response";
-import { StatusMessage } from "../messages/status-message";
-import { ResponseMessage } from "../messages/response-message";
+import { Handler } from '../handler';
+import { HandlerData } from '../handler-data';
+import { Card, combinations, HandlerResponsesQueue } from '@cards-ts/core';
+import { Message } from '@cards-ts/core';
+import { Suit } from '@cards-ts/core';
+import { Rank } from '@cards-ts/core';
+import { DataResponseMessage, PassResponseMessage, TurnResponseMessage } from '../messages/response';
+import { StatusMessage } from '../messages/status-message';
+import { ResponseMessage } from '../messages/response-message';
 
 interface HeuristicHandlerData {
-    playerOutOfSuit: {[player: string]: Suit[]},
-    numTimesPlayed: {[letter: string]: number}
-};
+    playerOutOfSuit: {[player: string]: Suit[]};
+    numTimesPlayed: {[letter: string]: number};
+}
 
 const emptyGrouper = () => {
     const obj: {[letter: string]: Card[]} = {};
@@ -161,7 +161,7 @@ export class HeuristicHandler implements Handler {
                     return;
                 }
                 const suitOfLeast = Object.entries(sorted).filter(entry => entry[0] !== Suit.HEARTS.letter).filter(entry => entry[1].length > 0).sort((first, second) => second[1].length - first[1].length).map(entry => entry[0])[0];
-                
+
                 responsesQueue.push(new TurnResponseMessage(sorted[suitOfLeast][0], data));
                 return;
             }

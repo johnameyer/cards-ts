@@ -1,12 +1,12 @@
-import { DealOutMessage, EndRoundMessage, LeadsMessage, NoPassingMessage, PassedMessage, PassingMessage, PlayedMessage, ScoredMessage, ShotTheMoonMessage } from "./status";
+import { DealOutMessage, EndRoundMessage, LeadsMessage, NoPassingMessage, PassedMessage, PassingMessage, PlayedMessage, ScoredMessage, ShotTheMoonMessage } from './status';
 
 export type StatusMessage =
     DealOutMessage
     | EndRoundMessage
-    | LeadsMessage 
+    | LeadsMessage
     | NoPassingMessage
-    | PassedMessage 
-    | PassingMessage 
-    | PlayedMessage 
-    | ScoredMessage 
+    | PassedMessage
+    | PassingMessage
+    | PlayedMessage
+    | ScoredMessage
     | ShotTheMoonMessage;

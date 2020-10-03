@@ -1,10 +1,10 @@
-import { Card } from "../cards/card";
-import { FourCardRun } from "../cards/four-card-run";
-import { Rank } from "../cards/rank";
-import { Suit } from "../cards/suit";
-import { ThreeCardSet } from "../cards/three-card-set";
-import { DisplayElement, DisplayElementCallReturn } from "./display-element";
-import { Serializable, Presenter } from "./presenter";
+import { Card } from '../cards/card';
+import { FourCardRun } from '../cards/four-card-run';
+import { Rank } from '../cards/rank';
+import { Suit } from '../cards/suit';
+import { ThreeCardSet } from '../cards/three-card-set';
+import { DisplayElement, DisplayElementCallReturn } from './display-element';
+import { Serializable, Presenter } from './presenter';
 
 /**
  * Class that handles how material is presented to the end user
@@ -72,6 +72,6 @@ export namespace Intermediary {
                 }
             }
         } catch {}
-        return Object.fromEntries(Object.entries(result).map(([key, value]) => [key, deserializeSerializable(value)]))
+        return Object.fromEntries(Object.entries(result).map(([key, value]) => [key, deserializeSerializable(value)]));
     }
 }

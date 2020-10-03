@@ -51,7 +51,7 @@ export class GameDriver<HandlerData, Handler extends GenericHandler<HandlerData,
     }
 
     public receiveAsyncResponses() {
-        return this.handlerProxy.receiveAsyncResponses();   
+        return this.handlerProxy.receiveAsyncResponses();
     }
 
     /**
