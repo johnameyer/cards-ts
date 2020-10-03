@@ -1,10 +1,9 @@
 import { Card } from "../cards/card";
 import { Deck } from "../cards/deck";
-import { AbstractGameState } from "./abstract-game-state";
-import { AbstractHandlerData } from "./abstract-handler-data";
+import { GenericGameState } from "./generic-game-state";
 import { Message } from "./message";
 
-export abstract class AbstractStateTransformer<GameParams, State, HandlerData extends AbstractHandlerData, GameState extends AbstractGameState<GameParams, State>, ResponseMessage extends Message> {
+export abstract class AbstractStateTransformer<GameParams, State, HandlerData, GameState extends GenericGameState<GameParams, State>, ResponseMessage extends Message> {
     
     initialState({gameParams, names, initialState}: {gameParams: GameParams, names: string[], initialState: State}): GameState {
         return {

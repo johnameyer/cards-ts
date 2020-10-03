@@ -1,7 +1,8 @@
-import { IncrementalIntermediary, InquirerPresenter } from "@cards-ts/core";
+import { GameDriver, IncrementalIntermediary, InquirerPresenter } from "@cards-ts/core";
 import { argv } from "yargs";
-import { IntermediaryHandler, defaultParams, GameDriver } from ".";
+import { IntermediaryHandler, defaultParams } from ".";
 import { GameState } from "./game-state";
+import { GameStateIterator } from "./game-state-iterator";
 import { HeuristicHandler } from "./handlers/heuristic-handler";
 import { ResponseMessage } from "./messages/response-message";
 import { ResponseValidator } from "./response-validator";
@@ -28,6 +29,7 @@ for(let i = 1; i < players.length; i++) {
 
 const stateTransformer = new StateTransformer();
 const responseValidator = new ResponseValidator();
+const gameStateIterator = new GameStateIterator();
 
 const database = new class {
     private state: GameState | undefined;
@@ -68,7 +70,7 @@ function handleEvent(sourceHandler: number, incomingEvent: ResponseMessage) {
     while(!database.get().completed) {
 
         // Create the driver
-        const driver = new GameDriver(players, database.get(), stateTransformer, responseValidator);
+        const driver = new GameDriver(players, database.get(), gameStateIterator, stateTransformer, responseValidator);
         
         // Play through all of synchronous actions
         driver.resume();

@@ -1,6 +1,5 @@
 import { Card, Intermediary, Message, ThreeCardSet, FourCardRun, checkFourCardRunPossible, HandlerResponsesQueue } from "@cards-ts/core";
 import { Meld } from "@cards-ts/core/lib/cards/meld";
-import { GameState } from "../game-state";
 import { HandlerData } from "../handler-data";
 import { DataResponseMessage, TurnResponseMessage, WantCardResponseMessage } from "../messages/response";
 import { roundToString } from "../util/round-to-string";
@@ -87,7 +86,6 @@ export class IntermediaryHandler extends ClientHandler {
             { type: 'confirm', message }
         ))[1];
 
-        // @ts-ignore
         data.hand = orderedHand;
 
         responsesQueue.push(new WantCardResponseMessage(want, data));
@@ -96,21 +94,7 @@ export class IntermediaryHandler extends ClientHandler {
 
     async turn(gameState: HandlerData, responsesQueue: HandlerResponsesQueue<TurnResponseMessage>) {
         gameState.data = reconcileDataAndHand(gameState.hand, gameState.data);
-        await super.turn(gameState, responsesQueue);
-        //TODO return {...result, data: gameState.data};
-    }
-
-    public dealCard(card: Card, extra: Card | undefined, dealt: boolean) {
-        // TODO wire this into driver or something
-        if (dealt) {
-            this.intermediary.print(['Received', card]);
-        } else {
-            if (extra) {
-                this.intermediary.print(['Picked up', card, 'and', extra]);
-            } else {
-                this.intermediary.print(['Picked up', card]);
-            }
-        }
+        await super.turn(gameState, responsesQueue.map((response: TurnResponseMessage) => new TurnResponseMessage(response.toDiscard, response.toPlay, gameState.data)));
     }
 
     async playOnOthers(hand: Card[], played: (ThreeCardSet | FourCardRun)[][], data: unknown) {

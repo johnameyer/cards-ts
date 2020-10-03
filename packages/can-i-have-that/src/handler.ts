@@ -1,4 +1,4 @@
-import { AbstractHandler, HandlerResponsesQueue } from "@cards-ts/core";
+import { GenericHandler, HandlerResponsesQueue } from "@cards-ts/core";
 import { HandlerData } from "./handler-data";
 import { TurnResponseMessage, WantCardResponseMessage } from "./messages/response";
 import { ResponseMessage } from "./messages/response-message";
@@ -6,7 +6,7 @@ import { ResponseMessage } from "./messages/response-message";
 /**
  * Class that players interact with the game using
  */
-export interface Handler extends AbstractHandler<HandlerData, ResponseMessage> {
+export interface Handler extends GenericHandler<HandlerData, ResponseMessage> {
     /**
      * Whether this player wants the card or not
      * @param card the card being considered

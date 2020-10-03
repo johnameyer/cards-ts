@@ -1,4 +1,4 @@
-import { AbstractResponseValidator, Card, InvalidError, Meld, zip } from "@cards-ts/core";
+import { GenericResponseValidator, Card, InvalidError, Meld, zip } from "@cards-ts/core";
 import { checkRun } from "@cards-ts/core/lib/cards/run-util";
 import { GameParams } from "./game-params";
 import { GameState } from "./game-state";
@@ -78,7 +78,7 @@ function checkTurn(
    return runningHand;
 }
 
-export class ResponseValidator extends AbstractResponseValidator<GameParams, GameState.State, GameState, ResponseMessage> {
+export class ResponseValidator implements GenericResponseValidator<GameParams, GameState.State, GameState, ResponseMessage> {
     validate(gameState: GameState, sourceHandler: number, event: ResponseMessage): TurnResponseMessage | WantCardResponseMessage | DataResponseMessage | undefined {
         switch(event.type) {
             case 'turn-card-response': {

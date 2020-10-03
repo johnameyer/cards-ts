@@ -1,7 +1,6 @@
 import { isDefined } from "../util/is-defined";
-import { zip } from "../util/zip";
-import { AbstractGameState } from "./abstract-game-state";
-import { AbstractHandler, HandlerAction } from "./abstract-handler";
+import { GenericGameState } from "./generic-game-state";
+import { GenericHandler, HandlerAction } from "./generic-handler";
 import { AbstractStateTransformer } from "./abstract-state-transformer";
 import { Message } from "./message";
 import { ResponseQueue } from "./response-queue";
@@ -10,8 +9,7 @@ type ExtractOfType<Type, ExpectedType> = {
     [key in keyof Type]: Type[key] extends ExpectedType ? key : never;
 }[keyof Type];
 
-// TODO convert to inner class of game driver when properly supported
-export class HandlerProxy<HandlerData, ResponseMessage extends Message, Handler extends AbstractHandler<HandlerData, ResponseMessage>, GameParams, State, GameState extends AbstractGameState<GameParams, State>, StateTransformer extends AbstractStateTransformer<GameParams, State, HandlerData, GameState, ResponseMessage>> {
+export class HandlerProxy<HandlerData, ResponseMessage extends Message, Handler extends GenericHandler<HandlerData, ResponseMessage>, GameParams, State, GameState extends GenericGameState<GameParams, State>, StateTransformer extends AbstractStateTransformer<GameParams, State, HandlerData, GameState, ResponseMessage>> {
     constructor(protected players: Handler[], protected stateTransformer: StateTransformer) { }
 
     private readonly outgoingData: Promise<void>[] = [];

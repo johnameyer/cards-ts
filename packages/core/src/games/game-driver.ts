@@ -1,14 +1,15 @@
-import { AbstractGameState } from './abstract-game-state';
+import { GenericGameState } from './generic-game-state';
 import { Message } from './message';
-import { AbstractHandler } from './abstract-handler';
+import { GenericHandler } from './generic-handler';
 import { AbstractStateTransformer } from './abstract-state-transformer';
 import { HandlerProxy } from './handler-proxy';
-import { AbstractResponseValidator } from './abstract-response-validator';
+import { GenericResponseValidator } from './generic-response-validator';
+import { GenericGameStateIterator } from './generic-game-state-iterator';
 
 /**
  * Class that handles the steps of the game
  */
-export abstract class AbstractGameDriver<HandlerData, Handler extends AbstractHandler<HandlerData, ResponseMessage>, GameParams, State, GameState extends AbstractGameState<GameParams, State>, ResponseMessage extends Message, StateTransformer extends AbstractStateTransformer<GameParams, State, HandlerData, GameState, ResponseMessage>, ResponseValidator extends AbstractResponseValidator<GameParams, State, GameState, ResponseMessage>> {
+export class GameDriver<HandlerData, Handler extends GenericHandler<HandlerData, ResponseMessage>, GameParams, State, GameState extends GenericGameState<GameParams, State>, ResponseMessage extends Message, StateTransformer extends AbstractStateTransformer<GameParams, State, HandlerData, GameState, ResponseMessage>, ResponseValidator extends GenericResponseValidator<GameParams, State, GameState, ResponseMessage>> {
 
     protected handlerProxy: HandlerProxy<HandlerData, ResponseMessage, Handler, GameParams, State, GameState, StateTransformer>;
 
@@ -17,7 +18,7 @@ export abstract class AbstractGameDriver<HandlerData, Handler extends AbstractHa
      * @param players the players in the game
      * @param gameParams the parameters to use for the game
      */
-    constructor(handlers: Handler[], public gameState: GameState, protected stateTransformer: StateTransformer, protected responseValidator: ResponseValidator) {
+    constructor(handlers: Handler[], public gameState: GameState, protected iterator: GenericGameStateIterator<HandlerData, ResponseMessage, Handler, GameParams, State, GameState, StateTransformer>, protected stateTransformer: StateTransformer, protected responseValidator: ResponseValidator) {
         // this.gameState.names = handlerProxy.getNames();
         this.handlerProxy = new HandlerProxy(handlers, stateTransformer);
     }
@@ -59,7 +60,7 @@ export abstract class AbstractGameDriver<HandlerData, Handler extends AbstractHa
     public async start() {
         const state = this.gameState;
         while(!state.completed) {
-            const waitingForUser = this.iterate();
+            const waitingForUser = this.iterator.iterate(this.gameState, this.handlerProxy);
             await this.handlerProxy.handleOutgoing();
             let shouldContinue = this.handleSyncResponses();
 
@@ -78,16 +79,10 @@ export abstract class AbstractGameDriver<HandlerData, Handler extends AbstractHa
     public resume() {
         const state = this.gameState;
         while(!state.completed) {
-            const waitingForUser = this.iterate();
+            const waitingForUser = this.iterator.iterate(this.gameState, this.handlerProxy);
             if(waitingForUser) {
                 return;
             }
         }
     }
-
-    /**
-     * Proceed to the next state of the game
-     * @returns true if waiting for user input, false if not
-     */
-    public abstract iterate(): boolean;
 }

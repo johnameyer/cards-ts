@@ -1,10 +1,9 @@
-import { AbstractHandlerData } from "./abstract-handler-data";
 import { Message } from "./message";
 
 /**
  * Actor that views game state but is not involved
  */
-export interface Observer<HandlerData extends AbstractHandlerData>  {
+export interface Observer<HandlerData>  {
     /**
      * Allows the player to be informed of changes in the game state
      * @param bundle the incoming message

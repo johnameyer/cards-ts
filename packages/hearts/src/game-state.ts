@@ -1,7 +1,7 @@
-import { AbstractGameState, Card } from "@cards-ts/core";
+import { Card, GenericGameState } from "@cards-ts/core";
 import { GameParams } from "./game-params";
 
-export interface GameState extends AbstractGameState<GameParams, GameState.State> {
+export interface GameState extends GenericGameState<GameParams, GameState.State> {
     pointsTaken: number[];
 
     points: number[];

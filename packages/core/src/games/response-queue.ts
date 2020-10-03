@@ -2,6 +2,8 @@ import { isPromise } from "../util/is-promise";
 
 export interface HandlerResponsesQueue<Item> {
     push(item: Item | Promise<Item>): void;
+
+    map<PreMapped>(mapping: (item: PreMapped) => Item): HandlerResponsesQueue<PreMapped>;
 }
 
 export class ResponseQueue<Item> {
@@ -9,7 +11,6 @@ export class ResponseQueue<Item> {
     private syncQueue: [number, Item][] = [];
     private asyncQueuePromise: Promise<void> = new Promise(resolver => this.asyncQueueResolver = resolver);
     private asyncQueueResolver!: () => void;
-
 
     for(handler: number) {
         const { asyncQueue, syncQueue, asyncQueueResolver } = this;
@@ -21,6 +22,15 @@ export class ResponseQueue<Item> {
                 } else {
                     syncQueue.push([handler, item]);
                 }
+            },
+            map<Mapped>(mapping: (item: Mapped) => Item) {
+                const wrapped = this;
+                return {
+                    push: (item: Mapped | Promise<Mapped>) => {
+                        wrapped.push(isPromise(item) ? item.then(mapping) : mapping(item));
+                    },
+                    map: <InnerMapped>(innerMapping: (item: InnerMapped) => Mapped) => wrapped.map((innermost: InnerMapped) => mapping(innerMapping(innermost)))
+                } as HandlerResponsesQueue<Mapped>;
             }
         } as HandlerResponsesQueue<Item>;
     }

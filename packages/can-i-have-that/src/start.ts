@@ -3,12 +3,12 @@
 
 /* tslint:disable */
 
-import { GameDriver } from './game-driver';
+import { GameStateIterator } from './game-state-iterator';
 import { LocalMaximumHandler } from './handlers/local-maximum-handler';
 import { defaultParams } from './game-params';
 import yargs from 'yargs';
 import { IntermediaryHandler } from './handlers/intermediary-handler';
-import { IncrementalIntermediary, InquirerPresenter } from '@cards-ts/core';
+import { GameDriver, IncrementalIntermediary, InquirerPresenter } from '@cards-ts/core';
 import { StateTransformer } from './state-transformer';
 import { ResponseValidator } from './response-validator';
 
@@ -41,13 +41,14 @@ yargs.command(['start', '$0'], 'begin a new game', yargs => {
 
     const stateTransformer = new StateTransformer();
     const responseValidator = new ResponseValidator();
+    const gameStateIterator = new GameStateIterator();
 
     const initialState = stateTransformer.initialState({
         names: names,
         gameParams: defaultParams
     });
 
-    const driver = new GameDriver(players, initialState, stateTransformer, responseValidator);
+    const driver = new GameDriver(players, initialState, gameStateIterator, stateTransformer, responseValidator);
 
     await driver.start();
 })

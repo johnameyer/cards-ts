@@ -1,17 +1,13 @@
 #!/usr/bin/env node
 // TODO this is provided for the sake of npx and being able to run the generated file
 
-/* tslint:disable */
-
 import yargs from "yargs";
 import { IntermediaryHandler } from "./handlers/intermediary-handler";
 import { HeuristicHandler } from "./handlers/heuristic-handler";
-import { GameDriver } from "./game-driver";
+import { GameStateIterator } from "./game-state-iterator";
 import { defaultParams } from "./game-params";
-import { GameState } from "./game-state";
-import { IncrementalIntermediary, InquirerPresenter } from "@cards-ts/core";
+import { GameDriver, IncrementalIntermediary, InquirerPresenter } from "@cards-ts/core";
 import { StateTransformer } from "./state-transformer";
-import { HandlerProxy } from "../../core/lib/games/handler-proxy";
 import { Handler } from "./handler";
 import { ResponseValidator } from "./response-validator";
 
@@ -45,8 +41,9 @@ yargs.command(['start', '$0'], 'begin a new game', yargs => {
 
     const stateTransformer = new StateTransformer();
     const responseValidator = new ResponseValidator();
+    const gameStateIterator = new GameStateIterator();
 
-    const driver = new GameDriver(players, stateTransformer.initialState({ names: names, gameParams: defaultParams }), stateTransformer, responseValidator);
+    const driver = new GameDriver(players, stateTransformer.initialState({ names: names, gameParams: defaultParams }), gameStateIterator, stateTransformer, responseValidator);
 
     await driver.start();
 })

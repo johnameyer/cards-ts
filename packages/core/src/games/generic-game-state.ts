@@ -4,7 +4,7 @@ import { Card } from '../cards/card';
 /**
  * A class used to track the current state of the game
  */
-export interface AbstractGameState<GameParams, State> {
+export interface GenericGameState<GameParams, State> {
     /**
      * The settings that a game runs under
      */

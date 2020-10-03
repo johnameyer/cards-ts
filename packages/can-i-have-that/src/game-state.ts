@@ -1,10 +1,10 @@
-import { AbstractGameState, Meld, Card, Deck, runFromObj } from '@cards-ts/core';
+import { GenericGameState, Meld, Card, Deck, runFromObj } from '@cards-ts/core';
 import { GameParams } from './game-params';
 
 /**
  * A class used to track the current state of the game
  */
-export interface GameState extends AbstractGameState<GameParams, GameState.State> {
+export interface GameState extends GenericGameState<GameParams, GameState.State> {
     /**
      * The current round
      */

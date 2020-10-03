@@ -22,11 +22,8 @@ const toInquirerValue = <T extends {toString: () => string}>(t: T) => ({
     value: t,
 });
 
-export class IntermediaryHandler extends Handler {
-    // TODO why is this necessary?
-    // @ts-ignore
+export class IntermediaryHandler implements Handler {
     constructor(private intermediary: Intermediary) {
-        super();
     }
 
     pass({ hand, gameParams: { numToPass } }: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>) {

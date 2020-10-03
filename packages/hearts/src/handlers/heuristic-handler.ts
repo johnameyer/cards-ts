@@ -62,7 +62,7 @@ function wrapData(handlerData: HandlerData) {
     return handlerData.data as HeuristicHandlerData;
 }
 
-export class HeuristicHandler extends Handler {
+export class HeuristicHandler implements Handler {
     pass(handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): void {
         const data = wrapData(handlerData);
         const { hand, gameParams: { numToPass } } = handlerData;

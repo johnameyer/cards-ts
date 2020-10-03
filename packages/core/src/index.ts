@@ -17,14 +17,15 @@ export { ProtocolIntermediary } from './intermediary/protocol-intermediary';
 export { InquirerPresenter } from './intermediary/inquirer-presenter';
 export { IncrementalIntermediary } from './intermediary/incremental-intermediary';
 
-export { AbstractGameDriver } from './games/abstract-game-driver';
-export { AbstractGameState } from './games/abstract-game-state';
-export { AbstractHandler } from './games/abstract-handler';
-export { AbstractHandlerData } from './games/abstract-handler-data';
+export { GameDriver } from './games/game-driver';
+export { GenericGameState } from './games/generic-game-state';
+export { GenericHandler } from './games/generic-handler';
+export { GenericGameStateIterator } from './games/generic-game-state-iterator';
 export { Message } from './games/message';
 export { Observer } from './games/observer';
-export { AbstractResponseValidator } from './games/abstract-response-validator';
+export { GenericResponseValidator } from './games/generic-response-validator';
 export { AbstractStateTransformer } from './games/abstract-state-transformer';
+export { HandlerProxy } from './games/handler-proxy';
 export { ResponseQueue, HandlerResponsesQueue } from './games/response-queue';
 
 export { combinations } from './util/combinations';
