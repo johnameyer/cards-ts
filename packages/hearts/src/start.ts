@@ -1,5 +1,4 @@
-#!/usr/bin/env node
-// TODO this is provided for the sake of npx and being able to run the generated file
+#!/usr/bin/env ts-node
 
 import yargs from "yargs";
 import { IntermediaryHandler } from "./handlers/intermediary-handler";

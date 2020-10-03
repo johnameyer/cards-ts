@@ -23,6 +23,7 @@
   "scripts": {
     "lint": "eslint src/**/*.ts --fix",
     "build": "tsc",
+    "postbuild": "find lib/ -name *.js -exec sed -i '1s|#!/usr/bin/env ts-node|#!/usr/bin/env node|' {} \\;",
     "clean": "rm -rf lib tsconfig.tsbuildinfo",
     "madge": "npx madge --circular --extensions ts ./src",
     "prestart": "npm run build",

@@ -1,7 +1,4 @@
-#!/usr/bin/env node
-// TODO this is provided for the sake of npx and being able to run the generated file
-
-/* tslint:disable */
+#!/usr/bin/env ts-node
 
 import { GameStateIterator } from './game-state-iterator';
 import { LocalMaximumHandler } from './handlers/local-maximum-handler';

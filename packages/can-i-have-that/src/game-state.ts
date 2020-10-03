@@ -1,4 +1,4 @@
-import { GenericGameState, Meld, Card, Deck, runFromObj } from '@cards-ts/core';
+import { GenericGameState, Meld, Card, Deck } from '@cards-ts/core';
 import { GameParams } from './game-params';
 
 /**
