@@ -9,5 +9,5 @@ export interface GenericGameStateIterator<HandlerData, ResponseMessage extends M
      * Proceed to the next state of the game
      * @returns true if waiting for user input, false if not
      */
-    iterate(gameState: GameState, handlerProxy: HandlerProxy<HandlerData, ResponseMessage, Handler, GameParams, State, GameState, StateTransformer>): boolean;
+    iterate(gameState: GameState, handlerProxy: HandlerProxy<HandlerData, ResponseMessage, Handler, GameParams, State, GameState, StateTransformer>): void;
 }

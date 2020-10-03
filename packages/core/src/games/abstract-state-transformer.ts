@@ -45,5 +45,5 @@ export abstract class AbstractStateTransformer<GameParams, State, HandlerData, G
 
     abstract transformToHandlerData(gameState: GameState, position: number): HandlerData;
 
-    abstract merge(gameState: GameState, sourceHandler: number, incomingEvent: ResponseMessage): [shouldContinue: boolean, gameState: GameState];
+    abstract merge(gameState: GameState, sourceHandler: number, incomingEvent: ResponseMessage): GameState;
 }

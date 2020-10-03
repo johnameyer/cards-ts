@@ -37,7 +37,7 @@ export class StateTransformer extends AbstractStateTransformer<GameParams, GameS
         return handlerData;
     }
 
-    merge(gameState: GameState, sourceHandler: number, incomingEvent: ResponseMessage): [shouldContinue: boolean, gameState: GameState] {
+    merge(gameState: GameState, sourceHandler: number, incomingEvent: ResponseMessage): GameState {
         switch(incomingEvent.type) {
             case 'pass-response': {
                 const newState: GameState = {
@@ -45,7 +45,11 @@ export class StateTransformer extends AbstractStateTransformer<GameParams, GameS
                     passed: [...gameState.passed.slice(0, sourceHandler) || [], incomingEvent.cards, ...gameState.passed.slice(sourceHandler + 1) || []],
                     data: [...gameState.data.slice(0, sourceHandler) || [], incomingEvent.data, ...gameState.data.slice(sourceHandler + 1) || []]
                 };
-                return [newState.passed.every(isDefined), newState];
+                if(!Array.isArray(gameState.waiting)) {
+                    throw new Error('waiting is not an array, got: ' + gameState.waiting);
+                }
+                gameState.waiting.splice(gameState.waiting.indexOf(sourceHandler), 1);
+                return newState;
             }
             case 'turn-response': {
                 const newState: GameState = {
@@ -53,16 +57,19 @@ export class StateTransformer extends AbstractStateTransformer<GameParams, GameS
                     playedCard: incomingEvent.card,
                     data: [...gameState.data.slice(0, sourceHandler) || [], incomingEvent.data, ...gameState.data.slice(sourceHandler + 1) || []]
                 };
-                return [true, newState];
+                if(!Array.isArray(gameState.waiting)) {
+                    throw new Error('waiting is not an array, got: ' + gameState.waiting);
+                }
+                gameState.waiting.splice(gameState.waiting.indexOf(sourceHandler), 1);
+                return newState;
             }
             case 'data-response': {
                 const newState: GameState = {
                     ...gameState,
                     data: [...gameState.data.slice(0, sourceHandler) || [], incomingEvent.data, ...gameState.data.slice(sourceHandler + 1) || []]
                 };
-                return [false, newState];
+                return newState;
             }
         }
     }
-    
 }

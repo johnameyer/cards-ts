@@ -56,7 +56,7 @@ export class GameStateIterator implements GenericGameStateIterator<HandlerData, 
         }
     }
 
-    public iterate(gameState: GameState, handlerProxy: HandlerProxy): boolean {
+    public iterate(gameState: GameState, handlerProxy: HandlerProxy): void {
         switch(gameState.state) {
             case GameState.State.START_GAME:
                 this.startGame(gameState, handlerProxy);
@@ -68,7 +68,7 @@ export class GameStateIterator implements GenericGameStateIterator<HandlerData, 
 
             case GameState.State.WAIT_FOR_TURN_PLAYER_WANT:
                 this.waitForTurnPlayerWant(gameState, handlerProxy);
-                return true;
+                break;
 
             case GameState.State.HANDLE_TURN_PLAYER_WANT:
                 this.handleTurnPlayerWant(gameState, handlerProxy);
@@ -76,7 +76,7 @@ export class GameStateIterator implements GenericGameStateIterator<HandlerData, 
 
             case GameState.State.WAIT_FOR_PLAYER_WANT:
                 this.waitForPlayerWant(gameState, handlerProxy);
-                return true;
+                break;
 
             case GameState.State.HANDLE_PLAYER_WANT:
                 this.handlePlayerWant(gameState, handlerProxy);
@@ -92,7 +92,7 @@ export class GameStateIterator implements GenericGameStateIterator<HandlerData, 
 
             case GameState.State.WAIT_FOR_TURN:
                 this.waitForTurn(gameState, handlerProxy);
-                return true;
+                break;
 
             case GameState.State.HANDLE_TURN:
                 this.handleTurn(gameState, handlerProxy);
@@ -106,8 +106,6 @@ export class GameStateIterator implements GenericGameStateIterator<HandlerData, 
                 this.endGame(gameState);
                 break;
         }
-        return false;
-
     }
 
     private endGame(gameState: GameState) {
@@ -161,9 +159,7 @@ export class GameStateIterator implements GenericGameStateIterator<HandlerData, 
             throw new Error('Invalid State');
         }
 
-        handlerProxy.waitingOthers(gameState, [gameState.whoseTurn]);
         handlerProxy.handlerCall(gameState, gameState.whoseTurn, 'wantCard');
-        handlerProxy.waitingOthers(gameState);
 
         gameState.state = GameState.State.HANDLE_TURN_PLAYER_WANT;
     }
@@ -185,9 +181,8 @@ export class GameStateIterator implements GenericGameStateIterator<HandlerData, 
         if(gameState.whoseAsk === undefined) {
             throw new InvalidError('Invalid State');
         }
-        handlerProxy.waitingOthers(gameState, [gameState.whoseAsk]);
+
         handlerProxy.handlerCall(gameState, gameState.whoseAsk, 'wantCard');
-        handlerProxy.waitingOthers(gameState);
 
         gameState.state = GameState.State.HANDLE_PLAYER_WANT;
     }
@@ -217,9 +212,8 @@ export class GameStateIterator implements GenericGameStateIterator<HandlerData, 
     }
 
     private waitForTurn(gameState: GameState, handlerProxy: HandlerProxy) {
-        handlerProxy.waitingOthers(gameState, [gameState.whoseTurn]);
         handlerProxy.handlerCall(gameState, gameState.whoseTurn, 'turn');
-        handlerProxy.waitingOthers(gameState);
+
         gameState.state = GameState.State.HANDLE_TURN;
     }
 

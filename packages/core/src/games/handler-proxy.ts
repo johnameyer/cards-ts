@@ -4,6 +4,7 @@ import { GenericHandler, HandlerAction } from './generic-handler';
 import { AbstractStateTransformer } from './abstract-state-transformer';
 import { Message } from './message';
 import { ResponseQueue } from './response-queue';
+import { range } from '../util/range';
 
 type ExtractOfType<Type, ExpectedType> = {
     [key in keyof Type]: Type[key] extends ExpectedType ? key : never;
@@ -74,6 +75,7 @@ export class HandlerProxy<HandlerData, ResponseMessage extends Message, Handler 
     }
 
     handlerCall<Action extends ExtractOfType<Handler, HandlerAction<HandlerData, ResponseMessage>>>(gameState: GameState, position: number, action: Action, ...args: any[]): void {
+        gameState.waiting = [position];
         const send = this.players[position][action](this.stateTransformer.transformToHandlerData(gameState, position), this.incomingData.for(position), args);
 
         if(send) {
@@ -81,7 +83,23 @@ export class HandlerProxy<HandlerData, ResponseMessage extends Message, Handler 
         }
     }
 
-    handlerCallAll<Action extends ExtractOfType<Handler, HandlerAction<HandlerData, ResponseMessage>>>(gameState: GameState, action: Action, ...args: any[]): void {
+    handlerCallFirst<Action extends ExtractOfType<Handler, HandlerAction<HandlerData, ResponseMessage>>>(gameState: GameState, action: Action, numToWaitFor: number = 1, ...args: any[]): void {
+        gameState.waiting = numToWaitFor;
+        this.outgoingData.push(...this.players
+            .map((player, position) => {
+                try {
+                    return player[action](this.stateTransformer.transformToHandlerData(gameState, position), this.incomingData.for(position), args);
+                } catch(e) {
+                    console.error(e);
+                }
+                return;
+            })
+            .filter(isDefined)
+        );
+    }
+
+    handlerCallAll<Action extends ExtractOfType<Handler, HandlerAction<HandlerData, ResponseMessage>>>(gameState: GameState, action: Action, waitFor: number[] = range(this.getNumberOfPlayers()), ...args: any[]): void {
+        gameState.waiting = waitFor;
         this.outgoingData.push(...this.players
             .map((player, position) => {
                 try {
