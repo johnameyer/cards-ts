@@ -21,7 +21,7 @@
     "hearts": "./lib/start.js"
   },
   "scripts": {
-    "lint": "tslint src/**/*.ts --force",
+    "lint": "eslint src/**/*.ts --fix",
     "build": "tsc",
     "clean": "rm -rf lib tsconfig.tsbuildinfo",
     "madge": "npx madge --circular --extensions ts ./src",

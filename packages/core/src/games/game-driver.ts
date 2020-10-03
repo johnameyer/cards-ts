@@ -39,7 +39,7 @@ export class GameDriver<HandlerData, Handler extends GenericHandler<HandlerData,
     }
 
     public handleSyncResponses() {
-        let shouldContinue = false;
+        const shouldContinue = false;
         for(const [position, message] of this.handlerProxy.receiveSyncResponses()) {
             shouldContinue ||= this.handleEvent(position, message);
         }
@@ -62,7 +62,7 @@ export class GameDriver<HandlerData, Handler extends GenericHandler<HandlerData,
         while(!state.completed) {
             const waitingForUser = this.iterator.iterate(this.gameState, this.handlerProxy);
             await this.handlerProxy.handleOutgoing();
-            let shouldContinue = this.handleSyncResponses();
+            const shouldContinue = this.handleSyncResponses();
 
             while(!state.completed && waitingForUser && !shouldContinue) {
                 await this.handlerProxy.asyncResponseAvailable();

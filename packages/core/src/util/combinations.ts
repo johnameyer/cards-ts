@@ -10,4 +10,4 @@ export const combinations = <T>(arr: T[]) => {
         return results;
     };
     return inner([], arr, []);
-}
+};

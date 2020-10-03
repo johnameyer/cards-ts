@@ -18,7 +18,7 @@
     "url": "git+ssh://git@github.com/johnameyer/can-i-have-that.git"
   },
   "scripts": {
-    "lint": "tslint src/**/*.ts --force",
+    "lint": "eslint src/**/*.ts --fix",
     "build": "tsc",
     "clean": "rm -rf lib tsconfig.tsbuildinfo",
     "madge": "npx madge --circular --extensions ts ./src",

@@ -1,4 +1,3 @@
-import { Message } from '../games/message';
 import { DisplayElement, DisplayElementCallReturn, DisplayElementReturnType } from './display-element';
 import { Presenter, Serializable } from './presenter';
 import { Intermediary } from './intermediary';
