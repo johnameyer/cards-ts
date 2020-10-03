@@ -1,32 +1,18 @@
-import { Handler } from "../handler";
-import { Card } from "@cards-ts/core";
-import { HandlerData } from "../handler-data";
-import { Meld } from "@cards-ts/core/lib/cards/meld";
+import { Handler } from '../handler';
+import { Card, HandlerResponsesQueue } from '@cards-ts/core';
+import { HandlerData } from '../handler-data';
+import { TurnResponseMessage, WantCardResponseMessage } from '../messages/response';
 
 export class GrammyHandler implements Handler {
-    public getName(): string {
-        return "Grammy";
+    public message() { }
+
+    public waitingFor() { }
+
+    public wantCard(gameState: HandlerData, responsesQueue: HandlerResponsesQueue<WantCardResponseMessage>) {
+        responsesQueue.push(new WantCardResponseMessage(true, gameState.data));
     }
 
-    public message(_bundle: any): void {
-    }
-    
-    waitingFor(who: string | undefined): void {
-    }
-
-
-    public async wantCard(_card: Card, _isTurn: boolean, gameState: HandlerData): Promise<[boolean, unknown]> {
-        return [true, gameState.data];
-    }
-
-    public async turn({hand, played, data}: HandlerData)
-    : Promise<{ toDiscard: Card, toPlay: Meld[][], data: unknown }> {
-        hand.sort(Card.compare).reverse();
-        let result = { toDiscard: hand[0], toPlay: played, data };
-        return new Promise(resolve => {
-            setTimeout(function() {
-              resolve(result)
-            }, 500);
-        });
+    public turn({hand, played, data}: HandlerData, responsesQueue: HandlerResponsesQueue<TurnResponseMessage>) {
+        responsesQueue.push(new TurnResponseMessage(hand.sort(Card.compare).reverse()[0], played, data));
     }
 }

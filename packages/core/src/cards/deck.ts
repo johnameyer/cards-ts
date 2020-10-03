@@ -41,7 +41,7 @@ export class Deck {
      * @param shouldShuffle whether the deck should be shuffled automatically
      * @returns the new deck
      */
-    constructor(num: number = 0, shouldShuffle: boolean = true, includeJokers: boolean = true) {
+    constructor(num = 0, shouldShuffle = true, includeJokers = true) {
         if (num >= 0) {
             this.cards = [];
             for (let deck = 0; deck < num; deck ++) {

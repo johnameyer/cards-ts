@@ -1,7 +1,7 @@
-import { Presenter, Serializable } from "./presenter";
-import inquirer from "inquirer";
-import { Message } from "../games/message";
-import { Card } from "..";
+import { Presenter, Serializable } from './presenter';
+import inquirer from 'inquirer';
+import { Message } from '../games/message';
+import { Card } from '..';
 
 inquirer.registerPrompt('selectLine', require('inquirer-select-line'));
 
@@ -9,12 +9,12 @@ inquirer.registerPrompt('selectLine', require('inquirer-select-line'));
  * Prompts questions to the user using the Inquirer library
  */
 export class InquirerPresenter implements Presenter {
-    printCards(options: { cards: Card[]; }): () => Card[] | Promise<Card[]> {
+    printCards(options: { cards: Card[] }): () => Card[] | Promise<Card[]> {
         console.log('You have', Message.defaultTransformer(options.cards));
         return () => options.cards;
     }
 
-    checkbox<T, ValidateParam>(options: { message: Serializable[]; type: string; choices: { name: string; value: T; }[]; validate?: (input: T[], validateParam: ValidateParam) => true | string | Promise<true | string>; validateParam?: ValidateParam }) {
+    checkbox<T, ValidateParam>(options: { message: Serializable[]; type: string; choices: { name: string; value: T }[]; validate?: (input: T[], validateParam: ValidateParam) => true | string | Promise<true | string>; validateParam?: ValidateParam }) {
         return async () => (await inquirer.prompt([{
             ...options,
             // @ts-ignore
@@ -25,7 +25,7 @@ export class InquirerPresenter implements Presenter {
         }])).checkbox;
     }
 
-    list<T>(options: { message: Serializable[]; type: string; choices: { name: string; value: T; }[]; }) {
+    list<T>(options: { message: Serializable[]; type: string; choices: { name: string; value: T }[] }) {
         return async () => (await inquirer.prompt([{
             ...options,
             message: Message.defaultTransformer(options.message),
@@ -34,7 +34,7 @@ export class InquirerPresenter implements Presenter {
         }])).list;
     }
 
-    input<ValidateParam>(options: { message: Serializable[]; validate?: (input: string, param: ValidateParam) => true | string | Promise<true | string>; validateParam?: ValidateParam; }) {
+    input<ValidateParam>(options: { message: Serializable[]; validate?: (input: string, param: ValidateParam) => true | string | Promise<true | string>; validateParam?: ValidateParam }) {
         return async () => (await inquirer.prompt([{
             ...options,
             // @ts-ignore
@@ -45,7 +45,7 @@ export class InquirerPresenter implements Presenter {
         }])).input;
     }
 
-    confirm(options: { message: Serializable[]; }) {
+    confirm(options: { message: Serializable[] }) {
         return async () => (await inquirer.prompt([{
             ...options,
             message: Message.defaultTransformer(options.message),
@@ -54,7 +54,7 @@ export class InquirerPresenter implements Presenter {
         }])).confirm;
     }
 
-    place<T, ValidateParam>(options: { message: Serializable[]; choices: { name: string; value: T; }[]; placeholder: string; validate?: (input: number, param: ValidateParam) => true | string | Promise<true | string>; validateParam?: ValidateParam }) {
+    place<T, ValidateParam>(options: { message: Serializable[]; choices: { name: string; value: T }[]; placeholder: string; validate?: (input: number, param: ValidateParam) => true | string | Promise<true | string>; validateParam?: ValidateParam }) {
         return async () => (await inquirer.prompt([{
             ...options,
             // @ts-ignore
@@ -70,6 +70,6 @@ export class InquirerPresenter implements Presenter {
             if(options.message) {
                 console.log(Message.defaultTransformer(options.message));
             }
-        }
+        };
     }
 }

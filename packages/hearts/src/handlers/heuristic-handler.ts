@@ -1,15 +1,17 @@
-import { Handler } from "../handler";
-import { HandlerData } from "../handler-data";
-import { Card, combinations } from "@cards-ts/core";
-import { Message } from "@cards-ts/core";
-import { Suit } from "@cards-ts/core";
-import { Rank } from "@cards-ts/core";
-import { PlayedMessage } from "../messages/played-message";
+import { Handler } from '../handler';
+import { HandlerData } from '../handler-data';
+import { Card, combinations, HandlerResponsesQueue } from '@cards-ts/core';
+import { Message } from '@cards-ts/core';
+import { Suit } from '@cards-ts/core';
+import { Rank } from '@cards-ts/core';
+import { DataResponseMessage, PassResponseMessage, TurnResponseMessage } from '../messages/response';
+import { StatusMessage } from '../messages/status-message';
+import { ResponseMessage } from '../messages/response-message';
 
 interface HeuristicHandlerData {
-    playerOutOfSuit: {[player: string]: Suit[]},
-    numTimesPlayed: {[letter: string]: number}
-};
+    playerOutOfSuit: {[player: string]: Suit[]};
+    numTimesPlayed: {[letter: string]: number};
+}
 
 const emptyGrouper = () => {
     const obj: {[letter: string]: Card[]} = {};
@@ -31,9 +33,39 @@ const emptyCounter = () => {
 
 const QS = new Card(Suit.SPADES, Rank.QUEEN);
 
-export class HeuristicHandler extends Handler {
+function throwAwayRisk(hand: Card[], sorted: {[letter: string]: Card[]}, canBeHeart: boolean, data: HeuristicHandlerData) {
+    if(sorted[Suit.SPADES.letter]?.length < 3 - data.numTimesPlayed[Suit.SPADES.letter]) {
+        const danger = hand.find(card => card.equals(QS));
+        if(danger) {
+            return danger;
+        }
+        // if has AS or KS throw that away
+    }
 
-    async pass({ hand, gameParams: { numToPass } }: HandlerData): Promise<[Card[], unknown?]> {
+    let throwable = hand;
+    if(!canBeHeart) {
+        throwable = throwable.filter(card => card.suit !== Suit.HEARTS && !card.equals(QS));
+    }
+    // throw out high of other suit
+    return throwable.sort(Card.compare).reverse()[0];
+}
+
+function wrapData(handlerData: HandlerData) {
+    // @ts-ignore
+    if(!handlerData.data?.playerOutOfSuit) {
+        handlerData.data = {
+            playerOutOfSuit: {},
+            numTimesPlayed: emptyCounter()
+        };
+    }
+
+    return handlerData.data as HeuristicHandlerData;
+}
+
+export class HeuristicHandler implements Handler {
+    pass(handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): void {
+        const data = wrapData(handlerData);
+        const { hand, gameParams: { numToPass } } = handlerData;
         const toPass = [];
         const sorted = hand.reduce<{[s: string]: Card[]}>((obj, card) => {
             const suit = card.suit;
@@ -53,7 +85,8 @@ export class HeuristicHandler extends Handler {
 
         toPass.push(...deleteSuit);
         if(toPass.length === numToPass) {
-            return [toPass];
+            responsesQueue.push(new PassResponseMessage(toPass, data));
+            return;
         }
 
         const spades = sorted[Suit.SPADES.letter];
@@ -78,90 +111,79 @@ export class HeuristicHandler extends Handler {
         }
 
         if(toPass.length >= numToPass) {
-            return [toPass.slice(0, numToPass)];
+            responsesQueue.push(new PassResponseMessage(toPass.slice(0, numToPass), data));
+            return;
         }
 
         toPass.push(...hand.filter(card => [Suit.CLUBS, Suit.DIAMONDS].includes(card.suit)).sort(Card.compare).reverse());
 
-        return [toPass.slice(0, numToPass)];
+        responsesQueue.push(new PassResponseMessage(toPass.slice(0, numToPass), data));
+        return;
     }
 
-    async turn(handlerData: HandlerData): Promise<[Card, unknown?]> {
-        const data = this.wrapData(handlerData);
+    turn(handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): void {
+        const data = wrapData(handlerData);
         const { hand, currentTrick, tricks } = handlerData;
-        const sorted = hand.reduce<{[s: string]: Card[]}>((obj, card) => {
-            const suit = card.suit;
-            obj[suit.letter].push(card);
-            return obj;
-        }, emptyGrouper());
+        try {
+            const sorted = hand.reduce<{[s: string]: Card[]}>((obj, card) => {
+                const suit = card.suit;
+                obj[suit.letter].push(card);
+                return obj;
+            }, emptyGrouper());
 
-        if(tricks === 0) {
-            // if the first trick
-            if(sorted[Suit.CLUBS.letter]?.length) {
-                // throw out our highest club if possible
-                return [sorted[Suit.CLUBS.letter].sort(Card.compare).reverse()[0]];
+            if(tricks === 0) {
+                // if the first trick
+                if(sorted[Suit.CLUBS.letter]?.length) {
+                    // throw out our highest club if possible
+                    responsesQueue.push(new TurnResponseMessage(sorted[Suit.CLUBS.letter].sort(Card.compare).reverse()[0], data));
+                    return;
+                } else {
+                    responsesQueue.push(new TurnResponseMessage(throwAwayRisk(hand, sorted, false, data), data));
+                    return;
+                }
+            }
+
+            if(currentTrick.length) {
+                const follow = currentTrick[0].suit;
+
+                const cardsOfSuit = hand.filter(card => card.suit === follow);
+
+                if(cardsOfSuit.length > 0) {
+                    responsesQueue.push(new TurnResponseMessage(cardsOfSuit[0], data));
+                    return;
+                } else {
+                    responsesQueue.push(new TurnResponseMessage(hand.slice().sort(Card.compare).reverse()[0], data));
+                    return;
+                }
             } else {
-                return [this.throwAwayRisk(hand, sorted, false, data)];
+                if(sorted[Suit.SPADES.letter]?.length > 3){
+                    responsesQueue.push(new TurnResponseMessage(sorted[Suit.SPADES.letter][0], data));
+                    return;
+                }
+                const suitOfLeast = Object.entries(sorted).filter(entry => entry[0] !== Suit.HEARTS.letter).filter(entry => entry[1].length > 0).sort((first, second) => second[1].length - first[1].length).map(entry => entry[0])[0];
+
+                responsesQueue.push(new TurnResponseMessage(sorted[suitOfLeast][0], data));
+                return;
             }
-        }
-
-        if(currentTrick.length) {
-            const follow = currentTrick[0].suit;
-
-            const cardsOfSuit = hand.filter(card => card.suit === follow);
-
-            if(cardsOfSuit.length > 0) {
-                return [cardsOfSuit[0]];
-            } else {
-                return [hand.slice().sort(Card.compare).reverse()[0]];
-            }
-        } else {
-            if(sorted[Suit.SPADES.letter]?.length > 3){
-                return [sorted[Suit.SPADES.letter][0]];
-            }
-            const suitOfLeast = Object.entries(sorted).filter(entry => entry[0] !== Suit.HEARTS.letter).filter(entry => entry[1].length > 0).sort((first, second) => second[1].length - first[1].length).map(entry => entry[0])[0];
-            
-            return [sorted[suitOfLeast][0]];
-        }
-
-        return [hand[0]];
+        } catch {}
+        responsesQueue.push(new TurnResponseMessage(hand[0], data));
     }
 
-    throwAwayRisk(hand: Card[], sorted: {[letter: string]: Card[]}, canBeHeart: boolean, data: HeuristicHandlerData) {
-        if(sorted[Suit.SPADES.letter]?.length < 3 - data.numTimesPlayed[Suit.SPADES.letter]) {
-            const danger = hand.find(card => card.equals(QS));
-            if(danger) {
-                return danger;
-            }
-            // if has AS or KS throw that away
-        }
-
-        let throwable = hand;
-        if(!canBeHeart) {
-            throwable = throwable.filter(card => card.suit !== Suit.HEARTS && !card.equals(QS));
-        }
-        // throw out high of other suit
-        return throwable.sort(Card.compare).reverse()[0];
-    }
-
-    message(message: Message, handlerData: HandlerData): void {
-        const data = this.wrapData(handlerData);
-        const { currentTrick } = handlerData;
-        if(message instanceof PlayedMessage) {
+    message(gameState: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>, message: StatusMessage): void {
+        const data = wrapData(gameState);
+        const { currentTrick } = gameState;
+        if(message.type === 'played-message') {
             if(currentTrick.length === 1) {
                 data.numTimesPlayed[currentTrick[0].suit.letter]++;
             }
             if(currentTrick.length > 1 && message.card.suit !== currentTrick[0].suit) {
                 data.playerOutOfSuit[message.player] = [...(data.playerOutOfSuit[message.player] || []) as Suit[], currentTrick[0].suit].filter((val, index, arr) => arr.indexOf(val) === index);
             }
+            responsesQueue.push(new DataResponseMessage(data));
         }
     }
 
-    waitingFor(who: string | undefined): void {
-    }
-
-    getName(taken: string[]): string {
-        return ['Hugh'].find(str => !taken.includes(str)) || 'Hugh';
+    waitingFor(): void {
     }
 
     // shouldTryToShootTheMoon(handlerData: HandlerData) {
@@ -173,17 +195,4 @@ export class HeuristicHandler extends Handler {
     //         }
     //     }
     // }
-
-
-    wrapData(handlerData: HandlerData) {
-        // @ts-ignore
-        if(!handlerData.data?.playerOutOfSuit) {
-            handlerData.data = {
-                playerOutOfSuit: {},
-                numTimesPlayed: emptyCounter()
-            };
-        }
-
-        return handlerData.data as HeuristicHandlerData;
-    }
 }

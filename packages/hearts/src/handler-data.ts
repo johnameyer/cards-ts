@@ -1,7 +1,7 @@
-import { AbstractHandlerData, Card } from "@cards-ts/core";
+import { Card } from "@cards-ts/core";
 import { GameParams } from "./game-params";
 
-export interface HandlerData extends AbstractHandlerData {
+export interface HandlerData {
     gameParams: GameParams;
 
     numPlayers: number;

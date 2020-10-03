@@ -5,6 +5,6 @@ type Zip<T extends unknown[][]> = { [I in keyof T]: T[I] extends (infer U)[] ? U
  * @param args the arrays to iterate over
  * @returns an array with rows and columns flipped
  */
-export function zip<T extends unknown[][]>(...args: T): Zip<T> {
-    return <Zip<T>><unknown>(args[0].map((_, c) => args.map(row => row[c])));
+export function zip<T extends unknown[][]>(...args: T) {
+    return (args[0].map((_, c) => args.map(row => row[c]))) as unknown as Zip<T>;
 }

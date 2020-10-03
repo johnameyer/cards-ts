@@ -1,17 +1,16 @@
-import { Serializable } from "../intermediary/presenter";
-
-const isDefined = function<T>(t: T | undefined): t is T {
-    return t !== undefined;
-}
+import { Serializable } from '../intermediary/presenter';
+import { isDefined } from '../util/is-defined';
 
 /**
  * Parent class for any message to be delivered to handlers
  */
-export class Message {
+export abstract class Message {
+    public readonly type!: string;
+
     /**
      * @param components the pieces a message could be made of
      */
-    constructor(public readonly components: Serializable[]) { }
+    protected constructor(public readonly components: Serializable[]) { }
 }
 
 export namespace Message {

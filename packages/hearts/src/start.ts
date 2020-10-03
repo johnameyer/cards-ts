@@ -1,16 +1,15 @@
 #!/usr/bin/env node
 // TODO this is provided for the sake of npx and being able to run the generated file
 
-/* tslint:disable */
-
 import yargs from "yargs";
 import { IntermediaryHandler } from "./handlers/intermediary-handler";
 import { HeuristicHandler } from "./handlers/heuristic-handler";
-import { GameDriver } from "./game-driver";
+import { GameStateIterator } from "./game-state-iterator";
 import { defaultParams } from "./game-params";
-import { GameState } from "./game-state";
-import { Hand } from "./hand";
-import { IncrementalIntermediary, InquirerPresenter } from "@cards-ts/core";
+import { GameDriver, IncrementalIntermediary, InquirerPresenter } from "@cards-ts/core";
+import { StateTransformer } from "./state-transformer";
+import { Handler } from "./handler";
+import { ResponseValidator } from "./response-validator";
 
 yargs.command(['start', '$0'], 'begin a new game', yargs => {
     yargs.option('players', {
@@ -25,19 +24,26 @@ yargs.command(['start', '$0'], 'begin a new game', yargs => {
     });
 }, async argv => {
     const mainPlayer = new IntermediaryHandler(new IncrementalIntermediary(new InquirerPresenter()));
+    let names: string[] = [];
+    let name: string = argv.name as string;
     if(!argv.name) {        
-        await mainPlayer.askForName();
-    } else {
-        mainPlayer.setName(argv.name as string);
+        // await mainPlayer.askForName();
+        name = 'Jerome';
     }
+    names.push(name);
+    names.push('Greg', 'Hugh', 'Leah');
 
-    const players = Array(argv.players as number + 1);
-    players[0] = new Hand(mainPlayer, 0);
+    const players: Handler[] = Array(argv.players as number + 1);
+    players[0] = mainPlayer;
     for(let i = 1; i < players.length; i++) {
-        players[i] = new Hand(new HeuristicHandler(), i);
+        players[i] = new HeuristicHandler();
     }
 
-    const driver = new GameDriver(players, new GameState(players.length, defaultParams, GameState.State.START_GAME));
+    const stateTransformer = new StateTransformer();
+    const responseValidator = new ResponseValidator();
+    const gameStateIterator = new GameStateIterator();
+
+    const driver = new GameDriver(players, stateTransformer.initialState({ names: names, gameParams: defaultParams }), gameStateIterator, stateTransformer, responseValidator);
 
     await driver.start();
 })

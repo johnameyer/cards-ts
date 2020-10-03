@@ -1,5 +1,5 @@
-export function combinations<T>(arr: T[]) {
-    var inner = function(current: readonly T[], future: readonly T[], results: T[][]) {
+export const combinations = <T>(arr: T[]) => {
+    const inner = function(current: readonly T[], future: readonly T[], results: T[][]) {
         if(future.length === 0) {
             results.push([...current]);
             return results;
@@ -8,6 +8,6 @@ export function combinations<T>(arr: T[]) {
             inner([...current], future.slice(1), results);
         }
         return results;
-    }
+    };
     return inner([], arr, []);
-}
+};

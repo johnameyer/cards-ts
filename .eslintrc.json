@@ -1,0 +1,37 @@
+{
+    "env": {
+        "es6": true,
+        "jest": true
+    },
+    "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/eslint-recommended",
+        "plugin:@typescript-eslint/recommended"
+    ],
+    "globals": {
+        "Atomics": "readonly",
+        "SharedArrayBuffer": "readonly"
+    },
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "ecmaVersion": 2018,
+        "sourceType": "module"
+    },
+    "plugins": [
+        "@typescript-eslint"
+    ],
+    "rules": {
+        // TODO indent seems broken
+        // "indent": [
+        //     "error",
+        //     4
+        // ],
+        "linebreak-style": [ "error", "unix" ],
+        "quotes": [ "error", "single" ],
+        "semi": [ "error", "always" ],
+        "@typescript-eslint/no-namespace": "error",
+        "no-inner-declarations": "error",
+        // "@typescript-eslint/no-submodule-imports": "error",
+        "prefer-const": "error"
+    }
+}

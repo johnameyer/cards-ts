@@ -42,7 +42,7 @@ export abstract class Meld {
     /**
      * Member variable to distinguish between types of runs
      */
-    public runType: number = 0;
+    public runType = 0;
 
     public abstract equals(other?: any): boolean;
 }

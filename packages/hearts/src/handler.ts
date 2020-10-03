@@ -1,8 +1,9 @@
-import { AbstractHandler, Card } from "@cards-ts/core";
+import { GenericHandler, HandlerResponsesQueue } from "@cards-ts/core";
 import { HandlerData } from "./handler-data";
+import { ResponseMessage } from "./messages/response-message";
 
-export abstract class Handler extends AbstractHandler<HandlerData> {
-    abstract async pass(handlerData: HandlerData): Promise<[Card[], unknown?]>;
+export interface Handler extends GenericHandler<HandlerData, ResponseMessage> {
+    pass(handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): void | Promise<void>;
 
-    abstract async turn(handlerData: HandlerData): Promise<[Card, unknown?]>;
+    turn(handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): void | Promise<void>;
 }

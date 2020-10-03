@@ -1,10 +1,12 @@
-import { Handler } from "../handler";
-import { HandlerData } from "../handler-data";
-import { Card } from "@cards-ts/core";
-import { Message } from "@cards-ts/core";
-import { Suit } from "@cards-ts/core";
-import { Rank } from "@cards-ts/core";
-import { Intermediary } from "@cards-ts/core";
+import { Handler } from '../handler';
+import { HandlerData } from '../handler-data';
+import { Card, HandlerResponsesQueue } from '@cards-ts/core';
+import { Message } from '@cards-ts/core';
+import { Suit } from '@cards-ts/core';
+import { Rank } from '@cards-ts/core';
+import { Intermediary } from '@cards-ts/core';
+import { PassResponseMessage, TurnResponseMessage } from '../messages/response';
+import { ResponseMessage } from '../messages/response-message';
 
 const QS = new Card(Suit.SPADES, Rank.QUEEN);
 
@@ -20,25 +22,24 @@ const toInquirerValue = <T extends {toString: () => string}>(t: T) => ({
     value: t,
 });
 
-export class IntermediaryHandler extends Handler {
+export class IntermediaryHandler implements Handler {
     constructor(private intermediary: Intermediary) {
-        super();
     }
 
-    private name!: string;
-
-    async pass({ hand, gameParams: { numToPass } }: HandlerData): Promise<[Card[], unknown?]> {
-        return [(await this.intermediary.form({
+    pass({ hand, gameParams: { numToPass } }: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>) {
+        const [sent, received] = this.intermediary.form({
             type: 'checkbox',
             message: ['Select the cards to pass'],
             choices: hand.sort(compare).map(toInquirerValue),
             // @ts-ignore
             validate: validatePass,
             validateParam: { numToPass }
-        }))[0] as Card[]];
+        });
+        responsesQueue.push(received.then(results => new PassResponseMessage(results[0] as Card[])));
+        return sent;
     }
 
-    async turn({ hand, tricks, currentTrick, pointsTaken }: HandlerData): Promise<[Card, unknown?]> {
+    turn({ hand, tricks, currentTrick, pointsTaken }: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>) {
         let choices = hand;
         if(currentTrick.length > 0) {
             if(choices.some(card => card.suit === currentTrick[0].suit)) {
@@ -49,34 +50,23 @@ export class IntermediaryHandler extends Handler {
         } else if(pointsTaken.every(points => points === 0)) {
             choices = choices.filter(card => card.suit !== Suit.HEARTS);
         }
-        return [(await this.intermediary.form({
+        const [sent, received] = this.intermediary.form({
             type: 'list',
             message: ['Select the card to play'],
             choices: choices.sort(compare).map(toInquirerValue)
-        }))[0] as Card];
+        });
+        responsesQueue.push(received.then(received => new TurnResponseMessage(received[0] as Card)));
+        return sent;
     }
 
-    message(message: Message, data: HandlerData): void {
-        this.intermediary.print(...message.components);
+    message(_handlerData: HandlerData, _responsesQueue: HandlerResponsesQueue<ResponseMessage>, message: Message) {
+        const [sent] = this.intermediary.print(...message.components);
+        return sent;
     }
 
-    waitingFor(who: string | undefined): void {
-    }
-
-    public async askForName() {
-        const name = (await this.intermediary.form({
-            type: 'input',
-            message: ['What is your name?']
-        }))[0];
-        this.name = name;
-    }
-
-    public setName(name: string) {
-        this.name = name;
-    }
-
-    public getName(): string {
-        return this.name;
+    waitingFor(_handlerData: HandlerData, _responsesQueue: HandlerResponsesQueue<ResponseMessage>, _who: string[] | undefined) {
+        // TODO this.intermediary
+        return;
     }
 }
 
