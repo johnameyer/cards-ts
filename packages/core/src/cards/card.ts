@@ -33,7 +33,7 @@ export class Card {
      * @param obj the object to grab attributes from
      * @returns the card
      */
-    public static fromObj(obj: any) {
+    public static fromObj(obj: any): Card {
         return new Card(Suit.fromObj(obj.suit), Rank.fromObj(obj.rank), obj.deck, obj.jokerNum);
     }
 
