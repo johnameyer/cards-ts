@@ -38,7 +38,8 @@
     "inquirer-table-prompt": "^0.2.1"
   },
   "devDependencies": {
-    "@types/inquirer": "^6.5.0"
+    "@types/inquirer": "^6.5.0",
+    "typescript": "^4.0.2"
   },
   "sideEffects": false,
   "gitHead": "04053409da080fb7d2a72de32a6392d3968f9442"
