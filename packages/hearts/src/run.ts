@@ -58,12 +58,12 @@ function handleEvent(sourceHandler: number, incomingEvent: ResponseMessage) {
     }
     
     // Merge the data from the event
-    const [shouldContinue, updatedState] = stateTransformer.merge(currentState, sourceHandler, validatedEvent);
+    const updatedState = stateTransformer.merge(currentState, sourceHandler, validatedEvent);
 
     //preserve state
     database.set(updatedState);
 
-    return shouldContinue;
+    return GameDriver.isWaitingOnPlayer(updatedState);
 }
 
 (async function() {
@@ -78,17 +78,25 @@ function handleEvent(sourceHandler: number, incomingEvent: ResponseMessage) {
         // Make sure all the outgoing data goes out
         await driver.handleOutgoing();
 
-        let canContinue = driver.handleSyncResponses();
+        driver.handleSyncResponses();
 
         database.set(driver.gameState);
 
-        while(!database.get().completed && !canContinue) {
+        while(!database.get().completed && !GameDriver.isWaitingOnPlayer(driver.gameState)) {
+
             await driver.asyncResponseAvailable();
             // Receive the event
             for await(const [sourceHandler, message] of driver.receiveAsyncResponses()) {
                 // Process the event
-                canContinue ||= handleEvent(sourceHandler, message);
+                handleEvent(sourceHandler, message);
             }
+
+            // Make sure all the outgoing data goes out
+            await driver.handleOutgoing();
+
+            driver.handleSyncResponses();
+
+            database.set(driver.gameState);
         }
     }
 })();

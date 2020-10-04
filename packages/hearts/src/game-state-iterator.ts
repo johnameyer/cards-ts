@@ -21,7 +21,7 @@ function valueOfCard(card: Card): number {
 type HandlerProxy = GenericHandlerProxy<HandlerData, ResponseMessage, Handler, GameParams, GameState.State, GameState, StateTransformer>;
 
 export class GameStateIterator implements GenericGameStateIterator<HandlerData, ResponseMessage, Handler, GameParams, GameState.State, GameState, StateTransformer> {
-    public iterate(gameState: GameState, handlerProxy: HandlerProxy) {
+    public iterate(gameState: GameState, handlerProxy: HandlerProxy): void {
         switch(gameState.state) {
             case GameState.State.START_GAME:
                 this.startGame(gameState);
@@ -38,7 +38,7 @@ export class GameStateIterator implements GenericGameStateIterator<HandlerData, 
 
             case GameState.State.WAIT_FOR_PASS:
                 this.waitForPass(gameState, handlerProxy);
-                return true;
+                break;
 
             case GameState.State.HANDLE_PASS:
                 this.handlePass(gameState, handlerProxy);
@@ -58,7 +58,7 @@ export class GameStateIterator implements GenericGameStateIterator<HandlerData, 
 
             case GameState.State.WAIT_FOR_PLAY:
                 this.waitForPlay(gameState, handlerProxy);
-                return true;
+                return;
 
             case GameState.State.HANDLE_PLAY:
                 this.handlePlay(gameState, handlerProxy);
@@ -76,7 +76,6 @@ export class GameStateIterator implements GenericGameStateIterator<HandlerData, 
                 this.endGame(gameState);
                 break;
         }
-        return false;
     }
 
     startGame(gameState: GameState) {
@@ -117,10 +116,7 @@ export class GameStateIterator implements GenericGameStateIterator<HandlerData, 
     }
 
     waitForPass(gameState: GameState, handlerProxy: HandlerProxy) {
-        // TODO rewrite waitingOthers to support this promise all
-        // handlerProxy.waitingOthers(gameState, this.players[gameState.whoseTurn]);
         handlerProxy.handlerCallAll(gameState, 'pass');
-        handlerProxy.waitingOthers(gameState);
         
         gameState.state = GameState.State.HANDLE_PASS;
     }
@@ -166,9 +162,7 @@ export class GameStateIterator implements GenericGameStateIterator<HandlerData, 
     }
 
     waitForPlay(gameState: GameState, handlerProxy: HandlerProxy) {
-        handlerProxy.waitingOthers(gameState, [gameState.whoseTurn]);
         handlerProxy.handlerCall(gameState, gameState.whoseTurn, 'turn');
-        handlerProxy.waitingOthers(gameState);
         
         gameState.state = GameState.State.HANDLE_PLAY;
     }
