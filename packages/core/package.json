@@ -6,6 +6,7 @@
   "homepage": "https://github.com/johnameyer/can-i-have-that/tree/master/packages/core#readme",
   "license": "UNLICENSED",
   "main": "lib/index.js",
+  "browser": "lib/browser-index.js",
   "directories": {
     "lib": "lib",
     "test": "spec"
@@ -39,5 +40,6 @@
   "devDependencies": {
     "@types/inquirer": "^6.5.0"
   },
+  "sideEffects": false,
   "gitHead": "04053409da080fb7d2a72de32a6392d3968f9442"
 }
