@@ -1,7 +1,7 @@
 import { Card, Intermediary, Message, ThreeCardSet, FourCardRun, checkFourCardRunPossible, HandlerResponsesQueue } from '@cards-ts/core';
 import { Meld } from '@cards-ts/core/lib/cards/meld';
 import { HandlerData } from '../handler-data';
-import { DataResponseMessage, TurnResponseMessage, WantCardResponseMessage } from '../messages/response';
+import { DataResponseMessage, WantCardResponseMessage } from '../messages/response';
 import { roundToString } from '../util/round-to-string';
 import { ClientHandler } from './client-handler';
 
@@ -95,7 +95,7 @@ export class IntermediaryHandler extends ClientHandler {
         return sent;
     }
 
-    async turn(gameState: HandlerData, responsesQueue: HandlerResponsesQueue<TurnResponseMessage>) {
+    async turn(gameState: HandlerData, responsesQueue: HandlerResponsesQueue<DiscardResponseMessage | GoDownResponseMessage | PlayResponseMessage>) {
         gameState.data = reconcileDataAndHand(gameState.hand, gameState.data);
         await super.turn(gameState, responsesQueue.map((response: TurnResponseMessage) => new TurnResponseMessage(response.toDiscard, response.toPlay, gameState.data)));
     }

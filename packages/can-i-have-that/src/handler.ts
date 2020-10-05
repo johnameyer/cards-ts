@@ -1,6 +1,6 @@
 import { GenericHandler, HandlerResponsesQueue } from "@cards-ts/core";
 import { HandlerData } from "./handler-data";
-import { TurnResponseMessage, WantCardResponseMessage } from "./messages/response";
+import { DiscardResponseMessage, GoDownResponseMessage, PlayResponseMessage, TurnResponseMessage, WantCardResponseMessage } from "./messages/response";
 import { ResponseMessage } from "./messages/response-message";
 
 /**
@@ -21,5 +21,5 @@ export interface Handler extends GenericHandler<HandlerData, ResponseMessage> {
      * @param gameState the current state of the game, as visible to the handler
      * @returns the card to discard and the state of the table after having played cards
      */
-    turn(gameState: HandlerData, responseQueue: HandlerResponsesQueue<TurnResponseMessage>): void | Promise<void>;
+    turn(gameState: HandlerData, responseQueue: HandlerResponsesQueue<DiscardResponseMessage | GoDownResponseMessage | PlayResponseMessage>): void | Promise<void>;
 }

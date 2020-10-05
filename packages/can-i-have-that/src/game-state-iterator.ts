@@ -57,6 +57,8 @@ export class GameStateIterator implements GenericGameStateIterator<HandlerData, 
     }
 
     public iterate(gameState: GameState, handlerProxy: HandlerProxy): void {
+        console.log(gameState.hands.map(hand => hand.length));
+        console.log(gameState.points);
         switch(gameState.state) {
             case GameState.State.START_GAME:
                 this.startGame(gameState, handlerProxy);
