@@ -2,7 +2,7 @@ import { GenericResponseValidator, Card, InvalidError, Meld, zip } from "@cards-
 import { checkRun } from "@cards-ts/core/lib/cards/run-util";
 import { GameParams } from "./game-params";
 import { GameState } from "./game-state";
-import { TurnResponseMessage, WantCardResponseMessage, DataResponseMessage } from "./messages/response";
+import { WantCardResponseMessage, DataResponseMessage, DiscardResponseMessage, PlayResponseMessage, GoDownResponseMessage } from "./messages/response";
 import { ResponseMessage } from "./messages/response-message";
 
 const mapToClone = <T extends {clone: () => T}>(arr: T[]) => arr.map((t: T) => t.clone());
@@ -79,23 +79,63 @@ function checkTurn(
 }
 
 export class ResponseValidator implements GenericResponseValidator<GameParams, GameState.State, GameState, ResponseMessage> {
-    validate(gameState: GameState, sourceHandler: number, event: ResponseMessage): TurnResponseMessage | WantCardResponseMessage | DataResponseMessage | undefined {
+    validate(gameState: GameState, sourceHandler: number, event: ResponseMessage): ResponseMessage | undefined {
         switch(event.type) {
-            case 'turn-card-response': {
+            case 'discard-response': {
                 if(sourceHandler !== gameState.whoseTurn) {
                     return undefined;
                 }
                 try {
-                    checkTurn(sourceHandler, event.toDiscard, event.toPlay, gameState);
+                    const index = gameState.hands[gameState.whoseTurn].findIndex((item) => item.equals(event.toDiscard));
+                    if (index === -1) {
+                        throw new Error('Card is not in hand ' + gameState.hands[gameState.whoseTurn]);
+                    }
 
-                    return new TurnResponseMessage(event.toDiscard, event.toPlay, event.data);
+                    for (const plays of gameState.played) {
+                        for(const run of plays) {
+                            if(run.isLive(event.toDiscard)) {
+                                throw new InvalidError('Card ' + event.toDiscard.toString() + ' is live on ' + run.toString());
+                            }
+                        }
+                    }
+
+                    return new DiscardResponseMessage(event.toDiscard, event.data);
                 } catch (e) {
                     console.error(e);
                 }
                 const liveForNone = (card: Card) => !gameState.played.some((runs) => runs.some((play) => play.isLive(card)));
-                const possibleDiscard = gameState.hands[sourceHandler].find(liveForNone) || null;
+                const possibleDiscard = gameState.hands[sourceHandler].find(liveForNone);
 
-                return new TurnResponseMessage(possibleDiscard, gameState.played);
+                if(!possibleDiscard) {
+                    throw new Error('No possible discard?');
+                    // TODO
+                }
+
+                return new DiscardResponseMessage(possibleDiscard);
+            }
+            case 'play-response': {
+                if(sourceHandler !== gameState.whoseTurn) {
+                    return undefined;
+                }
+                try {
+
+                    return new PlayResponseMessage(event.playOn, event.toPlay, event.data);
+                } catch (e) {
+                    console.error(e);
+                }
+                return undefined;
+            }
+            case 'go-down-response': {
+                if(sourceHandler !== gameState.whoseTurn) {
+                    return undefined;
+                }
+                try {
+
+                    return new GoDownResponseMessage(event.toPlay, event.data);
+                } catch (e) {
+                    console.error(e);
+                }
+                return undefined;
             }
             case 'want-card-response': {
                 if(sourceHandler !== gameState.whoseAsk) {

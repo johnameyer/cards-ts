@@ -1,7 +1,7 @@
 import { Card, Intermediary, Message, ThreeCardSet, FourCardRun, checkFourCardRunPossible, HandlerResponsesQueue } from '@cards-ts/core';
 import { Meld } from '@cards-ts/core/lib/cards/meld';
 import { HandlerData } from '../handler-data';
-import { DataResponseMessage, TurnResponseMessage, WantCardResponseMessage } from '../messages/response';
+import { DataResponseMessage, WantCardResponseMessage, DiscardResponseMessage, GoDownResponseMessage, PlayResponseMessage } from '../messages/response';
 import { roundToString } from '../util/round-to-string';
 import { ClientHandler } from './client-handler';
 
@@ -95,15 +95,24 @@ export class IntermediaryHandler extends ClientHandler {
         return sent;
     }
 
-    async turn(gameState: HandlerData, responsesQueue: HandlerResponsesQueue<TurnResponseMessage>) {
+    async turn(gameState: HandlerData, responsesQueue: HandlerResponsesQueue<DiscardResponseMessage | GoDownResponseMessage | PlayResponseMessage>) {
         gameState.data = reconcileDataAndHand(gameState.hand, gameState.data);
-        await super.turn(gameState, responsesQueue.map((response: TurnResponseMessage) => new TurnResponseMessage(response.toDiscard, response.toPlay, gameState.data)));
+        await super.turn(gameState, responsesQueue.map((response: DiscardResponseMessage | GoDownResponseMessage | PlayResponseMessage) => {
+            switch(response.type) {
+                case 'discard-response':
+                    return new DiscardResponseMessage(response.toDiscard, gameState.data);
+                case 'go-down-response':
+                    return new GoDownResponseMessage(response.toPlay, gameState.data);
+                case 'play-response':
+                    return new PlayResponseMessage(response.playOn, response.toPlay, gameState.data);
+            }
+        }));
     }
 
-    async playOnOthers(hand: Card[], played: (ThreeCardSet | FourCardRun)[][], data: unknown) {
+    async playOnOthers(hand: Card[], played: (ThreeCardSet | FourCardRun)[][], responsesQueue: HandlerResponsesQueue<PlayResponseMessage>, data: unknown) {
         while (hand.length && await this.wantToPlay(played.reduce(flatten, []), hand, data)) {
             const runToPlayOn = await this.whichPlay(played.reduce(flatten, []), hand);
-            await this.askToPlayOnRun(runToPlayOn, hand, data);
+            await this.askToPlayOnRun(runToPlayOn, hand, responsesQueue, data);
         }
     }
 

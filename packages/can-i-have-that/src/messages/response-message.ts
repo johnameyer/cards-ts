@@ -1,3 +1,3 @@
-import { TurnResponseMessage, WantCardResponseMessage, DataResponseMessage } from './response';
+import { WantCardResponseMessage, DataResponseMessage, DiscardResponseMessage, GoDownResponseMessage, PlayResponseMessage } from './response';
 
-export type ResponseMessage = TurnResponseMessage | WantCardResponseMessage | DataResponseMessage;
+export type ResponseMessage = DiscardResponseMessage | GoDownResponseMessage | PlayResponseMessage | WantCardResponseMessage | DataResponseMessage;

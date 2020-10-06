@@ -1,4 +1,4 @@
-import { AbstractStateTransformer, Card, Deck, Meld, runFromObj } from "@cards-ts/core";
+import { AbstractStateTransformer, Card, Deck, distinct, Meld, runFromObj } from "@cards-ts/core";
 import { GameParams } from "./game-params";
 import { GameState } from "./game-state";
 import { HandlerData } from "./handler-data";
@@ -36,17 +36,92 @@ export class StateTransformer extends AbstractStateTransformer<GameParams, GameS
                 gameState.waiting.splice(gameState.waiting.indexOf(sourceHandler), 1);
                 return newState;
             }
-            case 'turn-card-response': {
+            case 'discard-response': {
+                const newHand = gameState.hands[gameState.whoseTurn];
+                const index = newHand.findIndex(incomingEvent.toDiscard.equals.bind(incomingEvent.toDiscard));
+                if(index === -1) {
+                    throw new Error('Player did not have card ' + incomingEvent.toDiscard);
+                }
                 const newState: GameState = {
                     ...gameState,
                     toDiscard: incomingEvent.toDiscard,
-                    toPlay: incomingEvent.toPlay,
                     data: [...gameState.data.slice(0, sourceHandler), incomingEvent.data, ...gameState.data.slice(sourceHandler + 1)]
                 };
+                newState.hands[gameState.whoseTurn] = newHand;
                 if(!Array.isArray(gameState.waiting)) {
                     throw new Error('waiting is not an array, got: ' + gameState.waiting);
                 }
                 gameState.waiting.splice(gameState.waiting.indexOf(sourceHandler), 1);
+                return newState;
+            }
+            case 'go-down-response': {
+                // TODO full logic
+                // TODO what lives here vs in the handleTurn function?
+                const toPlay = incomingEvent.toPlay.flatMap(meld => meld.cards).filter(distinct);
+                const newHand = gameState.hands[gameState.whoseTurn].slice();
+                for(const card of toPlay) {
+                    const index = newHand.findIndex(card.equals.bind(card));
+                    if(index === -1) {
+                        throw new Error('Player did not have card ' + card);
+                    }
+                    newHand.splice(index, 1);
+                }
+                const newState: GameState = {
+                    ...gameState,
+                    toGoDown: incomingEvent.toPlay,
+                    data: [...gameState.data.slice(0, sourceHandler), incomingEvent.data, ...gameState.data.slice(sourceHandler + 1)]
+                };
+                
+                newState.hands[gameState.whoseTurn] = newHand;
+                
+                if(newState.hands[gameState.whoseTurn].length === 0){
+                    if(!Array.isArray(gameState.waiting)) {
+                        throw new Error('waiting is not an array, got: ' + gameState.waiting);
+                    }
+                    gameState.waiting.splice(gameState.waiting.indexOf(sourceHandler), 1);
+                }
+                return newState;
+            }
+            case 'play-response': {
+                const toPlay = incomingEvent.toPlay.filter(distinct);
+                const newHand = gameState.hands[gameState.whoseTurn].slice();
+                for(const card of toPlay) {
+                    const index = newHand.findIndex(card.equals.bind(card));
+                    if(index === -1) {
+                        throw new Error('Player did not have card ' + card);
+                    }
+                    newHand.splice(index, 1);
+                }
+                let player = 0;
+                let meld = 0;
+                let found = false;
+                for(; player < gameState.numPlayers; player++) {
+                    for(; meld < gameState.played[player].length; meld++) {
+                        // TODO could there be multiple equivalent
+                        if(gameState.played[player][meld].equals(incomingEvent.playOn)) {
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+                if(!found) {
+                    throw new Error('Could not find played-on meld');
+                }
+                const newState: GameState = {
+                    ...gameState,
+                    data: [...gameState.data.slice(0, sourceHandler), incomingEvent.data, ...gameState.data.slice(sourceHandler + 1)]
+                };
+                newState.hands[gameState.whoseTurn] = newHand;
+                newState.toPlayOnOthers[player] = newState.toPlayOnOthers[player] || [];
+                newState.toPlayOnOthers[player][meld] = newState.toPlayOnOthers[player][meld] || [];
+                newState.toPlayOnOthers[player][meld].push(...toPlay);
+
+                if(newState.hands[gameState.whoseTurn].length === 0){
+                    if(!Array.isArray(gameState.waiting)) {
+                        throw new Error('waiting is not an array, got: ' + gameState.waiting);
+                    }
+                    gameState.waiting.splice(gameState.waiting.indexOf(sourceHandler), 1);
+                }
                 return newState;
             }
             case 'data-response': {
