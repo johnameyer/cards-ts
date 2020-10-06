@@ -57,8 +57,6 @@ export class GameStateIterator implements GenericGameStateIterator<HandlerData, 
     }
 
     public iterate(gameState: GameState, handlerProxy: HandlerProxy): void {
-        console.log(gameState.hands.map(hand => hand.length));
-        console.log(gameState.points);
         switch(gameState.state) {
             case GameState.State.START_GAME:
                 this.startGame(gameState, handlerProxy);
@@ -214,20 +212,23 @@ export class GameStateIterator implements GenericGameStateIterator<HandlerData, 
     }
 
     private waitForTurn(gameState: GameState, handlerProxy: HandlerProxy) {
+        gameState.toDiscard = null;
+        gameState.toPlayOnOthers = [];
+        gameState.toGoDown = [];
+
         handlerProxy.handlerCall(gameState, gameState.whoseTurn, 'turn');
 
         gameState.state = GameState.State.HANDLE_TURN;
     }
 
     private handleTurn(gameState: GameState, handlerProxy: HandlerProxy) {
-        if(!gameState.toPlay) {
-            throw new InvalidError('Invalid State');
-        }
+        // if(!gameState.toPlay) {
+        //     throw new InvalidError('Invalid State');
+        // }
         
-        const discard = gameState.toDiscard;
-        const toPlay = gameState.toPlay;
+        const { toGoDown, toDiscard, toPlayOnOthers } = gameState;
 
-        if(!discard) {
+        if(!toDiscard) {
             // TODO check for final round
             if(!gameState.hands[gameState.whoseTurn].length) {
                 gameState.state = GameState.State.END_ROUND;
@@ -235,18 +236,26 @@ export class GameStateIterator implements GenericGameStateIterator<HandlerData, 
             return;
         }
 
-        gameState.deck.discard(discard);
-        if(toPlay) {
-            for(const [playedRuns, toPlayRuns] of zip(gameState.played, toPlay)) {
-                for(const [playedCards, toPlayCards] of zip(playedRuns, toPlayRuns)) {
-                    const newCards = toPlayCards.cards.filter(card => playedCards.cards.find(card.equals.bind(card)) === null);
-                    if(newCards && newCards.length) {
-                        handlerProxy.messageOthers(gameState, gameState.whoseTurn, new PlayedMessage(newCards, playedCards, gameState.names[gameState.whoseTurn]));
-                    }
+        gameState.deck.discard(toDiscard);
+        if(toGoDown.length) {
+            for(const meld of toGoDown) {
+                handlerProxy.messageOthers(gameState, gameState.whoseTurn, new PlayedMessage(meld.cards, meld, gameState.names[gameState.whoseTurn]));
+            }
+            gameState.played[gameState.whoseTurn] = toGoDown;
+        }
+
+        for(let position = 0; position < toPlayOnOthers.length; position++) {
+            for(let meld = 0; meld < (toPlayOnOthers[position] ? toPlayOnOthers[position].length : 0); meld++) {
+                handlerProxy.messageOthers(gameState, gameState.whoseTurn, new PlayedMessage(toPlayOnOthers[position][meld], gameState.played[position][meld], gameState.names[gameState.whoseTurn]));
+                for(const card of toPlayOnOthers[position][meld]) {
+                    gameState.played[position][meld].add(card);
                 }
             }
         }
-        handlerProxy.messageOthers(gameState, gameState.whoseTurn, new DiscardMessage(discard, gameState.names[gameState.whoseTurn]));
+
+        if(toDiscard) {
+            handlerProxy.messageOthers(gameState, gameState.whoseTurn, new DiscardMessage(toDiscard, gameState.names[gameState.whoseTurn]));
+        }
 
         if(gameState.hands[gameState.whoseTurn].length === 0) {
             handlerProxy.messageAll(gameState, new OutOfCardsMessage(gameState.names[gameState.whoseTurn]));

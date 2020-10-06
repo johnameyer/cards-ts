@@ -56,6 +56,7 @@ export class StateTransformer extends AbstractStateTransformer<GameParams, GameS
             }
             case 'go-down-response': {
                 // TODO full logic
+                // TODO what lives here vs in the handleTurn function?
                 const toPlay = incomingEvent.toPlay.flatMap(meld => meld.cards).filter(distinct);
                 const newHand = gameState.hands[gameState.whoseTurn].slice();
                 for(const card of toPlay) {
@@ -67,10 +68,12 @@ export class StateTransformer extends AbstractStateTransformer<GameParams, GameS
                 }
                 const newState: GameState = {
                     ...gameState,
-                    toPlay: [...gameState.toPlay.slice(0, sourceHandler), incomingEvent.toPlay, ...gameState.toPlay.slice(sourceHandler + 1)],
+                    toGoDown: incomingEvent.toPlay,
                     data: [...gameState.data.slice(0, sourceHandler), incomingEvent.data, ...gameState.data.slice(sourceHandler + 1)]
                 };
+                
                 newState.hands[gameState.whoseTurn] = newHand;
+                
                 if(newState.hands[gameState.whoseTurn].length === 0){
                     if(!Array.isArray(gameState.waiting)) {
                         throw new Error('waiting is not an array, got: ' + gameState.waiting);
@@ -109,9 +112,10 @@ export class StateTransformer extends AbstractStateTransformer<GameParams, GameS
                     data: [...gameState.data.slice(0, sourceHandler), incomingEvent.data, ...gameState.data.slice(sourceHandler + 1)]
                 };
                 newState.hands[gameState.whoseTurn] = newHand;
-                for(let card of toPlay) {
-                    newState.played[player][meld].add(card);
-                }
+                newState.toPlayOnOthers[player] = newState.toPlayOnOthers[player] || [];
+                newState.toPlayOnOthers[player][meld] = newState.toPlayOnOthers[player][meld] || [];
+                newState.toPlayOnOthers[player][meld].push(...toPlay);
+
                 if(newState.hands[gameState.whoseTurn].length === 0){
                     if(!Array.isArray(gameState.waiting)) {
                         throw new Error('waiting is not an array, got: ' + gameState.waiting);

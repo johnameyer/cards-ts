@@ -30,7 +30,8 @@ export interface GameState extends GenericGameState<GameParams, GameState.State>
      */
     whoseTurn: number;
 
-    toPlay: Meld[][];
+    toGoDown: Meld[];
+    toPlayOnOthers: Card[][][];
     toDiscard: Card | null;
 
     wantCard: boolean;

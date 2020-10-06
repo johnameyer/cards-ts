@@ -1,7 +1,7 @@
 import { Handler } from '../handler';
 import { Card, distinct, flatten, FourCardRun, HandlerResponsesQueue, InvalidError, Meld, Message, ThreeCardSet } from '@cards-ts/core';
 import { HandlerData } from '../handler-data';
-import { DataResponseMessage, WantCardResponseMessage } from '../messages/response';
+import { DataResponseMessage, DiscardResponseMessage, GoDownResponseMessage, PlayResponseMessage, WantCardResponseMessage } from '../messages/response';
 
 /**
  * Breaks up the decisions made during a turn into individual components
@@ -9,33 +9,31 @@ import { DataResponseMessage, WantCardResponseMessage } from '../messages/respon
 export abstract class ClientHandler implements Handler {
     public abstract async wantCard({hand, played, position, round, wouldBeTurn, gameParams: {rounds}, data}: HandlerData, queue: HandlerResponsesQueue<WantCardResponseMessage>): Promise<void>;
 
-    public async turn({hand, played, position, round, gameParams: {rounds}, data}: HandlerData, responsesQueue: HandlerResponsesQueue<TurnResponseMessage>): Promise<void> {
+    public async turn({hand, played, position, round, gameParams: {rounds}, data}: HandlerData, responsesQueue: HandlerResponsesQueue<GoDownResponseMessage | DiscardResponseMessage | PlayResponseMessage>): Promise<void> {
         const currentRound = rounds[round];
         const last = round === rounds.length - 1;
-        const toPlay: Meld[][] = played;
+        let hasGoneDown = played[position].length !== 0;
 
         // Allow player to go down if they have not yet
-        if (played[position].length === 0) {
+        if (!hasGoneDown) {
             if (await this.wantToGoDown(hand, data)) {
-                ({toPlay: toPlay[position], hand} = await this.goDown(hand, currentRound, last, data));
+                let toPlay: Meld[];
+                ({toPlay, hand} = await this.goDown(hand, currentRound, last, data));
+                responsesQueue.push(new GoDownResponseMessage(toPlay));
+                hasGoneDown = true;
             }
         }
 
         // Allow player to play on others if they have cards, have already played, and it is not the last round
         if (hand.length && played[position].length && !last) {
-            await this.playOnOthers(hand, played, data);
+            await this.playOnOthers(hand, played, responsesQueue, data);
         }
 
         // If the player has cards left and they are not going down on the last round
-        if (hand.length && !(last && toPlay[position].length)) {
+        if (hand.length && !(last && hasGoneDown)) {
             const toDiscard = await this.discard(hand, currentRound, played, data);
             hand.slice(hand.findIndex((card) => toDiscard.equals(card)));
-            responsesQueue.push(new TurnResponseMessage(toDiscard, toPlay));
-            return;
-        }
-
-        if (!hand.length) {
-            responsesQueue.push(new TurnResponseMessage(null, toPlay));
+            responsesQueue.push(new DiscardResponseMessage(toDiscard));
             return;
         }
 
@@ -43,10 +41,10 @@ export abstract class ClientHandler implements Handler {
         return;
     }
 
-    async playOnOthers(hand: Card[], played: Meld[][], data: unknown) {
+    async playOnOthers(hand: Card[], played: Meld[][], responsesQueue: HandlerResponsesQueue<PlayResponseMessage>, data: unknown) {
         let runToPlayOn: Meld | null;
         while (hand.length && (runToPlayOn = await this.whichPlay(played.reduce(flatten, []), hand, data))) {
-            await this.askToPlayOnRun(runToPlayOn, hand, data);
+            await this.askToPlayOnRun(runToPlayOn, hand, responsesQueue, data);
         }
     }
 
@@ -85,14 +83,16 @@ export abstract class ClientHandler implements Handler {
         return toDiscard;
     }
 
-    async askToPlayOnRun(run: Meld, hand: Card[], data: unknown) {
+    async askToPlayOnRun(run: Meld, hand: Card[], responsesQueue: HandlerResponsesQueue<PlayResponseMessage>, data: unknown) {
         if (run instanceof ThreeCardSet) {
             const cards: Card[] = await this.cardsToPlay(hand, run, data);
             if (!cards) {
                 return;
             }
             cards.forEach((toRemove) => hand.splice(hand.findIndex((card) => toRemove.equals(card)), 1));
+            const message = new PlayResponseMessage(run.clone(), cards);
             run.add(...cards);
+            responsesQueue.push(message);
         } else if (run instanceof FourCardRun) {
             const cards = await this.cardsToPlay(hand, run, data);
 
