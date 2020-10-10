@@ -1,0 +1,18 @@
+{
+  "name": "package-tests",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "prestart": "rm -rf ./logs/ && mkdir ./logs",
+    "start": "cat ../games.txt | xargs -t -L 1 -I{} bash -c 'ts-node test.ts {} &> logs/{}.log && tail -n 1 logs/{}.log && grep -q \"{}: completed\" logs/{}.log'"
+  },
+  "dependencies": {
+    "@cards-ts/can-i-have-that": "file:../packages/can-i-have-that",
+    "@cards-ts/core": "file:../packages/core",
+    "@cards-ts/hearts": "file:../packages/hearts"
+  },
+  "devDependencies": {
+    "ts-node": "^9.0.0",
+    "typescript": "^4.0.3"
+  }
+}
