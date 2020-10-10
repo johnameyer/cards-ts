@@ -42,6 +42,7 @@ export class StateTransformer extends AbstractStateTransformer<GameParams, GameS
                 if(index === -1) {
                     throw new Error('Player did not have card ' + incomingEvent.toDiscard);
                 }
+                newHand.splice(index, 1);
                 const newState: GameState = {
                     ...gameState,
                     toDiscard: incomingEvent.toDiscard,
@@ -59,16 +60,20 @@ export class StateTransformer extends AbstractStateTransformer<GameParams, GameS
                 // TODO what lives here vs in the handleTurn function?
                 const toPlay = incomingEvent.toPlay.flatMap(meld => meld.cards).filter(distinct);
                 const newHand = gameState.hands[gameState.whoseTurn].slice();
+                
                 for(const card of toPlay) {
                     const index = newHand.findIndex(card.equals.bind(card));
                     if(index === -1) {
+                        console.error(gameState.hands[gameState.whoseTurn].map(card => card.toString()));
                         throw new Error('Player did not have card ' + card);
                     }
                     newHand.splice(index, 1);
                 }
+
                 const newState: GameState = {
                     ...gameState,
                     toGoDown: incomingEvent.toPlay,
+                    played: [...gameState.played.slice(0, sourceHandler), incomingEvent.toPlay, ...gameState.played.slice(sourceHandler + 1)],
                     data: [...gameState.data.slice(0, sourceHandler), incomingEvent.data, ...gameState.data.slice(sourceHandler + 1)]
                 };
                 
@@ -84,7 +89,10 @@ export class StateTransformer extends AbstractStateTransformer<GameParams, GameS
             }
             case 'play-response': {
                 const toPlay = incomingEvent.toPlay.filter(distinct);
+                const oldMeld = incomingEvent.playOn;
+                const newMeld = incomingEvent.newMeld;
                 const newHand = gameState.hands[gameState.whoseTurn].slice();
+                
                 for(const card of toPlay) {
                     const index = newHand.findIndex(card.equals.bind(card));
                     if(index === -1) {
@@ -92,19 +100,24 @@ export class StateTransformer extends AbstractStateTransformer<GameParams, GameS
                     }
                     newHand.splice(index, 1);
                 }
+
                 let player = 0;
                 let meld = 0;
                 let found = false;
                 for(; player < gameState.numPlayers; player++) {
-                    for(; meld < gameState.played[player].length; meld++) {
-                        // TODO could there be multiple equivalent
-                        if(gameState.played[player][meld].equals(incomingEvent.playOn)) {
+                    for(meld = 0; meld < gameState.played[player].length; meld++) {
+                        // TODO could there be multiple equivalent?
+                        if(gameState.played[player][meld] && oldMeld.cards.every(card => gameState.played[player][meld].cards.find(card.equals.bind(card)) !== undefined)) {
                             found = true;
                             break;
                         }
                     }
+                    if(found) {
+                        break;
+                    }
                 }
                 if(!found) {
+                    console.error(oldMeld.toString(), gameState.played.toString());
                     throw new Error('Could not find played-on meld');
                 }
                 const newState: GameState = {
@@ -115,6 +128,7 @@ export class StateTransformer extends AbstractStateTransformer<GameParams, GameS
                 newState.toPlayOnOthers[player] = newState.toPlayOnOthers[player] || [];
                 newState.toPlayOnOthers[player][meld] = newState.toPlayOnOthers[player][meld] || [];
                 newState.toPlayOnOthers[player][meld].push(...toPlay);
+                newState.played[player][meld] = newMeld;
 
                 if(newState.hands[gameState.whoseTurn].length === 0){
                     if(!Array.isArray(gameState.waiting)) {

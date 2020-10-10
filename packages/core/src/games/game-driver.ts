@@ -43,7 +43,7 @@ export class GameDriver<HandlerData, Handler extends GenericHandler<HandlerData,
     }
 
     public handleSyncResponses() {
-        let shouldContinue = false;
+        const shouldContinue = false;
         for(const [position, message] of this.handlerProxy.receiveSyncResponses()) {
             this.handleEvent(position, message);
         }

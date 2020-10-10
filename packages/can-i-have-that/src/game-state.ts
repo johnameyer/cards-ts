@@ -68,7 +68,7 @@ export namespace GameState {
         export function setupRound(gameState: GameState) {
             gameState.hands = new Array(gameState.numPlayers).fill(0).map(() => []);
             gameState.played = new Array(gameState.numPlayers).fill(0).map(() => []);
-            gameState.deck = new Deck(2, true);
+            gameState.deck = new Deck(3, true);
         }
         
         /**

@@ -182,5 +182,72 @@ describe('find', () => {
         });
     });
 
+    describe('4 4', () => {
+        const sought: (3 | 4)[] = [4, 4];
+        it('finds none with empty set', () => {
+            const cards = [].map(Card.fromString);
+            const [missing, unusedValue, chosen] = find(cards, sought);
+            expect(missing).to.equal(8);
+            expect(unusedValue).to.equal(0);
+            expect(lengths(chosen)).to.have.members([0, 0]);
+        });
+    
+        it('finds a singular with a single card', () => {
+            const cards = ['AS'].map(Card.fromString);
+            const [missing, unusedValue, chosen] = find(cards, sought);
+            expect(missing).to.equal(7);
+            expect(unusedValue).to.equal(0);
+            expect(lengths(chosen)).to.have.members([1, 0]);
+        });
+
+        it('finds a singular with two cards', () => {
+            const cards = ['JS', 'AS'].map(Card.fromString);
+            const [missing, unusedValue, chosen] = find(cards, sought);
+            expect(missing).to.equal(6);
+            expect(unusedValue).to.equal(0);
+            expect(lengths(chosen)).to.have.members([2, 0]);
+        });
+
+        it('finds a singular with a three cards', () => {
+            const cards = ['JS', 'QS', 'AS'].map(Card.fromString);
+            const [missing, unusedValue, chosen] = find(cards, sought);
+            expect(missing).to.equal(5);
+            expect(unusedValue).to.equal(0);
+            expect(lengths(chosen)).to.have.members([3, 0]);
+        });
+
+        it('finds a singular with too far apart', () => {
+            const cards = ['10S', 'AS'].map(Card.fromString);
+            const [missing, unusedValue, chosen] = find(cards, sought);
+            expect(missing).to.equal(7);
+            expect(unusedValue).to.equal(10);
+            expect(lengths(chosen)).to.have.members([1, 0]);
+        });
+
+        it('finds a two with different suits', () => {
+            const cards = ['AS', 'AH'].map(Card.fromString);
+            const [missing, unusedValue, chosen] = find(cards, sought);
+            expect(missing).to.equal(6);
+            expect(unusedValue).to.equal(0);
+            expect(lengths(chosen)).to.have.members([1, 1]);
+        });
+
+        it('finds both with wilds between', () => {
+            const cards = ['3H','2S', '2S', '6H', 'JS', '2S', '2S', 'AS'].map(Card.fromString);
+            const [missing, unusedValue, chosen] = find(cards, sought);
+            expect(missing).to.equal(0);
+            expect(unusedValue).to.equal(0);
+            expect(lengths(chosen)).to.have.members([4, 4]);
+        });
+
+        it('finds both with complete', () => {
+            const cards = ['3H','4H', '5H', '6H', 'JS', 'QS', 'KS', 'AS'].map(Card.fromString);
+            const [missing, unusedValue, chosen] = find(cards, sought);
+            expect(missing).to.equal(0);
+            expect(unusedValue).to.equal(0);
+            expect(lengths(chosen)).to.have.members([4, 4]);
+        });
+    });
+
     //TODO add account for other players?
 });

@@ -38,7 +38,7 @@ export class ResponseQueue<Item> {
 
     * [Symbol.iterator]() {
         let popped: undefined | [number, Item];
-        while(popped = this.syncQueue.pop()) {
+        while(popped = this.syncQueue.shift()) {
             yield popped;
         }
     }

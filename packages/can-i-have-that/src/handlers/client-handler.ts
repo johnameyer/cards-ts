@@ -90,9 +90,9 @@ export abstract class ClientHandler implements Handler {
                 return;
             }
             cards.forEach((toRemove) => hand.splice(hand.findIndex((card) => toRemove.equals(card)), 1));
-            const message = new PlayResponseMessage(run.clone(), cards);
+            const oldMeld = run.clone();
             run.add(...cards);
-            responsesQueue.push(message);
+            responsesQueue.push(new PlayResponseMessage(oldMeld, cards, run));
         } else if (run instanceof FourCardRun) {
             const cards = await this.cardsToPlay(hand, run, data);
 
@@ -102,10 +102,12 @@ export abstract class ClientHandler implements Handler {
             if (!cards) {
                 return;
             }
+            const oldMeld = run;
             for(const card of cards) {
                 run.add(card, moveToTop);
                 hand.splice(hand.findIndex(other => card.equals(other)), 1);
             }
+            responsesQueue.push(new PlayResponseMessage(oldMeld, cards, run));
         }
     }
 

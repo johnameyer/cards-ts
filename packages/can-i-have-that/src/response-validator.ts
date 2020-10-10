@@ -80,9 +80,13 @@ function checkTurn(
 
 export class ResponseValidator implements GenericResponseValidator<GameParams, GameState.State, GameState, ResponseMessage> {
     validate(gameState: GameState, sourceHandler: number, event: ResponseMessage): ResponseMessage | undefined {
+        // console.log(Object.fromEntries(Object.entries(event).map(([key, value]) => [key, value?.toString()])));
         switch(event.type) {
             case 'discard-response': {
                 if(sourceHandler !== gameState.whoseTurn) {
+                    return undefined;
+                }
+                if(gameState.toDiscard) {
                     return undefined;
                 }
                 try {
@@ -118,8 +122,30 @@ export class ResponseValidator implements GenericResponseValidator<GameParams, G
                     return undefined;
                 }
                 try {
+                    const cardsToPlay = event.toPlay;
+                    const validToPlay: Card[] = cardsToPlay;
+                    const oldMeld = event.playOn.clone();
+                    const newMeld = event.newMeld.clone();
 
-                    return new PlayResponseMessage(event.playOn, event.toPlay, event.data);
+                    let found = false;
+                    for(let player = 0; player < gameState.numPlayers; player++) {
+                        for(let meld = 0; meld < gameState.played[player].length; meld++) {
+                            // TODO could there be multiple equivalent?
+                            if(gameState.played[player][meld] && oldMeld.cards.every(card => gameState.played[player][meld].cards.find(card.equals.bind(card)) !== undefined)) {
+                                found = true;
+                                break;
+                            }
+                        }
+                        if(found) {
+                            break;
+                        }
+                    }
+                    if(!found) {
+                        console.error(oldMeld.toString(), gameState.played.toString());
+                        throw new Error('Could not find played-on meld');
+                    }
+
+                    return new PlayResponseMessage(event.playOn, validToPlay, event.newMeld, event.data);
                 } catch (e) {
                     console.error(e);
                 }
@@ -129,8 +155,10 @@ export class ResponseValidator implements GenericResponseValidator<GameParams, G
                 if(sourceHandler !== gameState.whoseTurn) {
                     return undefined;
                 }
+                if(gameState.toGoDown.length) {
+                    return undefined;
+                }
                 try {
-
                     return new GoDownResponseMessage(event.toPlay, event.data);
                 } catch (e) {
                     console.error(e);

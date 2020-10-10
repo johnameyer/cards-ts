@@ -109,7 +109,7 @@ export class ThreeCardSet extends Meld {
     public add(...cards: Card[]) {
         for (const card of cards) {
             if (!this.isLive(card)) {
-                throw new ValueError('Not a valid card');
+                throw new ValueError(card.toString() + ' was not a valid card on ' + this.toString());
             }
             if (card.isWild()) {
                 this.wilds.push(card);

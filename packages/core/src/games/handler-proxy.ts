@@ -83,7 +83,7 @@ export class HandlerProxy<HandlerData, ResponseMessage extends Message, Handler 
         }
     }
 
-    handlerCallFirst<Action extends ExtractOfType<Handler, HandlerAction<HandlerData, ResponseMessage>>>(gameState: GameState, action: Action, numToWaitFor: number = 1, ...args: any[]): void {
+    handlerCallFirst<Action extends ExtractOfType<Handler, HandlerAction<HandlerData, ResponseMessage>>>(gameState: GameState, action: Action, numToWaitFor = 1, ...args: any[]): void {
         gameState.waiting = numToWaitFor;
         this.outgoingData.push(...this.players
             .map((player, position) => {
