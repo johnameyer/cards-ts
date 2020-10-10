@@ -47,9 +47,11 @@ async function run(libraryName: string) {
         console.log(libraryName + ': completed');
 
         return;
-    } catch(e) {
-        console.log(libraryName + ': errored');
+    } catch(e) {        
+        console.log(libraryName + ': threw');
         console.log(e);
+        
+        console.log(libraryName + ': errored');
     }
 }
 
