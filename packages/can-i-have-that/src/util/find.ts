@@ -49,8 +49,51 @@ export function find(cards: Card[], sought: (3 | 4)[]) {
     // if(sought.indexOf(3) === -1 || sought.indexOf(4) === -1){
     //     return findHomogeneous(nonWilds, wilds, sought as 3[] | 4[]);
     // }
-    return findOptimimum(nonWilds, 0, wilds, 0, sought, sought.map(() => []));
+    const result = findOptimimum(nonWilds, 0, wilds, sought, sought.map(() => []));
+
+    for(let index = 0; index < sought.length; index++) {
+        if(sought[index] === 4 && result[2][index].length > 0) {
+            const sorted: Card[] = [];
+            const [wilds, nonWilds] = result[2][index].bifilter(card => card.isWild());
+            let previous = nonWilds.shift() as Card;
+            const first = previous;
+            sorted.push(previous);
+            while(nonWilds.length > 0) {
+                let current = nonWilds.shift() as Card;
+                const distance = Math.min(current.rank.distance(previous.rank) - 1, wilds.length);
+                sorted.push(...wilds.splice(0, distance));
+                sorted.push(current);
+                previous = current;
+            }
+            {
+                const distance = Math.min(Math.max(1, previous.rank.distance(Rank.ACE)) - 1, wilds.length);
+                sorted.push(...wilds.splice(0, distance));
+            }
+            {
+                const distance = Math.min(Math.max(1, first.rank.distance(Rank.THREE)) - 1, wilds.length);
+                sorted.unshift(...wilds.splice(0, distance));
+            }
+            result[2][index] = sorted;
+        }
+    }
+
+    return result;
 }
+
+// The reduction compares all the options
+const reduction = <T extends {0: number, 1: number}>(a: T, b: T): T => {
+    if(a[0] > b[0]) {
+        return b;
+    } else if(a[0] === b[0]) {
+        if(a[1] > b[1]) {
+            return b;
+        } else {
+            return a;
+        }
+    } else {
+        return a;
+    }
+};
 
 /**
  * Find the optimal runs on a part of the subtree described by cardIndex, wildsIndex, and runs
@@ -58,129 +101,72 @@ export function find(cards: Card[], sought: (3 | 4)[]) {
  * @param cards the non-wild cards to search over
  * @param cardIndex the current index in the non-wilds array
  * @param wilds the wilds to search over
- * @param wildsIndex the current index in the wilds array
  * @param sought the runs being sought after
  * @param runs the runs that have been recursively constructed
- * @returns a tuple containing the number of cards needed, the number of points left over, the runs constucted, and the unused cards
+ * @returns a tuple containing the number of cards needed, the number of points left over, the runs constructed, and the unused cards
  */
-function findOptimimum(cards: Card[], cardIndex: number, wilds: Card[], wildsIndex: number, sought: (3 | 4)[], runs: Card[][]): [number, number, Card[][], Card[]] {
+function findOptimimum(cards: Card[], cardIndex: number, wilds: Card[], sought: (3 | 4)[], runs: Card[][]): [missing: number, unusedPoints: number, runs: Card[][], unusedCards: Card[]] {
+    // console.log(runs.toString());
+
     // console.log(runs.map(run => run.map(card => card.toString())));
-    if(wildsIndex > wilds.length) {
-        return [Infinity, Infinity, sought.map(() => []), []];
-    }
+    // return [Infinity, Infinity, sought.map(() => []), []];
     if(cardIndex >= cards.length) {
-        let missing = 0;
-        for(let i = 0; i < sought.length; i++) {
-            let missed = sought[i] - runs[i].length;
-            if(runs[i].filter(card => !card.isWild()).length - runs[i].filter(card => card.isWild()).length < 0) {
-                return [Infinity, Infinity, sought.map(() => []), []];
-            }
-            if(missed > 0) {
-                if(runs[i].length === 0 || sought[i] === 3) {
-                    const wildsToUse = Math.min(missed, wilds.length - wildsIndex, runs[i].length);
-                    missed -= wildsToUse;
-                    const newRuns = runs.slice();
-                    newRuns[i] = newRuns[i].slice();
-                    newRuns[i].push(...wilds.slice(wildsIndex, wildsToUse + wildsIndex));
-                    wildsIndex += wildsToUse;
-                    runs = newRuns;
-                } else {
-                    const newRuns = runs.slice();
-                    const reversed: Card[] = newRuns[i].slice().reverse();
-                    const lastNonWild: number = reversed.findIndex((card) => !card.isWild());
-                    const last = reversed[lastNonWild].rank.displace(lastNonWild);
-                    const wildsToPushBack = Math.min(missed, wilds.length - wildsIndex, newRuns[i].filter(card => !card.isWild()).length - newRuns[i].filter(card => card.isWild()).length, sought[i] === 4 ? Rank.ACE.order - last.order : Infinity);
-                    missed -= wildsToPushBack;
-                    newRuns[i] = newRuns[i].slice();
-                    newRuns[i].push(...wilds.slice(wildsIndex, wildsToPushBack + wildsIndex));
-                    wildsIndex += wildsToPushBack;
-                    const firstNonWild: number = newRuns[i].findIndex((card) => !card.isWild());
-                    const first = newRuns[i][firstNonWild].rank.displace(-firstNonWild);
-                    const wildsToPushFront = Math.min(missed, wilds.length - wildsIndex, newRuns[i].filter(card => !card.isWild()).length - newRuns[i].filter(card => card.isWild()).length, first.order - Rank.THREE.order);
-                    missed -= wildsToPushFront;
-                    newRuns[i].unshift(...wilds.slice(wildsIndex, wildsToPushFront + wildsIndex));
-                    wildsIndex += wildsToPushFront;
-                    runs = newRuns;
+        for(let index = 0; index < runs.length; index++) {
+            if(sought[index] === 4) {
+                const number = runs[index].length;
+                const span = runs[index].length > 0 ? runs[index][0].rank.difference(runs[index][runs[index].length - 1].rank) + 1 : 0;
+                if(span > 2 * number) {
+                    return [Infinity, Infinity, sought.map(() => []), []];
                 }
-                missing += missed;
             }
         }
-        // if(missing < 0) {
-        //     const unused = wilds.slice(wilds.length - missing - 1);
-        //     return [0, unused.map(card => card.rank.value).reduce((a,b) => a + b, 0), runs, unused];
-        // }
-        if(wilds.length > wildsIndex) {
-            for(let i = 0; i < sought.length; i++) {
-                if(!runs[i].length) {
-                    continue;
-                }
-                const reversed: Card[] = runs[i].slice().reverse();
-                const lastNonWild: number = reversed.findIndex((card) => !card.isWild());
-                const last = reversed[lastNonWild].rank.displace(lastNonWild);
-                const wildsToPushBack = Math.min(wilds.length - wildsIndex, runs[i].filter(card => !card.isWild()).length - runs[i].filter(card => card.isWild()).length, sought[i] === 4 ? Rank.ACE.order - last.order : Infinity);
-                const newRuns = runs.slice();
-                newRuns[i] = newRuns[i].slice();
-                newRuns[i].push(...wilds.slice(wildsIndex, wildsToPushBack + wildsIndex));
-                wildsIndex += wildsToPushBack;
-                if(sought[i] === 4) {
-                    const firstNonWild: number = runs[i].findIndex((card) => !card.isWild());
-                    const first = runs[i][firstNonWild].rank.displace(-firstNonWild);
-                    const wildsToPushFront = Math.min(wilds.length - wildsIndex, runs[i].filter(card => !card.isWild()).length - runs[i].filter(card => card.isWild()).length, first.order - Rank.THREE.order);
-                    newRuns[i].unshift(...wilds.slice(wildsIndex, wildsToPushFront + wildsIndex));
-                    wildsIndex += wildsToPushFront;
-                }
-                runs = newRuns;
-            }
-        }
-        const unused = wilds.slice(wildsIndex);
-        return [missing, unused.map(wild => wild.rank.value).reduce((a, b) => a + b, 0), runs, unused];
+        // If we have reached the leaf nodes (e.g. have chosen a spot for every card)
+        return findOptimimumWilds(wilds, 0, sought, runs.slice());
     }
-    const reduction = <T extends {0: number, 1: number}>(a: T, b: T): T => {
-        if(a[0] > b[0]) {
-            return b;
-        } else if(a[0] === b[0]) {
-            if(a[1] > b[1]) {
-                return b;
-            } else {
-                return a;
-            }
-        } else {
-            return a;
-        }
-    };
     let noChoose: [number, number, Card[][], Card[]];
     {
-        const recurse = findOptimimum(cards, cardIndex + 1, wilds, wildsIndex, sought, runs);
+        const recurse = findOptimimum(cards, cardIndex + 1, wilds, sought, runs);
         const unused = [...recurse[3], cards[cardIndex]];
         noChoose = [recurse[0], recurse[1] + cards[cardIndex].rank.value, recurse[2], unused];
     }
     const choices: [number, number, Card[][], Card[]][] = sought.map((_, index) => index).filter(index => {
+        // Can we add a card to this meld?
         if(runs[index].length > 0) {
+            // If we have already added a card to this meld
             if(sought[index] === 4) {
+                // And this meld is to be a four card run
                 if (runs[index][0].suit !== cards[cardIndex].suit || runs[index][runs[index].length - 1].rank === cards[cardIndex].rank) {
+                    // We can't add on if it's the wrong suit or if we already added a card of that rank (since the cards are processed in rank order)
                     return false;
                 }
             } else {
+                // If it's to be a three card set
                 if (runs[index][0].rank !== cards[cardIndex].rank) {
+                    // It must be of the same suit
                     return false;
                 }
             }
         } else {
+            // If there's not already cards in this meld
             if (sought[index] === 4) {
+                // And it is meant to be a four card run
                 for(let x = 0; x < sought.length; x++) {
                     if(x === index || sought[x] !== 4 || runs[x].length === 0) {
                         continue;
                     }
                     if (runs[x][0].suit === cards[cardIndex].suit) {
+                        // There cannot be any other four card runs of this suit
                         return false;
                     }
                 }
             } else {
+                // If it is meant to be a three card set
                 for(let x = 0; x < sought.length; x++) {
                     if(x === index || sought[x] !== 3 || runs[x].length === 0) {
                         continue;
                     }
                     if (runs[x][0].rank === cards[cardIndex].rank) {
+                        // There cannot be a three card set of this rank
                         return false;
                     }
                 }
@@ -188,25 +174,13 @@ function findOptimimum(cards: Card[], cardIndex: number, wilds: Card[], wildsInd
         }
         return true;
     }).map(index => {
-        let wildsUsed = 0;
-        let created = [];
-        if(runs[index].length > 0 && sought[index] === 4) {
-            const chosen = runs[index].slice();
-            wildsUsed = chosen[chosen.length - 1].rank.distance(cards[cardIndex].rank) - 1;
-            if(wildsUsed + wildsIndex > wilds.length) {
-                return [Infinity, Infinity, sought.map(() => []), []];
-            }
-            chosen.push(...wilds.slice(wildsIndex, wildsIndex + wildsUsed));
-            chosen.push(cards[cardIndex]);
-            created = chosen;
-        } else {
-            created = [...runs[index], cards[cardIndex]];
-        }
+        let created = [...runs[index], cards[cardIndex]];
         const newRuns = runs.slice();
         newRuns.splice(index, 1, created);
-        return findOptimimum(cards, cardIndex + 1, wilds, wildsIndex + wildsUsed, sought, newRuns);
+        return findOptimimum(cards, cardIndex + 1, wilds, sought, newRuns);
     });
     choices.push(noChoose);
+    // Return the best of the choices
     return choices.reduce(reduction);
 }
 
@@ -227,3 +201,46 @@ function findOptimimum(cards: Card[], cardIndex: number, wilds: Card[], wildsInd
 //         }, {});
 //     }
 // }
+
+function findOptimimumWilds(wilds: Card[], wildIndex: number, sought: (3 | 4)[], runs: Card[][]): [missing: number, unusedPoints: number, runs: Card[][], unusedCards: Card[]] {
+    if(wildIndex >= wilds.length) {
+        // This is the number of cards to make this whole
+        let missing: number = 0;
+
+        // Identify the runs that are missing cards
+        for(let index = 0; index < runs.length; index++) {
+            if(runs[index].length === 0) {
+                missing += sought[index];
+            } else if(sought[index] === 3) {
+                missing += Math.max(3 - runs[index].length, 0);
+            } else {
+                const number = runs[index].length;
+                const nonWilds = runs[index].filter(card => !card.isWild());
+                const span = nonWilds.length > 0 ? nonWilds[0].rank.difference(nonWilds[nonWilds.length - 1].rank) + 1 : 0;
+
+                missing += Math.max(Math.max(span, 4) - number, 0);
+            }
+        }
+        return [missing, 0, runs, []];
+    }
+
+    const options = [...Array(runs.length).keys()].filter(index => {
+        const [wilds, nonWilds] = runs[index].bifilter(card => card.isWild());
+        return nonWilds.length > wilds.length;
+    }).map(index => {
+        let created = [...runs[index], wilds[wildIndex]];
+        const newRuns = runs.slice();
+        newRuns.splice(index, 1, created);
+        return findOptimimumWilds(wilds, wildIndex + 1, sought, newRuns);
+    });
+
+    let noChoose: [number, number, Card[][], Card[]];
+    {
+        const recurse = findOptimimumWilds(wilds, wilds.length, sought, runs.slice());
+        const unused = wilds.slice(wildIndex);
+        noChoose = [recurse[0], unused.map(unused => unused.rank.value).reduce((a,b) => a + b, 0), recurse[2], unused];
+    }
+    options.push(noChoose);
+
+    return options.reduce(reduction);
+}

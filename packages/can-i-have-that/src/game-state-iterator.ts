@@ -57,12 +57,16 @@ export class GameStateIterator implements GenericGameStateIterator<HandlerData, 
     }
 
     public iterate(gameState: GameState, handlerProxy: HandlerProxy): void {
+        // console.log('P', gameState.points);
+        // console.log('C', gameState.hands.map(hand => hand.length));
+        // console.log(gameState.state);
         switch(gameState.state) {
             case GameState.State.START_GAME:
                 this.startGame(gameState, handlerProxy);
                 break;
 
             case GameState.State.START_ROUND:
+                // console.log(gameState.gameParams.rounds[gameState.round]);
                 this.startRound(gameState, handlerProxy);
                 break;
 
@@ -244,11 +248,16 @@ export class GameStateIterator implements GenericGameStateIterator<HandlerData, 
             gameState.played[gameState.whoseTurn] = toGoDown;
         }
 
-        for(let position = 0; position < toPlayOnOthers.length; position++) {
-            for(let meld = 0; meld < (toPlayOnOthers[position] ? toPlayOnOthers[position].length : 0); meld++) {
-                handlerProxy.messageOthers(gameState, gameState.whoseTurn, new PlayedMessage(toPlayOnOthers[position][meld], gameState.played[position][meld], gameState.names[gameState.whoseTurn]));
-                for(const card of toPlayOnOthers[position][meld]) {
-                    gameState.played[position][meld].add(card);
+        if(toPlayOnOthers.length) {
+            for(let position = 0; position < gameState.played.length; position++) {
+                if(!toPlayOnOthers[position] || !toPlayOnOthers[position].length) {
+                    continue;
+                }
+                for(let meld = 0; meld < gameState.played[position].length; meld++) {
+                    if(!toPlayOnOthers[position][meld] || !toPlayOnOthers[position][meld].length) {
+                        continue;
+                    }
+                    handlerProxy.messageOthers(gameState, gameState.whoseTurn, new PlayedMessage(toPlayOnOthers[position][meld], gameState.played[position][meld], gameState.names[gameState.whoseTurn]));
                 }
             }
         }

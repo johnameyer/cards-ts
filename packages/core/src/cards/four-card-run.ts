@@ -196,7 +196,8 @@ export class FourCardRun extends Meld {
         }
 
         if (rank.isWild()) {
-            if (this.cards.length - this.numWilds > this.numWilds) {
+            const range: [Rank, Rank] = this.range();
+            if (this.cards.length - this.numWilds > this.numWilds && (range[0] !== Rank.THREE || range[1] !== Rank.ACE)) {
                 return 0;
             } else {
                 return -1;

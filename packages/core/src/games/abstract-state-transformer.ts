@@ -5,16 +5,16 @@ import { Message } from './message';
 
 export abstract class AbstractStateTransformer<GameParams, State, HandlerData, GameState extends GenericGameState<GameParams, State>, ResponseMessage extends Message> {
 
-    initialState({gameParams, names, initialState}: {gameParams: GameParams, names: string[], initialState: State}): GameState {
+    initialState({gameParams, names, initialState}: {gameParams: GameParams; names: string[]; initialState: State}): GameState {
         return {
             gameParams,
             numPlayers: names.length,
             names,
             completed: false,
             data: names.map(() => ({})),
-            hands: names.map(() => new Array()),
+            hands: names.map(() => []),
             state: initialState,
-        } as GameState;
+        } as any as GameState;
     }
 
     fromStr(str: string): GameState {
