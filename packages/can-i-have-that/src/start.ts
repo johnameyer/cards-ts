@@ -2,7 +2,6 @@
 
 import { GameStateIterator } from './game-state-iterator';
 import { LocalMaximumHandler } from './handlers/local-maximum-handler';
-import { defaultParams } from './game-params';
 import yargs from 'yargs';
 import { IntermediaryHandler } from './handlers/intermediary-handler';
 import { GameDriver, HandlerChain, IncrementalIntermediary, InquirerPresenter, IntermediarySystemHandler } from '@cards-ts/core';
@@ -12,6 +11,7 @@ import { SystemHandlerParams } from '@cards-ts/core/lib/handlers/system-handler'
 import { GameHandlerParams } from './game-handler';
 import { HandlerData } from './handler-data';
 import { ResponseMessage } from './messages/response-message';
+import { GameSetup } from './game-setup';
 
 yargs.command(['start', '$0'], 'begin a new game', yargs => {
     yargs.option('players', {
@@ -47,7 +47,7 @@ yargs.command(['start', '$0'], 'begin a new game', yargs => {
 
     const initialState = stateTransformer.initialState({
         names: names,
-        gameParams: defaultParams
+        gameParams: new GameSetup().getDefaultParams()
     });
 
     const driver = new GameDriver(players, initialState, gameStateIterator, stateTransformer, responseValidator);

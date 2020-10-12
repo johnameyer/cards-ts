@@ -4,14 +4,12 @@ import yargs from "yargs";
 import { IntermediaryHandler } from "./handlers/intermediary-handler";
 import { HeuristicHandler } from "./handlers/heuristic-handler";
 import { GameStateIterator } from "./game-state-iterator";
-import { defaultParams } from "./game-params";
-import { GameDriver, HandlerChain, IncrementalIntermediary, InquirerPresenter, IntermediarySystemHandler } from "@cards-ts/core";
 import { StateTransformer } from "./state-transformer";
-import { GameHandler, GameHandlerParams } from "./game-handler";
+import { GameHandlerParams } from "./game-handler";
 import { ResponseValidator } from "./response-validator";
 import { HandlerData } from "./handler-data";
+import { IncrementalIntermediary, InquirerPresenter, HandlerChain, SystemHandlerParams, IntermediarySystemHandler, GameDriver } from "@cards-ts/core";
 import { ResponseMessage } from "./messages/response-message";
-import { SystemHandlerParams } from "@cards-ts/core/lib/handlers/system-handler";
 
 yargs.command(['start', '$0'], 'begin a new game', yargs => {
     yargs.option('players', {
@@ -45,7 +43,7 @@ yargs.command(['start', '$0'], 'begin a new game', yargs => {
     const responseValidator = new ResponseValidator();
     const gameStateIterator = new GameStateIterator();
 
-    const driver = new GameDriver(players, stateTransformer.initialState({ names: names, gameParams: defaultParams }), gameStateIterator, stateTransformer, responseValidator);
+    const driver = new GameDriver(players, stateTransformer.initialState({ names: names, gameParams: new GameSetup().getDefaultParams() }), gameStateIterator, stateTransformer, responseValidator);
 
     await driver.start();
 })

@@ -11,7 +11,7 @@ async function run(libraryName: string) {
         const start = performance.now();
 
         const library = import('@cards-ts/' + libraryName);
-        const { defaultParams, GameStateIterator, IntermediaryHandler, ResponseValidator, StateTransformer, DefaultBotHandler } = await library;
+        const { GameSetup, GameStateIterator, IntermediaryHandler, ResponseValidator, StateTransformer, DefaultBotHandler } = await library;
 
         const postImport = performance.now();
         console.log(libraryName + ': import took ' + (postImport - start) + ' ms');
@@ -30,7 +30,7 @@ async function run(libraryName: string) {
         const stateTransformer = new StateTransformer();
         const responseValidator = new ResponseValidator();
         const gameStateIterator = new GameStateIterator();
-        const initialState = stateTransformer.initialState({ names: names, gameParams: defaultParams });
+        const initialState = stateTransformer.initialState({ names: names, gameParams: new GameSetup().getDefaultParams() });
 
         const gameDriver = new GameDriver(handlers, initialState, gameStateIterator, stateTransformer, responseValidator);
         

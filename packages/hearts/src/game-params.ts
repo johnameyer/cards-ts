@@ -5,9 +5,3 @@ export interface GameParams {
 
     quickEnd: boolean;
 }
-
-export const defaultParams = {
-    maxScore: 50,
-    numToPass: 3,
-    quickEnd: true,
-}

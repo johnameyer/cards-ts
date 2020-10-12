@@ -19,6 +19,7 @@ export { IntermediarySystemHandler } from './intermediary/intermediary-system-ha
 
 export { GameDriver } from './games/game-driver';
 export { GenericGameState } from './games/generic-game-state';
+export { GenericGameSetup } from './games/generic-game-setup';
 export { GenericGameStateIterator } from './games/generic-game-state-iterator';
 export { Message } from './games/message';
 export { Observer } from './games/observer';

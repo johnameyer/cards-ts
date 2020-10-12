@@ -19,10 +19,3 @@ export class GameParams {
         return new GameParams({rounds: obj.rounds.map((round: any[]) => round.slice())});
     }
 }
-
-/**
- * The default settings a game is played with
- */
-export const defaultParams = new GameParams({
-    rounds: [ [3, 3], [3, 4], [4, 4], [3, 3, 3], [3, 3, 4], [3, 4, 4], [4, 4, 4] ]
-});
