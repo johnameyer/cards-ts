@@ -55,5 +55,11 @@ export interface Presenter {
      * @param options the options to pass
      */
     place<T extends Serializable, ValidateParam extends Serializable = undefined>(options: { message: Serializable[]; choices: { name: string; value: T }[]; placeholder: string; validate?: (input: number, param: ValidateParam) => true | string | Promise<true | string>; validateParam?: ValidateParam }):  (() => number | Promise<number>);
+    
+    /**
+     * Print a message or list of serializables
+     * 
+     * @param options the options to pass
+     */
     print(options: {message: Serializable[] | undefined}): () => void;
 }

@@ -3,11 +3,19 @@ import { Presenter, Serializable } from './presenter';
 import { Intermediary } from './intermediary';
 
 /**
- * Class that presents each element one at a time
+ * Class that presents each display element one at a time
  */
 export class IncrementalIntermediary implements Intermediary {
+    /**
+     * Create a new incremental intermediary
+     * @param presenter the presenter to wrap
+     */
     constructor(private readonly presenter: Presenter) {}
 
+    /**
+     * Print serializables
+     * @param printables the serializables to print in order
+     */
     print(...printables: Serializable[]): [] {
         this.presenter.print({message: printables})();
         return [];
@@ -20,6 +28,9 @@ export class IncrementalIntermediary implements Intermediary {
     form<T extends keyof Presenter, U extends keyof Presenter, V extends keyof Presenter, W extends keyof Presenter, X extends keyof Presenter>(first: DisplayElement<T>, second: DisplayElement<U>, third: DisplayElement<V>, fourth: DisplayElement<W>, fifth: DisplayElement<X>): [sent: undefined | Promise<void>, received: Promise<[DisplayElementCallReturn<T>, DisplayElementCallReturn<U>, DisplayElementCallReturn<V>, DisplayElementCallReturn<W>, DisplayElementCallReturn<X>]>];
     form<T extends keyof Presenter, U extends keyof Presenter, V extends keyof Presenter, W extends keyof Presenter, X extends keyof Presenter, Y extends keyof Presenter>(first: DisplayElement<T>, second: DisplayElement<U>, third: DisplayElement<V>, fourth: DisplayElement<W>, fifth: DisplayElement<X>, sixth: DisplayElement<Y>): [sent: undefined | Promise<void>, received: Promise<[DisplayElementCallReturn<T>, DisplayElementCallReturn<U>, DisplayElementCallReturn<V>, DisplayElementCallReturn<W>, DisplayElementCallReturn<X>, DisplayElementCallReturn<Y>]>];
     form<T extends keyof Presenter, U extends keyof Presenter, V extends keyof Presenter, W extends keyof Presenter, X extends keyof Presenter, Y extends keyof Presenter, Z extends keyof Presenter>(first: DisplayElement<T>, second: DisplayElement<U>, third: DisplayElement<V>, fourth: DisplayElement<W>, fifth: DisplayElement<X>, sixth: DisplayElement<Y>, seventh: DisplayElement<Z>): [sent: undefined | Promise<void>, received: Promise<[DisplayElementCallReturn<T>, DisplayElementCallReturn<U>, DisplayElementCallReturn<V>, DisplayElementCallReturn<W>, DisplayElementCallReturn<X>, DisplayElementCallReturn<Y>, DisplayElementCallReturn<Z>]>];
+    /**
+     * Show the form elements one at a time
+     */
     form(...components: DisplayElement<keyof Presenter>[]): [sent: undefined | Promise<void>, received: Promise<DisplayElementCallReturn<keyof Presenter>[]>] {
         const results = new Promise<DisplayElementCallReturn<keyof Presenter>[]>(resolver => {
             const results: DisplayElementCallReturn<keyof Presenter>[] = [];

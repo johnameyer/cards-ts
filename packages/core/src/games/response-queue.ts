@@ -6,6 +6,9 @@ export interface HandlerResponsesQueue<Item> {
     map<PreMapped>(mapping: (item: PreMapped) => Item): HandlerResponsesQueue<PreMapped>;
 }
 
+/**
+ * A queue that handlers push messages to to return them to the driver. Seamlessly handles async items and sync items.
+ */
 export class ResponseQueue<Item> {
     private asyncQueue: Promise<[number, Item]>[] = [];
     private syncQueue: [number, Item][] = [];

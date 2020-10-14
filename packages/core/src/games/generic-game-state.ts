@@ -31,6 +31,9 @@ export interface GenericGameState<GameParams, State> {
      */
     deck: Deck;
 
+    /**
+     * The current state of the game, for the game state iterator
+     */
     state: State;
 
     /**
@@ -43,5 +46,8 @@ export interface GenericGameState<GameParams, State> {
      */
     completed: boolean;
 
+    /**
+     * Field for the handlers to save their custom data (since they are meant to be stateless)
+     */
     data: unknown[];
 }

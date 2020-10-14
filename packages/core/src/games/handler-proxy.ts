@@ -10,6 +10,9 @@ type ExtractOfType<Type, ExpectedType> = {
     [key in keyof Type]: Type[key] extends ExpectedType ? key : never;
 }[keyof Type];
 
+/**
+ * Class that allows calls to the handlers
+ */
 export class HandlerProxy<HandlerData, ResponseMessage extends Message, Handler extends GenericHandler<HandlerData, ResponseMessage>, GameParams, State, GameState extends GenericGameState<GameParams, State>, StateTransformer extends AbstractStateTransformer<GameParams, State, HandlerData, GameState, ResponseMessage>> {
     constructor(protected players: Handler[], protected stateTransformer: StateTransformer) { }
 

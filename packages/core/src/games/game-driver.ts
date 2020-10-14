@@ -38,27 +38,38 @@ export class GameDriver<HandlerData, Handler extends GenericHandler<HandlerData,
         }
     }
 
+    /**
+     * Makes sure that all of the handlers are notified of changes
+     */
     public async handleOutgoing() {
         await this.handlerProxy.handleOutgoing();
     }
 
+    /**
+     * Handles events coming in from local handlers
+     */
     public handleSyncResponses() {
-        const shouldContinue = false;
         for(const [position, message] of this.handlerProxy.receiveSyncResponses()) {
             this.handleEvent(position, message);
         }
     }
 
+    /**
+     * Tells when a response has come in asyncronously
+     */
     public async asyncResponseAvailable() {
         return this.handlerProxy.asyncResponseAvailable();
     }
 
+    /**
+     * Iterates over async responses that have come in
+     */
     public receiveAsyncResponses() {
         return this.handlerProxy.receiveAsyncResponses();
     }
 
     /**
-     * Runs the game through to the end asyncronously
+     * Runs the game through to the end asynchronously
      */
     public async start() {
         while(!this.gameState.completed) {

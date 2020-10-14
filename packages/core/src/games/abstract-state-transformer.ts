@@ -3,8 +3,17 @@ import { Deck } from '../cards/deck';
 import { GenericGameState } from './generic-game-state';
 import { Message } from './message';
 
+/**
+ * Abstract class for transforming a game's state into various forms
+ */
 export abstract class AbstractStateTransformer<GameParams, State, HandlerData, GameState extends GenericGameState<GameParams, State>, ResponseMessage extends Message> {
 
+    /**
+     * Initializes a new game state
+     * @param gameParams the parameters to use
+     * @param names the names of the players
+     * @param initialState the initial state of the state machine 
+     */
     initialState({gameParams, names, initialState}: {gameParams: GameParams; names: string[]; initialState: State}): GameState {
         return {
             gameParams,
@@ -17,6 +26,10 @@ export abstract class AbstractStateTransformer<GameParams, State, HandlerData, G
         } as any as GameState;
     }
 
+    /**
+     * Deserialize the game state from a string
+     * @param str the string to load from
+     */
     fromStr(str: string): GameState {
         const obj = JSON.parse(str);
         // TODO better shape checking
@@ -39,11 +52,24 @@ export abstract class AbstractStateTransformer<GameParams, State, HandlerData, G
         } as GameState;
     }
 
+    /**
+     * Serialize the state to a string
+     * @param state the state to serialize
+     */
     toString(state: GameState) {
         return JSON.stringify(state);
     }
 
+    /**
+     * Convert the state into a form for the handlers
+     */
     abstract transformToHandlerData(gameState: GameState, position: number): HandlerData;
 
+    /**
+     * Consolidate an incoming event with the game state
+     * @param gameState the current state
+     * @param sourceHandler the handler or player generating the event
+     * @param incomingEvent the changing event
+     */
     abstract merge(gameState: GameState, sourceHandler: number, incomingEvent: ResponseMessage): GameState;
 }

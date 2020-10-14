@@ -3,8 +3,16 @@ import { Presenter, Serializable } from './presenter';
 import { Intermediary } from './intermediary';
 import { Protocol } from './protocol';
 
+/**
+ * Sends the messages or forms over a protocol
+ */
 export class ProtocolIntermediary implements Intermediary {
+    /**
+     * 
+     * @param protocol the protocol that supports print and form operations
+     */
     constructor(private readonly protocol: Protocol<'print' | 'form'>) {}
+
     print(...printables: Serializable[]): [sent: Promise<void>] {
         return [this.protocol.send('print', printables)];
     }
