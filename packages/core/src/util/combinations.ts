@@ -1,3 +1,9 @@
+/**
+ * Returns all possible combinations of the provided items
+ * @param arr the items to use
+ * @example combinations([1,2])
+ * > [[], [1], [2], [1,2]]
+ */
 export const combinations = <T>(arr: T[]) => {
     const inner = function(current: readonly T[], future: readonly T[], results: T[][]) {
         if(future.length === 0) {

@@ -31,6 +31,9 @@ export interface GenericGameState<GameParams, State> {
      */
     deck: Deck;
 
+    /**
+     * The current state of the game, for the game state iterator
+     */
     state: State;
 
     /**
@@ -39,9 +42,17 @@ export interface GenericGameState<GameParams, State> {
     waiting: number | number[];
 
     /**
+     * Field indicating which of the hands have already responded
+     */
+    responded: boolean[];
+
+    /**
      * Whether the game is completed
      */
     completed: boolean;
 
+    /**
+     * Field for the handlers to save their custom data (since they are meant to be stateless)
+     */
     data: unknown[];
 }

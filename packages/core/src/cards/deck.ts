@@ -11,10 +11,6 @@ function shuffle<T>(items: T[]): T[] {
     return items.sort(() => 0.5 - Math.random());
 }
 
-function flatMap(arr: any[], func: (a: any) => (any)) {
-    arr.reduce((acc, x) => acc.concat(func(x)), []);
-}
-
 /**
  * Class representing N standard 54 card decks' draw and discard pile, tracking the top card
  */
