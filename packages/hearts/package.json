@@ -1,6 +1,6 @@
 {
   "name": "@cards-ts/hearts",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Implementation of the card game hearts.",
   "author": "John Meyer",
   "homepage": "https://github.com/johnameyer/can-i-have-that/tree/master/packages/hearts#readme",
@@ -36,7 +36,7 @@
     "url": "https://github.com/johnameyer/can-i-have-that/issues"
   },
   "dependencies": {
-    "@cards-ts/core": "^0.2.3",
+    "@cards-ts/core": "^0.2.4",
     "typescript": "^4.0.2",
     "yargs": "^15.4.0"
   },
