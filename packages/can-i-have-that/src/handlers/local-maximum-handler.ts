@@ -65,21 +65,14 @@ export class LocalMaximumHandler implements Handler {
             if(found[0] === 0 && (rounds.length - 1 !== round || found[1] === 0)) {
                 // TODO with handling of no discard on all down move this up
                 // console.log(position, 'can play', found[2].toString());
-                responsesQueue.push(new GoDownResponseMessage(found[2].map((cards, i) => currentRound[i] === 3 ? new ThreeCardSet(cards) : new FourCardRun(cards))));
-                found[2].forEach(run => run.forEach(card => hand.splice(hand.findIndex(c => card.equals(c)), 1)));
-                for(let i = 0; i < hand.length; i++) {
-                    const card = hand[i];
-                    for(const run of played.reduce((a, b) => { a.push(...b); return a; }, [])) {
-                        if(run.isLive(card)) {
-                            run.add(card);
-                            hand.splice(i, 1);
-                            i--;
-                            break;
-                        }
+                const melds = found[2].map((cards, i) => currentRound[i] === 3 ? new ThreeCardSet(cards) : new FourCardRun(cards));
+                played[position] = melds;
+                responsesQueue.push(new GoDownResponseMessage(melds));
+                for(const meld of melds) {
+                    for(const card of meld.cards) {
+                        const index = hand.indexOf(card);
+                        hand.splice(index, 1);
                     }
-                }
-                if(hand[0]) { // TODO better?
-                    responsesQueue.push(new DiscardResponseMessage(hand[0]));
                 }
             } else {
                 let possibleDiscards = [];
@@ -125,7 +118,8 @@ export class LocalMaximumHandler implements Handler {
                 // console.log('Discarding', possibleDiscards[worst].toString());
                 responsesQueue.push(new DiscardResponseMessage(possibleDiscards[worst]));
             }
-        } else {
+        }
+        if(played[position].length !== 0) {
             const savedOldMelds = played.map(plays => plays.map(play => play.clone()));
             for(let i = 0; i < hand.length; i++) {
                 const card = hand[i];
@@ -133,7 +127,7 @@ export class LocalMaximumHandler implements Handler {
                     for(let meld = 0; meld < played[player].length; meld++) {
                         if(played[player][meld].isLive(card)) {
                             played[player][meld].add(card);
-                            responsesQueue.push(new PlayResponseMessage(savedOldMelds[player][meld].clone(), [card], played[player][meld]));
+                            responsesQueue.push(new PlayResponseMessage(savedOldMelds[player][meld].clone(), [card], played[player][meld].clone()));
                             hand.splice(i, 1);
                             i--;
                             break;
