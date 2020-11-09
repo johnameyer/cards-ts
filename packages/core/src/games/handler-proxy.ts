@@ -79,6 +79,7 @@ export class HandlerProxy<HandlerData, ResponseMessage extends Message, Handler 
 
     handlerCall<Action extends ExtractOfType<Handler, HandlerAction<HandlerData, ResponseMessage>>>(gameState: GameState, position: number, action: Action, ...args: any[]): void {
         gameState.waiting = [position];
+        gameState.responded = this.players.map(() => false);
         const send = this.players[position][action](this.stateTransformer.transformToHandlerData(gameState, position), this.incomingData.for(position), args);
 
         if(send) {
@@ -88,6 +89,7 @@ export class HandlerProxy<HandlerData, ResponseMessage extends Message, Handler 
 
     handlerCallFirst<Action extends ExtractOfType<Handler, HandlerAction<HandlerData, ResponseMessage>>>(gameState: GameState, action: Action, numToWaitFor = 1, ...args: any[]): void {
         gameState.waiting = numToWaitFor;
+        gameState.responded = this.players.map(() => false);
         this.outgoingData.push(...this.players
             .map((player, position) => {
                 try {
@@ -103,6 +105,7 @@ export class HandlerProxy<HandlerData, ResponseMessage extends Message, Handler 
 
     handlerCallAll<Action extends ExtractOfType<Handler, HandlerAction<HandlerData, ResponseMessage>>>(gameState: GameState, action: Action, waitFor: number[] = range(this.getNumberOfPlayers()), ...args: any[]): void {
         gameState.waiting = waitFor;
+        gameState.responded = this.players.map(() => false);
         this.outgoingData.push(...this.players
             .map((player, position) => {
                 try {

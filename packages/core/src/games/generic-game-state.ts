@@ -42,6 +42,11 @@ export interface GenericGameState<GameParams, State> {
     waiting: number | number[];
 
     /**
+     * Field indicating which of the hands have already responded
+     */
+    responded: boolean[];
+
+    /**
      * Whether the game is completed
      */
     completed: boolean;

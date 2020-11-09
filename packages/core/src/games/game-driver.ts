@@ -5,6 +5,7 @@ import { AbstractStateTransformer } from './abstract-state-transformer';
 import { HandlerProxy } from './handler-proxy';
 import { GenericResponseValidator } from './generic-response-validator';
 import { GenericGameStateIterator } from './generic-game-state-iterator';
+import { zip } from '../util/zip';
 
 /**
  * Class that handles the steps of the game
@@ -15,6 +16,14 @@ export class GameDriver<HandlerData, Handler extends GenericHandler<HandlerData,
             return state.waiting.length !== 0;
         } else {
             return state.waiting <= 0;
+        }
+    }
+
+    static isWaitingOnPlayerSubset<GameParams, State>(state: GenericGameState<GameParams, State>, subset: number[]) {
+        if(Array.isArray(state.waiting)) {
+            return state.waiting.length !== 0 && state.waiting.some(position => subset.includes(position));
+        } else {
+            return state.waiting <= 0 && subset.some(position => !state.responded[position]);
         }
     }
 
@@ -66,6 +75,14 @@ export class GameDriver<HandlerData, Handler extends GenericHandler<HandlerData,
      */
     public receiveAsyncResponses() {
         return this.handlerProxy.receiveAsyncResponses();
+    }
+
+    isWaitingOnPlayer() {
+        return GameDriver.isWaitingOnPlayer(this.gameState);
+    }
+
+    isWaitingOnPlayerSubset(subset: number[]) {
+        return GameDriver.isWaitingOnPlayerSubset(this.gameState, subset);
     }
 
     /**
