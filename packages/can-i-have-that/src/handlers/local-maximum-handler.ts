@@ -1,17 +1,11 @@
 import { Card, ThreeCardSet, FourCardRun, HandlerResponsesQueue, Meld, Suit } from '@cards-ts/core';
-import { Handler } from '../handler';
+import { GameHandler } from '../game-handler';
 import { HandlerData } from '../handler-data';
 import { DiscardResponseMessage, GoDownResponseMessage, PlayResponseMessage, WantCardResponseMessage } from '../messages/response';
 import { find } from '../util/find';
 
-export class LocalMaximumHandler implements Handler {
-    public message() {
-    }
-
-    public waitingFor() {
-    }
-
-    public wantCard({hand, played, position, round, deckCard, wouldBeTurn, gameParams: {rounds}}: HandlerData, responsesQueue: HandlerResponsesQueue<WantCardResponseMessage>): void {
+export class LocalMaximumHandler extends GameHandler {
+    wantCard = ({hand, played, position, round, deckCard, wouldBeTurn, gameParams: {rounds}}: HandlerData, responsesQueue: HandlerResponsesQueue<WantCardResponseMessage>): void => {
         const currentRound = rounds[round];
         if(played[position].length > 0) {
             responsesQueue.push(new WantCardResponseMessage(false));
@@ -56,7 +50,7 @@ export class LocalMaximumHandler implements Handler {
         return;
     }
 
-    public turn({hand, played, position, round, gameParams: {rounds}}: HandlerData, responsesQueue: HandlerResponsesQueue<DiscardResponseMessage | GoDownResponseMessage | PlayResponseMessage>) {
+    turn = ({hand, played, position, round, gameParams: {rounds}}: HandlerData, responsesQueue: HandlerResponsesQueue<DiscardResponseMessage | GoDownResponseMessage | PlayResponseMessage>) => {
         const currentRound = rounds[round];
         if(played[position].length === 0) {
             const found = find([...hand], currentRound);

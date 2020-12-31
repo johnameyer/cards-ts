@@ -15,10 +15,10 @@ export { Protocol } from './intermediary/protocol';
 export { DisplayElement } from './intermediary/display-element';
 export { ProtocolIntermediary } from './intermediary/protocol-intermediary';
 export { IncrementalIntermediary } from './intermediary/incremental-intermediary';
+export { IntermediarySystemHandler } from './intermediary/intermediary-system-handler';
 
 export { GameDriver } from './games/game-driver';
 export { GenericGameState } from './games/generic-game-state';
-export { GenericHandler } from './games/generic-handler';
 export { GenericGameStateIterator } from './games/generic-game-state-iterator';
 export { Message } from './games/message';
 export { Observer } from './games/observer';
@@ -26,6 +26,11 @@ export { GenericResponseValidator } from './games/generic-response-validator';
 export { AbstractStateTransformer } from './games/abstract-state-transformer';
 export { HandlerProxy } from './games/handler-proxy';
 export { ResponseQueue, HandlerResponsesQueue } from './games/response-queue';
+
+export { Handler, HandlerAction, HandlerChain } from './handlers/handler';
+export { MessageHandler } from './handlers/message-handler';
+export { WaitingHandler } from './handlers/waiting-handler';
+export { SystemHandler } from './handlers/system-handler';
 
 export { combinations } from './util/combinations';
 export { distinct } from './util/distinct';

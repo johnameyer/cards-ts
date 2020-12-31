@@ -1,4 +1,4 @@
-import { Handler } from '../handler';
+import { GameHandler } from '../game-handler';
 import { HandlerData } from '../handler-data';
 import { Card, HandlerResponsesQueue } from '@cards-ts/core';
 import { Message } from '@cards-ts/core';
@@ -22,11 +22,12 @@ const toInquirerValue = <T extends {toString: () => string}>(t: T) => ({
     value: t,
 });
 
-export class IntermediaryHandler implements Handler {
+export class IntermediaryHandler extends GameHandler {
     constructor(private intermediary: Intermediary) {
+        super();
     }
 
-    pass({ hand, gameParams: { numToPass } }: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>) {
+    pass = ({ hand, gameParams: { numToPass } }: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>) => {
         const [sent, received] = this.intermediary.form({
             type: 'checkbox',
             message: ['Select the cards to pass'],
@@ -39,7 +40,7 @@ export class IntermediaryHandler implements Handler {
         return sent;
     }
 
-    turn({ hand, tricks, currentTrick, pointsTaken }: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>) {
+    turn = ({ hand, tricks, currentTrick, pointsTaken }: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>) => {
         let choices = hand;
         if(currentTrick.length > 0) {
             if(choices.some(card => card.suit === currentTrick[0].suit)) {
