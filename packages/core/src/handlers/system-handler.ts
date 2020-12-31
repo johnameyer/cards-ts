@@ -1,10 +1,14 @@
 import { Message } from "../games/message";
 import { Handler, HandlerAction } from "./handler";
+import { MessageHandlerParams } from "./message-handler";
+import { WaitingHandlerParams } from "./waiting-handler";
+
+export type SystemHandlerParams = MessageHandlerParams & WaitingHandlerParams;
 
 /**
  * Interface to listen for all system events (e.g. message and waiting)
  */
-export abstract class SystemHandler<HandlerData, ResponseMessage extends Message> implements Handler<'message' | 'waitingFor', HandlerData, ResponseMessage> {
+export abstract class SystemHandler<HandlerData, ResponseMessage extends Message> implements Handler<SystemHandlerParams, HandlerData, ResponseMessage> {
    canHandle(key: any): key is ('message' | 'waitingFor') {
       return key === 'message' || key == 'waitingFor';
    }

@@ -5,9 +5,13 @@ import { LocalMaximumHandler } from './handlers/local-maximum-handler';
 import { defaultParams } from './game-params';
 import yargs from 'yargs';
 import { IntermediaryHandler } from './handlers/intermediary-handler';
-import { GameDriver, IncrementalIntermediary, InquirerPresenter } from '@cards-ts/core';
+import { GameDriver, HandlerChain, IncrementalIntermediary, InquirerPresenter, IntermediarySystemHandler } from '@cards-ts/core';
 import { StateTransformer } from './state-transformer';
 import { ResponseValidator } from './response-validator';
+import { SystemHandlerParams } from '@cards-ts/core/lib/handlers/system-handler';
+import { GameHandlerParams } from './game-handler';
+import { HandlerData } from './handler-data';
+import { ResponseMessage } from './messages/response-message';
 
 yargs.command(['start', '$0'], 'begin a new game', yargs => {
     yargs.option('players', {
@@ -21,18 +25,7 @@ yargs.command(['start', '$0'], 'begin a new game', yargs => {
         description: 'Player\'s name'
     });
 }, async argv => {
-    const mainPlayer = new IntermediaryHandler(new IncrementalIntermediary(new InquirerPresenter()));
-    // if(!argv.name) {        
-    //     await mainPlayer.askForName();
-    // } else {
-    //     mainPlayer.setName(argv.name as string);
-    // }
-
-    const players = Array(argv.players as number + 1);
-    players[0] = mainPlayer;
-    for(let i = 1; i < players.length; i++) {
-        players[i] = new LocalMaximumHandler();
-    }
+    const mainPlayerIntermediary = new IncrementalIntermediary(new InquirerPresenter());
     let names: string[] = [];
     let name: string = argv.name as string;
     if(!argv.name) {        
@@ -41,6 +34,12 @@ yargs.command(['start', '$0'], 'begin a new game', yargs => {
     }
     names.push(name);
     names.push('Greg', 'Hugh', 'Leah');
+
+    const players: HandlerChain<SystemHandlerParams & GameHandlerParams, HandlerData, ResponseMessage>[] = Array(argv.players as number + 1).fill(undefined).map(_ => (new HandlerChain()));
+    players[0].append(new IntermediarySystemHandler(mainPlayerIntermediary)).append(new IntermediaryHandler(mainPlayerIntermediary));
+    for(let i = 1; i < players.length; i++) {
+        players[i].append(new LocalMaximumHandler());
+    }
 
     const stateTransformer = new StateTransformer();
     const responseValidator = new ResponseValidator();

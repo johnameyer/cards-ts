@@ -61,7 +61,7 @@ export class IntermediaryHandler extends ClientHandler {
         super();
     }
 
-    public async wantCard({hand, round, wouldBeTurn, deckCard, gameParams: {rounds}, data}: HandlerData, responsesQueue: HandlerResponsesQueue<WantCardResponseMessage>): Promise<void> {
+    wantCard = async ({hand, round, wouldBeTurn, deckCard, gameParams: {rounds}, data}: HandlerData, responsesQueue: HandlerResponsesQueue<WantCardResponseMessage>): Promise<void> => {
         data = reconcileDataAndHand(hand, data);
 
         const handWith = hand.slice();
@@ -87,9 +87,9 @@ export class IntermediaryHandler extends ClientHandler {
         return sent;
     }
 
-    async turn(gameState: HandlerData, responsesQueue: HandlerResponsesQueue<DiscardResponseMessage | GoDownResponseMessage | PlayResponseMessage>) {
+    turn = async (gameState: HandlerData, responsesQueue: HandlerResponsesQueue<DiscardResponseMessage | GoDownResponseMessage | PlayResponseMessage>) => {
         gameState.data = reconcileDataAndHand(gameState.hand, gameState.data);
-        await super.turn(gameState, responsesQueue.map((response: DiscardResponseMessage | GoDownResponseMessage | PlayResponseMessage) => {
+        await this.superTurn(gameState, responsesQueue.map((response: DiscardResponseMessage | GoDownResponseMessage | PlayResponseMessage) => {
             switch(response.type) {
                 case 'discard-response':
                     return new DiscardResponseMessage(response.toDiscard, gameState.data);

@@ -3,10 +3,15 @@ import { HandlerData } from "./handler-data";
 import { DiscardResponseMessage, GoDownResponseMessage, PlayResponseMessage, WantCardResponseMessage } from "./messages/response";
 import { ResponseMessage } from "./messages/response-message";
 
+export type GameHandlerParams = {
+    wantCard: [],
+    turn: []
+}
+
 /**
  * Class that players interact with the game using
  */
-export abstract class GameHandler implements Handler<'wantCard' | 'turn', HandlerData, ResponseMessage> {
+export abstract class GameHandler implements Handler<GameHandlerParams, HandlerData, ResponseMessage> {
     canHandle(key: any): key is ('wantCard' | 'turn') {
        return key === 'wantCard' || key == 'turn';
     }

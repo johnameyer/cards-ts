@@ -6,10 +6,10 @@ import { DataResponseMessage, DiscardResponseMessage, GoDownResponseMessage, Pla
 /**
  * Breaks up the decisions made during a turn into individual components
  */
-export abstract class ClientHandler implements GameHandler {
-    public abstract async wantCard({hand, played, position, round, wouldBeTurn, gameParams: {rounds}, data}: HandlerData, queue: HandlerResponsesQueue<WantCardResponseMessage>): Promise<void>;
+export abstract class ClientHandler extends GameHandler {
+    public abstract wantCard: ({hand, played, position, round, wouldBeTurn, gameParams: {rounds}, data}: HandlerData, queue: HandlerResponsesQueue<WantCardResponseMessage>) => Promise<void>;
 
-    public async turn({hand, played, position, round, gameParams: {rounds}, data}: HandlerData, responsesQueue: HandlerResponsesQueue<GoDownResponseMessage | DiscardResponseMessage | PlayResponseMessage>): Promise<void> {
+    turn = async ({hand, played, position, round, gameParams: {rounds}, data}: HandlerData, responsesQueue: HandlerResponsesQueue<GoDownResponseMessage | DiscardResponseMessage | PlayResponseMessage>): Promise<void> => {
         const currentRound = rounds[round];
         const last = round === rounds.length - 1;
         let hasGoneDown = played[position].length !== 0;
@@ -40,6 +40,8 @@ export abstract class ClientHandler implements GameHandler {
         // TODO need to handle live cards - should go back and allow player to play?
         return;
     }
+
+    superTurn = this.turn;
 
     async playOnOthers(hand: Card[], played: Meld[][], responsesQueue: HandlerResponsesQueue<PlayResponseMessage>, data: unknown) {
         let runToPlayOn: Meld | null;
@@ -129,29 +131,17 @@ export abstract class ClientHandler implements GameHandler {
         }
     }
 
-    abstract async selectCards(cardsLeft: Card[], num: 3 | 4, data: unknown): Promise<Card[]>;
+    abstract selectCards(cardsLeft: Card[], num: 3 | 4, data: unknown): Promise<Card[]>;
 
-    abstract async cardsToPlay(hand: Card[], run: Meld, data: unknown): Promise<Card[]>;
+    abstract cardsToPlay(hand: Card[], run: Meld, data: unknown): Promise<Card[]>;
 
-    abstract async moveToTop(handlerData: unknown): Promise<boolean>;
+    abstract moveToTop(handlerData: unknown): Promise<boolean>;
 
-    abstract async whichPlay(runOptions: Meld[], hand: Card[], data: unknown): Promise<Meld | null>;
+    abstract whichPlay(runOptions: Meld[], hand: Card[], data: unknown): Promise<Meld | null>;
 
-    abstract async wantToGoDown(hand: Card[], data: unknown): Promise<boolean>;
+    abstract wantToGoDown(hand: Card[], data: unknown): Promise<boolean>;
 
-    abstract async discardChoice(cardsLeft: Card[], live: Card[], data: unknown): Promise<Card>;
+    abstract discardChoice(cardsLeft: Card[], live: Card[], data: unknown): Promise<Card>;
 
-    abstract async insertWild(run: Card[], wild: Card, data: unknown): Promise<number>;
-
-    // abstract getName(): string;
-
-    abstract message(handlerData: HandlerData, _: HandlerResponsesQueue<DataResponseMessage>, message: Message): Promise<void>;
-
-    abstract waitingFor(handlerData: HandlerData, _: HandlerResponsesQueue<DataResponseMessage>, who: string[] | undefined): Promise<void>;
-}
-
-export namespace ClientHandler {
-    export interface Delegate {
-
-    }
+    abstract insertWild(run: Card[], wild: Card, data: unknown): Promise<number>;
 }

@@ -7,26 +7,24 @@ export type HandlerAction<HandlerData, ResponseMessage, Vargs extends any[] = an
  * An actor in the game who modifies the state through actions
  * Listeners can be subscribed here
  */
-export type Handler<Handlers extends keyof any, HandlerData, ResponseMessage extends Message> = {
-    canHandle(key: any): key is Handlers;
+export type Handler<Handlers extends {[key: string]: any[]}, HandlerData, ResponseMessage extends Message> = {
+    canHandle(key: any): key is keyof Handlers;
 } & {
-    [Handler in Handlers]: HandlerAction<HandlerData, ResponseMessage>;
+    [Handler in keyof Handlers]: HandlerAction<HandlerData, ResponseMessage, Handlers[Handler]>;
 };
 
-export class HandlerChain<Methods extends string, HandlerData, ResponseMessage extends Message> {
-    private handlers: Handler<any, HandlerData, ResponseMessage>[] = [];
+export class HandlerChain<Handlers extends {[key: string]: any[]}, HandlerData, ResponseMessage extends Message> {
+    constructor(private handlers: Handler<Handlers, HandlerData, ResponseMessage>[] = []) { }
 
-    constructor() { }
-
-    append(handler: Handler<any, HandlerData, ResponseMessage>) {
-        this.handlers.push(handler);
+    append<Handles extends keyof Handlers>(handler: Handler<Pick<Handlers, Handles>, HandlerData, ResponseMessage>) {
+        this.handlers.push(handler as Handler<Handlers, HandlerData, ResponseMessage>);
         return this;
     }
     
-    call(event: Methods, ...args: Parameters<HandlerAction<HandlerData,ResponseMessage>>): ReturnType<HandlerAction<HandlerData, ResponseMessage>> {
+    call<Method extends keyof Handlers>(method: Method, ...args: Parameters<HandlerAction<HandlerData, ResponseMessage, Handlers[Method]>>): ReturnType<HandlerAction<HandlerData, ResponseMessage, Handlers[Method]>> {
         for(const handler of this.handlers) {
-            if(handler.canHandle(event)) {
-                return handler[event].call(this, ...args);
+            if(handler.canHandle(method)) {
+                return (handler[method] as HandlerAction<HandlerData, ResponseMessage, Handlers[Method]>).call(handler, ...args);
             }
         }
     }
