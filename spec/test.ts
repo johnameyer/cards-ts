@@ -4,7 +4,7 @@ if(!performance) {
     var { performance } = require('perf_hooks');
 }
 
-import { GameDriver, IncrementalIntermediary, InquirerPresenter } from '@cards-ts/core';
+import { GameDriver, IncrementalIntermediary, InquirerPresenter, HandlerChain } from '@cards-ts/core';
 
 async function run(libraryName: string) {
     try {
@@ -20,9 +20,9 @@ async function run(libraryName: string) {
 
         let names: string[] = ['Jerome', 'Leah', 'Greg', 'Bart'];
 
-        const handlers = Array(4);
+        const handlers = Array(4).fill(undefined).map(_ => new HandlerChain());
         for(let i = 0; i < handlers.length; i++) {
-            handlers[i] = new DefaultBotHandler();
+            handlers[i].append(new DefaultBotHandler());
         }
 
         const stateTransformer = new StateTransformer();
