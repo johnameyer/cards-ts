@@ -1,4 +1,4 @@
-import { Handler } from '../handler';
+import { GameHandler } from '../game-handler';
 import { HandlerData } from '../handler-data';
 import { Card, combinations, HandlerResponsesQueue } from '@cards-ts/core';
 import { Message } from '@cards-ts/core';
@@ -62,8 +62,8 @@ function wrapData(handlerData: HandlerData) {
     return handlerData.data as HeuristicHandlerData;
 }
 
-export class HeuristicHandler implements Handler {
-    pass(handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): void {
+export class HeuristicHandler extends GameHandler {
+    pass = (handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): void => {
         const data = wrapData(handlerData);
         const { hand, gameParams: { numToPass } } = handlerData;
         const toPass = [];
@@ -121,7 +121,7 @@ export class HeuristicHandler implements Handler {
         return;
     }
 
-    turn(handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): void {
+    turn = (handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): void => {
         const data = wrapData(handlerData);
         const { hand, currentTrick, tricks } = handlerData;
         try {

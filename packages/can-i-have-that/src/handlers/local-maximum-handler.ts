@@ -1,10 +1,10 @@
 import { Card, ThreeCardSet, FourCardRun, HandlerResponsesQueue, Meld, Suit } from '@cards-ts/core';
-import { Handler } from '../handler';
+import { GameHandler } from '../game-handler';
 import { HandlerData } from '../handler-data';
 import { DiscardResponseMessage, GoDownResponseMessage, PlayResponseMessage, WantCardResponseMessage } from '../messages/response';
 import { find } from '../util/find';
 
-export class LocalMaximumHandler implements Handler {
+export class LocalMaximumHandler implements GameHandler {
     public message() {
     }
 

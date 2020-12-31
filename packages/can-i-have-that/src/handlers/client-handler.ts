@@ -1,4 +1,4 @@
-import { Handler } from '../handler';
+import { GameHandler } from '../game-handler';
 import { Card, distinct, flatten, FourCardRun, HandlerResponsesQueue, InvalidError, Meld, Message, ThreeCardSet } from '@cards-ts/core';
 import { HandlerData } from '../handler-data';
 import { DataResponseMessage, DiscardResponseMessage, GoDownResponseMessage, PlayResponseMessage, WantCardResponseMessage } from '../messages/response';
@@ -6,7 +6,7 @@ import { DataResponseMessage, DiscardResponseMessage, GoDownResponseMessage, Pla
 /**
  * Breaks up the decisions made during a turn into individual components
  */
-export abstract class ClientHandler implements Handler {
+export abstract class ClientHandler implements GameHandler {
     public abstract async wantCard({hand, played, position, round, wouldBeTurn, gameParams: {rounds}, data}: HandlerData, queue: HandlerResponsesQueue<WantCardResponseMessage>): Promise<void>;
 
     public async turn({hand, played, position, round, gameParams: {rounds}, data}: HandlerData, responsesQueue: HandlerResponsesQueue<GoDownResponseMessage | DiscardResponseMessage | PlayResponseMessage>): Promise<void> {

@@ -1,4 +1,4 @@
-import { Handler } from './handler';
+import { GameHandler } from './game-handler';
 import { HandlerData } from './handler-data';
 import { GenericGameStateIterator, Card, InvalidError, zip, HandlerProxy as GenericHandlerProxy } from '@cards-ts/core';
 import { GameParams } from './game-params';
@@ -7,12 +7,12 @@ import { ResponseMessage } from './messages/response-message';
 import { GameState } from './game-state';
 import { StateTransformer } from './state-transformer';
 
-type HandlerProxy = GenericHandlerProxy<HandlerData, ResponseMessage, Handler, GameParams, GameState.State, GameState, StateTransformer>;
+type HandlerProxy = GenericHandlerProxy<HandlerData, ResponseMessage, GameHandler, GameParams, GameState.State, GameState, StateTransformer>;
 
 /**
  * Class that handles the steps of the game
  */
-export class GameStateIterator implements GenericGameStateIterator<HandlerData, ResponseMessage, Handler, GameParams, GameState.State, GameState, StateTransformer> {
+export class GameStateIterator implements GenericGameStateIterator<HandlerData, ResponseMessage, GameHandler, GameParams, GameState.State, GameState, StateTransformer> {
     /**
      * Deal out cards to all of the players' hands for the current round
      */

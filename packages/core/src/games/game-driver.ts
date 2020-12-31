@@ -6,6 +6,7 @@ import { HandlerProxy } from './handler-proxy';
 import { GenericResponseValidator } from './generic-response-validator';
 import { GenericGameStateIterator } from './generic-game-state-iterator';
 import { zip } from '../util/zip';
+import { HandlerChain } from '../handlers/handler';
 
 /**
  * Class that handles the steps of the game
@@ -34,7 +35,7 @@ export class GameDriver<HandlerData, Handler extends GenericHandler<HandlerData,
      * @param players the players in the game
      * @param gameParams the parameters to use for the game
      */
-    constructor(handlers: Handler[], public gameState: GameState, protected iterator: GenericGameStateIterator<HandlerData, ResponseMessage, Handler, GameParams, State, GameState, StateTransformer>, protected stateTransformer: StateTransformer, protected responseValidator: ResponseValidator) {
+    constructor(handlers: HandlerChain<string, HandlerData, ResponseMessage>[], public gameState: GameState, protected iterator: GenericGameStateIterator<HandlerData, ResponseMessage, Handler, GameParams, State, GameState, StateTransformer>, protected stateTransformer: StateTransformer, protected responseValidator: ResponseValidator) {
         // this.gameState.names = handlerProxy.getNames();
         this.handlerProxy = new HandlerProxy(handlers, stateTransformer);
     }

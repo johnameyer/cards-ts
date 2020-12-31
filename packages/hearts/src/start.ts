@@ -5,9 +5,9 @@ import { IntermediaryHandler } from "./handlers/intermediary-handler";
 import { HeuristicHandler } from "./handlers/heuristic-handler";
 import { GameStateIterator } from "./game-state-iterator";
 import { defaultParams } from "./game-params";
-import { GameDriver, IncrementalIntermediary, InquirerPresenter } from "@cards-ts/core";
+import { GameDriver, HandlerChain, IncrementalIntermediary, InquirerPresenter } from "@cards-ts/core";
 import { StateTransformer } from "./state-transformer";
-import { Handler } from "./handler";
+import { GameHandler } from "./game-handler";
 import { ResponseValidator } from "./response-validator";
 
 yargs.command(['start', '$0'], 'begin a new game', yargs => {
@@ -22,7 +22,7 @@ yargs.command(['start', '$0'], 'begin a new game', yargs => {
         description: 'Player\'s name'
     });
 }, async argv => {
-    const mainPlayer = new IntermediaryHandler(new IncrementalIntermediary(new InquirerPresenter()));
+    const mainPlayerIntermediary = new IncrementalIntermediary(new InquirerPresenter());
     let names: string[] = [];
     let name: string = argv.name as string;
     if(!argv.name) {        
@@ -32,10 +32,10 @@ yargs.command(['start', '$0'], 'begin a new game', yargs => {
     names.push(name);
     names.push('Greg', 'Hugh', 'Leah');
 
-    const players: Handler[] = Array(argv.players as number + 1);
-    players[0] = mainPlayer;
+    const players: any[] = Array(argv.players as number + 1);
+    players[0] = new HandlerChain().append(new IntermediarySystemHandler(mainPlayerIntermediary)).append(new IntermediaryHandler(mainPlayerIntermediary));
     for(let i = 1; i < players.length; i++) {
-        players[i] = new HeuristicHandler();
+        players[i] = new HandlerChain().append(new HeuristicHandler());
     }
 
     const stateTransformer = new StateTransformer();

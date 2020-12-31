@@ -61,14 +61,6 @@ export class IntermediaryHandler extends ClientHandler {
         super();
     }
 
-    public async message(_handlerData: HandlerData, _: HandlerResponsesQueue<DataResponseMessage>, message: Message) {
-        await this.intermediary.print(...message.components)[0];
-    }
-
-    public async waitingFor(_handlerData: HandlerData, _: HandlerResponsesQueue<DataResponseMessage>, _who: string[] | undefined): Promise<void> {
-        return;
-    }
-
     public async wantCard({hand, round, wouldBeTurn, deckCard, gameParams: {rounds}, data}: HandlerData, responsesQueue: HandlerResponsesQueue<WantCardResponseMessage>): Promise<void> {
         data = reconcileDataAndHand(hand, data);
 

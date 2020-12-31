@@ -1,9 +1,9 @@
-import { Handler } from '../handler';
+import { GameHandler } from '../game-handler';
 import { Card, HandlerResponsesQueue } from '@cards-ts/core';
 import { HandlerData } from '../handler-data';
 import { DiscardResponseMessage, WantCardResponseMessage } from '../messages/response';
 
-export class GrammyHandler implements Handler {
+export class GrammyHandler implements GameHandler {
     public message() { }
 
     public waitingFor() { }

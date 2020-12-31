@@ -1,7 +1,7 @@
 import { GameState } from "./game-state";
 import { GameParams } from "./game-params";
 import { HandlerData } from "./handler-data";
-import { Handler } from "./handler";
+import { GameHandler } from "./game-handler";
 import { GenericGameStateIterator, Card, Deck, Rank, Suit } from '@cards-ts/core';
 import { DealOutMessage, NoPassingMessage, PassingMessage, PassedMessage, LeadsMessage, PlayedMessage, ShotTheMoonMessage, ScoredMessage, EndRoundMessage } from "./messages/status";
 import { ResponseMessage } from "./messages/response-message";
@@ -18,9 +18,9 @@ function valueOfCard(card: Card): number {
     return 0;
 }
 
-type HandlerProxy = GenericHandlerProxy<HandlerData, ResponseMessage, Handler, GameParams, GameState.State, GameState, StateTransformer>;
+type HandlerProxy = GenericHandlerProxy<HandlerData, ResponseMessage, GameHandler, GameParams, GameState.State, GameState, StateTransformer>;
 
-export class GameStateIterator implements GenericGameStateIterator<HandlerData, ResponseMessage, Handler, GameParams, GameState.State, GameState, StateTransformer> {
+export class GameStateIterator implements GenericGameStateIterator<HandlerData, ResponseMessage, GameHandler, GameParams, GameState.State, GameState, StateTransformer> {
     public iterate(gameState: GameState, handlerProxy: HandlerProxy): void {
         switch(gameState.state) {
             case GameState.State.START_GAME:

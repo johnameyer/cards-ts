@@ -5,6 +5,7 @@ import { AbstractStateTransformer } from './abstract-state-transformer';
 import { Message } from './message';
 import { ResponseQueue } from './response-queue';
 import { range } from '../util/range';
+import { HandlerChain } from '../handlers/handler';
 
 type ExtractOfType<Type, ExpectedType> = {
     [key in keyof Type]: Type[key] extends ExpectedType ? key : never;
@@ -14,7 +15,7 @@ type ExtractOfType<Type, ExpectedType> = {
  * Class that allows calls to the handlers
  */
 export class HandlerProxy<HandlerData, ResponseMessage extends Message, Handler extends GenericHandler<HandlerData, ResponseMessage>, GameParams, State, GameState extends GenericGameState<GameParams, State>, StateTransformer extends AbstractStateTransformer<GameParams, State, HandlerData, GameState, ResponseMessage>> {
-    constructor(protected players: Handler[], protected stateTransformer: StateTransformer) { }
+    constructor(protected players: HandlerChain<string, HandlerData, ResponseMessage>[], protected stateTransformer: StateTransformer) { }
 
     private readonly outgoingData: Promise<void>[] = [];
 
@@ -33,7 +34,7 @@ export class HandlerProxy<HandlerData, ResponseMessage extends Message, Handler 
      * @param message the message to send
      */
     message(gameState: GameState, position: number, message: Message) {
-        this.outgoingData.push(Promise.resolve(this.players[position].message(this.stateTransformer.transformToHandlerData(gameState, position), this.incomingData.for(position), message)));
+        this.outgoingData.push(Promise.resolve(this.players[position].call('message', this.stateTransformer.transformToHandlerData(gameState, position), this.incomingData.for(position), message)));
     }
 
     /**
@@ -42,7 +43,7 @@ export class HandlerProxy<HandlerData, ResponseMessage extends Message, Handler 
      */
     messageAll(gameState: GameState, message: Message) {
         this.outgoingData.push(...this.players
-            .map((player, position) => Promise.resolve(player.message(this.stateTransformer.transformToHandlerData(gameState, position), this.incomingData.for(position), message)))
+            .map((player, position) => Promise.resolve(player.call('message', this.stateTransformer.transformToHandlerData(gameState, position), this.incomingData.for(position), message)))
             .filter(isDefined)
         );
     }
@@ -57,7 +58,7 @@ export class HandlerProxy<HandlerData, ResponseMessage extends Message, Handler 
         this.outgoingData.push(...this.players
             .filter((_, position) => position !== excludedPosition)
             .map((player, position) =>
-                Promise.resolve(player.message(this.stateTransformer.transformToHandlerData(gameState, position), this.incomingData.for(position), message))
+                Promise.resolve(player.call('message', this.stateTransformer.transformToHandlerData(gameState, position), this.incomingData.for(position), message))
             ).filter(isDefined)
         );
     }
@@ -72,7 +73,7 @@ export class HandlerProxy<HandlerData, ResponseMessage extends Message, Handler 
         this.outgoingData.push(...this.players
             .filter((player, index) => !waitingOn?.includes(index))
             .map((player, position) =>
-                Promise.resolve(player.waitingFor(this.stateTransformer.transformToHandlerData(gameState, position), this.incomingData.for(position), waitingOn && gameState ? waitingOn.map(position => gameState.names[position]) : undefined))
+                Promise.resolve(player.call('waitingFor', this.stateTransformer.transformToHandlerData(gameState, position), this.incomingData.for(position), waitingOn && gameState ? waitingOn.map(position => gameState.names[position]) : undefined))
             ).filter(isDefined)
         );
     }
@@ -80,7 +81,7 @@ export class HandlerProxy<HandlerData, ResponseMessage extends Message, Handler 
     handlerCall<Action extends ExtractOfType<Handler, HandlerAction<HandlerData, ResponseMessage>>>(gameState: GameState, position: number, action: Action, ...args: any[]): void {
         gameState.waiting = [position];
         gameState.responded = this.players.map(() => false);
-        const send = this.players[position][action](this.stateTransformer.transformToHandlerData(gameState, position), this.incomingData.for(position), args);
+        const send = this.players[position].call(action, this.stateTransformer.transformToHandlerData(gameState, position), this.incomingData.for(position), args);
 
         if(send) {
             this.outgoingData.push(send);
@@ -93,7 +94,7 @@ export class HandlerProxy<HandlerData, ResponseMessage extends Message, Handler 
         this.outgoingData.push(...this.players
             .map((player, position) => {
                 try {
-                    return player[action](this.stateTransformer.transformToHandlerData(gameState, position), this.incomingData.for(position), args);
+                    return player.call(action, this.stateTransformer.transformToHandlerData(gameState, position), this.incomingData.for(position), args);
                 } catch(e) {
                     console.error(e);
                 }
@@ -109,7 +110,7 @@ export class HandlerProxy<HandlerData, ResponseMessage extends Message, Handler 
         this.outgoingData.push(...this.players
             .map((player, position) => {
                 try {
-                    return player[action](this.stateTransformer.transformToHandlerData(gameState, position), this.incomingData.for(position), args);
+                    return player.call(action, this.stateTransformer.transformToHandlerData(gameState, position), this.incomingData.for(position), args);
                 } catch(e) {
                     console.error(e);
                 }
