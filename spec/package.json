@@ -9,7 +9,8 @@
   "dependencies": {
     "@cards-ts/can-i-have-that": "file:../packages/can-i-have-that",
     "@cards-ts/core": "file:../packages/core",
-    "@cards-ts/hearts": "file:../packages/hearts"
+    "@cards-ts/hearts": "file:../packages/hearts",
+    "@cards-ts/war": "file:../packages/war"
   },
   "devDependencies": {
     "ts-node": "^9.0.0",
