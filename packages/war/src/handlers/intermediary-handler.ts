@@ -1,4 +1,4 @@
-import { Handler } from '../handler';
+import { GameHandler } from '../game-handler';
 import { HandlerData } from '../handler-data';
 import { Card, HandlerResponsesQueue } from '@cards-ts/core';
 import { Message } from '@cards-ts/core';
@@ -11,8 +11,9 @@ const toInquirerValue = <T extends {toString: () => string}>(t: T) => ({
     value: t,
 });
 
-export class IntermediaryHandler implements Handler {
+export class IntermediaryHandler extends GameHandler {
     constructor(private intermediary: Intermediary) {
+        super();
     }
 
     async flip(_handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): Promise<void> {
@@ -23,15 +24,5 @@ export class IntermediaryHandler implements Handler {
                 break;
             }
         }
-    }
-
-    message(_handlerData: HandlerData, _responsesQueue: HandlerResponsesQueue<ResponseMessage>, message: Message) {
-        const [sent] = this.intermediary.print(...message.components);
-        return sent;
-    }
-
-    waitingFor(_handlerData: HandlerData, _responsesQueue: HandlerResponsesQueue<ResponseMessage>, _who: string[] | undefined) {
-        // TODO this.intermediary
-        return;
     }
 }

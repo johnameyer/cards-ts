@@ -30,7 +30,7 @@ export { ResponseQueue, HandlerResponsesQueue } from './games/response-queue';
 export { Handler, HandlerAction, HandlerChain } from './handlers/handler';
 export { MessageHandler } from './handlers/message-handler';
 export { WaitingHandler } from './handlers/waiting-handler';
-export { SystemHandler } from './handlers/system-handler';
+export { SystemHandler, SystemHandlerParams } from './handlers/system-handler';
 
 export { combinations } from './util/combinations';
 export { distinct } from './util/distinct';

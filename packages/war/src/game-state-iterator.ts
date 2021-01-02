@@ -1,16 +1,16 @@
 import { GameState } from "./game-state";
 import { GameParams } from "./game-params";
 import { HandlerData } from "./handler-data";
-import { Handler } from "./handler";
-import { GenericGameStateIterator, Card, Deck } from '@cards-ts/core';
+import { GameHandler, GameHandlerParams } from "./game-handler";
+import { GenericGameStateIterator, Card, Deck, SystemHandlerParams } from '@cards-ts/core';
 import { ResponseMessage } from "./messages/response-message";
 import { StateTransformer } from "./state-transformer";
 import { HandlerProxy as GenericHandlerProxy } from "@cards-ts/core/lib/games/handler-proxy";
 import { FlippedMessage, GameOverMessage, StalemateMessage, WonBattleMessage, WonWarMessage } from "./messages/status";
 
-type HandlerProxy = GenericHandlerProxy<HandlerData, ResponseMessage, Handler, GameParams, GameState.State, GameState, StateTransformer>;
+type HandlerProxy = GenericHandlerProxy<HandlerData, ResponseMessage, SystemHandlerParams & GameHandlerParams, GameParams, GameState.State, GameState, StateTransformer>;
 
-export class GameStateIterator implements GenericGameStateIterator<HandlerData, ResponseMessage, Handler, GameParams, GameState.State, GameState, StateTransformer> {
+export class GameStateIterator implements GenericGameStateIterator<HandlerData, ResponseMessage, SystemHandlerParams & GameHandlerParams, GameParams, GameState.State, GameState, StateTransformer> {
     private dealOut(gameState: GameState) {
         gameState.deck.shuffle();
         while(gameState.deck.cards.length) {

@@ -5,10 +5,12 @@ import { IntermediaryHandler } from "./handlers/intermediary-handler";
 import { DefaultBotHandler } from "./handlers/default-bot-handler";
 import { GameStateIterator } from "./game-state-iterator";
 import { defaultParams } from "./game-params";
-import { GameDriver, IncrementalIntermediary, InquirerPresenter } from "@cards-ts/core";
+import { GameDriver, HandlerChain, IncrementalIntermediary, InquirerPresenter, IntermediarySystemHandler, SystemHandlerParams } from "@cards-ts/core";
 import { StateTransformer } from "./state-transformer";
-import { Handler } from "./handler";
+import { GameHandler, GameHandlerParams } from "./game-handler";
 import { ResponseValidator } from "./response-validator";
+import { HandlerData } from "./handler-data";
+import { ResponseMessage } from "./messages/response-message";
 
 yargs.command(['start', '$0'], 'begin a new game', yargs => {
     yargs.option('players', {
@@ -22,7 +24,7 @@ yargs.command(['start', '$0'], 'begin a new game', yargs => {
         description: 'Player\'s name'
     });
 }, async argv => {
-    const mainPlayer = new IntermediaryHandler(new IncrementalIntermediary(new InquirerPresenter()));
+    const mainPlayerIntermediary = new IncrementalIntermediary(new InquirerPresenter());
     let names: string[] = [];
     let name: string = argv.name as string;
     if(!argv.name) {        
@@ -32,10 +34,10 @@ yargs.command(['start', '$0'], 'begin a new game', yargs => {
     names.push(name);
     names.push('Greg');
 
-    const players: Handler[] = Array(argv.players as number + 1);
-    players[0] = mainPlayer;
+    const players: HandlerChain<SystemHandlerParams & GameHandlerParams, HandlerData, ResponseMessage>[] = Array(argv.players as number + 1).fill(undefined).map(_ => (new HandlerChain()));
+    players[0].append(new IntermediarySystemHandler(mainPlayerIntermediary)).append(new IntermediaryHandler(mainPlayerIntermediary));
     for(let i = 1; i < players.length; i++) {
-        players[i] = new DefaultBotHandler();
+        players[i].append(new DefaultBotHandler());
     }
 
     const stateTransformer = new StateTransformer();
