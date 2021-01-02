@@ -18,9 +18,11 @@ async function run(libraryName: string) {
 
         const _humanPlayer = new IntermediaryHandler(new IncrementalIntermediary(new InquirerPresenter()));
 
-        let names: string[] = ['Jerome', 'Leah', 'Greg', 'Bart'];
+        const numPlayers = libraryName == 'war' ? 2 : 4;
 
-        const handlers = Array(4).fill(undefined).map(_ => new HandlerChain());
+        let names: string[] = ['Jerome', 'Leah', 'Greg', 'Bart'].slice(0, numPlayers);
+
+        const handlers = Array(numPlayers).fill(undefined).map(_ => new HandlerChain());
         for(let i = 0; i < handlers.length; i++) {
             handlers[i].append(new DefaultBotHandler());
         }
