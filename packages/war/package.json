@@ -1,6 +1,6 @@
 {
   "name": "@cards-ts/war",
-  "version": "0.2.4",
+  "version": "0.3.0",
   "description": "Implementation of the card game war.",
   "author": "John Meyer",
   "homepage": "https://github.com/johnameyer/can-i-have-that/tree/master/packages/war#readme",
@@ -36,12 +36,12 @@
     "url": "https://github.com/johnameyer/can-i-have-that/issues"
   },
   "dependencies": {
-    "@cards-ts/core": "^0.2.4",
+    "@cards-ts/core": "^0.3.0",
     "yargs": "^15.4.0"
   },
   "devDependencies": {
-    "typescript": "^4.0.2",
-    "@types/yargs": "^15.0.5"
+    "@types/yargs": "^15.0.5",
+    "typescript": "^4.0.2"
   },
   "sideEffects": false,
   "gitHead": "04053409da080fb7d2a72de32a6392d3968f9442"
