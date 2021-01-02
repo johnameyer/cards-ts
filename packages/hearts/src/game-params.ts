@@ -1,7 +1,7 @@
 export interface GameParams {
-    maxScore: number;
+    readonly maxScore: number;
 
-    numToPass: number;
+    readonly numToPass: number;
 
-    quickEnd: boolean;
+    readonly quickEnd: boolean;
 }

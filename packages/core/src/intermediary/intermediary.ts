@@ -6,20 +6,17 @@ import { ThreeCardSet } from '../cards/three-card-set';
 import { DisplayElement, DisplayElementCallReturn } from './display-element';
 import { Serializable, Presenter } from './presenter';
 
+export type IntermediaryMapping<T extends Array<DisplayElement<keyof Presenter>>> = {
+    [I in keyof T]: T[I] extends DisplayElement<infer Key> ? DisplayElementCallReturn<Key> : never
+}
+
 /**
  * Class that handles how material is presented to the end user
  */
 export interface Intermediary {
     print(...printables: Serializable[]): [sent?: Promise<void>];
 
-    form<T extends keyof Presenter>(first: DisplayElement<T>): [sent: undefined | Promise<void>, received: Promise<[DisplayElementCallReturn<T>]>];
-    form<T extends keyof Presenter, U extends keyof Presenter>(first: DisplayElement<T>, second: DisplayElement<U>): [sent: undefined | Promise<void>, received: Promise<[DisplayElementCallReturn<T>, DisplayElementCallReturn<U>]>];
-    form<T extends keyof Presenter, U extends keyof Presenter, V extends keyof Presenter>(first: DisplayElement<T>, second: DisplayElement<U>, third: DisplayElement<V>): [sent: undefined | Promise<void>, received: Promise<[DisplayElementCallReturn<T>, DisplayElementCallReturn<U>, DisplayElementCallReturn<V>]>];
-    form<T extends keyof Presenter, U extends keyof Presenter, V extends keyof Presenter, W extends keyof Presenter>(first: DisplayElement<T>, second: DisplayElement<U>, third: DisplayElement<V>, fourth: DisplayElement<W>): [sent: undefined | Promise<void>, received: Promise<[DisplayElementCallReturn<T>, DisplayElementCallReturn<U>, DisplayElementCallReturn<V>, DisplayElementCallReturn<W>]>];
-    form<T extends keyof Presenter, U extends keyof Presenter, V extends keyof Presenter, W extends keyof Presenter, X extends keyof Presenter>(first: DisplayElement<T>, second: DisplayElement<U>, third: DisplayElement<V>, fourth: DisplayElement<W>, fifth: DisplayElement<X>): [sent: undefined | Promise<void>, received: Promise<[DisplayElementCallReturn<T>, DisplayElementCallReturn<U>, DisplayElementCallReturn<V>, DisplayElementCallReturn<W>, DisplayElementCallReturn<X>]>];
-    form<T extends keyof Presenter, U extends keyof Presenter, V extends keyof Presenter, W extends keyof Presenter, X extends keyof Presenter, Y extends keyof Presenter>(first: DisplayElement<T>, second: DisplayElement<U>, third: DisplayElement<V>, fourth: DisplayElement<W>, fifth: DisplayElement<X>, sixth: DisplayElement<Y>): [sent: undefined | Promise<void>, received: Promise<[DisplayElementCallReturn<T>, DisplayElementCallReturn<U>, DisplayElementCallReturn<V>, DisplayElementCallReturn<W>, DisplayElementCallReturn<X>, DisplayElementCallReturn<Y>]>];
-    form<T extends keyof Presenter, U extends keyof Presenter, V extends keyof Presenter, W extends keyof Presenter, X extends keyof Presenter, Y extends keyof Presenter, Z extends keyof Presenter>(first: DisplayElement<T>, second: DisplayElement<U>, third: DisplayElement<V>, fourth: DisplayElement<W>, fifth: DisplayElement<X>, sixth: DisplayElement<Y>, seventh: DisplayElement<Z>): [sent: undefined | Promise<void>, received: Promise<[DisplayElementCallReturn<T>, DisplayElementCallReturn<U>, DisplayElementCallReturn<V>, DisplayElementCallReturn<W>, DisplayElementCallReturn<X>, DisplayElementCallReturn<Y>, DisplayElementCallReturn<Z>]>];
-    form(...components: DisplayElement<keyof Presenter>[]): [sent: undefined | Promise<void>, received: Promise<DisplayElementCallReturn<keyof Presenter>[]>];
+    form<T extends (DisplayElement<keyof Presenter>)[]>(...components: T): [sent: undefined | Promise<void>, received: Promise<IntermediaryMapping<T>>];
 }
 
 // consider using the indexes of things instead of actual value, and then use outer wrapper to transform into value (so data isn't serialized both ways)

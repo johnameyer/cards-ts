@@ -10,6 +10,7 @@ import { ResponseValidator } from "./response-validator";
 import { HandlerData } from "./handler-data";
 import { IncrementalIntermediary, InquirerPresenter, HandlerChain, SystemHandlerParams, IntermediarySystemHandler, GameDriver } from "@cards-ts/core";
 import { ResponseMessage } from "./messages/response-message";
+import { GameSetup } from "./game-setup";
 
 yargs.command(['start', '$0'], 'begin a new game', yargs => {
     yargs.option('players', {

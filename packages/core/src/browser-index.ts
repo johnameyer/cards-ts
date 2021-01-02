@@ -10,7 +10,7 @@ export { ValueError } from './cards/value-error';
 export { InvalidError } from './cards/invalid-error';
 
 export { Presenter, Serializable } from './intermediary/presenter';
-export { Intermediary } from './intermediary/intermediary';
+export { Intermediary, IntermediaryMapping } from './intermediary/intermediary';
 export { Protocol } from './intermediary/protocol';
 export { DisplayElement } from './intermediary/display-element';
 export { ProtocolIntermediary } from './intermediary/protocol-intermediary';

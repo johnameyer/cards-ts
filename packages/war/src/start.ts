@@ -4,13 +4,13 @@ import yargs from "yargs";
 import { IntermediaryHandler } from "./handlers/intermediary-handler";
 import { DefaultBotHandler } from "./handlers/default-bot-handler";
 import { GameStateIterator } from "./game-state-iterator";
-import { defaultParams } from "./game-params";
 import { GameDriver, HandlerChain, IncrementalIntermediary, InquirerPresenter, IntermediarySystemHandler, SystemHandlerParams } from "@cards-ts/core";
 import { StateTransformer } from "./state-transformer";
 import { GameHandler, GameHandlerParams } from "./game-handler";
 import { ResponseValidator } from "./response-validator";
 import { HandlerData } from "./handler-data";
 import { ResponseMessage } from "./messages/response-message";
+import { GameSetup } from "./game-setup";
 
 yargs.command(['start', '$0'], 'begin a new game', yargs => {
     yargs.option('players', {
@@ -44,7 +44,7 @@ yargs.command(['start', '$0'], 'begin a new game', yargs => {
     const responseValidator = new ResponseValidator();
     const gameStateIterator = new GameStateIterator();
 
-    const driver = new GameDriver(players, stateTransformer.initialState({ names: names, gameParams: defaultParams }), gameStateIterator, stateTransformer, responseValidator);
+    const driver = new GameDriver(players, stateTransformer.initialState({ names: names, gameParams: new GameSetup().getDefaultParams() }), gameStateIterator, stateTransformer, responseValidator);
 
     await driver.start();
 })
