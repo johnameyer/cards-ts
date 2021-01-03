@@ -18,6 +18,7 @@ export { IncrementalIntermediary } from './intermediary/incremental-intermediary
 export { IntermediarySystemHandler } from './intermediary/intermediary-system-handler';
 
 export { GameDriver } from './games/game-driver';
+export { AbstractGameFactory } from './games/abstract-game-factory';
 export { GenericGameState } from './games/generic-game-state';
 export { GenericGameSetup } from './games/generic-game-setup';
 export { GenericGameStateIterator } from './games/generic-game-state-iterator';

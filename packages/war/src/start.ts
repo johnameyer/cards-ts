@@ -1,16 +1,12 @@
 #!/usr/bin/env ts-node
 
 import yargs from "yargs";
-import { IntermediaryHandler } from "./handlers/intermediary-handler";
-import { DefaultBotHandler } from "./handlers/default-bot-handler";
-import { GameStateIterator } from "./game-state-iterator";
-import { GameDriver, HandlerChain, IncrementalIntermediary, InquirerPresenter, IntermediarySystemHandler, SystemHandlerParams } from "@cards-ts/core";
-import { StateTransformer } from "./state-transformer";
-import { GameHandler, GameHandlerParams } from "./game-handler";
-import { ResponseValidator } from "./response-validator";
+import { HandlerChain, IncrementalIntermediary, InquirerPresenter, SystemHandlerParams } from "@cards-ts/core";
+import { GameHandlerParams } from "./game-handler";
 import { HandlerData } from "./handler-data";
 import { ResponseMessage } from "./messages/response-message";
 import { GameSetup } from "./game-setup";
+import { GameFactory } from "./game-factory";
 
 yargs.command(['start', '$0'], 'begin a new game', yargs => {
     yargs.option('players', {
@@ -34,16 +30,15 @@ yargs.command(['start', '$0'], 'begin a new game', yargs => {
     names.push(name);
     names.push('Greg');
 
-    const players: HandlerChain<SystemHandlerParams & GameHandlerParams, HandlerData, ResponseMessage>[] = Array(argv.players as number + 1).fill(undefined).map(_ => (new HandlerChain()));
-    players[0].append(new IntermediarySystemHandler(mainPlayerIntermediary)).append(new IntermediaryHandler(mainPlayerIntermediary));
+    const gameFactory = new GameFactory();
+
+    const players: HandlerChain<SystemHandlerParams & GameHandlerParams, HandlerData, ResponseMessage>[] = Array(argv.players as number + 1);
+    players[0] = gameFactory.getIntermediaryHandlerChain(mainPlayerIntermediary);
     for(let i = 1; i < players.length; i++) {
-        players[i].append(new DefaultBotHandler());
+        players[i] = gameFactory.getDefaultBotHandlerChain();
     }
 
-    const stateTransformer = new StateTransformer();
-    const responseValidator = new ResponseValidator();
-    const gameStateIterator = new GameStateIterator();
-    const gameSetup = new GameSetup();
+    const gameSetup = gameFactory.getGameSetup();
 
     const params = gameSetup.setupForYargs(argv);
 
@@ -55,14 +50,12 @@ yargs.command(['start', '$0'], 'begin a new game', yargs => {
         }
         process.exitCode = 1;
     } else {
-        const initialState = stateTransformer.initialState({
+        const initialState = gameFactory.getStateTransformer().initialState({
             names: names,
             gameParams: params
         });
 
-        const driver = new GameDriver(players, initialState, gameStateIterator, stateTransformer, responseValidator);
-
-        await driver.start();
+        await gameFactory.getGameDriver(players, initialState).start();
     }
 })
 .help()
