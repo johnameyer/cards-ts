@@ -4,14 +4,16 @@ if(!performance) {
     var { performance } = require('perf_hooks');
 }
 
-import { GameDriver, IncrementalIntermediary, InquirerPresenter, HandlerChain } from '@cards-ts/core';
+import { IncrementalIntermediary, InquirerPresenter } from '@cards-ts/core';
 
 async function run(libraryName: string) {
     try {
         const start = performance.now();
 
         const library = import('@cards-ts/' + libraryName);
-        const { GameSetup, GameStateIterator, IntermediaryHandler, ResponseValidator, StateTransformer, DefaultBotHandler } = await library;
+        const { GameFactory, IntermediaryHandler } = await library;
+
+        const gameFactory = new GameFactory();
 
         const postImport = performance.now();
         console.log(libraryName + ': import took ' + (postImport - start) + ' ms');
@@ -22,18 +24,15 @@ async function run(libraryName: string) {
 
         let names: string[] = ['Jerome', 'Leah', 'Greg', 'Bart'].slice(0, numPlayers);
 
-        const handlers = Array(numPlayers).fill(undefined).map(_ => new HandlerChain());
+        const handlers = Array(numPlayers);
         for(let i = 0; i < handlers.length; i++) {
-            handlers[i].append(new DefaultBotHandler());
+            handlers[i] = gameFactory.getDefaultBotHandlerChain();
         }
 
-        const stateTransformer = new StateTransformer();
-        const responseValidator = new ResponseValidator();
-        const gameStateIterator = new GameStateIterator();
-        const initialState = stateTransformer.initialState({ names: names, gameParams: new GameSetup().getDefaultParams() });
+        const initialState = gameFactory.getStateTransformer().initialState({ names: names, gameParams: gameFactory.getGameSetup().getDefaultParams() });
 
-        const gameDriver = new GameDriver(handlers, initialState, gameStateIterator, stateTransformer, responseValidator);
-        
+        const gameDriver = gameFactory.getGameDriver(handlers, initialState);
+
         const postSetup = performance.now();
         console.log(libraryName + ': setup took ' + (postSetup - postImport) + ' ms');
 
