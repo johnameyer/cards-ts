@@ -22,7 +22,7 @@ yargs.command(['start', '$0'], 'begin a new game', yargs => {
         alias: 'n',
         type: 'string',
         description: 'Player\'s name'
-    });
+    }).options(new GameSetup().getYargs());
 }, async argv => {
     const mainPlayerIntermediary = new IncrementalIntermediary(new InquirerPresenter());
     let names: string[] = [];
@@ -43,10 +43,27 @@ yargs.command(['start', '$0'], 'begin a new game', yargs => {
     const stateTransformer = new StateTransformer();
     const responseValidator = new ResponseValidator();
     const gameStateIterator = new GameStateIterator();
+    const gameSetup = new GameSetup();
 
-    const driver = new GameDriver(players, stateTransformer.initialState({ names: names, gameParams: new GameSetup().getDefaultParams() }), gameStateIterator, stateTransformer, responseValidator);
+    const params = gameSetup.setupForYargs(argv);
 
-    await driver.start();
+    const errors = gameSetup.verifyParams(params);
+
+    if(Object.keys(errors).length) {
+        for(let error of Object.entries(errors)) {
+            console.log(error[1]);
+        }
+        process.exitCode = 1;
+    } else {
+        const initialState = stateTransformer.initialState({
+            names: names,
+            gameParams: params
+        });
+
+        const driver = new GameDriver(players, initialState, gameStateIterator, stateTransformer, responseValidator);
+
+        await driver.start();
+    }
 })
 .help()
 .argv

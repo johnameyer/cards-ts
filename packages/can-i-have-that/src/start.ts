@@ -2,7 +2,7 @@
 
 import { GameStateIterator } from './game-state-iterator';
 import { LocalMaximumHandler } from './handlers/local-maximum-handler';
-import yargs from 'yargs';
+import yargs, { exit } from 'yargs';
 import { IntermediaryHandler } from './handlers/intermediary-handler';
 import { GameDriver, HandlerChain, IncrementalIntermediary, InquirerPresenter, IntermediarySystemHandler } from '@cards-ts/core';
 import { StateTransformer } from './state-transformer';
@@ -23,7 +23,7 @@ yargs.command(['start', '$0'], 'begin a new game', yargs => {
         alias: 'n',
         type: 'string',
         description: 'Player\'s name'
-    });
+    }).options(new GameSetup().getYargs());
 }, async argv => {
     const mainPlayerIntermediary = new IncrementalIntermediary(new InquirerPresenter());
     let names: string[] = [];
@@ -44,15 +44,27 @@ yargs.command(['start', '$0'], 'begin a new game', yargs => {
     const stateTransformer = new StateTransformer();
     const responseValidator = new ResponseValidator();
     const gameStateIterator = new GameStateIterator();
+    const gameSetup = new GameSetup();
 
-    const initialState = stateTransformer.initialState({
-        names: names,
-        gameParams: new GameSetup().getDefaultParams()
-    });
+    const params = gameSetup.setupForYargs(argv);
 
-    const driver = new GameDriver(players, initialState, gameStateIterator, stateTransformer, responseValidator);
+    const errors = gameSetup.verifyParams(params);
 
-    await driver.start();
+    if(Object.keys(errors).length) {
+        for(let error of Object.entries(errors)) {
+            console.log(error[1]);
+        }
+        process.exitCode = 1;
+    } else {
+        const initialState = stateTransformer.initialState({
+            names: names,
+            gameParams: params
+        });
+
+        const driver = new GameDriver(players, initialState, gameStateIterator, stateTransformer, responseValidator);
+
+        await driver.start();
+    }
 })
 .help()
 .argv

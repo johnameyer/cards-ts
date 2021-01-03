@@ -28,4 +28,28 @@ export class GameSetup implements GenericGameSetup<GameParams> {
             // noDiscardLastRound
         };
     }
+
+    verifyParams(params: GameParams) {
+        const errors: { rounds?: string | undefined; } = {};
+        try {
+            if(!params.rounds.every(arr => arr.every(item => item == 3 || item == 4))) {
+                throw new Error();
+            }
+        } catch (e) {
+            errors.rounds = 'Rounds must be an array of arrays of 3s or 4s';
+        }
+        return errors;
+    }
+
+    getYargs(): {[key: string]: import('yargs').Options} {
+        return {
+            shortGame: { description: 'Play a shortened game', type: 'boolean', default: false }
+        };
+    }
+
+    setupForYargs(params: any): GameParams {
+        return {
+            rounds: params.shortGame ? SHORT_GAME : FULL_GAME
+        };
+    }
 }

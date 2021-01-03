@@ -22,4 +22,29 @@ export class GameSetup implements GenericGameSetup<GameParams> {
             maxBattles
         };
     }
+
+    
+    verifyParams(params: GameParams): { readonly maxBattles?: string; } {
+        const errors: { maxBattles?: string | undefined; } = {};
+        try {
+            if(!Number(params.maxBattles) || Number(params.maxBattles) <= 0) {
+                throw new Error();
+            }
+        } catch (e) {
+            errors.maxBattles = 'Max battles must be an positive number.';
+        }
+        return errors;
+    }
+
+    getYargs(): {[key: string]: import('yargs').Options} {
+        return {
+            maxBattles: { alias: 'n', description: 'How many battles before declaring a stalemate', type: 'number', default: 200 }
+        };
+    }
+
+    setupForYargs(params: any): GameParams {
+        return {
+            maxBattles: Number(params.maxBattles)
+        };
+    }
 }
