@@ -12,12 +12,12 @@ import { ResponseValidator } from "./response-validator";
 import { StateTransformer } from "./state-transformer";
 
 export class GameFactory extends AbstractGameFactory<HandlerData, GameHandlerParams, GameParams, GameState.State, GameState, ResponseMessage, StateTransformer, ResponseValidator> {
-    protected getResponseValidator() {
-        return new ResponseValidator();
-    }
-
     protected getGameStateIterator() {
         return new GameStateIterator();
+    }
+
+    getResponseValidator() {
+        return new ResponseValidator();
     }
 
     getStateTransformer() {

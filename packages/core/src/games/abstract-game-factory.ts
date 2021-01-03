@@ -14,9 +14,10 @@ import { Message } from "./message";
  * Wraps the classes in a game library into one common interface to make usages less verbose
  */
 export abstract class AbstractGameFactory<HandlerData, Handles extends {[key: string]: any[]}, GameParams, State, GameState extends GenericGameState<GameParams, State>, ResponseMessage extends Message, StateTransformer extends AbstractStateTransformer<GameParams, State, HandlerData, GameState, ResponseMessage>, ResponseValidator extends GenericResponseValidator<GameParams, State, GameState, ResponseMessage>> {
-    protected abstract getResponseValidator(): ResponseValidator;
     protected abstract getGameStateIterator(): GenericGameStateIterator<HandlerData, ResponseMessage, Handles & SystemHandlerParams, GameParams, State, GameState, StateTransformer>;
 
+    // TODO with https://github.com/johnameyer/can-i-have-that/issues/45 make more of these protected?
+    abstract getResponseValidator(): ResponseValidator;
     abstract getStateTransformer(): StateTransformer;
     abstract getGameSetup(): GenericGameSetup<GameParams>;
 
