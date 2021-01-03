@@ -1,13 +1,7 @@
 export interface GameParams {
-    maxScore: number;
+    readonly maxScore: number;
 
-    numToPass: number;
+    readonly numToPass: number;
 
-    quickEnd: boolean;
-}
-
-export const defaultParams = {
-    maxScore: 50,
-    numToPass: 3,
-    quickEnd: true,
+    readonly quickEnd: boolean;
 }

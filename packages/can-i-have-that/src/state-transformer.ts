@@ -8,7 +8,7 @@ export class StateTransformer extends AbstractStateTransformer<GameParams, GameS
     transformToHandlerData(gameState: GameState, position: number): HandlerData {
         // TODO is cloneDeep needed and should deepFreeze be used
         return {
-            gameParams: GameParams.fromObj(gameState.gameParams),
+            gameParams: {...gameState.gameParams},
             dealer: gameState.dealer,
             hand: gameState.hands[position].map(card => Card.fromObj(card)),
             numPlayers: gameState.numPlayers,

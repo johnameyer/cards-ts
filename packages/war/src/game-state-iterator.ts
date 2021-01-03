@@ -69,13 +69,13 @@ export class GameStateIterator implements GenericGameStateIterator<HandlerData, 
     }
 
     startBattle(gameState: GameState, handlerProxy: HandlerProxy) {
-        if(gameState.battleCount++ == gameState.gameParams.maxBattles) {
-            gameState.state = GameState.State.END_GAME;
-        }
-
         gameState.playedCards = gameState.names.map(() => []);
 
         gameState.state = GameState.State.START_FLIP;
+        
+        if(gameState.battleCount++ > gameState.gameParams.maxBattles) {
+            gameState.state = GameState.State.END_GAME;
+        }
     }
 
     startFlip(gameState: GameState, handlerProxy: HandlerProxy) {

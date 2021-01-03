@@ -1,9 +1,10 @@
 import { GameDriver, IncrementalIntermediary, InquirerPresenter } from "@cards-ts/core";
 import { argv } from "yargs";
-import { IntermediaryHandler, defaultParams } from ".";
+import { GameSetup } from "./game-setup";
 import { GameState } from "./game-state";
 import { GameStateIterator } from "./game-state-iterator";
 import { HeuristicHandler } from "./handlers/heuristic-handler";
+import { IntermediaryHandler } from "./handlers/intermediary-handler";
 import { ResponseMessage } from "./messages/response-message";
 import { ResponseValidator } from "./response-validator";
 import { StateTransformer } from "./state-transformer";
@@ -35,7 +36,7 @@ const database = new class {
     private state: GameState | undefined;
     get() {
         if(!this.state) {
-            this.state = stateTransformer.initialState({ names: names, gameParams: defaultParams });
+            this.state = stateTransformer.initialState({ names: names, gameParams: new GameSetup().getDefaultParams() });
         }
         return this.state;
     }

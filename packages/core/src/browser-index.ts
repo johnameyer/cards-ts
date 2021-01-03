@@ -10,7 +10,7 @@ export { ValueError } from './cards/value-error';
 export { InvalidError } from './cards/invalid-error';
 
 export { Presenter, Serializable } from './intermediary/presenter';
-export { Intermediary } from './intermediary/intermediary';
+export { Intermediary, IntermediaryMapping } from './intermediary/intermediary';
 export { Protocol } from './intermediary/protocol';
 export { DisplayElement } from './intermediary/display-element';
 export { ProtocolIntermediary } from './intermediary/protocol-intermediary';
@@ -19,6 +19,7 @@ export { IntermediarySystemHandler } from './intermediary/intermediary-system-ha
 
 export { GameDriver } from './games/game-driver';
 export { GenericGameState } from './games/generic-game-state';
+export { GenericGameSetup } from './games/generic-game-setup';
 export { GenericGameStateIterator } from './games/generic-game-state-iterator';
 export { Message } from './games/message';
 export { Observer } from './games/observer';

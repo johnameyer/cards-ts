@@ -1,5 +1,6 @@
 export { GameStateIterator } from './game-state-iterator';
-export { defaultParams } from './game-params';
+export { GameParams } from './game-params';
+export { GameSetup } from './game-setup';
 export { HeuristicHandler as DefaultBotHandler } from './handlers/heuristic-handler';
 export { ResponseValidator } from './response-validator';
 export { StateTransformer } from './state-transformer';

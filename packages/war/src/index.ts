@@ -1,5 +1,5 @@
 export { GameStateIterator } from './game-state-iterator';
-export { defaultParams } from './game-params';
+export { GameSetup } from './game-setup';
 export { DefaultBotHandler } from './handlers/default-bot-handler';
 export { ResponseValidator } from './response-validator';
 export { StateTransformer } from './state-transformer';
