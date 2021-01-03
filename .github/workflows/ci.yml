@@ -42,13 +42,13 @@ jobs:
         run: npm run test
 
       - name: Playable Tests Setup
-        run: npm ci
+        run: npm ci && npx lerna link
         working-directory: ./spec/
 
       - name: Playable Tests
         run: npm start
         working-directory: ./spec/
-
+      
       - name: Upload Logs
         uses: actions/upload-artifact@v2
         with:
