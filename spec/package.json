@@ -1,6 +1,5 @@
 {
   "name": "package-tests",
-  "version": "0.0.0",
   "private": true,
   "scripts": {
     "prestart": "rm -rf ./logs/ && mkdir ./logs",

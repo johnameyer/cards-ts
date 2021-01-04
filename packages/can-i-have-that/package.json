@@ -3,7 +3,7 @@
   "version": "0.3.0",
   "description": "Library and console implementation of the game 'Can I Have That' which is a house variation on Continental Rummy.",
   "author": "John Meyer",
-  "homepage": "https://github.com/johnameyer/can-i-have-that/tree/master/packages/can-i-have-that#readme",
+  "homepage": "https://github.com/johnameyer/cards-ts/tree/master/packages/can-i-have-that#readme",
   "license": "UNLICENSED",
   "main": "lib/index.js",
   "directories": {
@@ -15,7 +15,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/johnameyer/can-i-have-that.git"
+    "url": "git+ssh://git@github.com/johnameyer/cards-ts.git"
   },
   "bin": {
     "can-i-have-that": "./lib/start.js"
@@ -34,7 +34,7 @@
     "prepublishOnly": "npm run build"
   },
   "bugs": {
-    "url": "https://github.com/johnameyer/can-i-have-that/issues"
+    "url": "https://github.com/johnameyer/cards-ts/issues"
   },
   "dependencies": {
     "@cards-ts/core": "^0.3.0",

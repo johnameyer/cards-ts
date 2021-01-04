@@ -3,7 +3,7 @@
   "version": "0.3.0",
   "description": "Implementation of the card game war.",
   "author": "John Meyer",
-  "homepage": "https://github.com/johnameyer/can-i-have-that/tree/master/packages/war#readme",
+  "homepage": "https://github.com/johnameyer/cards-ts/tree/master/packages/war#readme",
   "license": "UNLICENSED",
   "main": "lib/index.js",
   "directories": {
@@ -15,7 +15,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/johnameyer/can-i-have-that.git"
+    "url": "git+ssh://git@github.com/johnameyer/cards-ts.git"
   },
   "bin": {
     "war": "./lib/start.js"
@@ -33,7 +33,7 @@
     "prepublishOnly": "npm run build"
   },
   "bugs": {
-    "url": "https://github.com/johnameyer/can-i-have-that/issues"
+    "url": "https://github.com/johnameyer/cards-ts/issues"
   },
   "dependencies": {
     "@cards-ts/core": "^0.3.0",
