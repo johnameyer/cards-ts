@@ -23,15 +23,14 @@ export { GenericGameState } from './games/generic-game-state';
 export { GenericGameSetup } from './games/generic-game-setup';
 export { GenericGameStateIterator } from './games/generic-game-state-iterator';
 export { Message } from './games/message';
-export { Observer } from './games/observer';
 export { GenericResponseValidator } from './games/generic-response-validator';
 export { AbstractStateTransformer } from './games/abstract-state-transformer';
 export { HandlerProxy } from './games/handler-proxy';
 export { ResponseQueue, HandlerResponsesQueue } from './games/response-queue';
 
 export { Handler, HandlerAction, HandlerChain } from './handlers/handler';
-export { MessageHandler } from './handlers/message-handler';
-export { WaitingHandler } from './handlers/waiting-handler';
+export { MessageHandler, MessageHandlerParams } from './handlers/message-handler';
+export { WaitingHandler, WaitingHandlerParams } from './handlers/waiting-handler';
 export { SystemHandler, SystemHandlerParams } from './handlers/system-handler';
 
 export { combinations } from './util/combinations';

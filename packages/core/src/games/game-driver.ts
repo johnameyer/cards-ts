@@ -11,6 +11,10 @@ import { SystemHandlerParams } from '../handlers/system-handler';
  * Class that handles the steps of the game
  */
 export class GameDriver<HandlerData, Handlers extends {[key: string]: any[]} & SystemHandlerParams, GameParams, State, GameState extends GenericGameState<GameParams, State>, ResponseMessage extends Message, StateTransformer extends AbstractStateTransformer<GameParams, State, HandlerData, GameState, ResponseMessage>, ResponseValidator extends GenericResponseValidator<GameParams, State, GameState, ResponseMessage>> {
+    /**
+     * Tells if the game is waiting on a player
+     * @param state the state to analyze
+     */
     static isWaitingOnPlayer<GameParams, State>(state: GenericGameState<GameParams, State>) {
         if(Array.isArray(state.waiting)) {
             return state.waiting.length !== 0;
@@ -19,6 +23,11 @@ export class GameDriver<HandlerData, Handlers extends {[key: string]: any[]} & S
         }
     }
 
+    /**
+     * Tells if the game is waiting on any of the following players
+     * @param state the state to analyze
+     * @param subset the subset to check against
+     */
     static isWaitingOnPlayerSubset<GameParams, State>(state: GenericGameState<GameParams, State>, subset: number[]) {
         if(Array.isArray(state.waiting)) {
             return state.waiting.length !== 0 && state.waiting.some(position => subset.includes(position));
@@ -77,10 +86,18 @@ export class GameDriver<HandlerData, Handlers extends {[key: string]: any[]} & S
         return this.handlerProxy.receiveAsyncResponses();
     }
 
+    /*
+     * Tells if the game is waiting on a player
+     */
     isWaitingOnPlayer() {
         return GameDriver.isWaitingOnPlayer(this.gameState);
     }
 
+    
+    /**
+     * Tells if the game is waiting on any of the following players
+     * @param subset the subset to check against
+     */
     isWaitingOnPlayerSubset(subset: number[]) {
         return GameDriver.isWaitingOnPlayerSubset(this.gameState, subset);
     }

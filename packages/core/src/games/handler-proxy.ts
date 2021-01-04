@@ -78,6 +78,13 @@ export class HandlerProxy<HandlerData, ResponseMessage extends Message, Handlers
         );
     }
 
+    /**
+     * Calls the handler chain at the specified position
+     * @param gameState the game state
+     * @param position the position of the handler to call
+     * @param method the event type to call
+     * @param args the args to call with
+     */
     handlerCall<Method extends keyof Handlers>(gameState: GameState, position: number, method: Method, ...args: Handlers[Method]): void {
         gameState.waiting = [position];
         gameState.responded = this.players.map(() => false);
@@ -88,6 +95,13 @@ export class HandlerProxy<HandlerData, ResponseMessage extends Message, Handlers
         }
     }
 
+    /**
+     * Calls all the handlers and waits for N to respond
+     * @param gameState the game state
+     * @param method the event type to call
+     * @param numToWaitFor the number of handlers to wait for
+     * @param args the args to call with
+     */
     handlerCallFirst<Method extends keyof Handlers>(gameState: GameState, method: Method, numToWaitFor = 1, ...args: Handlers[Method]): void {
         gameState.waiting = numToWaitFor;
         gameState.responded = this.players.map(() => false);
@@ -104,6 +118,13 @@ export class HandlerProxy<HandlerData, ResponseMessage extends Message, Handlers
         );
     }
 
+    
+    /**
+     * Calls all the handlers and wait for a response
+     * @param gameState the game state
+     * @param method the event type to call
+     * @param args the args to call with
+     */
     handlerCallAll<Method extends keyof Handlers>(gameState: GameState, method: Method, waitFor: number[] = range(this.getNumberOfPlayers()), ...args: Handlers[Method]): void {
         gameState.waiting = waitFor;
         gameState.responded = this.players.map(() => false);

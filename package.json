@@ -9,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/johnameyer/can-i-have-that.git"
+    "url": "git+ssh://git@github.com/johnameyer/cards-ts.git"
   },
   "author": "John Meyer",
   "license": "UNLICENSED",
   "bugs": {
-    "url": "https://github.com/johnameyer/can-i-have-that/issues"
+    "url": "https://github.com/johnameyer/cards-ts/issues"
   },
-  "homepage": "https://github.com/johnameyer/can-i-have-that#readme",
+  "homepage": "https://github.com/johnameyer/cards-ts#readme",
   "dependencies": {
     "chalk": "^4.1.0"
   },
