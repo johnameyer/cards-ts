@@ -36,7 +36,7 @@ export abstract class AbstractStateTransformer<GameParams, State, HandlerData, G
         if(!(obj instanceof Object)) {
             throw new Error('Not an object');
         }
-        if(!Array.isArray(obj.data) || !Array.isArray(obj.hands) || !Array.isArray(obj.names) || !Array.isArray(obj.played) || !Array.isArray(obj.scores)) {
+        if(!Array.isArray(obj.data) || !Array.isArray(obj.hands) || !Array.isArray(obj.names)) {
             throw new Error('Shape of object is wrong');
         }
 
