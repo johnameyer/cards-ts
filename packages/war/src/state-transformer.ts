@@ -1,4 +1,4 @@
-import { AbstractStateTransformer } from '@cards-ts/core';
+import { AbstractStateTransformer, Card } from '@cards-ts/core';
 import { GameParams } from './game-params';
 import { GameState } from './game-state';
 import { HandlerData } from './handler-data';
@@ -22,6 +22,23 @@ export class StateTransformer extends AbstractStateTransformer<GameParams, GameS
             data: gameState.data[position]
         };
         return handlerData;
+    }
+
+    fromStr(str: string): GameState {
+        const obj = JSON.parse(str);
+        // TODO better shape checking
+        if(!(obj instanceof Object)) {
+            throw new Error('Not an object');
+        }
+        if(!Array.isArray(obj.playedCards)) {
+            throw new Error('Shape of object is wrong');
+        }
+
+        return {
+            ...obj,
+            ...super.fromStr(str),
+            playedCards: obj.playedCards.map((cards: Card[]) => cards.map(card => Card.fromObj(card)))
+        }
     }
 
     merge(gameState: GameState, sourceHandler: number, incomingEvent: ResponseMessage): GameState {

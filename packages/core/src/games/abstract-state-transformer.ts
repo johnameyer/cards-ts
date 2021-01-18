@@ -44,7 +44,7 @@ export abstract class AbstractStateTransformer<GameParams, State, HandlerData, G
             gameParams: obj.gameParams,
             completed: obj.completed,
             data: obj.data,
-            deck: Deck.fromObj(obj.deck),
+            deck: obj.deck ? Deck.fromObj(obj.deck) : undefined,
             hands: obj.hands.map((hand: Card[]) => hand.map(card => Card.fromObj(card))),
             names: obj.names,
             numPlayers: obj.numPlayers,

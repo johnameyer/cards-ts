@@ -159,14 +159,15 @@ export class StateTransformer extends AbstractStateTransformer<GameParams, GameS
         if(typeof obj !== 'object' || !obj) {
             throw new Error('Not an object');
         }
-        if(!Array.isArray(obj.data) || !Array.isArray(obj.hands) || !Array.isArray(obj.names) || !Array.isArray(obj.played) || !Array.isArray(obj.points)) {
+
+        if((obj.played && !Array.isArray(obj.played)) || !Array.isArray(obj.points)) {
             throw new Error('Shape of object is wrong');
         }
         const gameState: GameState = {
             ...obj,
-            deck: Deck.fromObj(obj.deck),
-            hands: obj.hands.map((hand: Card[]) => hand.map(card => Card.fromObj(card))),
-            played: obj.played.map((runs: Meld[]) => runs.map(run => runFromObj(run))),
+            ...super.fromStr(str),
+            deck: obj.deck ? Deck.fromObj(obj.deck) : undefined,
+            played: obj.played ? obj.played.map((runs: Meld[]) => runs.map(run => runFromObj(run))) : undefined,
         };
         return gameState;
     }

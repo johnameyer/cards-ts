@@ -29,7 +29,9 @@ async function run(libraryName: string) {
             handlers[i] = gameFactory.getDefaultBotHandlerChain();
         }
 
-        const initialState = gameFactory.getStateTransformer().initialState({ names: names, gameParams: gameFactory.getGameSetup().getDefaultParams() });
+        let initialState = gameFactory.getStateTransformer().initialState({ names: names, gameParams: gameFactory.getGameSetup().getDefaultParams() });
+
+        initialState = gameFactory.getStateTransformer().fromStr(gameFactory.getStateTransformer().toString(initialState));
 
         const gameDriver = gameFactory.getGameDriver(handlers, initialState);
 
