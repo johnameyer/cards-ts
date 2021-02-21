@@ -31,7 +31,7 @@
     "ts-start": "ts-node src/start.ts start",
     "debug": "ts-node-dev --rs=false --inspect --transpileOnly src/start.ts start",
     "test": "exit && mocha -r ts-node/register spec/**/*.spec.ts",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run clean && npm run build"
   },
   "bugs": {
     "url": "https://github.com/johnameyer/cards-ts/issues"
