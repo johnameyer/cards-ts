@@ -126,7 +126,7 @@ export class GameStateIterator implements GenericGameStateIterator<HandlerData, 
         for(let player = 0; player < gameState.numPlayers; player++) {
             const passedFrom = (player + gameState.pass + gameState.numPlayers) % gameState.numPlayers; // TODO consider +- here
             const passed = gameState.passed[passedFrom];
-            gameState.hands[passedFrom] = gameState.hands[passedFrom].filter(card => !passed.includes(card));
+            gameState.hands[passedFrom] = gameState.hands[passedFrom].filter(card => !passed.some(other => other.equals(card)));
             handlerProxy.message(gameState, player, new PassedMessage(passed, gameState.names[passedFrom]));
             gameState.hands[player].push(...passed);
         }
@@ -171,7 +171,7 @@ export class GameStateIterator implements GenericGameStateIterator<HandlerData, 
     handlePlay(gameState: GameState, handlerProxy: HandlerProxy) {
         const { whoseTurn, playedCard, hands} = gameState;
         gameState.currentTrick.push(playedCard);
-        const index = hands[whoseTurn].findIndex(card => card === playedCard);
+        const index = hands[whoseTurn].findIndex(card => card.equals(playedCard));
         if(index == -1) {
             throw new Error('Nonexistent card?');
         }
