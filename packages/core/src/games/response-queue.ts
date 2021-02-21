@@ -55,6 +55,10 @@ export class ResponseQueue<Item> {
         this.asyncQueuePromise = new Promise(resolver => this.asyncQueueResolver = resolver);
     }
 
+    asyncResponsesQueued() {
+        return this.asyncQueue.length > 0;
+    }
+
     asyncResponsesAvailable() {
         if(this.asyncQueue.length > 0) {
             return;
