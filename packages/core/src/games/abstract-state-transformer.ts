@@ -1,7 +1,7 @@
 import { Card } from '../cards/card';
 import { Deck } from '../cards/deck';
 import { GenericGameState } from './generic-game-state';
-import { Message } from './message';
+import { Message } from '../messages/message';
 
 /**
  * Abstract class for transforming a game's state into various forms

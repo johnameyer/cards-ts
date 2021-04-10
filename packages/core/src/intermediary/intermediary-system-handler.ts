@@ -1,4 +1,4 @@
-import { Message } from "../games/message";
+import { Message } from "../messages/message";
 import { HandlerResponsesQueue } from "../games/response-queue";
 import { SystemHandler } from "../handlers/system-handler";
 import { Intermediary } from "./intermediary";

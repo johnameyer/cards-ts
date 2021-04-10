@@ -1,4 +1,4 @@
-import { Message } from "../games/message";
+import { Message } from "../messages/message";
 import { Handler, HandlerAction } from "./handler";
 import { MessageHandlerParams } from "./message-handler";
 import { WaitingHandlerParams } from "./waiting-handler";

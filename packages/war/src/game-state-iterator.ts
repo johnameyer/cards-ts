@@ -2,7 +2,7 @@ import { GameState } from "./game-state";
 import { GameParams } from "./game-params";
 import { HandlerData } from "./handler-data";
 import { GameHandler, GameHandlerParams } from "./game-handler";
-import { GenericGameStateIterator, Card, Deck, SystemHandlerParams } from '@cards-ts/core';
+import { GenericGameStateIterator, Card, Deck, SystemHandlerParams, SpacingMessage } from '@cards-ts/core';
 import { ResponseMessage } from "./messages/response-message";
 import { StateTransformer } from "./state-transformer";
 import { HandlerProxy as GenericHandlerProxy } from "@cards-ts/core/lib/games/handler-proxy";
@@ -123,6 +123,7 @@ export class GameStateIterator implements GenericGameStateIterator<HandlerData, 
         gameState.hands[max].push(...gameState.playedCards.flat());
 
         handlerProxy.messageAll(gameState, new WonBattleMessage(gameState.names[max]));
+        handlerProxy.messageAll(gameState, new SpacingMessage());
 
         if(gameState.hands.filter(hand => hand.length != 0).length == 1) {
             gameState.state = GameState.State.END_GAME;
@@ -155,6 +156,7 @@ export class GameStateIterator implements GenericGameStateIterator<HandlerData, 
         gameState.hands[max].push(...gameState.playedCards.flat());
         
         handlerProxy.messageAll(gameState, new WonWarMessage(gameState.names[max]));
+        handlerProxy.messageAll(gameState, new SpacingMessage());
 
         if(gameState.hands.filter(hand => hand.length != 0).length == 1) {
             gameState.state = GameState.State.END_GAME;

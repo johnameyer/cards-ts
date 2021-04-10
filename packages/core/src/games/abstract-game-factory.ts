@@ -8,7 +8,7 @@ import { GenericGameSetup } from "./generic-game-setup";
 import { GenericGameState } from "./generic-game-state";
 import { GenericGameStateIterator } from "./generic-game-state-iterator";
 import { GenericResponseValidator } from "./generic-response-validator";
-import { Message } from "./message";
+import { Message } from "../messages/message";
 
 /**
  * Wraps the classes in a game library into one common interface to make usages less verbose

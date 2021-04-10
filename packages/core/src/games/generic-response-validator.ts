@@ -1,5 +1,5 @@
 import { GenericGameState } from './generic-game-state';
-import { Message } from './message';
+import { Message } from '../messages/message';
 
 /**
  * Class responsible for checking whether a response from a client is valid and returning a valid response otherwise

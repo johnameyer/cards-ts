@@ -1,7 +1,7 @@
 import { isDefined } from '../util/is-defined';
 import { GenericGameState } from './generic-game-state';
 import { AbstractStateTransformer } from './abstract-state-transformer';
-import { Message } from './message';
+import { Message } from '../messages/message';
 import { ResponseQueue } from './response-queue';
 import { range } from '../util/range';
 import { Handler, HandlerAction, HandlerChain } from '../handlers/handler';

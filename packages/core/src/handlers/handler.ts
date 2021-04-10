@@ -1,4 +1,4 @@
-import { Message } from "../games/message";
+import { Message } from "../messages/message";
 import { HandlerResponsesQueue } from "../games/response-queue";
 
 export type HandlerAction<HandlerData, ResponseMessage, Vargs extends any[] = any[]> = (this: any, gameState: HandlerData, response: HandlerResponsesQueue<ResponseMessage>, ...args: Vargs) => void | Promise<void>;

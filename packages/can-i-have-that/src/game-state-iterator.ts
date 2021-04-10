@@ -1,6 +1,6 @@
 import { GameHandler, GameHandlerParams } from './game-handler';
 import { HandlerData } from './handler-data';
-import { GenericGameStateIterator, Card, InvalidError, zip, HandlerProxy as GenericHandlerProxy } from '@cards-ts/core';
+import { GenericGameStateIterator, Card, InvalidError, zip, HandlerProxy as GenericHandlerProxy, SpacingMessage } from '@cards-ts/core';
 import { GameParams } from './game-params';
 import { ReshuffleMessage, DealOutMessage, DealMessage, StartRoundMessage, DiscardMessage, EndRoundMessage, PickupMessage, PlayedMessage, DealerMessage, OutOfCardsMessage } from './messages/status';
 import { ResponseMessage } from './messages/response-message';
@@ -150,6 +150,7 @@ export class GameStateIterator implements GenericGameStateIterator<HandlerData, 
         }
 
         handlerProxy.messageAll(gameState, new EndRoundMessage(gameState.names, gameState.points));
+        handlerProxy.messageAll(gameState, new SpacingMessage());
 
         if(gameState.round !== gameState.gameParams.rounds.length) {
             gameState.state = GameState.State.START_ROUND;

@@ -28,6 +28,7 @@
     "madge": "npx madge --circular --extensions ts ./src",
     "prestart": "npm run build",
     "start": "node lib/start.js start",
+    "ts-start": "ts-node src/start.ts start",
     "debug": "ts-node-dev --rs=false --inspect --transpileOnly src/start.ts start",
     "test": "exit && mocha -r ts-node/register spec/**/*.spec.ts",
     "prepublishOnly": "npm run clean && npm run build"

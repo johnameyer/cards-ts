@@ -1,5 +1,5 @@
 import { GenericGameState } from './generic-game-state';
-import { Message } from './message';
+import { Message } from '../messages/message';
 import { AbstractStateTransformer } from './abstract-state-transformer';
 import { HandlerProxy } from './handler-proxy';
 import { GenericResponseValidator } from './generic-response-validator';
