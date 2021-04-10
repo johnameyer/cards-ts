@@ -156,7 +156,6 @@ export class HeuristicHandler implements Handler<GameHandlerParams & MessageHand
     }
 
     turn = (handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): void => {
-        console.log();
         const data = wrapData(handlerData);
         const { hand, currentTrick, tricks, pointsTaken } = handlerData;
         const canBeHeart = !pointsTaken.every(point => point === 0);
@@ -237,7 +236,6 @@ export class HeuristicHandler implements Handler<GameHandlerParams & MessageHand
                     }
                 }
                 // We probably are doomed on this hand, so just go high anyway
-                console.log(cardsOfSuitDescending.toString());
                 responsesQueue.push(new TurnResponseMessage(cardsOfSuitDescending[0], data));
                 return;
             } else {
