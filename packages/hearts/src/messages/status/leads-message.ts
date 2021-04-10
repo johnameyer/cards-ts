@@ -6,7 +6,7 @@ function generateMessage(leader: string): Serializable[] {
 }
 
 /**
- * Class that denotes to a handler that they have been dealt or drawn a card
+ * Class that denotes to a handler that a certain player is leading this round
  */
 export class LeadsMessage extends Message {
 

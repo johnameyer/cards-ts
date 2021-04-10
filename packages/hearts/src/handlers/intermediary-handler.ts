@@ -7,15 +7,9 @@ import { Rank } from '@cards-ts/core';
 import { Intermediary } from '@cards-ts/core';
 import { PassResponseMessage, TurnResponseMessage } from '../messages/response';
 import { ResponseMessage } from '../messages/response-message';
+import { compare } from '../util/compare';
 
 const QS = new Card(Suit.SPADES, Rank.QUEEN);
-
-function compare(one: Card, two: Card): number {
-    if (one.suit !== two.suit) {
-        return Suit.compare(one.suit, two.suit);
-    }
-    return Rank.compare(one.rank, two.rank);
-}
 
 const toInquirerValue = <T extends {toString: () => string}>(t: T) => ({
     name: t.toString(),

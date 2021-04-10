@@ -1,4 +1,4 @@
-import { AbstractGameFactory, Intermediary } from "@cards-ts/core";
+import { AbstractGameFactory, Handler, Intermediary } from "@cards-ts/core";
 import { GameHandlerParams } from "./game-handler";
 import { GameParams } from "./game-params";
 import { GameSetup } from "./game-setup";
@@ -33,6 +33,6 @@ export class GameFactory extends AbstractGameFactory<HandlerData, GameHandlerPar
     }
 
     getDefaultBotHandler() {
-        return new HeuristicHandler();
+        return new HeuristicHandler() as Handler<GameHandlerParams, HandlerData, ResponseMessage>;
     }
 }

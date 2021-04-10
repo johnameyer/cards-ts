@@ -4,6 +4,7 @@ import { GameState } from "./game-state";
 import { ResponseMessage } from "./messages/response-message";
 import { PassResponseMessage } from "./messages/response/pass-response-message";
 import { TurnResponseMessage } from "./messages/response/turn-response-message";
+import { compare } from "./util/compare";
 
 const QS = new Card(Suit.SPADES, Rank.QUEEN);
 
@@ -12,6 +13,8 @@ export class ResponseValidator implements GenericResponseValidator<GameParams, G
         switch(event.type) {
             case 'pass-response': {
                 const { cards, data } = event;
+                // console.log(cards.toString());
+                // console.log(gameState.hands[source].sort(compare).toString());
                 try {
                     if(!cards.every(isDefined)) {
                         // TODO better condition
@@ -42,6 +45,8 @@ export class ResponseValidator implements GenericResponseValidator<GameParams, G
                     return undefined;
                 }
                 const { card, data } = event;
+                // console.log(card.toString());
+                // console.log(gameState.hands[source].sort(compare).toString());
                 try {
                     if(!card) {
                         throw new Error('No card provided');
