@@ -1,7 +1,7 @@
 import { GenericGameState } from './generic-game-state';
 import { AbstractStateTransformer } from './abstract-state-transformer';
 import { HandlerProxy } from './handler-proxy';
-import { Message } from './message';
+import { Message } from '../messages/message';
 import { SystemHandlerParams } from '../handlers/system-handler';
 
 /**

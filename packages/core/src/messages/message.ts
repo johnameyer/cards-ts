@@ -16,7 +16,7 @@ export abstract class Message {
 export namespace Message {
     export type Transformer = (components: Serializable[], separator?: string) => string;
 
-    export const defaultTransformer: Transformer = (components: Serializable[], joiner = ' ') => components.map(component => {
+    export const defaultTransformer: Transformer = (components: Serializable[], joiner = ' ') => components.length ? components.map(component => {
         if(component === undefined) {
             return undefined;
         }
@@ -26,5 +26,5 @@ export namespace Message {
             return defaultTransformer(component, ', ');
         }
         return component.toString();
-    }).filter(isDefined).reduce((a: string, b: string) => a + joiner + b);
+    }).filter(isDefined).reduce((a: string, b: string) => a + joiner + b) : '';
 }

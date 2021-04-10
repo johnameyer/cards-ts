@@ -1,6 +1,6 @@
 import { Presenter, Serializable } from './presenter';
 import inquirer from 'inquirer';
-import { Message } from '../games/message';
+import { Message } from '../messages/message';
 import { Card } from '..';
 
 inquirer.registerPrompt('selectLine', require('inquirer-select-line'));

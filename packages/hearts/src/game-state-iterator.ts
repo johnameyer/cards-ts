@@ -2,7 +2,7 @@ import { GameState } from "./game-state";
 import { GameParams } from "./game-params";
 import { HandlerData } from "./handler-data";
 import { GameHandler, GameHandlerParams } from "./game-handler";
-import { GenericGameStateIterator, Card, Deck, Rank, Suit, SystemHandler } from '@cards-ts/core';
+import { GenericGameStateIterator, Card, Deck, Rank, Suit, SystemHandler, SpacingMessage } from '@cards-ts/core';
 import { DealOutMessage, NoPassingMessage, PassingMessage, PassedMessage, LeadsMessage, PlayedMessage, ShotTheMoonMessage, ScoredMessage, EndRoundMessage } from "./messages/status";
 import { ResponseMessage } from "./messages/response-message";
 import { StateTransformer } from "./state-transformer";
@@ -139,6 +139,7 @@ export class GameStateIterator implements GenericGameStateIterator<HandlerData, 
         const startingCard = new Card(Suit.CLUBS, Rank.TWO);
         gameState.leader = gameState.hands.findIndex(hand => hand.find(card => card.equals(startingCard)) !== undefined);
         
+        handlerProxy.messageAll(gameState, new SpacingMessage());
         handlerProxy.messageAll(gameState, new LeadsMessage(gameState.names[gameState.leader]));
 
         const [removed] = gameState.hands[gameState.leader].splice(gameState.hands[gameState.leader].findIndex(card => card.equals(startingCard)), 1);
@@ -151,6 +152,7 @@ export class GameStateIterator implements GenericGameStateIterator<HandlerData, 
     }
 
     startTrick(gameState: GameState, handlerProxy: HandlerProxy) {
+        handlerProxy.messageAll(gameState, new SpacingMessage());
         handlerProxy.messageAll(gameState, new LeadsMessage(gameState.names[gameState.leader]));
         gameState.currentTrick = [];
         gameState.whoseTurn = gameState.leader;
