@@ -7,14 +7,14 @@ function generateMessage(cards: Card[]): Serializable[] {
 }
 
 /**
- * Class that denotes to a handler that they have been dealt or drawn a card
+ * Class that denotes to a handler that they have been dealt certain cards
  */
 export class DealOutMessage extends Message {
 
     public readonly type = 'deal-out-message';
 
     /**
-     * @param card the card being received
+     * @param cards the cards being received
      */
     constructor(public readonly cards: Card[]) {
         super(generateMessage(cards));

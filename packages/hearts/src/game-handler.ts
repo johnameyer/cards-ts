@@ -10,7 +10,7 @@ export type GameHandlerParams = {
 
 export abstract class GameHandler implements Handler<GameHandlerParams, HandlerData, ResponseMessage> {
     canHandle(key: any): key is ('pass' | 'turn') {
-       return key === 'pass' || key == 'turn';
+       return key === 'pass' || key === 'turn';
     }
 
     abstract pass: HandlerAction<HandlerData, DataResponseMessage | PassResponseMessage>;

@@ -7,14 +7,15 @@ function generateMessage(player: string, card: Card): Serializable[] {
 }
 
 /**
- * Class that denotes to a handler that they have been dealt or drawn a card
+ * Class that denotes to a handler that a card has been played
  */
 export class PlayedMessage extends Message {
 
     public readonly type = 'played-message';
 
     /**
-     * @param player the hand that is leading
+     * @param player the hand that is playing the card
+     * @param card the card being played
      */
     constructor(public readonly player: string, public readonly card: Card) {
         super(generateMessage(player, card));

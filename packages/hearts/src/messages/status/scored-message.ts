@@ -6,14 +6,14 @@ function generateMessage(points: number): Serializable[] {
 }
 
 /**
- * Class that denotes to a handler that they have been dealt or drawn a card
+ * Class that denotes to a handler that they have received a number of points at the end of the round
  */
 export class ScoredMessage extends Message {
 
     public readonly type = 'scored-message';
 
     /**
-     * @param card the card being received
+     * @param points the points being received
      */
     constructor(public readonly points: number) {
         super(generateMessage(points));
