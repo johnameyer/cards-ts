@@ -68,7 +68,9 @@ export class GameDriver<HandlerData, Handlers extends {[key: string]: any[]} & S
      */
     public handleSyncResponses() {
         for(const [position, message] of this.handlerProxy.receiveSyncResponses()) {
-            this.handleEvent(position, message);
+            if(message){
+                this.handleEvent(position, message);
+            }
         }
     }
 
@@ -117,7 +119,9 @@ export class GameDriver<HandlerData, Handlers extends {[key: string]: any[]} & S
 
                 await this.handlerProxy.asyncResponseAvailable();
                 for await(const [position, message] of this.handlerProxy.receiveAsyncResponses()) {
-                    this.handleEvent(position, message);
+                    if(message) {
+                        this.handleEvent(position, message);
+                    }
                 }
                 
                 // TODO consider this ordering

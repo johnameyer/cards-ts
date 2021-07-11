@@ -129,12 +129,8 @@ export class GameStateIterator implements GenericGameStateIterator<HandlerData, 
         GameState.Helper.setupRound(gameState);
         handlerProxy.messageAll(gameState, new StartRoundMessage(GameState.Helper.getRound(gameState)));
         this.dealOut(gameState, handlerProxy);
-        gameState.deck.discard(gameState.deck.draw());
 
-        if (gameState.deck.top === null) {
-            throw new Error('Already null');
-        }
-        const top = gameState.deck.top;
+        const top = gameState.deck.flip();
         handlerProxy.messageAll(gameState, new DiscardMessage(top));
 
         gameState.whoseTurn = (gameState.dealer + 1) % gameState.numPlayers;
@@ -292,7 +288,6 @@ export class GameStateIterator implements GenericGameStateIterator<HandlerData, 
         }
 
         if(wantCard) {
-            // tslint:disable-next-line
             let draw = gameState.deck.draw();
             if (!draw) {
                 if(!gameState.deck.shuffleDiscard()) {

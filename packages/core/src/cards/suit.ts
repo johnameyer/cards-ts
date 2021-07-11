@@ -14,10 +14,10 @@ export class Suit {
      * Suit used only for jokers
      */
     public static readonly NONE = new Suit('-', '-');
-    public static readonly DIAMONDS: Suit = new Suit('♦', 'D');
-    public static readonly CLUBS: Suit = new Suit('♣', 'C');
-    public static readonly HEARTS: Suit = new Suit('♥', 'H');
-    public static readonly SPADES: Suit = new Suit('♠', 'S');
+    public static readonly DIAMONDS: Suit = new Suit('♦', 'Diamonds');
+    public static readonly CLUBS: Suit = new Suit('♣', 'Clubs');
+    public static readonly HEARTS: Suit = new Suit('♥', 'Hearts');
+    public static readonly SPADES: Suit = new Suit('♠', 'Spades');
 
     /**
      * The normal suits that appear in the deck
@@ -69,7 +69,7 @@ export class Suit {
      */
     private readonly order: number;
 
-    private constructor(public readonly symbol: string, public readonly letter: string) {
+    private constructor(public readonly symbol: string, public readonly name: string) {
         this.order = count++;
         Object.freeze(this);
     }
@@ -81,7 +81,11 @@ export class Suit {
         if (Suit.symbolic) {
             return this.symbol;
         } else {
-            return this.letter;
+            return this.name;
         }
+    }
+
+    get letter() {
+        return this.name.substring(0, 1);
     }
 }

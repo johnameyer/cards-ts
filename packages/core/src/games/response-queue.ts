@@ -1,7 +1,7 @@
 import { isPromise } from '../util/is-promise';
 
 export interface HandlerResponsesQueue<Item> {
-    push(item: Item | Promise<Item>): void;
+    push(item: undefined | Item | Promise<undefined | Item>): void;
 
     map<PreMapped>(mapping: (item: PreMapped) => Item): HandlerResponsesQueue<PreMapped>;
 }
@@ -10,15 +10,15 @@ export interface HandlerResponsesQueue<Item> {
  * A queue that handlers push messages to to return them to the driver. Seamlessly handles async items and sync items.
  */
 export class ResponseQueue<Item> {
-    private asyncQueue: Promise<[number, Item]>[] = [];
-    private syncQueue: [number, Item][] = [];
+    private asyncQueue: Promise<[number, Item | undefined]>[] = [];
+    private syncQueue: [number, Item | undefined][] = [];
     private asyncQueuePromise: Promise<void> = new Promise(resolver => this.asyncQueueResolver = resolver);
     private asyncQueueResolver!: () => void;
 
     for(handler: number) {
         const { asyncQueue, syncQueue, asyncQueueResolver } = this;
         return {
-            push(item: Item | Promise<Item>) {
+            push(item: undefined | Item | Promise<undefined | Item>) {
                 if(isPromise(item)) {
                     asyncQueue.push(item.then(item => [handler, item]));
                     asyncQueueResolver();
@@ -40,7 +40,7 @@ export class ResponseQueue<Item> {
 
 
     * [Symbol.iterator]() {
-        let popped: undefined | [number, Item];
+        let popped: undefined | [number, Item | undefined];
         while(popped = this.syncQueue.shift()) {
             yield popped;
         }

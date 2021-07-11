@@ -1,3 +1,4 @@
 can-i-have-that
 hearts
 war
+euchre
