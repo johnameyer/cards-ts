@@ -20,6 +20,7 @@ yargs.command(['start', '$0'], 'begin a new game', yargs => {
         description: 'Player\'s name'
     }).options(new GameSetup().getYargs());
 }, async argv => {
+    // TODO make errors not be caught
     const mainPlayerIntermediary = new IncrementalIntermediary(new InquirerPresenter());
     let names: string[] = [];
     let name: string = argv.name as string;

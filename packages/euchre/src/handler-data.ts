@@ -1,4 +1,4 @@
-import { Card } from "@cards-ts/core";
+import { Card, Suit } from "@cards-ts/core";
 import { GameParams } from "./game-params";
 
 export interface HandlerData {
@@ -20,11 +20,11 @@ export interface HandlerData {
 
     leader: number;
 
-    pass: number
+    flippedCard: Card;
 
-    currentTrick: Card[];
+    currentTrump: Suit;
 
-    passed: Card[];
+    currentTrick: (Card | undefined)[];
 
     position: number;
 

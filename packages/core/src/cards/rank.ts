@@ -151,6 +151,7 @@ export class Rank {
 
     /**
      * Tells how far apart two ranks are based on the inner values
+     * 
      * Note that jokers and twos are accepted by the function but the result is not defined
      * @see Rank.distance
      * @param other the other rank

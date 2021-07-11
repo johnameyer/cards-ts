@@ -37,12 +37,12 @@ export class Deck {
      * @param shouldShuffle whether the deck should be shuffled automatically
      * @returns the new deck
      */
-    constructor(num = 0, shouldShuffle = true, includeJokers = true) {
+    constructor(num = 0, shouldShuffle = true, includeJokers = true, ranks = Rank.ranks) {
         if (num >= 0) {
             this.cards = [];
             for (let deck = 0; deck < num; deck ++) {
                 for (const suit of Suit.suits) {
-                    for (const rank of Rank.ranks) {
+                    for (const rank of ranks) {
                         if (rank !== Rank.JOKER) {
                             this.cards.push(new Card(suit, rank, deck));
                         }
@@ -83,6 +83,20 @@ export class Deck {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Take the first card and flip it over
+     * @returns the flipped/top card
+     * @throws an error if there is no card to flip
+     */
+    public flip(): Card {
+        const card = this.draw();
+        if (card === undefined) {
+            throw new Error('No cards to flip');
+        }
+        this.discard(card);
+        return card;
     }
 
     /**

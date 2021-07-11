@@ -1,13 +1,18 @@
-import { SpacingMessage } from '@cards-ts/core';
-import { DealOutMessage, EndRoundMessage, LeadsMessage, NoPassingMessage, PassedMessage, PassingMessage, PlayedMessage, ScoredMessage, ShotTheMoonMessage } from './status';
+import { DealOutMessage, EndRoundMessage, LeadsMessage, PlayedMessage, DealerMessage, WonRoundMessage, NameTrumpMessage, OrderUpMessage, PassMessage, TrumpMessage, TurnUpMessage, WonTrickMessage } from './status';
+import { GoingAloneMessage } from './status/going-alone-message';
 
 export type StatusMessage =
     DealOutMessage
+    | DealerMessage
     | EndRoundMessage
     | LeadsMessage
-    | NoPassingMessage
-    | PassedMessage
-    | PassingMessage
     | PlayedMessage
-    | ScoredMessage
-    | ShotTheMoonMessage;
+    | WonRoundMessage
+    | PassMessage
+    | OrderUpMessage
+    | NameTrumpMessage
+    | TrumpMessage
+    | TurnUpMessage
+    | WonTrickMessage
+    | GoingAloneMessage
+    ;

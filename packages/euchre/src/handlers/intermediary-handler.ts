@@ -3,13 +3,11 @@ import { HandlerData } from '../handler-data';
 import { Card, HandlerResponsesQueue } from '@cards-ts/core';
 import { Message } from '@cards-ts/core';
 import { Suit } from '@cards-ts/core';
-import { Rank } from '@cards-ts/core';
 import { Intermediary } from '@cards-ts/core';
-import { PassResponseMessage, TurnResponseMessage } from '../messages/response';
+import { TurnResponseMessage, BidResponseMessage, TrumpChoiceResponseMessage, DealerDiscardResponseMessage, GoingAloneResponseMessage } from '../messages/response';
 import { ResponseMessage } from '../messages/response-message';
 import { compare } from '../util/compare';
-
-const QS = new Card(Suit.SPADES, Rank.QUEEN);
+import { followsTrick } from '../util/follows-trick';
 
 const toInquirerValue = <T extends {toString: () => string}>(t: T) => ({
     name: t.toString(),
@@ -21,29 +19,69 @@ export class IntermediaryHandler extends GameHandler {
         super();
     }
 
-    pass = ({ hand, gameParams: { numToPass } }: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>) => {
-        const [sent, received] = this.intermediary.form({
-            type: 'checkbox',
-            message: ['Select the cards to pass'],
-            choices: hand.sort(compare).map(toInquirerValue),
-            // @ts-ignore
-            validate: validatePass,
-            validateParam: { numToPass }
+    orderUp = ({ currentTrump }: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>) => {
+        const [sent, knocked] = this.intermediary.form({
+            type: 'confirm',
+            message: ['Would you like to bid on', currentTrump, '?']
         });
-        responsesQueue.push(received.then(results => new PassResponseMessage(results[0] as Card[])));
+        const goAlone = knocked.then(([knock]) => {
+            // TODO this would need to be refactored if we enable host side intermediary handlers, since the 'sent' is conditional
+            if(knock) {
+                const [_, received] = this.intermediary.form({
+                    type: 'confirm',
+                    message: ['Would you like to go alone?']
+                });
+                return received;
+            } else {
+                return undefined;
+            }
+        });
+        responsesQueue.push(knocked.then(results => new BidResponseMessage(results[0])));
+        responsesQueue.push(goAlone.then(results => results && results[0] ? new GoingAloneResponseMessage() : undefined));
         return sent;
     }
 
-    turn = ({ hand, tricks, currentTrick, pointsTaken }: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>) => {
+    nameTrump = ({ currentTrump }: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>) => {
+        const [sent, trump] = this.intermediary.form({
+            type: 'list',
+            message: ['Select your desired trump suit'],
+            choices: [...Suit.suits.filter(suit => suit != currentTrump).map(toInquirerValue), { name: 'Pass', value: undefined}]
+        });
+        const goAlone = trump.then(([knock]) => {
+            // TODO this would need to be refactored if we enable host side intermediary handlers, since the 'sent' is conditional
+            if(knock) {
+                const [_, received] = this.intermediary.form({
+                    type: 'confirm',
+                    message: ['Would you like to go alone?']
+                });
+                return received;
+            } else {
+                return undefined;
+            }
+        });
+        responsesQueue.push(trump.then(results => new TrumpChoiceResponseMessage(results[0] as Suit | undefined)));
+        responsesQueue.push(goAlone.then(results => results && results[0] ? new GoingAloneResponseMessage() : undefined));
+        return sent;
+    }
+
+    
+    dealerDiscard = ({ hand }: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>) => {
+        const [sent, received] = this.intermediary.form({
+            type: 'list',
+            message: ['Select a card to discard'],
+            choices: hand.sort(compare).map(toInquirerValue)
+        });
+        responsesQueue.push(received.then(results => new DealerDiscardResponseMessage(results[0] as Card)));
+        return sent;
+    }
+
+    turn = ({ hand, currentTrick, currentTrump }: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>) => {
         let choices = hand;
         if(currentTrick.length > 0) {
-            if(choices.some(card => card.suit === currentTrick[0].suit)) {
-                choices = choices.filter(card => card.suit === currentTrick[0].suit);
-            } else if(tricks === 0) {
-                choices = choices.filter(card => card.suit !== Suit.HEARTS && !card.equals(QS));
+            const follows = choices.filter(card => followsTrick(currentTrick, currentTrump, card));
+            if(follows.length) {
+                choices = follows;
             }
-        } else if(pointsTaken.every(points => points === 0)) {
-            choices = choices.filter(card => card.suit !== Suit.HEARTS);
         }
         const [sent, received] = this.intermediary.form({
             type: 'list',
@@ -63,8 +101,4 @@ export class IntermediaryHandler extends GameHandler {
         // TODO this.intermediary
         return;
     }
-}
-
-function validatePass(cards: Card[], { numToPass }: { numToPass: number }) {
-    return cards.length === numToPass ? true : 'Need to pass ' + numToPass + ' cards';
 }

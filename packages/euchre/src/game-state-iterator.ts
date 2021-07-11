@@ -1,23 +1,16 @@
 import { GameState } from "./game-state";
 import { GameParams } from "./game-params";
 import { HandlerData } from "./handler-data";
-import { GameHandler, GameHandlerParams } from "./game-handler";
-import { GenericGameStateIterator, Card, Deck, Rank, Suit, SystemHandler, SpacingMessage } from '@cards-ts/core';
-import { DealOutMessage, NoPassingMessage, PassingMessage, PassedMessage, LeadsMessage, PlayedMessage, ShotTheMoonMessage, ScoredMessage, EndRoundMessage } from "./messages/status";
+import { GameHandlerParams } from "./game-handler";
+import { GenericGameStateIterator, Deck, Rank, SpacingMessage } from '@cards-ts/core';
+import { DealOutMessage, LeadsMessage, PlayedMessage, EndRoundMessage, DealerMessage, OrderUpMessage, PassMessage, NameTrumpMessage, TrumpMessage, WonTrickMessage, WonRoundMessage, GoingAloneMessage } from "./messages/status";
 import { ResponseMessage } from "./messages/response-message";
 import { StateTransformer } from "./state-transformer";
 import { HandlerProxy as GenericHandlerProxy } from "@cards-ts/core/lib/games/handler-proxy";
 import { SystemHandlerParams } from "@cards-ts/core/lib/handlers/system-handler";
-
-function valueOfCard(card: Card): number {
-    if(card.equals(Card.fromString('QS'))) {
-        return 13; // NUM OF HEARTS
-    }
-    if(card.suit === Suit.HEARTS) {
-        return 1;
-    }
-    return 0;
-}
+import { getTeamFor, getTeams } from "./util/teams";
+import { winningPlay } from "./util/winning-play";
+import { TurnUpMessage } from "./messages/status/turn-up-message";
 
 type HandlerProxy = GenericHandlerProxy<HandlerData, ResponseMessage, GameHandlerParams & SystemHandlerParams, GameParams, GameState.State, GameState, StateTransformer>;
 
@@ -31,22 +24,37 @@ export class GameStateIterator implements GenericGameStateIterator<HandlerData, 
             case GameState.State.START_ROUND:
                 this.startRound(gameState, handlerProxy);
                 break;
-
                 
-            case GameState.State.START_PASS:
-                this.startPass(gameState, handlerProxy);
+            case GameState.State.START_ORDERING_UP:
+                this.startOrderingUp(gameState, handlerProxy);
                 break;
 
-            case GameState.State.WAIT_FOR_PASS:
-                this.waitForPass(gameState, handlerProxy);
+            case GameState.State.WAIT_FOR_ORDER_UP:
+                this.waitForOrderUp(gameState, handlerProxy);
                 break;
 
-            case GameState.State.HANDLE_PASS:
-                this.handlePass(gameState, handlerProxy);
+            case GameState.State.HANDLE_ORDER_UP:
+                this.handleOrderUp(gameState, handlerProxy);
                 break;
 
-            case GameState.State.START_FIRST_TRICK:
-                this.startFirstTrick(gameState, handlerProxy);
+            case GameState.State.WAIT_FOR_DEALER_DISCARD:
+                this.waitForDealerDiscard(gameState, handlerProxy);
+                break;
+
+            case GameState.State.HANDLE_DEALER_DISCARD:
+                this.handleDealerDiscard(gameState, handlerProxy);
+                break;
+
+            case GameState.State.START_TRUMP_NAMING:
+                this.startTrumpNaming(gameState, handlerProxy);
+                break;
+
+            case GameState.State.WAIT_FOR_TRUMP_NAMING:
+                this.waitForTrumpNaming(gameState, handlerProxy);
+                break;
+
+            case GameState.State.HANDLE_TRUMP_NAMING:
+                this.handleTrumpNaming(gameState, handlerProxy);
                 break;
 
             case GameState.State.START_TRICK:
@@ -65,8 +73,12 @@ export class GameStateIterator implements GenericGameStateIterator<HandlerData, 
                 this.handlePlay(gameState, handlerProxy);
                 break;
 
+            case GameState.State.END_PLAY:
+                this.endPlay(gameState);
+                break;
+
             case GameState.State.END_TRICK:
-                this.endTrick(gameState);
+                this.endTrick(gameState, handlerProxy);
                 break;
 
             case GameState.State.END_ROUND:
@@ -80,18 +92,18 @@ export class GameStateIterator implements GenericGameStateIterator<HandlerData, 
     }
 
     startGame(gameState: GameState) {
-        gameState.pass = 1;
-
         gameState.state = GameState.State.START_ROUND;
     }
 
     startRound(gameState: GameState, handlerProxy: HandlerProxy) {
-        gameState.deck = new Deck(1, true, false);
+        gameState.deck = new Deck(1, true, false, Rank.ranks.slice(Rank.ranks.indexOf(Rank.NINE)));
+        
+        handlerProxy.messageAll(gameState, new DealerMessage(gameState.names[gameState.dealer]));
 
-        while(gameState.deck.cards.length) {
-            for(let i = 0; i < gameState.numPlayers; i++) {
+        for(let i = 0; i < 5; i++) { // TODO take from params?
+            for(let j = 0; j < gameState.numPlayers; j++) {
                 const drawn = gameState.deck.draw();
-                const player = (i + gameState.dealer) % gameState.numPlayers;
+                const player = (j + gameState.dealer) % gameState.numPlayers;
                 gameState.hands[player].push(drawn);
             }
         }
@@ -99,56 +111,93 @@ export class GameStateIterator implements GenericGameStateIterator<HandlerData, 
             handlerProxy.message(gameState, player, new DealOutMessage(gameState.hands[player]));
         }
 
-        gameState.pointsTaken = new Array(gameState.numPlayers).fill(0);
+        gameState.flippedCard = gameState.deck.flip();
+        gameState.currentTrump = gameState.flippedCard.suit;
 
-        if(gameState.pass === 0) {
-            gameState.state = GameState.State.START_FIRST_TRICK;
-            handlerProxy.messageAll(gameState, new NoPassingMessage());
+        gameState.tricksTaken = new Array(gameState.numPlayers).fill(0);
+
+        gameState.leader = (gameState.dealer + 1) % gameState.numPlayers; // TODO make shared utility function
+        while(!isPlayingThisRound(gameState.leader, gameState)) {
+            gameState.leader = (gameState.leader + 1) % gameState.numPlayers; // TODO make shared utility function
+        }
+
+        gameState.state = GameState.State.START_ORDERING_UP;
+    }
+
+    startOrderingUp(gameState: GameState, handlerProxy: HandlerProxy) {
+        handlerProxy.messageAll(gameState, new TurnUpMessage(gameState.flippedCard));
+
+        gameState.state = GameState.State.WAIT_FOR_ORDER_UP;
+        gameState.whoseTurn = gameState.leader;
+    }
+
+    waitForOrderUp(gameState: GameState, handlerProxy: HandlerProxy) {
+        handlerProxy.handlerCall(gameState, gameState.whoseTurn, 'orderUp');
+        
+        gameState.state = GameState.State.HANDLE_ORDER_UP;
+    }
+
+    handleOrderUp(gameState: GameState, handlerProxy: HandlerProxy) {
+        if(gameState.bidder !== undefined) {
+            handlerProxy.messageAll(gameState, new OrderUpMessage(gameState.names[gameState.whoseTurn]));
+            if(gameState.goingAlone !== undefined) {
+                handlerProxy.messageAll(gameState, new GoingAloneMessage(gameState.names[gameState.whoseTurn]));
+            }
+            handlerProxy.messageAll(gameState, new TrumpMessage(gameState.currentTrump));
+            gameState.leader = (gameState.dealer + 1) % gameState.numPlayers;
+            gameState.state = GameState.State.WAIT_FOR_DEALER_DISCARD;
         } else {
-            gameState.state = GameState.State.START_PASS;
+            handlerProxy.messageAll(gameState, new PassMessage(gameState.names[gameState.whoseTurn]));
+            if(gameState.whoseTurn === gameState.dealer) {
+                gameState.state = GameState.State.START_TRUMP_NAMING;
+            } else {
+                gameState.whoseTurn = (gameState.whoseTurn + 1) % gameState.numPlayers;
+                gameState.state = GameState.State.WAIT_FOR_ORDER_UP;
+            }
         }
     }
 
-    startPass(gameState: GameState, handlerProxy: HandlerProxy) {
-        handlerProxy.messageAll(gameState, new PassingMessage(gameState.gameParams.numToPass, gameState.pass, gameState.numPlayers));
-
-        gameState.state = GameState.State.WAIT_FOR_PASS;
-        gameState.passed = new Array(gameState.numPlayers).fill(undefined);
-    }
-
-    waitForPass(gameState: GameState, handlerProxy: HandlerProxy) {
-        handlerProxy.handlerCallAll(gameState, 'pass');
+    waitForDealerDiscard(gameState: GameState, handlerProxy: HandlerProxy) {
+        handlerProxy.handlerCall(gameState, gameState.dealer, 'dealerDiscard');
         
-        gameState.state = GameState.State.HANDLE_PASS;
+        gameState.state = GameState.State.HANDLE_DEALER_DISCARD;
     }
 
-    handlePass(gameState: GameState, handlerProxy: HandlerProxy) {
-        for(let player = 0; player < gameState.numPlayers; player++) {
-            const passedFrom = (player + gameState.pass + gameState.numPlayers) % gameState.numPlayers; // TODO consider +- here
-            const passed = gameState.passed[passedFrom];
-            gameState.hands[passedFrom] = gameState.hands[passedFrom].filter(card => !passed.some(other => other.equals(card)));
-            handlerProxy.message(gameState, player, new PassedMessage(passed, gameState.names[passedFrom]));
-            gameState.hands[player].push(...passed);
+    handleDealerDiscard(gameState: GameState, handlerProxy: HandlerProxy) {
+        gameState.hands[gameState.dealer].push(gameState.flippedCard);
+
+        gameState.state = GameState.State.START_TRICK;
+    }
+
+    startTrumpNaming(gameState: GameState, handlerProxy: HandlerProxy) {
+        gameState.state = GameState.State.WAIT_FOR_TRUMP_NAMING;
+        gameState.whoseTurn = gameState.leader;
+    }
+
+    waitForTrumpNaming(gameState: GameState, handlerProxy: HandlerProxy) {
+        handlerProxy.handlerCall(gameState, gameState.whoseTurn, 'nameTrump');
+        
+        gameState.state = GameState.State.HANDLE_TRUMP_NAMING;
+    }
+
+    handleTrumpNaming(gameState: GameState, handlerProxy: HandlerProxy) {
+        if(gameState.bidder !== undefined) {
+            handlerProxy.messageAll(gameState, new NameTrumpMessage(gameState.names[gameState.whoseTurn], gameState.currentTrump));
+            if(gameState.goingAlone !== undefined) {
+                handlerProxy.messageAll(gameState, new GoingAloneMessage(gameState.names[gameState.whoseTurn]));
+            }
+            gameState.leader = (gameState.dealer + 1) % gameState.numPlayers;
+            gameState.state = GameState.State.START_TRICK;
+        } else {
+            handlerProxy.messageAll(gameState, new PassMessage(gameState.names[gameState.whoseTurn]));
+            if(gameState.whoseTurn === gameState.dealer) {
+                // this depends e.g. misdeal
+                gameState.state = GameState.State.START_ROUND;
+            } else {
+                gameState.whoseTurn = (gameState.whoseTurn + 1) % gameState.numPlayers;
+                gameState.state = GameState.State.WAIT_FOR_TRUMP_NAMING;
+            }
         }
-
-        gameState.leader = (gameState.dealer + 1) % gameState.numPlayers;
-        gameState.state = GameState.State.START_FIRST_TRICK;
-    }
-
-    startFirstTrick(gameState: GameState, handlerProxy: HandlerProxy) {
-        const startingCard = new Card(Suit.CLUBS, Rank.TWO);
-        gameState.leader = gameState.hands.findIndex(hand => hand.find(card => card.equals(startingCard)) !== undefined);
-        
-        handlerProxy.messageAll(gameState, new SpacingMessage());
-        handlerProxy.messageAll(gameState, new LeadsMessage(gameState.names[gameState.leader]));
-
-        const [removed] = gameState.hands[gameState.leader].splice(gameState.hands[gameState.leader].findIndex(card => card.equals(startingCard)), 1);
-        gameState.currentTrick = [removed];
-        handlerProxy.messageOthers(gameState, gameState.leader, new PlayedMessage(gameState.names[gameState.leader], removed))
-
-        gameState.whoseTurn = (gameState.leader + 1) % gameState.numPlayers;
-
-        gameState.state = GameState.State.START_PLAY;
     }
 
     startTrick(gameState: GameState, handlerProxy: HandlerProxy) {
@@ -161,7 +210,12 @@ export class GameStateIterator implements GenericGameStateIterator<HandlerData, 
     }
 
     startPlay(gameState: GameState) {
-        gameState.state = GameState.State.WAIT_FOR_PLAY;
+        if(isPlayingThisRound(gameState.whoseTurn, gameState)) {
+            gameState.state = GameState.State.WAIT_FOR_PLAY;
+        } else {
+            gameState.currentTrick.push(undefined);
+            gameState.state = GameState.State.END_PLAY;
+        }
     }
 
     waitForPlay(gameState: GameState, handlerProxy: HandlerProxy) {
@@ -180,35 +234,33 @@ export class GameStateIterator implements GenericGameStateIterator<HandlerData, 
         hands[whoseTurn].splice(index, 1);
         handlerProxy.messageOthers(gameState, whoseTurn, new PlayedMessage(gameState.names[whoseTurn], playedCard))
 
+        gameState.state = GameState.State.END_PLAY;
+    }
+
+    endPlay(gameState: GameState) {
         if(gameState.currentTrick.length === gameState.numPlayers) {
             gameState.state = GameState.State.END_TRICK;
         } else {
-            gameState.whoseTurn = (whoseTurn + 1) % gameState.numPlayers;
+            gameState.whoseTurn = (gameState.whoseTurn + 1) % gameState.numPlayers;
             gameState.state = GameState.State.START_PLAY;
         }
     }
 
-    endTrick(gameState: GameState) {
+    endTrick(gameState: GameState, handlerProxy: HandlerProxy) {
         gameState.tricks++;
 
-        const leadingSuit = gameState.currentTrick[0].suit;
-        let winningPlayer = 0;
-        for(let i = 1; i < gameState.numPlayers; i++) {
-            const card = gameState.currentTrick[i];
-            if(card.suit === leadingSuit) {
-                if(card.rank.order > gameState.currentTrick[winningPlayer].rank.order) {
-                    winningPlayer = i;
-                }
-            }
-        }
+        const winner = (gameState.leader + winningPlay(gameState.currentTrick, gameState.currentTrump)) % gameState.numPlayers;
 
-        gameState.pointsTaken[(winningPlayer + gameState.leader) % gameState.numPlayers] += gameState.currentTrick.map(valueOfCard).reduce((a, b) => a + b, 0);
-        gameState.leader = (winningPlayer + gameState.leader) % gameState.numPlayers;
+        handlerProxy.messageAll(gameState, new WonTrickMessage(gameState.names[winner]));
+        
+        gameState.leader = winner;
+        gameState.tricksTaken[getTeamFor(winner, gameState.gameParams)] += 1;
 
-        if(gameState.gameParams.quickEnd && !gameState.hands.flatMap(hand => hand).map(valueOfCard).some(value => value >= 0)) {
-            // might be nice to have a message here if round ends early
-            gameState.state = GameState.State.END_ROUND;
-        } else if(gameState.hands.every(hand => hand.length === 0)) {
+        // if(gameState.gameParams.quickEnd && !gameState.hands.flatMap(hand => hand).map(valueOfCard).some(value => value >= 0)) {
+        //     // might be nice to have a message here if round ends early
+        //     gameState.state = GameState.State.END_ROUND;
+        // } else
+         if(gameState.hands.some(hand => hand.length === 0)) {
             gameState.state = GameState.State.END_ROUND;
         } else {
             gameState.state = GameState.State.START_TRICK;
@@ -216,47 +268,71 @@ export class GameStateIterator implements GenericGameStateIterator<HandlerData, 
     }
 
     endRound(gameState: GameState, handlerProxy: HandlerProxy) {
-        gameState.tricks = 0;
+        const bidderTeam = getTeamFor(gameState.bidder as number, gameState.gameParams);
+        const teams = getTeams(gameState.gameParams);
+        const numberOfTeams = teams.length;
 
-        for(let player = 0; player < gameState.numPlayers; player++) {
-            const newPoints = gameState.pointsTaken[player];
+        let winner = 0;
 
-            if(newPoints === 26) { // MAX POINTS, not set upfront but by the number of cards in the deck
-                for(let otherPlayer = 0; otherPlayer < gameState.numPlayers; otherPlayer++) {
-                    if(otherPlayer !== player) {
-                        gameState.points[otherPlayer] += newPoints;
-                    }
-                }
-                handlerProxy.messageAll(gameState, new ShotTheMoonMessage(gameState.names[player]));
-            } else {
-                gameState.points[player] += newPoints;
-                handlerProxy.message(gameState, player, new ScoredMessage(newPoints));
+        for(let i = 1; i < numberOfTeams; i++) {
+            if(gameState.tricksTaken[i] > gameState.tricksTaken[winner]) {
+                winner = i;
             }
         }
+
+        let points = calculatePoints(bidderTeam, winner, gameState);
+        // TODO rework this to group players
+        for(let teammate of teams[winner]) {
+            gameState.points[teammate] += points;
+        }
+        handlerProxy.messageAll(gameState, new WonRoundMessage(teams[winner].map(i => gameState.names[i]), points));
         
         handlerProxy.messageAll(gameState, new EndRoundMessage(gameState.names, gameState.points));
-
-        if(gameState.pass === gameState.numPlayers / 2) { // handles even number going from across to keep
-            gameState.pass = 0;
-        } else if(gameState.pass > 0){ // 1 to the right goes to 1 to the left
-            gameState.pass = -gameState.pass;
-        } else { // 1 to the left goes to 2 to the right
-            gameState.pass = -gameState.pass + 1;
-        }
-
-        if(gameState.pass > gameState.numPlayers / 2) { // 2 to the left in 5 person game goes to keep
-            gameState.pass = 0;
-        }
+        handlerProxy.messageAll(gameState, new SpacingMessage());
         
         if(gameState.points.some(points => points >= gameState.gameParams.maxScore)) {
             gameState.state = GameState.State.END_GAME;
         } else {
             gameState.state = GameState.State.START_ROUND;
-        }   
+
+            gameState.dealer = (gameState.dealer + 1) % gameState.numPlayers;
+        }
+
+        gameState.tricks = 0;
+        gameState.bidder = undefined;
+        gameState.goingAlone = undefined;
     }
 
     endGame(gameState: GameState) {
         gameState.completed = true;
     }
 
+}
+
+function calculatePoints(bidderTeam: number, winnerTeam: number, gameState: GameState) {
+    if (bidderTeam == winnerTeam) {
+        if (gameState.tricksTaken[winnerTeam] === 5) {
+            if(gameState.goingAlone) {
+                return 4;
+            }
+            return 2;
+        }
+        return 1;
+    } else {
+        return 2;
+        // 'euchred'
+    }
+}
+
+function isPlayingThisRound(position: number, gameState: GameState) {
+    if(gameState.goingAlone === undefined) {
+        return true;
+    }
+    if(position === gameState.goingAlone) {
+        return true;
+    }
+    if(getTeamFor(position, gameState.gameParams) !== getTeamFor(gameState.goingAlone, gameState.gameParams)) {
+        return true;
+    }
+    return false;
 }

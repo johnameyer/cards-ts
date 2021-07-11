@@ -4,28 +4,24 @@ import { GameParams } from "./game-params";
 export class GameSetup implements GenericGameSetup<GameParams> {
     getDefaultParams(): GameParams {
         return {
-            maxScore: 100,
-            numToPass: 3,
+            maxScore: 10,
             quickEnd: true
         };
     }
     
     async setupForIntermediary(host: Intermediary): Promise<GameParams> {
         const [_, resultsPromise] = host.form(
-            {type: 'input', message: ['Score to play to? (default 100)']},
-            {type: 'input', message: ['Number of cards to pass? (default 3)']},
+            {type: 'input', message: ['Score to play to? (default 10)']},
             {type: 'confirm', message: ['End a round quickly if no points are remaining?']},
         );
 
         const results = await resultsPromise;
 
         const maxScore = Number(results[0]) || 100;
-        const numToPass = Number(results[1]) || 3;
-        const quickEnd = results[2];
+        const quickEnd = results[1];
 
         return {
             maxScore,
-            numToPass,
             quickEnd
         };
     }
@@ -46,29 +42,20 @@ export class GameSetup implements GenericGameSetup<GameParams> {
         } catch (e) {
             errors.maxScore = 'Max score must be a number greater than 0';
         }
-        try {
-            if(!Number(params.numToPass) || Number(params.numToPass) < 0 || Number(params.numToPass) > 4) {
-                throw new Error();
-            }
-        } catch (e) {
-            errors.numToPass = 'Number to pass must be between 0 and 4.';
-        }
         return errors;
     }
 
     getYargs(): {[key: string]: import('yargs').Options} {
         return {
             quickEnd: { description: 'End a round quickly if no points are remaining', type: 'boolean', default: true},
-            maxScore: { description: 'Score to play to', type: 'number', default: 100 },
-            numberToPass: { description: 'Number of cards to pass', type: 'number', default: 3 }
+            maxScore: { description: 'Score to play to', type: 'number', default: 10 }
         };
     }
 
     setupForYargs(params: any): GameParams {
         return {
             quickEnd: !!params.quickEnd,
-            maxScore: Number(params.maxScore),
-            numToPass: Number(params.numberToPass)
+            maxScore: Number(params.maxScore)
         };
     }
 }

@@ -1,4 +1,9 @@
-import { PassResponseMessage, TurnResponseMessage } from './response';
-import { DataResponseMessage } from './response/data-response-message';
+import { DataResponseMessage, TurnResponseMessage, TrumpChoiceResponseMessage, BidResponseMessage, DealerDiscardResponseMessage, GoingAloneResponseMessage } from './response';
 
-export type ResponseMessage = PassResponseMessage | TurnResponseMessage | DataResponseMessage;
+export type ResponseMessage = TurnResponseMessage
+    | DataResponseMessage
+    | BidResponseMessage
+    | TrumpChoiceResponseMessage
+    | DealerDiscardResponseMessage
+    | GoingAloneResponseMessage
+;

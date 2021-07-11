@@ -1,8 +1,8 @@
-import { Card, GenericGameState } from "@cards-ts/core";
+import { Card, GenericGameState, Suit } from "@cards-ts/core";
 import { GameParams } from "./game-params";
 
 export interface GameState extends GenericGameState<GameParams, GameState.State> {
-    pointsTaken: number[];
+    tricksTaken: number[];
 
     points: number[];
 
@@ -10,15 +10,19 @@ export interface GameState extends GenericGameState<GameParams, GameState.State>
 
     leader: number;
 
-    currentTrick: Card[];
+    currentTrick: (Card | undefined)[];
 
     playedCard: Card;
 
     whoseTurn: number;
 
-    pass: number;
+    flippedCard: Card;
 
-    passed: Card[][];
+    currentTrump: Suit;
+
+    bidder: number | undefined;
+
+    goingAlone: number | undefined;
 
     tricks: number;
 }
@@ -29,17 +33,23 @@ export namespace GameState {
 
         START_ROUND,
 
-        START_PASS,
-        WAIT_FOR_PASS,
-        HANDLE_PASS,
+        START_ORDERING_UP,
+        WAIT_FOR_ORDER_UP,
+        HANDLE_ORDER_UP,
 
-        START_FIRST_TRICK,
+        START_TRUMP_NAMING,
+        WAIT_FOR_TRUMP_NAMING,
+        HANDLE_TRUMP_NAMING,
+
+        WAIT_FOR_DEALER_DISCARD,
+        HANDLE_DEALER_DISCARD,
 
         START_TRICK,
 
         START_PLAY,
         WAIT_FOR_PLAY,
         HANDLE_PLAY,
+        END_PLAY,
 
         END_TRICK,
 

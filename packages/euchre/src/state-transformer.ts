@@ -9,9 +9,7 @@ export class StateTransformer extends AbstractStateTransformer<GameParams, GameS
         const state = super.initialState({ names, gameParams, initialState: GameState.State.START_GAME });
 
         state.dealer = 0;
-        state.pass = 1;
         state.tricks = 0;
-        state.passed = [];
         state.points = names.map(() => 0);
 
         return state;
@@ -30,7 +28,7 @@ export class StateTransformer extends AbstractStateTransformer<GameParams, GameS
         return {
             ...obj,
             ...super.fromStr(str),
-            pointsTaken: obj.pointsTaken,
+            tricksTaken: obj.pointsTaken,
             passed: obj.passed ? obj.passed.map((pass: Card[]) => pass ? pass.map(card => Card.fromObj(card)) : pass) : undefined,
             playedCard: obj.playedCard ? Card.fromObj(obj.playedCard) : undefined,
             currentTrick: obj.currentTrick ? obj.currentTrick.map((card: any) => Card.fromObj(card)) : undefined
@@ -41,14 +39,14 @@ export class StateTransformer extends AbstractStateTransformer<GameParams, GameS
         const handlerData: HandlerData = {
             gameParams: {...gameState.gameParams},
             numPlayers: gameState.numPlayers,
-            pointsTaken: gameState.pointsTaken,
+            pointsTaken: gameState.tricksTaken,
             points: gameState.points.slice(),
             tricks: gameState.tricks,
             dealer: gameState.dealer,
             whoseTurn: gameState.whoseTurn,
             leader: gameState.leader,
-            passed: gameState.passed[position]?.slice(),
-            pass: gameState.pass,
+            flippedCard: gameState.flippedCard,
+            currentTrump: gameState.currentTrump,
             currentTrick: gameState.currentTrick?.slice(),
             position,
             data: gameState.data[position],
@@ -59,10 +57,46 @@ export class StateTransformer extends AbstractStateTransformer<GameParams, GameS
 
     merge(gameState: GameState, sourceHandler: number, incomingEvent: ResponseMessage): GameState {
         switch(incomingEvent.type) {
-            case 'pass-response': {
+            case 'order-up-response': {
                 const newState: GameState = {
                     ...gameState,
-                    passed: [...gameState.passed.slice(0, sourceHandler) || [], incomingEvent.cards, ...gameState.passed.slice(sourceHandler + 1) || []],
+                    bidder: incomingEvent.selectingTrump ? sourceHandler : undefined,
+                    data: [...gameState.data.slice(0, sourceHandler) || [], incomingEvent.data, ...gameState.data.slice(sourceHandler + 1) || []]
+                };
+                if(!Array.isArray(gameState.waiting)) {
+                    throw new Error('waiting is not an array, got: ' + gameState.waiting);
+                }
+                gameState.waiting.splice(gameState.waiting.indexOf(sourceHandler), 1);
+                return newState;
+            }
+            case 'name-trump-response': {
+                const newState: GameState = {
+                    ...gameState,
+                    currentTrump: incomingEvent.trump || gameState.currentTrump,
+                    bidder: incomingEvent.trump ? sourceHandler : undefined,
+                    data: [...gameState.data.slice(0, sourceHandler) || [], incomingEvent.data, ...gameState.data.slice(sourceHandler + 1) || []]
+                };
+                if(!Array.isArray(gameState.waiting)) {
+                    throw new Error('waiting is not an array, got: ' + gameState.waiting);
+                }
+                gameState.waiting.splice(gameState.waiting.indexOf(sourceHandler), 1);
+                return newState;
+            }
+            case 'going-alone-response': {
+                const newState: GameState = {
+                    ...gameState,
+                    goingAlone: sourceHandler
+                };
+                return newState;
+            }
+            case 'dealer-discard-response': {
+                const newState: GameState = {
+                    ...gameState,
+                    hands: [
+                        ...gameState.hands.slice(0, sourceHandler),
+                        gameState.hands[sourceHandler].filter(card => !card.equals(incomingEvent.selected)),
+                        ...gameState.hands.slice(sourceHandler + 1)
+                    ],
                     data: [...gameState.data.slice(0, sourceHandler) || [], incomingEvent.data, ...gameState.data.slice(sourceHandler + 1) || []]
                 };
                 if(!Array.isArray(gameState.waiting)) {
