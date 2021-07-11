@@ -64,5 +64,8 @@
   "exclude": [
     "spec/",
     "lib/"
+  ],
+  "types": [
+    "node"
   ]
 }
