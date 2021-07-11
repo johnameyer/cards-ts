@@ -1,7 +1,7 @@
-import { Suit, GenericResponseValidator, Card, Rank } from "@cards-ts/core";
+import { GenericResponseValidator } from "@cards-ts/core";
 import { GameParams } from "./game-params";
 import { GameState } from "./game-state";
-import { DealerDiscardResponseMessage, GoingAloneResponseMessage, BidResponseMessage, TrumpChoiceResponseMessage } from "./messages/response";
+import { DealerDiscardResponseMessage, GoingAloneResponseMessage, OrderUpResponseMessage, NameTrumpResponseMessage } from "./messages/response";
 import { ResponseMessage } from "./messages/response-message";
 import { TurnResponseMessage } from "./messages/response/turn-response-message";
 import { followsTrick } from "./util/follows-trick";
@@ -14,7 +14,7 @@ export class ResponseValidator implements GenericResponseValidator<GameParams, G
                     return undefined;
                 }
                 const { selectingTrump, data } = event;
-                return new BidResponseMessage(selectingTrump, data);
+                return new OrderUpResponseMessage(selectingTrump, data);
             }
             case 'name-trump-response': {
                 if(source !== gameState.whoseTurn) {
@@ -25,11 +25,11 @@ export class ResponseValidator implements GenericResponseValidator<GameParams, G
                     if(gameState.currentTrump === trump) {
                         throw new Error('Can\'t select the current trump suit as the trump');
                     }
-                    return new TrumpChoiceResponseMessage(trump, data);
+                    return new NameTrumpResponseMessage(trump, data);
                 } catch (e) {
                     console.error('Invalid suit');
                 }
-                return new TrumpChoiceResponseMessage(undefined, event.data);
+                return new NameTrumpResponseMessage(undefined, event.data);
             }
             case 'going-alone-response': {
                 return new GoingAloneResponseMessage(event.data);

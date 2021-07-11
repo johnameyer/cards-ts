@@ -1,9 +1,9 @@
-import { DataResponseMessage, TurnResponseMessage, TrumpChoiceResponseMessage, BidResponseMessage, DealerDiscardResponseMessage, GoingAloneResponseMessage } from './response';
+import { DataResponseMessage, TurnResponseMessage, NameTrumpResponseMessage, OrderUpResponseMessage, DealerDiscardResponseMessage, GoingAloneResponseMessage } from './response';
 
 export type ResponseMessage = TurnResponseMessage
     | DataResponseMessage
-    | BidResponseMessage
-    | TrumpChoiceResponseMessage
+    | OrderUpResponseMessage
+    | NameTrumpResponseMessage
     | DealerDiscardResponseMessage
     | GoingAloneResponseMessage
 ;

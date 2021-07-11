@@ -28,8 +28,7 @@ export class StateTransformer extends AbstractStateTransformer<GameParams, GameS
         return {
             ...obj,
             ...super.fromStr(str),
-            tricksTaken: obj.pointsTaken,
-            passed: obj.passed ? obj.passed.map((pass: Card[]) => pass ? pass.map(card => Card.fromObj(card)) : pass) : undefined,
+            tricksTaken: obj.tricksTaken,
             playedCard: obj.playedCard ? Card.fromObj(obj.playedCard) : undefined,
             currentTrick: obj.currentTrick ? obj.currentTrick.map((card: any) => Card.fromObj(card)) : undefined
         }

@@ -4,7 +4,7 @@ import { Card, combinations, distinct, Handler, HandlerResponsesQueue, MessageHa
 import { Message } from '@cards-ts/core';
 import { Suit } from '@cards-ts/core';
 import { Rank } from '@cards-ts/core';
-import { DataResponseMessage, TurnResponseMessage, BidResponseMessage, TrumpChoiceResponseMessage, DealerDiscardResponseMessage } from '../messages/response';
+import { DataResponseMessage, TurnResponseMessage, OrderUpResponseMessage, NameTrumpResponseMessage, DealerDiscardResponseMessage } from '../messages/response';
 import { ResponseMessage } from '../messages/response-message';
 import { PlayedMessage } from '../messages/status';
 import { followsTrick } from '../util/follows-trick';
@@ -85,7 +85,7 @@ export class HeuristicHandler implements Handler<GameHandlerParams & MessageHand
 
         // calculate based on who passed so far
 
-        responsesQueue.push(new BidResponseMessage(score > 55)); // 60?
+        responsesQueue.push(new OrderUpResponseMessage(score > 55)); // 60?
     }
 
     nameTrump = (handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): void => {
@@ -101,7 +101,7 @@ export class HeuristicHandler implements Handler<GameHandlerParams & MessageHand
         // console.log(score);
         // console.log();
 
-        responsesQueue.push(new TrumpChoiceResponseMessage(score > 55 ? suit : undefined));
+        responsesQueue.push(new NameTrumpResponseMessage(score > 55 ? suit : undefined));
     }
 
     dealerDiscard = (handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): void => {

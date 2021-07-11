@@ -4,7 +4,7 @@ import { Card, HandlerResponsesQueue } from '@cards-ts/core';
 import { Message } from '@cards-ts/core';
 import { Suit } from '@cards-ts/core';
 import { Intermediary } from '@cards-ts/core';
-import { TurnResponseMessage, BidResponseMessage, TrumpChoiceResponseMessage, DealerDiscardResponseMessage, GoingAloneResponseMessage } from '../messages/response';
+import { TurnResponseMessage, OrderUpResponseMessage, NameTrumpResponseMessage, DealerDiscardResponseMessage, GoingAloneResponseMessage } from '../messages/response';
 import { ResponseMessage } from '../messages/response-message';
 import { compare } from '../util/compare';
 import { followsTrick } from '../util/follows-trick';
@@ -36,7 +36,7 @@ export class IntermediaryHandler extends GameHandler {
                 return undefined;
             }
         });
-        responsesQueue.push(knocked.then(results => new BidResponseMessage(results[0])));
+        responsesQueue.push(knocked.then(results => new OrderUpResponseMessage(results[0])));
         responsesQueue.push(goAlone.then(results => results && results[0] ? new GoingAloneResponseMessage() : undefined));
         return sent;
     }
@@ -59,7 +59,7 @@ export class IntermediaryHandler extends GameHandler {
                 return undefined;
             }
         });
-        responsesQueue.push(trump.then(results => new TrumpChoiceResponseMessage(results[0] as Suit | undefined)));
+        responsesQueue.push(trump.then(results => new NameTrumpResponseMessage(results[0] as Suit | undefined)));
         responsesQueue.push(goAlone.then(results => results && results[0] ? new GoingAloneResponseMessage() : undefined));
         return sent;
     }
