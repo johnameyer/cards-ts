@@ -1,6 +1,6 @@
 {
   "name": "@cards-ts/war",
-  "version": "0.4.4",
+  "version": "0.5.0",
   "description": "Implementation of the card game war.",
   "author": "John Meyer",
   "homepage": "https://github.com/johnameyer/cards-ts/tree/master/packages/war#readme",
@@ -37,7 +37,7 @@
     "url": "https://github.com/johnameyer/cards-ts/issues"
   },
   "dependencies": {
-    "@cards-ts/core": "^0.4.4",
+    "@cards-ts/core": "^0.5.0",
     "yargs": "^15.4.0"
   },
   "devDependencies": {
