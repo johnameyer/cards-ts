@@ -45,5 +45,8 @@
     "@types/yargs": "^15.0.5"
   },
   "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
   "gitHead": "04053409da080fb7d2a72de32a6392d3968f9442"
 }
