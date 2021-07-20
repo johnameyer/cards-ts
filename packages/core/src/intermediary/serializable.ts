@@ -12,9 +12,9 @@ export type Serializable = Presentable | Deck | Serializable[] | {
 
 export type SerializableObject = { [key: string]: Serializable };
 
-export const serializeSerializable = JSON.stringify;
+export const serialize = JSON.stringify;
 
-export function deserializeSerializable(result: unknown): Serializable {
+export function deserialize(result: unknown): Serializable {
     if (result === undefined || result === null) {
         return undefined;
     }
@@ -22,7 +22,7 @@ export function deserializeSerializable(result: unknown): Serializable {
         return result;
     }
     if (Array.isArray(result)) {
-        return result.map(deserializeSerializable);
+        return result.map(deserialize);
     }
     try {
         if(hasType(result)) {
@@ -45,7 +45,7 @@ export function deserializeSerializable(result: unknown): Serializable {
             }
         }
     } catch {}
-    return Object.fromEntries(Object.entries(result as object).map(([key, value]) => [key, deserializeSerializable(value)]));
+    return Object.fromEntries(Object.entries(result as object).map(([key, value]) => [key, deserialize(value)]));
 }
 
 function hasType(t: unknown): t is { type: unknown } {

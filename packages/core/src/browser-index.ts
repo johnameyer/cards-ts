@@ -32,7 +32,7 @@ export { Presentable } from './intermediary/presentable';
 export { Presenter } from './intermediary/presenter';
 export { Protocol } from './intermediary/protocol';
 export { ProtocolIntermediary } from './intermediary/protocol-intermediary';
-export { Serializable, SerializableObject, serializeSerializable, deserializeSerializable } from './intermediary/serializable';
+export { Serializable, SerializableObject, serialize, deserialize } from './intermediary/serializable';
 
 export { Message } from './messages/message';
 export { SpacingMessage } from './messages/spacing-message';
