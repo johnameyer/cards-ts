@@ -6,6 +6,7 @@ import { ResponseQueue } from './response-queue';
 import { range } from '../util/range';
 import { Handler, HandlerAction, HandlerChain } from '../handlers/handler';
 import { SystemHandlerParams } from '../handlers/system-handler';
+import { SerializableObject } from '../intermediary/serializable';
 
 type ExtractOfType<Type, ExpectedType> = {
     [key in keyof Type]: Type[key] extends ExpectedType ? key : never;
@@ -14,7 +15,7 @@ type ExtractOfType<Type, ExpectedType> = {
 /**
  * Class that allows calls to the handlers
  */
-export class HandlerProxy<HandlerData, ResponseMessage extends Message, Handlers extends {[key: string]: any[]} & SystemHandlerParams, GameParams, State, GameState extends GenericGameState<GameParams, State>, StateTransformer extends AbstractStateTransformer<GameParams, State, HandlerData, GameState, ResponseMessage>> {
+export class HandlerProxy<HandlerData, ResponseMessage extends Message, Handlers extends {[key: string]: any[]} & SystemHandlerParams, GameParams extends SerializableObject, State extends string, GameState extends GenericGameState<GameParams, State>, StateTransformer extends AbstractStateTransformer<GameParams, State, HandlerData, GameState, ResponseMessage>> {
     constructor(protected players: HandlerChain<Handlers, HandlerData, ResponseMessage>[], protected stateTransformer: StateTransformer) { }
 
     private readonly outgoingData: Promise<void>[] = [];

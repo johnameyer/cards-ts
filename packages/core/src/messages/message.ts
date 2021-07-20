@@ -1,4 +1,4 @@
-import { Serializable } from '../intermediary/presenter';
+import { Serializable } from "../intermediary/serializable";
 import { isDefined } from '../util/is-defined';
 
 /**

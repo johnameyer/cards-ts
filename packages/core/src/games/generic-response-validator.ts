@@ -1,10 +1,11 @@
 import { GenericGameState } from './generic-game-state';
 import { Message } from '../messages/message';
+import { SerializableObject } from '../intermediary/serializable';
 
 /**
  * Class responsible for checking whether a response from a client is valid and returning a valid response otherwise
  */
-export interface GenericResponseValidator<GameParams, State, GameState extends GenericGameState<GameParams, State>, ResponseMessage extends Message> {
+export interface GenericResponseValidator<GameParams extends SerializableObject, State extends string, GameState extends GenericGameState<GameParams, State>, ResponseMessage extends Message> {
     /**
      * Tells whether the incoming event is valid or not and makes default moves for the players
      * @param gameState the current game state

@@ -1,7 +1,9 @@
-import { Presenter, Serializable } from './presenter';
+import { Presenter } from './presenter';
+import { Serializable } from "./serializable";
 import inquirer from 'inquirer';
 import { Message } from '../messages/message';
 import { Card } from '..';
+import { Presentable } from './presentable';
 
 inquirer.registerPrompt('selectLine', require('inquirer-select-line'));
 
@@ -14,7 +16,7 @@ export class InquirerPresenter implements Presenter {
         return () => options.cards;
     }
 
-    checkbox<T, ValidateParam>(options: { message: Serializable[]; type: string; choices: { name: string; value: T }[]; validate?: (input: T[], validateParam: ValidateParam) => true | string | Promise<true | string>; validateParam?: ValidateParam }) {
+    checkbox<T, ValidateParam>(options: { message: Presentable[]; type: string; choices: { name: string; value: T }[]; validate?: (input: T[], validateParam: ValidateParam) => true | string | Promise<true | string>; validateParam?: ValidateParam }) {
         return async () => (await inquirer.prompt([{
             ...options,
             // @ts-ignore
@@ -25,7 +27,7 @@ export class InquirerPresenter implements Presenter {
         }])).checkbox;
     }
 
-    list<T>(options: { message: Serializable[]; type: string; choices: { name: string; value: T }[] }) {
+    list<T>(options: { message: Presentable[]; type: string; choices: { name: string; value: T }[] }) {
         return async () => (await inquirer.prompt([{
             ...options,
             message: Message.defaultTransformer(options.message),

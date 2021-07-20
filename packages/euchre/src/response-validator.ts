@@ -77,7 +77,7 @@ export class ResponseValidator implements GenericResponseValidator<GameParams, G
                     console.error('Invalid turn', e);
                 }
 
-                return new TurnResponseMessage(gameState.hands[source].filter(card => card.suit === gameState.currentTrick[0]?.suit)[0] || gameState.hands[source][0], data);
+                return new TurnResponseMessage(gameState.hands[source].filter(card => followsTrick(gameState.currentTrick, gameState.currentTrump, card))[0] || gameState.hands[source][0], data);
             }
             case 'data-response': {
                 return event;

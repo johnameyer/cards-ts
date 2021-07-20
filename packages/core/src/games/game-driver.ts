@@ -6,16 +6,17 @@ import { GenericResponseValidator } from './generic-response-validator';
 import { GenericGameStateIterator } from './generic-game-state-iterator';
 import { HandlerChain } from '../handlers/handler';
 import { SystemHandlerParams } from '../handlers/system-handler';
+import { SerializableObject } from '../intermediary/serializable';
 
 /**
  * Class that handles the steps of the game
  */
-export class GameDriver<HandlerData, Handlers extends {[key: string]: any[]} & SystemHandlerParams, GameParams, State, GameState extends GenericGameState<GameParams, State>, ResponseMessage extends Message, StateTransformer extends AbstractStateTransformer<GameParams, State, HandlerData, GameState, ResponseMessage>, ResponseValidator extends GenericResponseValidator<GameParams, State, GameState, ResponseMessage>> {
+export class GameDriver<HandlerData, Handlers extends {[key: string]: any[]} & SystemHandlerParams, GameParams extends SerializableObject, State extends string, GameState extends GenericGameState<GameParams, State>, ResponseMessage extends Message, StateTransformer extends AbstractStateTransformer<GameParams, State, HandlerData, GameState, ResponseMessage>, ResponseValidator extends GenericResponseValidator<GameParams, State, GameState, ResponseMessage>> {
     /**
      * Tells if the game is waiting on a player
      * @param state the state to analyze
      */
-    static isWaitingOnPlayer<GameParams, State>(state: GenericGameState<GameParams, State>) {
+    static isWaitingOnPlayer<GameParams extends SerializableObject, State extends string>(state: GenericGameState<GameParams, State>) {
         if(Array.isArray(state.waiting)) {
             return state.waiting.length !== 0;
         } else {
@@ -28,7 +29,7 @@ export class GameDriver<HandlerData, Handlers extends {[key: string]: any[]} & S
      * @param state the state to analyze
      * @param subset the subset to check against
      */
-    static isWaitingOnPlayerSubset<GameParams, State>(state: GenericGameState<GameParams, State>, subset: number[]) {
+    static isWaitingOnPlayerSubset<GameParams extends SerializableObject, State extends string>(state: GenericGameState<GameParams, State>, subset: number[]) {
         if(Array.isArray(state.waiting)) {
             return state.waiting.length !== 0 && state.waiting.some(position => subset.includes(position));
         } else {

@@ -9,11 +9,12 @@ import { GenericGameState } from "./generic-game-state";
 import { GenericGameStateIterator } from "./generic-game-state-iterator";
 import { GenericResponseValidator } from "./generic-response-validator";
 import { Message } from "../messages/message";
+import { SerializableObject } from "../intermediary/serializable";
 
 /**
  * Wraps the classes in a game library into one common interface to make usages less verbose
  */
-export abstract class AbstractGameFactory<HandlerData, Handles extends {[key: string]: any[]}, GameParams, State, GameState extends GenericGameState<GameParams, State>, ResponseMessage extends Message, StateTransformer extends AbstractStateTransformer<GameParams, State, HandlerData, GameState, ResponseMessage>, ResponseValidator extends GenericResponseValidator<GameParams, State, GameState, ResponseMessage>> {
+export abstract class AbstractGameFactory<HandlerData, Handles extends {[key: string]: any[]}, GameParams extends SerializableObject, State extends string, GameState extends GenericGameState<GameParams, State>, ResponseMessage extends Message, StateTransformer extends AbstractStateTransformer<GameParams, State, HandlerData, GameState, ResponseMessage>, ResponseValidator extends GenericResponseValidator<GameParams, State, GameState, ResponseMessage>> {
     /**
      * Returns the game state iterator for this game
      */

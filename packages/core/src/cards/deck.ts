@@ -15,6 +15,8 @@ function shuffle<T>(items: T[]): T[] {
  * Class representing N standard 54 card decks' draw and discard pile, tracking the top card
  */
 export class Deck {
+    public readonly type = 'deck';
+
     /**
      * The cards still in the deck
      * @todo make private without breaking tests

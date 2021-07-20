@@ -1,6 +1,8 @@
 import { DisplayElement, DisplayElementCallReturn, DisplayElementReturnType } from './display-element';
-import { Presenter, Serializable } from './presenter';
+import { Presenter } from './presenter';
+import { Serializable } from "./serializable";
 import { Intermediary, IntermediaryMapping } from './intermediary';
+import { Presentable } from './presentable';
 
 /**
  * Class that presents each display element one at a time
@@ -16,7 +18,7 @@ export class IncrementalIntermediary implements Intermediary {
      * Print serializables
      * @param printables the serializables to print in order
      */
-    print(...printables: Serializable[]): [] {
+    print(...printables: Presentable[]): [] {
         this.presenter.print({message: printables})();
         return [];
     }
