@@ -5,7 +5,7 @@ import { Serializable, SerializableObject } from '../intermediary/serializable';
 /**
  * A class used to track the current state of the game
  */
-export interface GenericGameState<GameParams extends SerializableObject, State extends string> extends SerializableObject {
+export interface GenericGameState<GameParams extends Readonly<SerializableObject>, State extends string> extends SerializableObject {
     /**
      * The settings that a game runs under
      */

@@ -41,24 +41,24 @@ export interface GameState extends GenericGameState<GameParams, GameState.State>
 
 export namespace GameState {
     export enum State {
-        START_GAME,
+        START_GAME = 'START_GAME',
 
-        START_ROUND,
-        WAIT_FOR_TURN_PLAYER_WANT,
-        HANDLE_TURN_PLAYER_WANT,
+        START_ROUND = 'START_ROUND',
+        WAIT_FOR_TURN_PLAYER_WANT = 'WAIT_FOR_TURN_PLAYER_WANT',
+        HANDLE_TURN_PLAYER_WANT = 'HANDLE_TURN_PLAYER_WANT',
 
-        WAIT_FOR_PLAYER_WANT,
-        HANDLE_PLAYER_WANT,
+        WAIT_FOR_PLAYER_WANT = 'WAIT_FOR_PLAYER_WANT',
+        HANDLE_PLAYER_WANT = 'HANDLE_PLAYER_WANT',
 
-        HANDLE_NO_PLAYER_WANT,
+        HANDLE_NO_PLAYER_WANT = 'HANDLE_NO_PLAYER_WANT',
 
-        START_TURN,
-        WAIT_FOR_TURN,
-        HANDLE_TURN,
+        START_TURN = 'START_TURN',
+        WAIT_FOR_TURN = 'WAIT_FOR_TURN',
+        HANDLE_TURN = 'HANDLE_TURN',
 
-        END_ROUND,
+        END_ROUND = 'END_ROUND',
 
-        END_GAME
+        END_GAME = 'END_GAME'
     }
 
     export namespace Helper {

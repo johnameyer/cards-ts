@@ -1,7 +1,6 @@
-import { Message, Suit } from "@cards-ts/core";
-import { Serializable } from "@cards-ts/core";
+import { Message, Presentable, Suit } from "@cards-ts/core";
 
-function generateMessage(trump: Suit): Serializable[] {
+function generateMessage(trump: Suit): Presentable[] {
     return [trump, 'is trump'];
 }
 

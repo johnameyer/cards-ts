@@ -1,7 +1,6 @@
-import { Message } from "@cards-ts/core";
-import { Serializable } from "@cards-ts/core";
+import { Message, Presentable } from "@cards-ts/core";
 
-function generateMessage(players: readonly string[], scores: readonly number[]): Serializable[] {
+function generateMessage(players: readonly string[], scores: readonly number[]): Presentable[] {
     const arr: string[] = [];
     for(let i = 0; i < players.length; i++) {
         arr[i] = players[i] + ': ' + scores[i];

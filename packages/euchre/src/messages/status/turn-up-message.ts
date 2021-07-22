@@ -1,7 +1,6 @@
-import { Card, Message } from "@cards-ts/core";
-import { Serializable } from "@cards-ts/core";
+import { Card, Message, Presentable } from "@cards-ts/core";
 
-function generateMessage(card: Card): Serializable[] {
+function generateMessage(card: Card): Presentable[] {
     return [card, 'was turned over'];
 }
 

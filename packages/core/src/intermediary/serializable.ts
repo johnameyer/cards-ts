@@ -8,7 +8,7 @@ import { Presentable } from "./presentable";
 
 export type Serializable = Presentable | Deck | Serializable[] | {
     [key: string]: Serializable;
-} | undefined;
+} | undefined | null;
 
 export type SerializableObject = { [key: string]: Serializable };
 

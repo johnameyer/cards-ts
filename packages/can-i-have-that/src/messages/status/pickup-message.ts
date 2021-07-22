@@ -1,6 +1,6 @@
-import { Card, Serializable, Message } from "@cards-ts/core";
+import { Card, Message, Presentable } from "@cards-ts/core";
 
-function generateMessage(card: Card, player?: string, extra:boolean = false): Serializable[] {
+function generateMessage(card: Card, player?: string, extra:boolean = false): Presentable[] {
     if(player !== undefined) {
         if(extra) {
             return [player, 'picked up the', card, 'and an extra'];

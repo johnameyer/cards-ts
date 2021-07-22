@@ -25,26 +25,26 @@ export interface GameState extends GenericGameState<GameParams, GameState.State>
 
 export namespace GameState {
     export enum State {
-        START_GAME,
+        START_GAME = 'START_GAME',
 
-        START_ROUND,
+        START_ROUND = 'START_ROUND',
 
-        START_PASS,
-        WAIT_FOR_PASS,
-        HANDLE_PASS,
+        START_PASS = 'START_PASS',
+        WAIT_FOR_PASS = 'WAIT_FOR_PASS',
+        HANDLE_PASS = 'HANDLE_PASS',
 
-        START_FIRST_TRICK,
+        START_FIRST_TRICK = 'START_FIRST_TRICK',
 
-        START_TRICK,
+        START_TRICK = 'START_TRICK',
 
-        START_PLAY,
-        WAIT_FOR_PLAY,
-        HANDLE_PLAY,
+        START_PLAY = 'START_PLAY',
+        WAIT_FOR_PLAY = 'WAIT_FOR_PLAY',
+        HANDLE_PLAY = 'HANDLE_PLAY',
 
-        END_TRICK,
+        END_TRICK = 'END_TRICK',
 
-        END_ROUND,
+        END_ROUND = 'END_ROUND',
 
-        END_GAME
+        END_GAME = 'END_GAME'
     }
 }
