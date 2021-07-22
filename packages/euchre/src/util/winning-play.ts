@@ -8,7 +8,7 @@ export function winningPlay(currentTrick: (Card | undefined)[], currentTrump: Su
     // TODO clean up and test
     if (isRightBower(currentTrick[first] as Card, currentTrump)) {
         // Played right, cannot be beat
-        return 0;
+        return first;
     }
     let trumpPlayed = (currentTrick[first] as Card).suit === currentTrump || isLeftBower(currentTrick[first] as Card, currentTrump);
     for (let i = first + 1; i < currentTrick.length; i++) {
