@@ -24,23 +24,6 @@ export class StateTransformer extends AbstractStateTransformer<GameParams, GameS
         return handlerData;
     }
 
-    fromStr(str: string): GameState {
-        const obj = JSON.parse(str);
-        // TODO better shape checking
-        if(!(obj instanceof Object)) {
-            throw new Error('Not an object');
-        }
-        if(!Array.isArray(obj.playedCards)) {
-            throw new Error('Shape of object is wrong');
-        }
-
-        return {
-            ...obj,
-            ...super.fromStr(str),
-            playedCards: obj.playedCards.map((cards: Card[]) => cards.map(card => Card.fromObj(card)))
-        }
-    }
-
     merge(gameState: GameState, sourceHandler: number, incomingEvent: ResponseMessage): GameState {
         switch(incomingEvent.type) {
             case 'flip-response': {

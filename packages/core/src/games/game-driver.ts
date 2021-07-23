@@ -2,7 +2,7 @@ import { GenericGameState } from './generic-game-state';
 import { Message } from '../messages/message';
 import { AbstractStateTransformer } from './abstract-state-transformer';
 import { HandlerProxy } from './handler-proxy';
-import { GenericResponseValidator } from './generic-response-validator';
+import { GenericValidator } from './generic-validator';
 import { GenericGameStateIterator } from './generic-game-state-iterator';
 import { HandlerChain } from '../handlers/handler';
 import { SystemHandlerParams } from '../handlers/system-handler';
@@ -11,7 +11,7 @@ import { SerializableObject } from '../intermediary/serializable';
 /**
  * Class that handles the steps of the game
  */
-export class GameDriver<HandlerData, Handlers extends {[key: string]: any[]} & SystemHandlerParams, GameParams extends SerializableObject, State extends string, GameState extends GenericGameState<GameParams, State>, ResponseMessage extends Message, StateTransformer extends AbstractStateTransformer<GameParams, State, HandlerData, GameState, ResponseMessage>, ResponseValidator extends GenericResponseValidator<GameParams, State, GameState, ResponseMessage>> {
+export class GameDriver<HandlerData, Handlers extends {[key: string]: any[]} & SystemHandlerParams, GameParams extends SerializableObject, State extends string, GameState extends GenericGameState<GameParams, State>, ResponseMessage extends Message, StateTransformer extends AbstractStateTransformer<GameParams, State, HandlerData, GameState, ResponseMessage>, Validator extends GenericValidator<GameParams, State, GameState, ResponseMessage>> {
     /**
      * Tells if the game is waiting on a player
      * @param state the state to analyze
@@ -44,13 +44,13 @@ export class GameDriver<HandlerData, Handlers extends {[key: string]: any[]} & S
      * @param players the players in the game
      * @param gameParams the parameters to use for the game
      */
-    constructor(handlers: HandlerChain<Handlers, HandlerData, ResponseMessage>[], public gameState: GameState, protected iterator: GenericGameStateIterator<HandlerData, ResponseMessage, Handlers, GameParams, State, GameState, StateTransformer>, protected stateTransformer: StateTransformer, protected responseValidator: ResponseValidator) {
+    constructor(handlers: HandlerChain<Handlers, HandlerData, ResponseMessage>[], public gameState: GameState, protected iterator: GenericGameStateIterator<HandlerData, ResponseMessage, Handlers, GameParams, State, GameState, StateTransformer>, protected stateTransformer: StateTransformer, protected responseValidator: Validator) {
         // this.gameState.names = handlerProxy.getNames();
         this.handlerProxy = new HandlerProxy(handlers, stateTransformer);
     }
 
     private handleEvent(position: number, message: ResponseMessage) {
-        const updatedMessage = this.responseValidator.validate(this.gameState, position, message);
+        const updatedMessage = this.responseValidator.validateEvent(this.gameState, position, message);
 
         if(updatedMessage) {
             this.gameState = this.stateTransformer.merge(this.gameState, position, updatedMessage);

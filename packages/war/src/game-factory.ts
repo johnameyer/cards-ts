@@ -8,16 +8,16 @@ import { HandlerData } from "./handler-data";
 import { DefaultBotHandler } from "./handlers/default-bot-handler";
 import { IntermediaryHandler } from "./handlers/intermediary-handler";
 import { ResponseMessage } from "./messages/response-message";
-import { ResponseValidator } from "./response-validator";
+import { Validator } from "./validator";
 import { StateTransformer } from "./state-transformer";
 
-export class GameFactory extends AbstractGameFactory<HandlerData, GameHandlerParams, GameParams, GameState.State, GameState, ResponseMessage, StateTransformer, ResponseValidator> {
+export class GameFactory extends AbstractGameFactory<HandlerData, GameHandlerParams, GameParams, GameState.State, GameState, ResponseMessage, StateTransformer, Validator> {
     protected getGameStateIterator() {
         return new GameStateIterator();
     }
 
-    getResponseValidator() {
-        return new ResponseValidator();
+    getValidator() {
+        return new Validator();
     }
 
     getStateTransformer() {

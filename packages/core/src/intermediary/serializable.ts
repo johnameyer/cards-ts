@@ -10,6 +10,10 @@ export type Serializable = Presentable | Deck | Serializable[] | {
     [key: string]: Serializable;
 } | undefined | null;
 
+export type ReadonlySerializable = Presentable | Deck | readonly Serializable[] | {
+    readonly [key: string]: Serializable;
+} | undefined | null;
+
 export type SerializableObject = { [key: string]: Serializable };
 
 export const serialize = JSON.stringify;

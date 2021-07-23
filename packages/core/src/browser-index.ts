@@ -15,7 +15,7 @@ export { GameDriver } from './games/game-driver';
 export { GenericGameSetup } from './games/generic-game-setup';
 export { GenericGameState } from './games/generic-game-state';
 export { GenericGameStateIterator } from './games/generic-game-state-iterator';
-export { GenericResponseValidator } from './games/generic-response-validator';
+export { GenericValidator } from './games/generic-validator';
 export { HandlerProxy } from './games/handler-proxy';
 export { HandlerResponsesQueue, ResponseQueue } from './games/response-queue';
 
@@ -32,7 +32,7 @@ export { Presentable } from './intermediary/presentable';
 export { Presenter } from './intermediary/presenter';
 export { Protocol } from './intermediary/protocol';
 export { ProtocolIntermediary } from './intermediary/protocol-intermediary';
-export { Serializable, SerializableObject, serialize, deserialize } from './intermediary/serializable';
+export { ReadonlySerializable, Serializable, SerializableObject, serialize, deserialize } from './intermediary/serializable';
 
 export { Message } from './messages/message';
 export { SpacingMessage } from './messages/spacing-message';

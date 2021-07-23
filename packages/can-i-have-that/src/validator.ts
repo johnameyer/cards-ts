@@ -1,4 +1,4 @@
-import { GenericResponseValidator, Card, InvalidError, Meld, zip } from "@cards-ts/core";
+import { GenericValidator, Card, InvalidError, Meld, zip } from "@cards-ts/core";
 import { checkRun } from "@cards-ts/core/lib/cards/run-util";
 import { GameParams } from "./game-params";
 import { GameState } from "./game-state";
@@ -78,8 +78,8 @@ function checkTurn(
    return runningHand;
 }
 
-export class ResponseValidator implements GenericResponseValidator<GameParams, GameState.State, GameState, ResponseMessage> {
-    validate(gameState: GameState, sourceHandler: number, event: ResponseMessage): ResponseMessage | undefined {
+export class Validator implements GenericValidator<GameParams, GameState.State, GameState, ResponseMessage> {
+    validateEvent(gameState: GameState, sourceHandler: number, event: ResponseMessage): ResponseMessage | undefined {
         // console.log(Object.fromEntries(Object.entries(event).map(([key, value]) => [key, value?.toString()])));
         switch(event.type) {
             case 'discard-response': {
@@ -175,6 +175,19 @@ export class ResponseValidator implements GenericResponseValidator<GameParams, G
             case 'data-response': {
                 return event;
             }
+        }
+    }
+
+    validateGame(gameState: GameState): void {
+        // TODO better shape checking, maybe with GH-60
+        if(!(gameState instanceof Object)) {
+            throw new Error('Not an object');
+        }
+        if(!Array.isArray(gameState.data) || !Array.isArray(gameState.hands) || !Array.isArray(gameState.names)) {
+            throw new Error('Shape of object is wrong');
+        }
+        if((gameState.played && !Array.isArray(gameState.played)) || !Array.isArray(gameState.points)) {
+            throw new Error('Shape of object is wrong');
         }
     }
 }

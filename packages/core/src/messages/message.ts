@@ -1,5 +1,5 @@
 import { Presentable } from "../intermediary/presentable";
-import { Serializable } from "../intermediary/serializable";
+import { ReadonlySerializable } from "../intermediary/serializable";
 import { isDefined } from '../util/is-defined';
 import { isNonnull } from "../util/is-nonnull";
 
@@ -7,7 +7,7 @@ import { isNonnull } from "../util/is-nonnull";
  * Parent class for any message to be delivered to handlers
  */
 export abstract class Message {
-    readonly [key: string]: Serializable;
+    readonly [key: string]: ReadonlySerializable;
 
     public readonly type!: string;
 
