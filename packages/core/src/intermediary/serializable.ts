@@ -18,7 +18,12 @@ export type SerializableObject = { [key: string]: Serializable };
 
 export const serialize = JSON.stringify;
 
-export function deserialize(result: unknown): Serializable {
+export function deserialize(str: string): Serializable {
+    const result: unknown = JSON.parse(str);
+    return reconstruct(result);
+}
+
+export function reconstruct(result: unknown): Serializable {
     if (result === undefined || result === null) {
         return undefined;
     }
@@ -26,7 +31,7 @@ export function deserialize(result: unknown): Serializable {
         return result;
     }
     if (Array.isArray(result)) {
-        return result.map(deserialize);
+        return result.map(reconstruct);
     }
     try {
         if(hasType(result)) {
@@ -49,7 +54,7 @@ export function deserialize(result: unknown): Serializable {
             }
         }
     } catch {}
-    return Object.fromEntries(Object.entries(result as object).map(([key, value]) => [key, deserialize(value)]));
+    return Object.fromEntries(Object.entries(result as object).map(([key, value]) => [key, reconstruct(value)]));
 }
 
 function hasType(t: unknown): t is { type: unknown } {

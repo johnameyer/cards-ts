@@ -85,9 +85,9 @@ export class Validator implements GenericValidator<GameParams, GameState.State, 
         }
     }
 
-    validateGame(gameState: GameState): void {
+    validateState(gameState: GameState): void {
         // TODO better shape checking, maybe with GH-60
-        if(!(gameState instanceof Object)) {
+        if(typeof gameState !== 'object') {
             throw new Error('Not an object');
         }
         if(!Array.isArray(gameState.data) || !Array.isArray(gameState.hands) || !Array.isArray(gameState.names)) {

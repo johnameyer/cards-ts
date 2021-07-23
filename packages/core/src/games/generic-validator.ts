@@ -21,5 +21,5 @@ export interface GenericValidator<GameParams extends SerializableObject, State e
      * @returns void if a valid event
      * @throws if invalid
      */
-    validateGame(gameState: GameState): void;
+    validateState(gameState: GameState): void;
 }

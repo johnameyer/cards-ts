@@ -1,6 +1,6 @@
 import { DisplayElement } from './display-element';
 import { Presenter } from './presenter';
-import { deserialize, Serializable } from "./serializable";
+import { reconstruct, Serializable } from "./serializable";
 import { Intermediary, IntermediaryMapping } from './intermediary';
 import { Protocol } from './protocol';
 
@@ -21,7 +21,7 @@ export class ProtocolIntermediary implements Intermediary {
     form<T extends (DisplayElement<keyof Presenter>)[]>(...components: T): [sent: undefined | Promise<void>, received: Promise<IntermediaryMapping<T>>] {
         const form = Intermediary.serializeComponents(components);
         const [sent, result] = this.protocol.sendAndReceive('form', form);
-        const values = result.then(result => deserialize(result) as Serializable[]);
+        const values = result.then(result => reconstruct(result) as Serializable[]);
         return [sent, values as Promise<any> as Promise<IntermediaryMapping<T>>];
     }
 }

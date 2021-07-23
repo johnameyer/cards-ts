@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "prestart": "rm -rf ./logs/ && mkdir ./logs",
-    "start": "cat ../games.txt | xargs -t -L 1 -I{} bash -c 'ts-node test.ts {} &> logs/{}.log && tail -n 1 logs/{}.log && grep -q \"{}: completed\" logs/{}.log'"
+    "start": "cat ../games.txt | xargs -t -L 1 -I{} -P 8 bash -c 'ts-node test.ts {} &> logs/{}.log && tail -n 1 logs/{}.log && grep -q \"{}: completed\" logs/{}.log'"
   },
   "dependencies": {
     "@cards-ts/can-i-have-that": "file:../packages/can-i-have-that",
