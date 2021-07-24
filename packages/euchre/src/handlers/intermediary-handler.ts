@@ -19,7 +19,7 @@ export class IntermediaryHandler extends GameHandler {
         super();
     }
 
-    orderUp = ({ currentTrump }: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>) => {
+    handleOrderUp = ({ currentTrump }: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>) => {
         const [sent, knocked] = this.intermediary.form({
             type: 'confirm',
             message: ['Would you like to bid on', currentTrump, '?']
@@ -41,7 +41,7 @@ export class IntermediaryHandler extends GameHandler {
         return sent;
     }
 
-    nameTrump = ({ currentTrump }: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>) => {
+    handleNameTrump = ({ currentTrump }: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>) => {
         const [sent, trump] = this.intermediary.form({
             type: 'list',
             message: ['Select your desired trump suit'],
@@ -65,7 +65,7 @@ export class IntermediaryHandler extends GameHandler {
     }
 
     
-    dealerDiscard = ({ hand }: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>) => {
+    handleDealerDiscard = ({ hand }: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>) => {
         const [sent, received] = this.intermediary.form({
             type: 'list',
             message: ['Select a card to discard'],
@@ -75,7 +75,7 @@ export class IntermediaryHandler extends GameHandler {
         return sent;
     }
 
-    turn = ({ hand, currentTrick, currentTrump }: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>) => {
+    handleTurn = ({ hand, currentTrick, currentTrump }: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>) => {
         let choices = hand;
         if(currentTrick.length > 0) {
             const follows = choices.filter(card => followsTrick(currentTrick, currentTrump, card));
@@ -92,12 +92,12 @@ export class IntermediaryHandler extends GameHandler {
         return sent;
     }
 
-    message(_handlerData: HandlerData, _responsesQueue: HandlerResponsesQueue<ResponseMessage>, message: Message) {
+    handleMessage(_handlerData: HandlerData, _responsesQueue: HandlerResponsesQueue<ResponseMessage>, message: Message) {
         const [sent] = this.intermediary.print(...message.components);
         return sent;
     }
 
-    waitingFor(_handlerData: HandlerData, _responsesQueue: HandlerResponsesQueue<ResponseMessage>, _who: string[] | undefined) {
+    handleWaitingFor(_handlerData: HandlerData, _responsesQueue: HandlerResponsesQueue<ResponseMessage>, _who: string[] | undefined) {
         // TODO this.intermediary
         return;
     }

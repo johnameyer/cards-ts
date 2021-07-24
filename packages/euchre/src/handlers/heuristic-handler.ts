@@ -50,10 +50,6 @@ function wrapData(handlerData: HandlerData) {
 }
 
 export class HeuristicHandler implements Handler<GameHandlerParams & MessageHandlerParams, HandlerData, ResponseMessage> {
-    canHandle(key: any): key is keyof GameHandlerParams | 'message' {
-        return key === 'orderUp' || key === 'nameTrump' || key === 'turn' || key === 'dealerDiscard' || key === 'message';
-    }
-
     private cardScore(card: Card, trumpSuit: Suit): number {
         if (card.suit === getComplementarySuit(trumpSuit) && card.rank === Rank.JACK) {
             return 4 * Rank.NINE.difference(Rank.ACE) + 1;
@@ -71,7 +67,7 @@ export class HeuristicHandler implements Handler<GameHandlerParams & MessageHand
         return cards.map(card => this.cardScore(card, trumpSuit)).map(x => Math.max(x, 0)).reduce((a, b) => a + b, 0);
     }
 
-    orderUp = (handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): void => {
+    handleOrderUp = (handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): void => {
         const data = wrapData(handlerData);
         const { hand, position, dealer, currentTrump, gameParams, flippedCard } = handlerData;
         let score = this.cardsScore(hand, currentTrump);
@@ -88,7 +84,7 @@ export class HeuristicHandler implements Handler<GameHandlerParams & MessageHand
         responsesQueue.push(new OrderUpResponseMessage(score > 55)); // 60?
     }
 
-    nameTrump = (handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): void => {
+    handleNameTrump = (handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): void => {
         const data = wrapData(handlerData);
         const { hand, flippedCard } = handlerData;
         type SuitScore = [Suit, number];
@@ -104,13 +100,13 @@ export class HeuristicHandler implements Handler<GameHandlerParams & MessageHand
         responsesQueue.push(new NameTrumpResponseMessage(score > 55 ? suit : undefined));
     }
 
-    dealerDiscard = (handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): void => {
+    handleDealerDiscard = (handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): void => {
         const data = wrapData(handlerData);
         const { hand } = handlerData;
         responsesQueue.push(new DealerDiscardResponseMessage(hand[0]));
     }
 
-    turn = (handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): void => {
+    handleTurn = (handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): void => {
         const data = wrapData(handlerData);
         const { hand, currentTrick, tricks, pointsTaken, currentTrump } = handlerData;
         let playable = hand.filter(card => followsTrick(currentTrick, currentTrump, card));
@@ -135,7 +131,7 @@ export class HeuristicHandler implements Handler<GameHandlerParams & MessageHand
         responsesQueue.push(new TurnResponseMessage(fallbackCard, data));
     }
 
-    message = (gameState: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>, message: Message): void => {
+    handleMessage = (gameState: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>, message: Message): void => {
         const data = wrapData(gameState);
         const { currentTrick } = gameState;
         if(isPlayedMessage(message)) {

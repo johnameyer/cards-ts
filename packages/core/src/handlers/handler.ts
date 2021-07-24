@@ -3,13 +3,13 @@ import { HandlerResponsesQueue } from "../games/response-queue";
 
 export type HandlerAction<HandlerData, ResponseMessage, Vargs extends any[] = any[]> = (this: any, gameState: HandlerData, response: HandlerResponsesQueue<ResponseMessage>, ...args: Vargs) => void | Promise<void>;
 
+type HandleKeys<Handlers extends {[key: string]: any[]}, Handler extends keyof Handlers> = Handler extends string ? `handle${Capitalize<Handler>}` : never;
+
 /**
  * An element that can listen to events and push response messages
  */
 export type Handler<Handlers extends {[key: string]: any[]}, HandlerData, ResponseMessage extends Message> = {
-    canHandle(key: any): key is keyof Handlers;
-} & {
-    [Handler in keyof Handlers]: HandlerAction<HandlerData, ResponseMessage, Handlers[Handler]>;
+    [Handler in keyof Handlers as HandleKeys<Handlers, Handler>]: HandlerAction<HandlerData, ResponseMessage, Handlers[Handler]>;
 };
 
 /**
@@ -26,9 +26,11 @@ export class HandlerChain<Handlers extends {[key: string]: any[]}, HandlerData, 
      * Adds a handler to this chain
      * @param handler the handler to add
      */
-    append<Handles extends keyof Handlers>(handler: Handler<Pick<Handlers, Handles>, HandlerData, ResponseMessage>) {
-        this.handlers.push(handler as Handler<Handlers, HandlerData, ResponseMessage>);
-        return this;
+    append<AddedHandlers extends {[key: string]: any[]}, AddedResponseMessages extends Message>(
+        handler: Handler<AddedHandlers, HandlerData, AddedResponseMessages>
+    ): HandlerChain<Handlers & AddedHandlers, HandlerData, ResponseMessage | AddedResponseMessages> {
+        const handlers = [...this.handlers, handler] as any as Handler<Handlers & AddedHandlers, HandlerData, ResponseMessage | AddedResponseMessages>[];
+        return new HandlerChain(handlers);
     }
     
     /**
@@ -38,8 +40,8 @@ export class HandlerChain<Handlers extends {[key: string]: any[]}, HandlerData, 
      */
     call<Method extends keyof Handlers>(method: Method, ...args: Parameters<HandlerAction<HandlerData, ResponseMessage, Handlers[Method]>>): ReturnType<HandlerAction<HandlerData, ResponseMessage, Handlers[Method]>> {
         for(const handler of this.handlers) {
-            if(handler.canHandle(method)) {
-                return (handler[method] as HandlerAction<HandlerData, ResponseMessage, Handlers[Method]>).call(handler, ...args);
+            if((handler as any)['handle' + method.toString().toUpperCase()]) {
+                return ((handler as any)['handle' + method.toString().toUpperCase()] as HandlerAction<HandlerData, ResponseMessage, Handlers[Method]>).call(handler, ...args);
             }
         }
     }

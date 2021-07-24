@@ -5,7 +5,7 @@ import { FlipResponseMessage } from "../messages/response";
 import { ResponseMessage } from "../messages/response-message";
 
 export class DefaultBotHandler extends GameHandler {
-    flip(handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): void | Promise<void> {
+    handleFlip(handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): void | Promise<void> {
         responsesQueue.push(new FlipResponseMessage());
     }
 }

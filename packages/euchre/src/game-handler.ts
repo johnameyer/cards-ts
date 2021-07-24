@@ -11,15 +11,11 @@ export type GameHandlerParams = {
 }
 
 export abstract class GameHandler implements Handler<GameHandlerParams, HandlerData, ResponseMessage> {
-    canHandle(key: any): key is ('orderUp' | 'nameTrump' | 'dealerDiscard' | 'turn') {
-       return key === 'orderUp' || key === 'nameTrump' || key === 'dealerDiscard' || key === 'turn';
-    }
+    abstract handleOrderUp: HandlerAction<HandlerData, DataResponseMessage | OrderUpResponseMessage | GoingAloneResponseMessage>;
 
-    abstract orderUp: HandlerAction<HandlerData, DataResponseMessage | OrderUpResponseMessage | GoingAloneResponseMessage>;
+    abstract handleNameTrump: HandlerAction<HandlerData, DataResponseMessage | NameTrumpResponseMessage | GoingAloneResponseMessage>;
 
-    abstract nameTrump: HandlerAction<HandlerData, DataResponseMessage | NameTrumpResponseMessage | GoingAloneResponseMessage>;
+    abstract handleDealerDiscard: HandlerAction<HandlerData, DataResponseMessage | DealerDiscardResponseMessage>;
 
-    abstract dealerDiscard: HandlerAction<HandlerData, DataResponseMessage | DealerDiscardResponseMessage>;
-
-    abstract turn: HandlerAction<HandlerData, DataResponseMessage | TurnResponseMessage>;
+    abstract handleTurn: HandlerAction<HandlerData, DataResponseMessage | TurnResponseMessage>;
 }

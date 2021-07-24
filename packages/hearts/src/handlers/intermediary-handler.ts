@@ -21,7 +21,7 @@ export class IntermediaryHandler extends GameHandler {
         super();
     }
 
-    pass = ({ hand, gameParams: { numToPass } }: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>) => {
+    handlePass = ({ hand, gameParams: { numToPass } }: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>) => {
         const [sent, received] = this.intermediary.form({
             type: 'checkbox',
             message: ['Select the cards to pass'],
@@ -34,7 +34,7 @@ export class IntermediaryHandler extends GameHandler {
         return sent;
     }
 
-    turn = ({ hand, tricks, currentTrick, pointsTaken }: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>) => {
+    handleTurn = ({ hand, tricks, currentTrick, pointsTaken }: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>) => {
         let choices = hand;
         if(currentTrick.length > 0) {
             if(choices.some(card => card.suit === currentTrick[0].suit)) {

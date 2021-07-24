@@ -51,14 +51,14 @@ export abstract class AbstractGameFactory<HandlerData, Handles extends {[key: st
      * Creates a new handler chain containing the intermediary handler and the system intermediary handler
      */
     getIntermediaryHandlerChain(intermediary: Intermediary): HandlerChain<Handles & SystemHandlerParams, HandlerData, ResponseMessage> {
-        return new HandlerChain<Handles & SystemHandlerParams, HandlerData, ResponseMessage>().append<keyof Handles>(this.getIntermediaryHandler(intermediary)).append(new IntermediarySystemHandler(intermediary));
+        return new HandlerChain<Handles & SystemHandlerParams, HandlerData, ResponseMessage>().append(this.getIntermediaryHandler(intermediary)).append(new IntermediarySystemHandler(intermediary));
     }
 
     /**
      * Creates a new handler chain containing only the bot handler for the game events
      */
     getDefaultBotHandlerChain() {
-        return new HandlerChain<Handles & SystemHandlerParams, HandlerData, ResponseMessage>().append<keyof Handles>(this.getDefaultBotHandler());
+        return new HandlerChain<Handles & SystemHandlerParams, HandlerData, ResponseMessage>().append(this.getDefaultBotHandler());
     }
 
     /**

@@ -7,9 +7,9 @@ import { DataResponseMessage, DiscardResponseMessage, GoDownResponseMessage, Pla
  * Breaks up the decisions made during a turn into individual components
  */
 export abstract class ClientHandler extends GameHandler {
-    public abstract wantCard: ({hand, played, position, round, wouldBeTurn, gameParams: {rounds}, data}: HandlerData, queue: HandlerResponsesQueue<WantCardResponseMessage>) => Promise<void>;
+    public abstract handleWantCard: ({hand, played, position, round, wouldBeTurn, gameParams: {rounds}, data}: HandlerData, queue: HandlerResponsesQueue<WantCardResponseMessage>) => Promise<void>;
 
-    turn = async ({hand, played, position, round, gameParams: {rounds}, data}: HandlerData, responsesQueue: HandlerResponsesQueue<GoDownResponseMessage | DiscardResponseMessage | PlayResponseMessage>): Promise<void> => {
+    handleTurn = async ({hand, played, position, round, gameParams: {rounds}, data}: HandlerData, responsesQueue: HandlerResponsesQueue<GoDownResponseMessage | DiscardResponseMessage | PlayResponseMessage>): Promise<void> => {
         const currentRound = rounds[round];
         const last = round === rounds.length - 1;
         let hasGoneDown = played[position].length !== 0;
@@ -41,7 +41,7 @@ export abstract class ClientHandler extends GameHandler {
         return;
     }
 
-    superTurn = this.turn;
+    superTurn = this.handleTurn;
 
     async playOnOthers(hand: Card[], played: Meld[][], responsesQueue: HandlerResponsesQueue<PlayResponseMessage>, data: unknown) {
         let runToPlayOn: Meld | null;
