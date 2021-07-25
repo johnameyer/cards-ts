@@ -8,11 +8,11 @@ export class IntermediarySystemHandler<HandlerData, ResponseMessage extends Mess
         super();
     }
     
-    message = async (_handlerData: HandlerData, _: HandlerResponsesQueue<ResponseMessage>, message: Message) => {
+    handleMessage = async (_handlerData: HandlerData, _: HandlerResponsesQueue<ResponseMessage>, message: Message) => {
         await this.intermediary.print(...message.components)[0];
     }
 
-    waitingFor = async (_handlerData: HandlerData, _: HandlerResponsesQueue<ResponseMessage>, _who: string[] | undefined): Promise<void> => {
+    handleWaitingFor = async (_handlerData: HandlerData, _: HandlerResponsesQueue<ResponseMessage>, _who: string[] | undefined): Promise<void> => {
         // No-op
     }
 }

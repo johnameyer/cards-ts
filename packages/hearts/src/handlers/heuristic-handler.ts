@@ -90,11 +90,7 @@ function wrapData(handlerData: HandlerData) {
 }
 
 export class HeuristicHandler implements Handler<GameHandlerParams & MessageHandlerParams, HandlerData, ResponseMessage> {
-    canHandle(key: any): key is keyof GameHandlerParams | 'message' {
-        return key === 'pass' || key === 'turn' || key === 'message';
-    }
-
-    pass = (handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): void => {
+    handlePass = (handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): void => {
         const data = wrapData(handlerData);
         const { hand, gameParams: { numToPass } } = handlerData;
         const toPass = [];
@@ -155,7 +151,7 @@ export class HeuristicHandler implements Handler<GameHandlerParams & MessageHand
         return;
     }
 
-    turn = (handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): void => {
+    handleTurn = (handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): void => {
         const data = wrapData(handlerData);
         const { hand, currentTrick, tricks, pointsTaken } = handlerData;
         const canBeHeart = !pointsTaken.every(point => point === 0);
@@ -292,7 +288,7 @@ export class HeuristicHandler implements Handler<GameHandlerParams & MessageHand
         responsesQueue.push(new TurnResponseMessage(hand[0], data));
     }
 
-    message = (gameState: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>, message: Message): void => {
+    handleMessage = (gameState: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>, message: Message): void => {
         const data = wrapData(gameState);
         const { currentTrick } = gameState;
         if(isPlayedMessage(message)) {

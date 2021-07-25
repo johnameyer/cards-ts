@@ -7,9 +7,5 @@ export type GameHandlerParams = {
 }
 
 export abstract class GameHandler implements Handler<GameHandlerParams, HandlerData, ResponseMessage> {
-    canHandle(key: any): key is 'flip' {
-        return key === 'flip';
-    }
-    
-    abstract flip(handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): void | Promise<void>;
+    abstract handleFlip(handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): void | Promise<void>;
 }

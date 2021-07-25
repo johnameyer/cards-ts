@@ -5,7 +5,7 @@ import { DiscardResponseMessage, GoDownResponseMessage, PlayResponseMessage, Wan
 import { find } from '../util/find';
 
 export class LocalMaximumHandler extends GameHandler {
-    wantCard = ({hand, played, position, round, deckCard, wouldBeTurn, gameParams: {rounds}}: HandlerData, responsesQueue: HandlerResponsesQueue<WantCardResponseMessage>): void => {
+    handleWantCard = ({hand, played, position, round, deckCard, wouldBeTurn, gameParams: {rounds}}: HandlerData, responsesQueue: HandlerResponsesQueue<WantCardResponseMessage>): void => {
         const currentRound = rounds[round];
         if(played[position].length > 0) {
             responsesQueue.push(new WantCardResponseMessage(false));
@@ -50,7 +50,7 @@ export class LocalMaximumHandler extends GameHandler {
         return;
     }
 
-    turn = ({hand, played, position, round, gameParams: {rounds}}: HandlerData, responsesQueue: HandlerResponsesQueue<DiscardResponseMessage | GoDownResponseMessage | PlayResponseMessage>) => {
+    handleTurn = ({hand, played, position, round, gameParams: {rounds}}: HandlerData, responsesQueue: HandlerResponsesQueue<DiscardResponseMessage | GoDownResponseMessage | PlayResponseMessage>) => {
         const currentRound = rounds[round];
         if(played[position].length === 0) {
             const found = find([...hand], currentRound);
