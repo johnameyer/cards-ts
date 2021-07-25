@@ -40,9 +40,11 @@ export class HandlerChain<Handlers extends {[key: string]: any[]}, HandlerData, 
      */
     call<Method extends keyof Handlers>(method: Method, ...args: Parameters<HandlerAction<HandlerData, ResponseMessage, Handlers[Method]>>): ReturnType<HandlerAction<HandlerData, ResponseMessage, Handlers[Method]>> {
         for(const handler of this.handlers) {
-            if((handler as any)['handle' + method.toString().toUpperCase()]) {
-                return ((handler as any)['handle' + method.toString().toUpperCase()] as HandlerAction<HandlerData, ResponseMessage, Handlers[Method]>).call(handler, ...args);
+            if((handler as any)['handle' + capitalize(method.toString())]) {
+                return ((handler as any)['handle' + capitalize(method.toString())] as HandlerAction<HandlerData, ResponseMessage, Handlers[Method]>).call(handler, ...args);
             }
         }
     }
 }
+
+const capitalize = ([ first, ...rest ]: string) => first.toLocaleUpperCase() + rest.join('')
