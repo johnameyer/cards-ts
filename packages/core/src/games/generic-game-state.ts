@@ -1,10 +1,11 @@
 import { Deck } from '../cards/deck';
 import { Card } from '../cards/card';
+import { Serializable, SerializableObject } from '../intermediary/serializable';
 
 /**
  * A class used to track the current state of the game
  */
-export interface GenericGameState<GameParams, State> {
+export interface GenericGameState<GameParams extends Readonly<SerializableObject>, State extends string> extends SerializableObject {
     /**
      * The settings that a game runs under
      */
@@ -54,5 +55,5 @@ export interface GenericGameState<GameParams, State> {
     /**
      * Field for the handlers to save their custom data (since they are meant to be stateless)
      */
-    data: unknown[];
+    data: Serializable[];
 }

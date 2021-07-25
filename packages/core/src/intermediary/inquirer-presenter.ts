@@ -1,7 +1,9 @@
-import { Presenter, Serializable } from './presenter';
+import { Presenter } from './presenter';
+import { Serializable } from "./serializable";
 import inquirer from 'inquirer';
 import { Message } from '../messages/message';
 import { Card } from '..';
+import { Presentable } from './presentable';
 
 inquirer.registerPrompt('selectLine', require('inquirer-select-line'));
 
@@ -14,7 +16,7 @@ export class InquirerPresenter implements Presenter {
         return () => options.cards;
     }
 
-    checkbox<T, ValidateParam>(options: { message: Serializable[]; type: string; choices: { name: string; value: T }[]; validate?: (input: T[], validateParam: ValidateParam) => true | string | Promise<true | string>; validateParam?: ValidateParam }) {
+    checkbox<T, ValidateParam>(options: { message: Presentable[]; type: string; choices: { name: string; value: T }[]; validate?: (input: T[], validateParam: ValidateParam) => true | string | Promise<true | string>; validateParam?: ValidateParam }) {
         return async () => (await inquirer.prompt([{
             ...options,
             // @ts-ignore
@@ -25,7 +27,7 @@ export class InquirerPresenter implements Presenter {
         }])).checkbox;
     }
 
-    list<T>(options: { message: Serializable[]; type: string; choices: { name: string; value: T }[] }) {
+    list<T>(options: { message: Presentable[]; type: string; choices: { name: string; value: T }[] }) {
         return async () => (await inquirer.prompt([{
             ...options,
             message: Message.defaultTransformer(options.message),
@@ -34,7 +36,7 @@ export class InquirerPresenter implements Presenter {
         }])).list;
     }
 
-    input<ValidateParam>(options: { message: Serializable[]; validate?: (input: string, param: ValidateParam) => true | string | Promise<true | string>; validateParam?: ValidateParam }) {
+    input<ValidateParam>(options: { message: Presentable[]; validate?: (input: string, param: ValidateParam) => true | string | Promise<true | string>; validateParam?: ValidateParam }) {
         return async () => (await inquirer.prompt([{
             ...options,
             // @ts-ignore
@@ -45,7 +47,7 @@ export class InquirerPresenter implements Presenter {
         }])).input;
     }
 
-    confirm(options: { message: Serializable[] }) {
+    confirm(options: { message: Presentable[] }) {
         return async () => (await inquirer.prompt([{
             ...options,
             message: Message.defaultTransformer(options.message),
@@ -54,7 +56,7 @@ export class InquirerPresenter implements Presenter {
         }])).confirm;
     }
 
-    place<T, ValidateParam>(options: { message: Serializable[]; choices: { name: string; value: T }[]; placeholder: string; validate?: (input: number, param: ValidateParam) => true | string | Promise<true | string>; validateParam?: ValidateParam }) {
+    place<T, ValidateParam>(options: { message: Presentable[]; choices: { name: string; value: T }[]; placeholder: string; validate?: (input: number, param: ValidateParam) => true | string | Promise<true | string>; validateParam?: ValidateParam }) {
         return async () => (await inquirer.prompt([{
             ...options,
             // @ts-ignore
@@ -65,7 +67,7 @@ export class InquirerPresenter implements Presenter {
         }])).selectLine;
     }
 
-    print(options: { message: Serializable[] | undefined }) {
+    print(options: { message: Presentable[] | undefined }) {
         return () => {
             if(options.message) {
                 console.log(Message.defaultTransformer(options.message));

@@ -1,13 +1,6 @@
+import { Serializable } from './serializable';
 import { Card } from '../cards/card';
-import { FourCardRun } from '../cards/four-card-run';
-import { Meld } from '../cards/meld';
-import { Rank } from '../cards/rank';
-import { Suit } from '../cards/suit';
-import { ThreeCardSet } from '../cards/three-card-set';
-
-export type Serializable = Card | Rank | Suit | ThreeCardSet | FourCardRun | string | number | boolean | Serializable[] | {
-    [key: string]: Serializable;
-} | undefined;
+import { Presentable } from './presentable';
 
 /**
  * Interface describing the different forms of questions that can be posed to the user over a variety of mediums
@@ -23,7 +16,7 @@ export interface Presenter {
      * Prompt the user a simple yes/no question
      * @param options the options to pass
      */
-    confirm(options: { message: Serializable[] }): (() => boolean | Promise<boolean>);
+    confirm(options: { message: Presentable[] }): (() => boolean | Promise<boolean>);
 
     /**
      * Allow the user to select multiple or no options from a list
@@ -31,14 +24,14 @@ export interface Presenter {
      * The validator function passed must not use any closure variables to work properly over a serialized interface
      * @param options the options to pass
      */
-    checkbox<T extends Serializable, ValidateParam extends Serializable = undefined>(options: { message: Serializable[]; choices: { name: string; value: T }[]; validate?: (input: T[], param: ValidateParam) => true | string | Promise<true | string>; validateParam?: ValidateParam }): (() => T[] | Promise<T[]>);
+    checkbox<T extends Presentable, ValidateParam extends Serializable = undefined>(options: { message: Presentable[]; choices: { name: string; value: T }[]; validate?: (input: T[], param: ValidateParam) => true | string | Promise<true | string>; validateParam?: ValidateParam }): (() => T[] | Promise<T[]>);
 
     /**
      * Allows a user to select from a list
      *
      * @param options the options to pass
      */
-    list<T extends Serializable>(options: { message: Serializable[]; choices: { name: string; value: T }[] }): (() => T | Promise<T>);
+    list<T extends Presentable>(options: { message: Presentable[]; choices: { name: string; value: T }[] }): (() => T | Promise<T>);
 
     /**
      * Allow a user to input a text string of their choice
@@ -46,7 +39,7 @@ export interface Presenter {
      * The validator function passed must not use any closure variables to work properly over a serialized interface
      * @param options the options to pass
      */
-    input<ValidateParam extends Serializable = undefined>(options: { message: Serializable[]; validate?: (input: string, param: ValidateParam) => true | string | Promise<true | string>; validateParam?: ValidateParam }): (() => string | Promise<string>);
+    input<ValidateParam extends Serializable = undefined>(options: { message: Presentable[]; validate?: (input: string, param: ValidateParam) => true | string | Promise<true | string>; validateParam?: ValidateParam }): (() => string | Promise<string>);
 
     /**
      * Allow a user to decide wherein a list to place an item
@@ -54,12 +47,12 @@ export interface Presenter {
      * The validator function passed must not use any closure variables to work properly over a serialized interface
      * @param options the options to pass
      */
-    place<T extends Serializable, ValidateParam extends Serializable = undefined>(options: { message: Serializable[]; choices: { name: string; value: T }[]; placeholder: string; validate?: (input: number, param: ValidateParam) => true | string | Promise<true | string>; validateParam?: ValidateParam }):  (() => number | Promise<number>);
+    place<T extends Presentable, ValidateParam extends Serializable = undefined>(options: { message: Presentable[]; choices: { name: string; value: T }[]; placeholder: string; validate?: (input: number, param: ValidateParam) => true | string | Promise<true | string>; validateParam?: ValidateParam }):  (() => number | Promise<number>);
     
     /**
      * Print a message or list of serializables
      * 
      * @param options the options to pass
      */
-    print(options: {message: Serializable[] | undefined}): () => void;
+    print(options: {message: Presentable[] | undefined}): () => void;
 }

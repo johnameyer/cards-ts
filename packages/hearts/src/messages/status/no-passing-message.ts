@@ -1,7 +1,6 @@
-import { Message } from "@cards-ts/core";
-import { Serializable } from "@cards-ts/core";
+import { Message, Presentable } from "@cards-ts/core";
 
-function generateMessage(): Serializable[] {
+function generateMessage(): Presentable[] {
     return ['No passing this round'];
 }
 

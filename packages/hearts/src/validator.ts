@@ -1,15 +1,14 @@
-import { Suit, GenericResponseValidator, Card, Rank, distinct, isDefined } from "@cards-ts/core";
+import { Suit, GenericValidator, Card, Rank, distinct, isDefined } from "@cards-ts/core";
 import { GameParams } from "./game-params";
 import { GameState } from "./game-state";
 import { ResponseMessage } from "./messages/response-message";
 import { PassResponseMessage } from "./messages/response/pass-response-message";
 import { TurnResponseMessage } from "./messages/response/turn-response-message";
-import { compare } from "./util/compare";
 
 const QS = new Card(Suit.SPADES, Rank.QUEEN);
 
-export class ResponseValidator implements GenericResponseValidator<GameParams, GameState.State, GameState, ResponseMessage> {
-    validate(gameState: GameState, source: number, event: ResponseMessage): ResponseMessage | undefined {
+export class Validator implements GenericValidator<GameParams, GameState.State, GameState, ResponseMessage> {
+    validateEvent(gameState: GameState, source: number, event: ResponseMessage): ResponseMessage | undefined {
         switch(event.type) {
             case 'pass-response': {
                 const { cards, data } = event;
@@ -78,6 +77,19 @@ export class ResponseValidator implements GenericResponseValidator<GameParams, G
             case 'data-response': {
                 return event;
             }
+        }
+    }
+
+    validateState(gameState: GameState): void {
+        // TODO better shape checking, maybe with GH-60
+        if(typeof gameState !== 'object') {
+            throw new Error('Not an object');
+        }
+        if(!Array.isArray(gameState.data) || !Array.isArray(gameState.hands) || !Array.isArray(gameState.names)) {
+            throw new Error('Shape of object is wrong');
+        }
+        if((gameState.passed && !Array.isArray(gameState.passed)) || (gameState.currentTrick && !Array.isArray(gameState.currentTrick))) {
+            throw new Error('Shape of object is wrong');
         }
     }
 }

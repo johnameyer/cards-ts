@@ -148,30 +148,6 @@ export class StateTransformer extends AbstractStateTransformer<GameParams, GameS
         }
     }
 
-    toString(state: GameState) {
-        return JSON.stringify(state);
-    }
-
-    fromStr(str: string) {
-        const obj = JSON.parse(str);
-
-        // TODO better shape checking
-        if(typeof obj !== 'object' || !obj) {
-            throw new Error('Not an object');
-        }
-
-        if((obj.played && !Array.isArray(obj.played)) || !Array.isArray(obj.points)) {
-            throw new Error('Shape of object is wrong');
-        }
-        const gameState: GameState = {
-            ...obj,
-            ...super.fromStr(str),
-            deck: obj.deck ? Deck.fromObj(obj.deck) : undefined,
-            played: obj.played ? obj.played.map((runs: Meld[]) => runs.map(run => runFromObj(run))) : undefined,
-        };
-        return gameState;
-    }
-
     initialState({ names, gameParams }: { names: string[], gameParams: GameParams }) {
         const state = super.initialState({ names, gameParams, initialState: GameState.State.START_GAME });
         

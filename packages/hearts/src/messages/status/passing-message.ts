@@ -1,7 +1,6 @@
-import { Message } from "@cards-ts/core";
-import { Serializable } from "@cards-ts/core";
+import { Message, Presentable } from "@cards-ts/core";
 
-function generateMessage(numToPass: number, passing: number, numPlayers: number): Serializable[] {
+function generateMessage(numToPass: number, passing: number, numPlayers: number): Presentable[] {
     if(passing === numPlayers / 2) {
         return ['Passing', numToPass, 'cards across'];
     } else if(passing < 0) {

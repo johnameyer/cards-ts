@@ -1,4 +1,4 @@
-import { GenericResponseValidator } from "@cards-ts/core";
+import { GenericValidator } from "@cards-ts/core";
 import { GameParams } from "./game-params";
 import { GameState } from "./game-state";
 import { DealerDiscardResponseMessage, GoingAloneResponseMessage, OrderUpResponseMessage, NameTrumpResponseMessage } from "./messages/response";
@@ -6,8 +6,8 @@ import { ResponseMessage } from "./messages/response-message";
 import { TurnResponseMessage } from "./messages/response/turn-response-message";
 import { followsTrick } from "./util/follows-trick";
 
-export class ResponseValidator implements GenericResponseValidator<GameParams, GameState.State, GameState, ResponseMessage> {
-    validate(gameState: GameState, source: number, event: ResponseMessage): ResponseMessage | undefined {
+export class Validator implements GenericValidator<GameParams, GameState.State, GameState, ResponseMessage> {
+    validateEvent(gameState: GameState, source: number, event: ResponseMessage): ResponseMessage | undefined {
         switch(event.type) {
             case 'order-up-response': {
                 if(source !== gameState.whoseTurn) {
@@ -77,11 +77,24 @@ export class ResponseValidator implements GenericResponseValidator<GameParams, G
                     console.error('Invalid turn', e);
                 }
 
-                return new TurnResponseMessage(gameState.hands[source].filter(card => card.suit === gameState.currentTrick[0]?.suit)[0] || gameState.hands[source][0], data);
+                return new TurnResponseMessage(gameState.hands[source].filter(card => followsTrick(gameState.currentTrick, gameState.currentTrump, card))[0] || gameState.hands[source][0], data);
             }
             case 'data-response': {
                 return event;
             }
+        }
+    }
+
+    validateState(gameState: GameState): void {
+        // TODO better shape checking, maybe with GH-60
+        if(typeof gameState !== 'object') {
+            throw new Error('Not an object');
+        }
+        if(!Array.isArray(gameState.data) || !Array.isArray(gameState.hands) || !Array.isArray(gameState.names)) {
+            throw new Error('Shape of object is wrong');
+        }
+        if((gameState.passed && !Array.isArray(gameState.passed)) || (gameState.currentTrick && !Array.isArray(gameState.currentTrick))) {
+            throw new Error('Shape of object is wrong');
         }
     }
 }

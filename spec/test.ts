@@ -4,7 +4,7 @@ if(!performance) {
     var { performance } = require('perf_hooks');
 }
 
-import { IncrementalIntermediary, InquirerPresenter } from '@cards-ts/core';
+import { deserialize, IncrementalIntermediary, InquirerPresenter, serialize } from '@cards-ts/core';
 
 async function run(libraryName: string) {
     try {
@@ -31,7 +31,9 @@ async function run(libraryName: string) {
 
         let initialState = gameFactory.getStateTransformer().initialState({ names: names, gameParams: gameFactory.getGameSetup().getDefaultParams() });
 
-        initialState = gameFactory.getStateTransformer().fromStr(gameFactory.getStateTransformer().toString(initialState));
+        initialState = deserialize(serialize(initialState));
+
+        gameFactory.getValidator().validateState(initialState);
 
         const gameDriver = gameFactory.getGameDriver(handlers, initialState);
 
