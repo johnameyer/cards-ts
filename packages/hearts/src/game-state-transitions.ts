@@ -2,7 +2,7 @@ import { GameState } from "./game-state";
 import { GameParams } from "./game-params";
 import { HandlerData } from "./handler-data";
 import { GameHandler, GameHandlerParams } from "./game-handler";
-import { GenericGameStateIterator, Card, Deck, Rank, Suit, SystemHandler, SpacingMessage } from '@cards-ts/core';
+import { GenericGameStateTransitions, Card, Deck, Rank, Suit, SystemHandler, SpacingMessage } from '@cards-ts/core';
 import { DealOutMessage, NoPassingMessage, PassingMessage, PassedMessage, LeadsMessage, PlayedMessage, ShotTheMoonMessage, ScoredMessage, EndRoundMessage } from "./messages/status";
 import { ResponseMessage } from "./messages/response-message";
 import { StateTransformer } from "./state-transformer";
@@ -21,62 +21,23 @@ function valueOfCard(card: Card): number {
 
 type HandlerProxy = GenericHandlerProxy<HandlerData, ResponseMessage, GameHandlerParams & SystemHandlerParams, GameParams, GameState.State, GameState, StateTransformer>;
 
-export class GameStateIterator implements GenericGameStateIterator<HandlerData, ResponseMessage, GameHandlerParams & SystemHandlerParams, GameParams, GameState.State, GameState, StateTransformer> {
-    public iterate(gameState: GameState, handlerProxy: HandlerProxy): void {
-        switch(gameState.state) {
-            case GameState.State.START_GAME:
-                this.startGame(gameState);
-                break;
-
-            case GameState.State.START_ROUND:
-                this.startRound(gameState, handlerProxy);
-                break;
-
-                
-            case GameState.State.START_PASS:
-                this.startPass(gameState, handlerProxy);
-                break;
-
-            case GameState.State.WAIT_FOR_PASS:
-                this.waitForPass(gameState, handlerProxy);
-                break;
-
-            case GameState.State.HANDLE_PASS:
-                this.handlePass(gameState, handlerProxy);
-                break;
-
-            case GameState.State.START_FIRST_TRICK:
-                this.startFirstTrick(gameState, handlerProxy);
-                break;
-
-            case GameState.State.START_TRICK:
-                this.startTrick(gameState, handlerProxy);
-                break;
-
-            case GameState.State.START_PLAY:
-                this.startPlay(gameState);
-                break;
-
-            case GameState.State.WAIT_FOR_PLAY:
-                this.waitForPlay(gameState, handlerProxy);
-                return;
-
-            case GameState.State.HANDLE_PLAY:
-                this.handlePlay(gameState, handlerProxy);
-                break;
-
-            case GameState.State.END_TRICK:
-                this.endTrick(gameState);
-                break;
-
-            case GameState.State.END_ROUND:
-                this.endRound(gameState, handlerProxy);
-                break;
-
-            case GameState.State.END_GAME:
-                this.endGame(gameState);
-                break;
-        }
+export class GameStateTransitions implements GenericGameStateTransitions<HandlerData, ResponseMessage, GameHandlerParams & SystemHandlerParams, GameParams, GameState.State, GameState, StateTransformer> {
+    public get() {
+        return {
+            [GameState.State.START_GAME]: this.startGame,
+            [GameState.State.START_ROUND]: this.startRound,
+            [GameState.State.START_PASS]: this.startPass,
+            [GameState.State.WAIT_FOR_PASS]: this.waitForPass,
+            [GameState.State.HANDLE_PASS]: this.handlePass,
+            [GameState.State.START_FIRST_TRICK]: this.startFirstTrick,
+            [GameState.State.START_TRICK]: this.startTrick,
+            [GameState.State.START_PLAY]: this.startPlay,
+            [GameState.State.WAIT_FOR_PLAY]: this.waitForPlay,
+            [GameState.State.HANDLE_PLAY]: this.handlePlay,
+            [GameState.State.END_TRICK]: this.endTrick,
+            [GameState.State.END_ROUND]: this.endRound,
+            [GameState.State.END_GAME]: this.endGame,
+        };
     }
 
     startGame(gameState: GameState) {

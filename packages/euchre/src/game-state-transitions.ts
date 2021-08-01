@@ -2,7 +2,7 @@ import { GameState } from "./game-state";
 import { GameParams } from "./game-params";
 import { HandlerData } from "./handler-data";
 import { GameHandlerParams } from "./game-handler";
-import { GenericGameStateIterator, Deck, Rank, SpacingMessage } from '@cards-ts/core';
+import { GenericGameStateTransitions, Deck, Rank, SpacingMessage } from '@cards-ts/core';
 import { DealOutMessage, LeadsMessage, PlayedMessage, EndRoundMessage, DealerMessage, OrderUpMessage, PassMessage, NameTrumpMessage, TrumpMessage, WonTrickMessage, WonRoundMessage, GoingAloneMessage } from "./messages/status";
 import { ResponseMessage } from "./messages/response-message";
 import { StateTransformer } from "./state-transformer";
@@ -14,80 +14,27 @@ import { TurnUpMessage } from "./messages/status/turn-up-message";
 
 type HandlerProxy = GenericHandlerProxy<HandlerData, ResponseMessage, GameHandlerParams & SystemHandlerParams, GameParams, GameState.State, GameState, StateTransformer>;
 
-export class GameStateIterator implements GenericGameStateIterator<HandlerData, ResponseMessage, GameHandlerParams & SystemHandlerParams, GameParams, GameState.State, GameState, StateTransformer> {
-    public iterate(gameState: GameState, handlerProxy: HandlerProxy): void {
-        switch(gameState.state) {
-            case GameState.State.START_GAME:
-                this.startGame(gameState);
-                break;
-
-            case GameState.State.START_ROUND:
-                this.startRound(gameState, handlerProxy);
-                break;
-                
-            case GameState.State.START_ORDERING_UP:
-                this.startOrderingUp(gameState, handlerProxy);
-                break;
-
-            case GameState.State.WAIT_FOR_ORDER_UP:
-                this.waitForOrderUp(gameState, handlerProxy);
-                break;
-
-            case GameState.State.HANDLE_ORDER_UP:
-                this.handleOrderUp(gameState, handlerProxy);
-                break;
-
-            case GameState.State.WAIT_FOR_DEALER_DISCARD:
-                this.waitForDealerDiscard(gameState, handlerProxy);
-                break;
-
-            case GameState.State.HANDLE_DEALER_DISCARD:
-                this.handleDealerDiscard(gameState, handlerProxy);
-                break;
-
-            case GameState.State.START_TRUMP_NAMING:
-                this.startTrumpNaming(gameState, handlerProxy);
-                break;
-
-            case GameState.State.WAIT_FOR_TRUMP_NAMING:
-                this.waitForTrumpNaming(gameState, handlerProxy);
-                break;
-
-            case GameState.State.HANDLE_TRUMP_NAMING:
-                this.handleTrumpNaming(gameState, handlerProxy);
-                break;
-
-            case GameState.State.START_TRICK:
-                this.startTrick(gameState, handlerProxy);
-                break;
-
-            case GameState.State.START_PLAY:
-                this.startPlay(gameState);
-                break;
-
-            case GameState.State.WAIT_FOR_PLAY:
-                this.waitForPlay(gameState, handlerProxy);
-                return;
-
-            case GameState.State.HANDLE_PLAY:
-                this.handlePlay(gameState, handlerProxy);
-                break;
-
-            case GameState.State.END_PLAY:
-                this.endPlay(gameState);
-                break;
-
-            case GameState.State.END_TRICK:
-                this.endTrick(gameState, handlerProxy);
-                break;
-
-            case GameState.State.END_ROUND:
-                this.endRound(gameState, handlerProxy);
-                break;
-
-            case GameState.State.END_GAME:
-                this.endGame(gameState);
-                break;
+export class GameStateTransitions implements GenericGameStateTransitions<HandlerData, ResponseMessage, GameHandlerParams & SystemHandlerParams, GameParams, GameState.State, GameState, StateTransformer> {
+    public get() {
+        return {
+            [GameState.State.START_GAME]: this.startGame,
+            [GameState.State.START_ROUND]: this.startRound,
+            [GameState.State.START_ORDERING_UP]: this.startOrderingUp,
+            [GameState.State.WAIT_FOR_ORDER_UP]: this.waitForOrderUp,
+            [GameState.State.HANDLE_ORDER_UP]: this.handleOrderUp,
+            [GameState.State.WAIT_FOR_DEALER_DISCARD]: this.waitForDealerDiscard,
+            [GameState.State.HANDLE_DEALER_DISCARD]: this.handleDealerDiscard,
+            [GameState.State.START_TRUMP_NAMING]: this.startTrumpNaming,
+            [GameState.State.WAIT_FOR_TRUMP_NAMING]: this.waitForTrumpNaming,
+            [GameState.State.HANDLE_TRUMP_NAMING]: this.handleTrumpNaming,
+            [GameState.State.START_TRICK]: this.startTrick,
+            [GameState.State.START_PLAY]: this.startPlay,
+            [GameState.State.WAIT_FOR_PLAY]: this.waitForPlay,
+            [GameState.State.HANDLE_PLAY]: this.handlePlay,
+            [GameState.State.END_PLAY]: this.endPlay,
+            [GameState.State.END_TRICK]: this.endTrick,
+            [GameState.State.END_ROUND]: this.endRound,
+            [GameState.State.END_GAME]: this.endGame,
         }
     }
 

@@ -2,7 +2,7 @@ import { GameState } from "./game-state";
 import { GameParams } from "./game-params";
 import { HandlerData } from "./handler-data";
 import { GameHandler, GameHandlerParams } from "./game-handler";
-import { GenericGameStateIterator, Card, Deck, SystemHandlerParams, SpacingMessage } from '@cards-ts/core';
+import { GenericGameStateTransitions, Card, Deck, SystemHandlerParams, SpacingMessage } from '@cards-ts/core';
 import { ResponseMessage } from "./messages/response-message";
 import { StateTransformer } from "./state-transformer";
 import { HandlerProxy as GenericHandlerProxy } from "@cards-ts/core/lib/games/handler-proxy";
@@ -10,7 +10,7 @@ import { FlippedMessage, GameOverMessage, StalemateMessage, WonBattleMessage, Wo
 
 type HandlerProxy = GenericHandlerProxy<HandlerData, ResponseMessage, SystemHandlerParams & GameHandlerParams, GameParams, GameState.State, GameState, StateTransformer>;
 
-export class GameStateIterator implements GenericGameStateIterator<HandlerData, ResponseMessage, SystemHandlerParams & GameHandlerParams, GameParams, GameState.State, GameState, StateTransformer> {
+export class GameStateTransitions implements GenericGameStateTransitions<HandlerData, ResponseMessage, SystemHandlerParams & GameHandlerParams, GameParams, GameState.State, GameState, StateTransformer> {
     private dealOut(gameState: GameState) {
         gameState.deck.shuffle();
         while(gameState.deck.cards.length) {
@@ -20,45 +20,18 @@ export class GameStateIterator implements GenericGameStateIterator<HandlerData, 
         }
     }
 
-    public iterate(gameState: GameState, handlerProxy: HandlerProxy): void {
-        switch(gameState.state) {
-            case GameState.State.START_GAME:
-                this.startGame(gameState);
-                break;
-
-            case GameState.State.START_BATTLE:
-                this.startBattle(gameState, handlerProxy);
-                break;
-
-                
-            case GameState.State.START_FLIP:
-                this.startFlip(gameState, handlerProxy);
-                break;
-
-            case GameState.State.WAIT_FOR_FLIP:
-                this.waitForFlip(gameState, handlerProxy);
-                break;
-
-            case GameState.State.HANDLE_FLIP:
-                this.handleFlip(gameState, handlerProxy);
-                break;
-
-            case GameState.State.END_BATTLE:
-                this.endBattle(gameState, handlerProxy);
-                break;
-
-            case GameState.State.START_WAR:
-                this.startWar(gameState, handlerProxy);
-                break;
-
-            case GameState.State.END_WAR:
-                this.endWar(gameState, handlerProxy);
-                break;
-
-            case GameState.State.END_GAME:
-                this.endGame(gameState, handlerProxy);
-                break;
-        }
+    public get() {
+        return {
+            [GameState.State.START_GAME]: this.startGame,
+            [GameState.State.START_BATTLE]: this.startBattle,
+            [GameState.State.START_FLIP]: this.startFlip,
+            [GameState.State.WAIT_FOR_FLIP]: this.waitForFlip,
+            [GameState.State.HANDLE_FLIP]: this.handleFlip,
+            [GameState.State.END_BATTLE]: this.endBattle,
+            [GameState.State.START_WAR]: this.startWar,
+            [GameState.State.END_WAR]: this.endWar,
+            [GameState.State.END_GAME]: this.endGame,
+        };
     }
 
     startGame(gameState: GameState) {

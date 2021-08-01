@@ -1,6 +1,6 @@
 import { GameHandler, GameHandlerParams } from './game-handler';
 import { HandlerData } from './handler-data';
-import { GenericGameStateIterator, Card, InvalidError, zip, HandlerProxy as GenericHandlerProxy, SpacingMessage } from '@cards-ts/core';
+import { GenericGameStateTransitions, Card, InvalidError, zip, HandlerProxy as GenericHandlerProxy, SpacingMessage } from '@cards-ts/core';
 import { GameParams } from './game-params';
 import { ReshuffleMessage, DealOutMessage, DealMessage, StartRoundMessage, DiscardMessage, EndRoundMessage, PickupMessage, PlayedMessage, DealerMessage, OutOfCardsMessage } from './messages/status';
 import { ResponseMessage } from './messages/response-message';
@@ -13,7 +13,7 @@ type HandlerProxy = GenericHandlerProxy<HandlerData, ResponseMessage, GameHandle
 /**
  * Class that handles the steps of the game
  */
-export class GameStateIterator implements GenericGameStateIterator<HandlerData, ResponseMessage, GameHandlerParams & SystemHandlerParams, GameParams, GameState.State, GameState, StateTransformer> {
+export class GameStateTransitions implements GenericGameStateTransitions<HandlerData, ResponseMessage, GameHandlerParams & SystemHandlerParams, GameParams, GameState.State, GameState, StateTransformer> {
     /**
      * Deal out cards to all of the players' hands for the current round
      */
@@ -57,60 +57,24 @@ export class GameStateIterator implements GenericGameStateIterator<HandlerData, 
         }
     }
 
-    public iterate(gameState: GameState, handlerProxy: HandlerProxy): void {
+    public get() {
         // console.log('P', gameState.points);
         // console.log('C', gameState.hands.map(hand => hand.length));
         // console.log(gameState.state);
-        switch(gameState.state) {
-            case GameState.State.START_GAME:
-                this.startGame(gameState, handlerProxy);
-                break;
-
-            case GameState.State.START_ROUND:
-                // console.log(gameState.gameParams.rounds[gameState.round]);
-                this.startRound(gameState, handlerProxy);
-                break;
-
-            case GameState.State.WAIT_FOR_TURN_PLAYER_WANT:
-                this.waitForTurnPlayerWant(gameState, handlerProxy);
-                break;
-
-            case GameState.State.HANDLE_TURN_PLAYER_WANT:
-                this.handleTurnPlayerWant(gameState, handlerProxy);
-                break;
-
-            case GameState.State.WAIT_FOR_PLAYER_WANT:
-                this.waitForPlayerWant(gameState, handlerProxy);
-                break;
-
-            case GameState.State.HANDLE_PLAYER_WANT:
-                this.handlePlayerWant(gameState, handlerProxy);
-                break;
-
-            case GameState.State.HANDLE_NO_PLAYER_WANT:
-                this.handleNoPlayerWant(gameState, handlerProxy);
-                break;
-
-            case GameState.State.START_TURN:
-                this.startTurn(gameState, handlerProxy);
-                break;
-
-            case GameState.State.WAIT_FOR_TURN:
-                this.waitForTurn(gameState, handlerProxy);
-                break;
-
-            case GameState.State.HANDLE_TURN:
-                this.handleTurn(gameState, handlerProxy);
-                break;
-
-            case GameState.State.END_ROUND:
-                this.endRound(gameState, handlerProxy);
-                break;
-
-            case GameState.State.END_GAME:
-                this.endGame(gameState);
-                break;
-        }
+        return {
+            [GameState.State.START_GAME]: this.startGame,
+            [GameState.State.START_ROUND]: this.startRound,
+            [GameState.State.WAIT_FOR_TURN_PLAYER_WANT]: this.waitForTurnPlayerWant,
+            [GameState.State.HANDLE_TURN_PLAYER_WANT]: this.handleTurnPlayerWant,
+            [GameState.State.WAIT_FOR_PLAYER_WANT]: this.waitForPlayerWant,
+            [GameState.State.HANDLE_PLAYER_WANT]: this.handlePlayerWant,
+            [GameState.State.HANDLE_NO_PLAYER_WANT]: this.handleNoPlayerWant,
+            [GameState.State.START_TURN]: this.startTurn,
+            [GameState.State.WAIT_FOR_TURN]: this.waitForTurn,
+            [GameState.State.HANDLE_TURN]: this.handleTurn,
+            [GameState.State.END_ROUND]: this.endRound,
+            [GameState.State.END_GAME]: this.endGame,
+        };
     }
 
     private endGame(gameState: GameState) {
