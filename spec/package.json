@@ -2,17 +2,17 @@
   "name": "package-tests",
   "private": true,
   "scripts": {
-    "prestart": "rm -rf ./logs/ && mkdir ./logs",
-    "start": "cat ../games.txt | xargs -t -L 1 -I{} -P 8 bash -c 'ts-node test.ts {} &> logs/{}.log && tail -n 1 logs/{}.log && grep -q \"{}: completed\" logs/{}.log'"
+    "start": "rm -rf ./logs/ && mkdir ./logs && cat ../games.txt | xargs -t -L 1 -I\\{\\} -P 8 bash -c 'ts-node test.ts \\{\\} &> logs/\\{\\}.log && tail -n 1 logs/\\{\\}.log && grep -q \"\\{\\}: completed\" logs/{}.log'"
   },
   "dependencies": {
-    "@cards-ts/can-i-have-that": "file:../packages/can-i-have-that",
-    "@cards-ts/euchre": "file:../packages/euchre",
-    "@cards-ts/core": "file:../packages/core",
-    "@cards-ts/hearts": "file:../packages/hearts",
-    "@cards-ts/war": "file:../packages/war"
+    "@cards-ts/can-i-have-that": "^0.5.1",
+    "@cards-ts/core": "^0.5.1",
+    "@cards-ts/euchre": "^0.5.1",
+    "@cards-ts/hearts": "^0.5.1",
+    "@cards-ts/war": "^0.5.1"
   },
   "devDependencies": {
+    "@types/node": "^16.4.10",
     "ts-node": "^9.0.0",
     "typescript": "^4.0.3"
   }
