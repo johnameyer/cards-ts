@@ -3,7 +3,7 @@ import { GameHandlerParams } from "./game-handler";
 import { GameParams } from "./game-params";
 import { GameSetup } from "./game-setup";
 import { GameState } from "./game-state";
-import { GameStateIterator } from "./game-state-iterator";
+import { GameStateTransitions } from "./game-state-transitions";
 import { HandlerData } from "./handler-data";
 import { IntermediaryHandler } from "./handlers/intermediary-handler";
 import { LocalMaximumHandler } from "./handlers/local-maximum-handler";
@@ -12,8 +12,8 @@ import { Validator } from "./validator";
 import { StateTransformer } from "./state-transformer";
 
 export class GameFactory extends AbstractGameFactory<HandlerData, GameHandlerParams, GameParams, GameState.State, GameState, ResponseMessage, StateTransformer, Validator> {
-    protected getGameStateIterator() {
-        return new GameStateIterator();
+    protected getGameStateTransitions() {
+        return new GameStateTransitions();
     }
 
     getValidator() {

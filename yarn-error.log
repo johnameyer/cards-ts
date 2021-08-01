@@ -1,0 +1,68 @@
+Arguments: 
+  /usr/local/bin/node /usr/local/bin/yarn set version 3.0.0
+
+PATH: 
+  /home/jack/.cargo/bin:/home/jack/.cargo/bin:/home/jack/.rvm/gems/ruby-2.5.3/bin:/home/jack/.rvm/gems/ruby-2.5.3@global/bin:/home/jack/.rvm/rubies/ruby-2.5.3/bin:/home/jack/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/mnt/c/Program Files/WindowsApps/CanonicalGroupLimited.UbuntuonWindows_2004.2021.222.0_x64__79rhkp1fndgsc:/mnt/c/Program Files (x86)/Common Files/Oracle/Java/javapath:/mnt/c/Program Files (x86)/Intel/Intel(R) Management Engine Components/iCLS/:/mnt/c/Program Files/Intel/Intel(R) Management Engine Components/iCLS/:/mnt/c/Windows/system32:/mnt/c/Windows:/mnt/c/Windows/System32/Wbem:/mnt/c/Windows/System32/WindowsPowerShell/v1.0/:/mnt/c/Program Files (x86)/Intel/Intel(R) Management Engine Components/DAL:/mnt/c/Program Files/Intel/Intel(R) Management Engine Components/DAL:/mnt/c/Program Files (x86)/Intel/Intel(R) Management Engine Components/IPT:/mnt/c/Program Files/Intel/Intel(R) Management Engine Components/IPT:/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common:/mnt/c/Program Files/Intel/WiFi/bin/:/mnt/c/Program Files/Common Files/Intel/WirelessCommon/:/mnt/c/Program Files/PuTTY/:/mnt/c/WINDOWS/system32:/mnt/c/WINDOWS:/mnt/c/WINDOWS/System32/Wbem:/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/:/mnt/c/WINDOWS/System32/OpenSSH/:/mnt/c/Program Files/Android/Android Studio/jre/bin:/mnt/c/wamp64/bin/php/php5.6.40:/mnt/c/ProgramData/ComposerSetup/bin:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA NvDLISR:/mnt/c/WINDOWS/system32:/mnt/c/WINDOWS:/mnt/c/WINDOWS/System32/Wbem:/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/:/mnt/c/WINDOWS/System32/OpenSSH/:/mnt/c/Python27:/mnt/c/Users/jack1/AppData/Local/Programs/Python/Python38-32/Scripts/:/mnt/c/Users/jack1/AppData/Local/Programs/Python/Python38-32/:/mnt/c/Users/jack1/AppData/Local/Programs/Python/Python37/Scripts/:/mnt/c/Users/jack1/AppData/Local/Programs/Python/Python37/:/mnt/c/Users/jack1/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/jack1/AppData/Local/Programs/Microsoft VS Code/bin:/mnt/c/Program Files/Docker Toolbox:/mnt/c/Users/jack1/AppData/Roaming/Composer/vendor/bin:/mnt/c/Program Files/JetBrains/IntelliJ IDEA 2019.2/bin:/snap/bin:/usr/local/bin/:/home/jack/.rvm/bin:/home/jack/.rvm/bin:/home/jack/.rvm/bin
+
+Yarn version: 
+  1.22.11
+
+Node version: 
+  16.6.0
+
+Platform: 
+  linux x64
+
+Trace: 
+  Error: Release not found: 3.0.0
+      at /usr/local/lib/node_modules/yarn/lib/cli.js:90309:17
+      at Generator.next (<anonymous>)
+      at step (/usr/local/lib/node_modules/yarn/lib/cli.js:310:30)
+      at /usr/local/lib/node_modules/yarn/lib/cli.js:321:13
+      at processTicksAndRejections (node:internal/process/task_queues:96:5)
+
+npm manifest: 
+  {
+    "name": "root",
+    "workspaces": [
+      "packages/*",
+      "spec"
+    ],
+    "private": true,
+    "scripts": {
+      "madge": "lerna run madge",
+      "build": "lerna run build",
+      "lint": "lerna run lint",
+      "test": "lerna run test"
+    },
+    "repository": {
+      "type": "git",
+      "url": "git+ssh://git@github.com/johnameyer/cards-ts.git"
+    },
+    "author": "John Meyer",
+    "license": "UNLICENSED",
+    "bugs": {
+      "url": "https://github.com/johnameyer/cards-ts/issues"
+    },
+    "homepage": "https://github.com/johnameyer/cards-ts#readme",
+    "dependencies": {
+      "chalk": "^4.1.0"
+    },
+    "devDependencies": {
+      "@types/node": "^16.3.1",
+      "@typescript-eslint/eslint-plugin": "^2.24.0",
+      "@typescript-eslint/parser": "^2.34.0",
+      "chai": "^4.2.0",
+      "eslint": "^6.8.0",
+      "lerna": "^4.0.0",
+      "ts-node-dev": "^1.1.8",
+      "typescript": "^4.0.2"
+    },
+    "packageManager": "yarn@3.0.0"
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile

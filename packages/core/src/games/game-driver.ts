@@ -3,7 +3,7 @@ import { Message } from '../messages/message';
 import { AbstractStateTransformer } from './abstract-state-transformer';
 import { HandlerProxy } from './handler-proxy';
 import { GenericValidator } from './generic-validator';
-import { GenericGameStateIterator } from './generic-game-state-iterator';
+import { GenericGameStateTransitions } from './generic-game-state-transitions';
 import { HandlerChain } from '../handlers/handler';
 import { SystemHandlerParams } from '../handlers/system-handler';
 import { SerializableObject } from '../intermediary/serializable';
@@ -44,7 +44,7 @@ export class GameDriver<HandlerData, Handlers extends {[key: string]: any[]} & S
      * @param players the players in the game
      * @param gameParams the parameters to use for the game
      */
-    constructor(handlers: HandlerChain<Handlers, HandlerData, ResponseMessage>[], public gameState: GameState, protected iterator: GenericGameStateIterator<HandlerData, ResponseMessage, Handlers, GameParams, State, GameState, StateTransformer>, protected stateTransformer: StateTransformer, protected responseValidator: Validator) {
+    constructor(handlers: HandlerChain<Handlers, HandlerData, ResponseMessage>[], public gameState: GameState, protected transitions: GenericGameStateTransitions<HandlerData, ResponseMessage, Handlers, GameParams, State, GameState, StateTransformer>, protected stateTransformer: StateTransformer, protected responseValidator: Validator) {
         // this.gameState.names = handlerProxy.getNames();
         this.handlerProxy = new HandlerProxy(handlers, stateTransformer);
     }
@@ -109,8 +109,9 @@ export class GameDriver<HandlerData, Handlers extends {[key: string]: any[]} & S
      * Runs the game through to the end asynchronously
      */
     public async start() {
+        const transitions = this.transitions.get();
         while(!this.gameState.completed) {
-            this.iterator.iterate(this.gameState, this.handlerProxy);
+            transitions[this.gameState.state].call(this.transitions, this.gameState, this.handlerProxy);
 
             // TODO consider this ordering
             await this.handlerProxy.handleOutgoing();
@@ -136,8 +137,9 @@ export class GameDriver<HandlerData, Handlers extends {[key: string]: any[]} & S
      * Runs the game until the next time it would have to wait
      */
     public resume() {
+        const transitions = this.transitions.get();
         while(!this.gameState.completed && !GameDriver.isWaitingOnPlayer(this.gameState)) {
-            this.iterator.iterate(this.gameState, this.handlerProxy);
+            transitions[this.gameState.state].call(this.transitions, this.gameState, this.handlerProxy);
         }
     }
 }
