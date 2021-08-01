@@ -6,47 +6,34 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [12.x]
+        node-version: [14.x]
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
 
-      - name: Cache Node Modules
-        uses: actions/cache@v1
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
       - name: Node ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
 
       - name: Install Dependencies
-        run: npm ci
-
-      - name: Lerna Bootstrap
-        run: npx lerna bootstrap
+        run: yarn add --cached
 
       - name: Check Circular Dependencies
-        run: npm run madge
+        run: yarn run madge
 
       - name: Build
-        run: npm run build
+        run: yarn run build
 
       # - name: Lint
       #   run: npm run lint
 
       - name: Test
-        run: npm run test
-
-      - name: Playable Tests Setup
-        run: npm ci && npx lerna link
-        working-directory: ./spec/
+        run: yarn run test
 
       - name: Playable Tests
-        run: npm start
+        run: yarn start
         working-directory: ./spec/
       
       - name: Upload Logs
