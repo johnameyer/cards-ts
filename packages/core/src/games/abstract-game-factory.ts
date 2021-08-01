@@ -6,7 +6,7 @@ import { AbstractStateTransformer } from "./abstract-state-transformer";
 import { GameDriver } from "./game-driver";
 import { GenericGameSetup } from "./generic-game-setup";
 import { GenericGameState } from "./generic-game-state";
-import { GenericGameStateIterator } from "./generic-game-state-iterator";
+import { GenericGameStateTransitions } from "./generic-game-state-transitions";
 import { GenericValidator } from "./generic-validator";
 import { Message } from "../messages/message";
 import { SerializableObject } from "../intermediary/serializable";
@@ -18,7 +18,7 @@ export abstract class AbstractGameFactory<HandlerData, Handles extends {[key: st
     /**
      * Returns the game state iterator for this game
      */
-    protected abstract getGameStateIterator(): GenericGameStateIterator<HandlerData, ResponseMessage, Handles & SystemHandlerParams, GameParams, State, GameState, StateTransformer>;
+    protected abstract getGameStateTransitions(): GenericGameStateTransitions<HandlerData, ResponseMessage, Handles & SystemHandlerParams, GameParams, State, GameState, StateTransformer>;
 
     // TODO with https://github.com/johnameyer/cards-ts/issues/45 make more of these protected?
     /**
@@ -67,6 +67,6 @@ export abstract class AbstractGameFactory<HandlerData, Handles extends {[key: st
      * @param state the state to wrap
      */
     getGameDriver(players: HandlerChain<Handles & SystemHandlerParams, HandlerData, ResponseMessage>[], state: GameState) {
-        return new GameDriver(players, state, this.getGameStateIterator(), this.getStateTransformer(), this.getValidator());
+        return new GameDriver(players, state, this.getGameStateTransitions(), this.getStateTransformer(), this.getValidator());
     }
 }

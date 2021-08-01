@@ -14,7 +14,7 @@ export { AbstractStateTransformer } from './games/abstract-state-transformer';
 export { GameDriver } from './games/game-driver';
 export { GenericGameSetup } from './games/generic-game-setup';
 export { GenericGameState } from './games/generic-game-state';
-export { GenericGameStateIterator } from './games/generic-game-state-iterator';
+export { GenericGameStateTransitions } from './games/generic-game-state-transitions';
 export { GenericValidator } from './games/generic-validator';
 export { HandlerProxy } from './games/handler-proxy';
 export { HandlerResponsesQueue, ResponseQueue } from './games/response-queue';
