@@ -1,13 +1,12 @@
-import { GameHandler } from '../game-handler';
-import { HandlerData } from '../handler-data';
-import { Card, HandlerResponsesQueue } from '@cards-ts/core';
+import { GameHandler, HandlerData } from '../game-handler';
+import { Card, HandlerResponsesQueue, PlayCardResponseMessage } from '@cards-ts/core';
 import { Message } from '@cards-ts/core';
 import { Suit } from '@cards-ts/core';
 import { Rank } from '@cards-ts/core';
 import { Intermediary } from '@cards-ts/core';
-import { PassResponseMessage, TurnResponseMessage } from '../messages/response';
 import { ResponseMessage } from '../messages/response-message';
 import { compare } from '../util/compare';
+import { PassResponseMessage } from '../messages/response';
 
 const QS = new Card(Suit.SPADES, Rank.QUEEN);
 
@@ -21,7 +20,7 @@ export class IntermediaryHandler extends GameHandler {
         super();
     }
 
-    handlePass = ({ hand, gameParams: { numToPass } }: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>) => {
+    handlePass = ({ hand, params: { numToPass } }: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>) => {
         const [sent, received] = this.intermediary.form({
             type: 'checkbox',
             message: ['Select the cards to pass'],
@@ -34,11 +33,11 @@ export class IntermediaryHandler extends GameHandler {
         return sent;
     }
 
-    handleTurn = ({ hand, tricks, currentTrick, pointsTaken }: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>) => {
+    handleTurn = ({ hand, trick: { tricks, currentTrick }, trickPoints: pointsTaken }: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>) => {
         let choices = hand;
         if(currentTrick.length > 0) {
-            if(choices.some(card => card.suit === currentTrick[0].suit)) {
-                choices = choices.filter(card => card.suit === currentTrick[0].suit);
+            if(choices.some(card => card.suit === (currentTrick[0] as Card).suit)) {
+                choices = choices.filter(card => card.suit === (currentTrick[0] as Card).suit);
             } else if(tricks === 0) {
                 choices = choices.filter(card => card.suit !== Suit.HEARTS && !card.equals(QS));
             }
@@ -50,7 +49,7 @@ export class IntermediaryHandler extends GameHandler {
             message: ['Select the card to play'],
             choices: choices.sort(compare).map(toInquirerValue)
         });
-        responsesQueue.push(received.then(received => new TurnResponseMessage(received[0] as Card)));
+        responsesQueue.push(received.then(received => new PlayCardResponseMessage(received[0] as Card)));
         return sent;
     }
 

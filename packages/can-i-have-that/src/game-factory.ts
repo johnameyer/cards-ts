@@ -1,38 +1,37 @@
-import { AbstractGameFactory, Intermediary } from "@cards-ts/core";
-import { GameHandlerParams } from "./game-handler";
+import { AbstractGameFactory, Intermediary, UnwrapProviders } from "@cards-ts/core";
+import { buildProviders } from "./controllers/controllers";
+import { EventHandler } from "./event-handler";
+import { GameHandlerParams } from "./game-handler-params";
 import { GameParams } from "./game-params";
 import { GameSetup } from "./game-setup";
-import { GameState } from "./game-state";
+import { GameStates } from "./game-states";
 import { GameStateTransitions } from "./game-state-transitions";
-import { HandlerData } from "./handler-data";
 import { IntermediaryHandler } from "./handlers/intermediary-handler";
 import { LocalMaximumHandler } from "./handlers/local-maximum-handler";
 import { ResponseMessage } from "./messages/response-message";
-import { Validator } from "./validator";
-import { StateTransformer } from "./state-transformer";
 
-export class GameFactory extends AbstractGameFactory<HandlerData, GameHandlerParams, GameParams, GameState.State, GameState, ResponseMessage, StateTransformer, Validator> {
-    protected getGameStateTransitions() {
+export class GameFactory extends AbstractGameFactory<GameHandlerParams, GameParams, typeof GameStates, UnwrapProviders<ReturnType<typeof buildProviders>>, ResponseMessage, EventHandler> {
+    protected override getGameStateTransitions() {
         return new GameStateTransitions();
     }
-
-    getValidator() {
-        return new Validator();
-    }
-
-    getStateTransformer() {
-        return new StateTransformer();
-    }
     
-    getGameSetup() {
+    override getGameSetup() {
         return new GameSetup();
     }
 
-    getIntermediaryHandler(intermediary: Intermediary) {
+    override getIntermediaryHandler(intermediary: Intermediary) {
         return new IntermediaryHandler(intermediary);
     }
 
-    getDefaultBotHandler() {
+    override getDefaultBotHandler() {
         return new LocalMaximumHandler();
+    }
+    
+    override getEventHandler(): EventHandler {
+        return new EventHandler();
+    }
+
+    override getProviders() {
+        return buildProviders();
     }
 }

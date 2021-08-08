@@ -34,7 +34,11 @@ export class Card {
      * @returns the card
      */
     public static fromObj(obj: any): Card {
-        return new Card(Suit.fromObj(obj.suit), Rank.fromObj(obj.rank), obj.deck, obj.jokerNum);
+        const rank = Rank.fromObj(obj.rank);
+        if(rank === Rank.JOKER) {
+            return new Card(Suit.NONE, rank, obj.deck, obj.jokerNum);
+        }
+        return new Card(Suit.fromObj(obj.suit), rank, obj.deck, obj.jokerNum);
     }
 
     /**

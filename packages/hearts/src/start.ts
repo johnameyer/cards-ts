@@ -1,8 +1,8 @@
 #!/usr/bin/env ts-node
 
 import yargs from "yargs";
-import { GameHandlerParams } from "./game-handler";
-import { HandlerData } from "./handler-data";
+import { HandlerData } from "./game-handler";
+import { GameHandlerParams } from "./game-handler-params";
 import { IncrementalIntermediary, InquirerPresenter, HandlerChain, SystemHandlerParams } from "@cards-ts/core";
 import { ResponseMessage } from "./messages/response-message";
 import { GameSetup } from "./game-setup";
@@ -50,12 +50,7 @@ yargs.command(['start', '$0'], 'begin a new game', yargs => {
         }
         process.exitCode = 1;
     } else {
-        const initialState = gameFactory.getStateTransformer().initialState({
-            names: names,
-            gameParams: params
-        });
-
-        await gameFactory.getGameDriver(players, initialState).start();
+        await gameFactory.getGameDriver(players, params, names).start();
     }
 })
 .help()

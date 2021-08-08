@@ -1,12 +1,12 @@
 #!/usr/bin/env ts-node
 
 import yargs from "yargs";
-import { HandlerChain, IncrementalIntermediary, InquirerPresenter, SystemHandlerParams } from "@cards-ts/core";
-import { GameHandlerParams } from "./game-handler";
-import { HandlerData } from "./handler-data";
+import { ControllerHandlerState, HandlerChain, IncrementalIntermediary, InquirerPresenter, SystemHandlerParams } from "@cards-ts/core";
+import { GameHandlerParams } from "./game-handler-params";
 import { ResponseMessage } from "./messages/response-message";
 import { GameSetup } from "./game-setup";
 import { GameFactory } from "./game-factory";
+import { Controllers } from "./controllers/controllers";
 
 yargs.command(['start', '$0'], 'begin a new game', yargs => {
     yargs.option('players', {
@@ -32,6 +32,8 @@ yargs.command(['start', '$0'], 'begin a new game', yargs => {
 
     const gameFactory = new GameFactory();
 
+    type HandlerData = ControllerHandlerState<Controllers>;
+
     const players: HandlerChain<SystemHandlerParams & GameHandlerParams, HandlerData, ResponseMessage>[] = Array(argv.players as number + 1);
     players[0] = gameFactory.getIntermediaryHandlerChain(mainPlayerIntermediary);
     for(let i = 1; i < players.length; i++) {
@@ -50,12 +52,7 @@ yargs.command(['start', '$0'], 'begin a new game', yargs => {
         }
         process.exitCode = 1;
     } else {
-        const initialState = gameFactory.getStateTransformer().initialState({
-            names: names,
-            gameParams: params
-        });
-
-        await gameFactory.getGameDriver(players, initialState).start();
+        await gameFactory.getGameDriver(players, params, names).start();
     }
 })
 .help()

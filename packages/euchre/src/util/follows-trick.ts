@@ -2,7 +2,7 @@ import { Card, Rank, Suit } from '@cards-ts/core';
 import { isLeftBower } from './bower';
 import { getComplementarySuit } from './suit-colors';
 
-export function followsTrick(trick: (Card | undefined)[], trumpSuit: Suit, card: Card) {
+export function followsTrick(trick: readonly (Card | undefined)[], trumpSuit: Suit, card: Card) {
     const first = trick.find(c => c);
     return followsSuit(first && isLeftBower(first, trumpSuit) ? trumpSuit : first?.suit, trumpSuit, card);
 }

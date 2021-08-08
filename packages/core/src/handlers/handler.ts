@@ -1,5 +1,6 @@
 import { Message } from "../messages/message";
 import { HandlerResponsesQueue } from "../games/response-queue";
+import { Serializable } from "../intermediary/serializable";
 
 export type HandlerAction<HandlerData, ResponseMessage, Vargs extends any[] = any[]> = (this: any, gameState: HandlerData, response: HandlerResponsesQueue<ResponseMessage>, ...args: Vargs) => void | Promise<void>;
 
@@ -8,14 +9,14 @@ type HandleKeys<Handlers extends {[key: string]: any[]}, Handler extends keyof H
 /**
  * An element that can listen to events and push response messages
  */
-export type Handler<Handlers extends {[key: string]: any[]}, HandlerData, ResponseMessage extends Message> = {
+export type Handler<Handlers extends {[key: string]: any[]}, HandlerData extends Serializable, ResponseMessage extends Message> = {
     [Handler in keyof Handlers as HandleKeys<Handlers, Handler>]: HandlerAction<HandlerData, ResponseMessage, Handlers[Handler]>;
 };
 
 /**
  * A chain of handlers, where the first that can handle an event will handle it
  */
-export class HandlerChain<Handlers extends {[key: string]: any[]}, HandlerData, ResponseMessage extends Message> {
+export class HandlerChain<Handlers extends {[key: string]: any[]}, HandlerData extends Serializable, ResponseMessage extends Message> {
     /**
      * Create a new chain
      * @param handlers the handlers to include in the chain

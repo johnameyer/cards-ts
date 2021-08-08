@@ -1,5 +1,4 @@
-import { GameHandler } from '../game-handler';
-import { HandlerData } from '../handler-data';
+import { GameHandler, HandlerData } from '../game-handler';
 import { HandlerResponsesQueue } from '@cards-ts/core';
 import { Intermediary } from '@cards-ts/core';
 import { ResponseMessage } from '../messages/response-message';

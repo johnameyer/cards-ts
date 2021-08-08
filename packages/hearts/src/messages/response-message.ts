@@ -1,4 +1,4 @@
-import { PassResponseMessage, TurnResponseMessage } from './response';
-import { DataResponseMessage } from './response/data-response-message';
+import { DataResponseMessage, PlayCardResponseMessage } from "@cards-ts/core";
+import { PassResponseMessage } from "./response";
 
-export type ResponseMessage = PassResponseMessage | TurnResponseMessage | DataResponseMessage;
+export type ResponseMessage = PassResponseMessage | PlayCardResponseMessage | DataResponseMessage;

@@ -1,44 +1,14 @@
-import { GameHandler, GameHandlerParams } from './game-handler';
-import { HandlerData } from './handler-data';
-import { GenericGameStateTransitions, Card, InvalidError, zip, HandlerProxy as GenericHandlerProxy, SpacingMessage } from '@cards-ts/core';
-import { GameParams } from './game-params';
-import { ReshuffleMessage, DealOutMessage, DealMessage, StartRoundMessage, DiscardMessage, EndRoundMessage, PickupMessage, PlayedMessage, DealerMessage, OutOfCardsMessage } from './messages/status';
-import { ResponseMessage } from './messages/response-message';
-import { GameState } from './game-state';
-import { StateTransformer } from './state-transformer';
-import { SystemHandlerParams } from '@cards-ts/core/lib/handlers/system-handler';
+import { Card, InvalidError, SpacingMessage, GenericGameState, GenericGameStateTransitions, PickupMessage as PublicPickup, DiscardMessage, EndRoundMessage, OutOfCardsMessage, PlayedMessage, ReshuffleMessage } from '@cards-ts/core';
+import { GameStates } from './game-states';
+import { Controllers } from "./controllers/controllers";
+import { PickupMessage, StartRoundMessage } from './messages/status';
 
-type HandlerProxy = GenericHandlerProxy<HandlerData, ResponseMessage, GameHandlerParams & SystemHandlerParams, GameParams, GameState.State, GameState, StateTransformer>;
+type GameState = GenericGameState<Controllers>;
 
 /**
  * Class that handles the steps of the game
  */
-export class GameStateTransitions implements GenericGameStateTransitions<HandlerData, ResponseMessage, GameHandlerParams & SystemHandlerParams, GameParams, GameState.State, GameState, StateTransformer> {
-    /**
-     * Deal out cards to all of the players' hands for the current round
-     */
-    private dealOut(gameState: GameState, handlerProxy: HandlerProxy) {
-        handlerProxy.messageAll(gameState, new DealerMessage(gameState.names[gameState.dealer]));
-        for (let num = 0; num < GameState.Helper.getNumToDeal(gameState); num++) {
-            for (let player = 0; player < gameState.numPlayers; player++) {
-                const offset = gameState.dealer + 1;
-                let card = gameState.deck.draw();
-                if (!card) {
-                    if(!gameState.deck.shuffleDiscard()) {
-                        // TODO add another deck?
-                        throw new InvalidError('Deck ran out of cards');
-                    } else {
-                        handlerProxy.messageAll(gameState, new ReshuffleMessage());
-                        card = gameState.deck.draw();
-                    }
-                }
-                this.giveCard(gameState, handlerProxy, (player + offset) % gameState.numPlayers, card, undefined, false);
-            }
-        }
-        for (let player = 0; player < gameState.numPlayers; player++) {
-            handlerProxy.message(gameState, player, new DealOutMessage(gameState.hands[player]));
-        }
-    }
+ export class GameStateTransitions implements GenericGameStateTransitions<typeof GameStates, Controllers> {
 
     /**
      * Gives a card to the player and notifies them
@@ -47,254 +17,257 @@ export class GameStateTransitions implements GenericGameStateTransitions<Handler
      * @param extra the accompanying extra card, if applicable
      * @param dealt whether or not the card was dealt to the player
      */
-    private giveCard(gameState: GameState, handlerProxy: HandlerProxy, player: number, card: Card, extra?: Card, message: boolean = true) {
-        gameState.hands[player].push(card);
+    private giveCard(controllers: Controllers, player: number, card: Card, extra?: Card, message: boolean = true) {
+        controllers.hand.get(player).push(card);
         if (extra) {
-            gameState.hands[player].push(extra);
+            controllers.hand.get(player).push(extra);
         }
         if(message) {
-            handlerProxy.message(gameState, player, new DealMessage(card, extra));
+            controllers.players.message(player, new PickupMessage(card, extra));
         }
     }
 
     public get() {
         // console.log('P', gameState.points);
         // console.log('C', gameState.hands.map(hand => hand.length));
-        // console.log(gameState.state);
+        // console.log(GameStates);
         return {
-            [GameState.State.START_GAME]: this.startGame,
-            [GameState.State.START_ROUND]: this.startRound,
-            [GameState.State.WAIT_FOR_TURN_PLAYER_WANT]: this.waitForTurnPlayerWant,
-            [GameState.State.HANDLE_TURN_PLAYER_WANT]: this.handleTurnPlayerWant,
-            [GameState.State.WAIT_FOR_PLAYER_WANT]: this.waitForPlayerWant,
-            [GameState.State.HANDLE_PLAYER_WANT]: this.handlePlayerWant,
-            [GameState.State.HANDLE_NO_PLAYER_WANT]: this.handleNoPlayerWant,
-            [GameState.State.START_TURN]: this.startTurn,
-            [GameState.State.WAIT_FOR_TURN]: this.waitForTurn,
-            [GameState.State.HANDLE_TURN]: this.handleTurn,
-            [GameState.State.END_ROUND]: this.endRound,
-            [GameState.State.END_GAME]: this.endGame,
+            [GameStates.START_GAME]: this.startGame,
+            [GameStates.START_ROUND]: this.startRound,
+            [GameStates.WAIT_FOR_TURN_PLAYER_WANT]: this.waitForTurnPlayerWant,
+            [GameStates.HANDLE_TURN_PLAYER_WANT]: this.handleTurnPlayerWant,
+            [GameStates.WAIT_FOR_PLAYER_WANT]: this.waitForPlayerWant,
+            [GameStates.HANDLE_PLAYER_WANT]: this.handlePlayerWant,
+            [GameStates.HANDLE_NO_PLAYER_WANT]: this.handleNoPlayerWant,
+            [GameStates.START_TURN]: this.startTurn,
+            [GameStates.WAIT_FOR_TURN]: this.waitForTurn,
+            [GameStates.HANDLE_TURN]: this.handleTurn,
+            [GameStates.END_ROUND]: this.endRound,
+            [GameStates.END_GAME]: this.endGame,
         };
     }
 
-    private endGame(gameState: GameState) {
-        gameState.completed = true;
+    private endGame(controllers: Controllers) {
+        controllers.completed.complete();
     }
 
-    private startGame(gameState: GameState, handlerProxy: HandlerProxy) {
-        gameState.state = GameState.State.START_ROUND;
+    private startGame(controllers: Controllers) {
+        controllers.state.set(GameStates.START_ROUND);
 
-        gameState.numPlayers = handlerProxy.getNumberOfPlayers();
-
-        GameState.Helper.setupRound(gameState);
+        setupRound(controllers);
     }
 
-    private startRound(gameState: GameState, handlerProxy: HandlerProxy) {
-        GameState.Helper.setupRound(gameState);
-        handlerProxy.messageAll(gameState, new StartRoundMessage(GameState.Helper.getRound(gameState)));
-        this.dealOut(gameState, handlerProxy);
+    private startRound(controllers: Controllers) {
+        setupRound(controllers);
+        controllers.players.messageAll(new StartRoundMessage(controllers.canIHaveThat.getRound()));
+        controllers.hand.dealOut(true, true, controllers.canIHaveThat.getNumToDeal());
 
-        const top = gameState.deck.flip();
-        handlerProxy.messageAll(gameState, new DiscardMessage(top));
+        const top = controllers.deck.deck.flip();
+        controllers.players.messageAll(new DiscardMessage(top));
 
-        gameState.whoseTurn = (gameState.dealer + 1) % gameState.numPlayers;
-        gameState.whoseAsk = gameState.whoseTurn;
+        controllers.turn.set((controllers.deck.dealer + 1) % controllers.players.count);
+        controllers.ask.set(controllers.turn.get());
 
-        gameState.state = GameState.State.WAIT_FOR_TURN_PLAYER_WANT;
+        controllers.state.set(GameStates.WAIT_FOR_TURN_PLAYER_WANT);
     }
 
-    private endRound(gameState: GameState, handlerProxy: HandlerProxy) {
-        GameState.Helper.nextRound(gameState);
-        for (let player = 0; player < gameState.numPlayers; player++) {
-            gameState.points[player] += gameState.hands[player].map(card => card.rank.value).reduce((a, b) => a + b, 0);
+    private endRound(controllers: Controllers) {
+        controllers.canIHaveThat.nextRound();
+        for (let player = 0; player < controllers.players.count; player++) {
+            controllers.score.increaseScore(player, controllers.hand.get(player).map(card => card.rank.value).reduce((a, b) => a + b, 0));
         }
 
-        handlerProxy.messageAll(gameState, new EndRoundMessage(gameState.names, gameState.points));
-        handlerProxy.messageAll(gameState, new SpacingMessage());
+        controllers.players.messageAll(new EndRoundMessage(controllers.names.get(), controllers.score.get()));
+        controllers.players.messageAll(new SpacingMessage());
 
-        if(gameState.round !== gameState.gameParams.rounds.length) {
-            gameState.state = GameState.State.START_ROUND;
+        if(controllers.canIHaveThat.round !== controllers.params.get().rounds.length) {
+            controllers.state.set(GameStates.START_ROUND);
         } else {
-            gameState.state = GameState.State.END_GAME;
+            controllers.state.set(GameStates.END_GAME);
         }
     }
 
-    private waitForTurnPlayerWant(gameState: GameState, handlerProxy: HandlerProxy) {
-        const card = gameState.deck.top;
+    private waitForTurnPlayerWant(controllers: Controllers) {
+        const card = controllers.deck.deck.top;
         if(!card) {
             throw new Error('Invalid State');
         }
 
-        handlerProxy.handlerCall(gameState, gameState.whoseTurn, 'wantCard');
+        controllers.players.handlerCall(controllers.turn.get(), 'wantCard');
 
-        gameState.state = GameState.State.HANDLE_TURN_PLAYER_WANT;
+        controllers.state.set(GameStates.HANDLE_TURN_PLAYER_WANT);
     }
 
-    private handleNoPlayerWant(gameState: GameState, handlerProxy: HandlerProxy) {
-        if (gameState.deck.top !== null) {
-            handlerProxy.messageAll(gameState, new PickupMessage(gameState.deck.top));
-            gameState.deck.clearTop();
+    private handleNoPlayerWant(controllers: Controllers) {
+        if (controllers.deck.deck.top !== null) {
+            controllers.players.messageAll(new PublicPickup(controllers.deck.deck.top));
+            controllers.deck.deck.clearTop();
         }
 
-        gameState.state = GameState.State.START_TURN;
+        controllers.state.set(GameStates.START_TURN);
     }
 
-    private waitForPlayerWant(gameState: GameState, handlerProxy: HandlerProxy) {
-        const card = gameState.deck.top;
+    private waitForPlayerWant(controllers: Controllers) {
+        const card = controllers.deck.deck.top;
         if(!card) {
             throw new Error('Invalid State');
         }
-        if(gameState.whoseAsk === undefined) {
+        if(controllers.ask.get() === undefined) {
             throw new InvalidError('Invalid State');
         }
 
-        handlerProxy.handlerCall(gameState, gameState.whoseAsk, 'wantCard');
+        controllers.players.handlerCall(controllers.ask.get(), 'wantCard');
 
-        gameState.state = GameState.State.HANDLE_PLAYER_WANT;
+        controllers.state.set(GameStates.HANDLE_PLAYER_WANT);
     }
 
-    private handleTurnPlayerWant(gameState: GameState, handlerProxy: HandlerProxy) {
-        const card = gameState.deck.top;
+    private handleTurnPlayerWant(controllers: Controllers) {
+        const card = controllers.deck.deck.top;
         if(!card) {
             throw new Error('Invalid State');
         }
 
-        const wantCard = gameState.wantCard;
+        const wantCard = controllers.canIHaveThat.wantCard;
 
         if(wantCard) {
-            this.giveCard(gameState, handlerProxy, gameState.whoseTurn, card);
-            handlerProxy.messageOthers(gameState, gameState.whoseTurn, new PickupMessage(card, gameState.names[gameState.whoseTurn], false));
-            gameState.deck.takeTop();
+            this.giveCard(controllers, controllers.turn.get(), card);
+            controllers.players.messageOthers(controllers.turn.get(), new PublicPickup(card, controllers.names.get(controllers.turn.get()), false));
+            controllers.deck.deck.takeTop();
 
-            gameState.state = GameState.State.WAIT_FOR_TURN;
+            controllers.state.set(GameStates.WAIT_FOR_TURN);
         } else {
-            gameState.whoseAsk = (gameState.whoseAsk + 1) % gameState.numPlayers;
-            if(gameState.whoseAsk === gameState.whoseTurn) {
-                gameState.state = GameState.State.HANDLE_NO_PLAYER_WANT;
+            controllers.ask.next();
+            if(controllers.ask.get() === controllers.turn.get()) {
+                controllers.state.set(GameStates.HANDLE_NO_PLAYER_WANT);
             } else {
-                gameState.state = GameState.State.WAIT_FOR_PLAYER_WANT;
+                controllers.state.set(GameStates.WAIT_FOR_PLAYER_WANT);
             }
         }
     }
 
-    private waitForTurn(gameState: GameState, handlerProxy: HandlerProxy) {
-        gameState.toDiscard = null;
-        gameState.toPlayOnOthers = [];
-        gameState.toGoDown = [];
+    private waitForTurn(controllers: Controllers) {
+        controllers.deck.toDiscard = null;
+        controllers.melds.resetTransient();
 
-        handlerProxy.handlerCall(gameState, gameState.whoseTurn, 'turn');
+        controllers.players.handlerCall(controllers.turn.get(), 'turn');
 
-        gameState.state = GameState.State.HANDLE_TURN;
+        controllers.state.set(GameStates.HANDLE_TURN);
     }
 
-    private handleTurn(gameState: GameState, handlerProxy: HandlerProxy) {
-        // if(!gameState.toPlay) {
+    private handleTurn(controllers: Controllers) {
+        // if(!controllers.toPlay) {
         //     throw new InvalidError('Invalid State');
         // }
-        
-        const { toGoDown, toDiscard, toPlayOnOthers } = gameState;
 
-        if(!toDiscard) {
+        if(!controllers.deck.toDiscard) {
             // TODO check for final round
-            if(!gameState.hands[gameState.whoseTurn].length) {
-                gameState.state = GameState.State.END_ROUND;
+            if(!controllers.hand.get(controllers.turn.get()).length) {
+                controllers.state.set(GameStates.END_ROUND);
             }
             return;
         }
 
-        gameState.deck.discard(toDiscard);
-        if(toGoDown.length) {
-            for(const meld of toGoDown) {
-                handlerProxy.messageOthers(gameState, gameState.whoseTurn, new PlayedMessage(meld.cards, meld, gameState.names[gameState.whoseTurn]));
+        controllers.deck.discard();
+        if(controllers.melds.toPlay.length) {
+            for(const meld of controllers.melds.toPlay) {
+                controllers.players.messageOthers(controllers.turn.get(), new PlayedMessage(meld.cards, meld, controllers.names.get(controllers.turn.get())));
             }
-            gameState.played[gameState.whoseTurn] = toGoDown;
+            controllers.melds.get()[controllers.turn.get()] = controllers.melds.toPlay;
         }
 
-        if(toPlayOnOthers.length) {
-            for(let position = 0; position < gameState.played.length; position++) {
-                if(!toPlayOnOthers[position] || !toPlayOnOthers[position].length) {
+        if(controllers.melds.toPlayOnOthers.length) {
+            for(let position = 0; position < controllers.melds.get().length; position++) {
+                if(!controllers.melds.toPlayOnOthers[position] || !controllers.melds.toPlayOnOthers[position].length) {
                     continue;
                 }
-                for(let meld = 0; meld < gameState.played[position].length; meld++) {
-                    if(!toPlayOnOthers[position][meld] || !toPlayOnOthers[position][meld].length) {
+                for(let meld = 0; meld < controllers.melds.get()[position].length; meld++) {
+                    if(!controllers.melds.toPlayOnOthers[position][meld] || !controllers.melds.toPlayOnOthers[position][meld].length) {
                         continue;
                     }
-                    handlerProxy.messageOthers(gameState, gameState.whoseTurn, new PlayedMessage(toPlayOnOthers[position][meld], gameState.played[position][meld], gameState.names[gameState.whoseTurn]));
+                    controllers.players.messageOthers(controllers.turn.get(), new PlayedMessage(controllers.melds.toPlayOnOthers[position][meld], controllers.melds.get()[position][meld], controllers.names.get(controllers.turn.get())));
                 }
             }
         }
 
-        if(toDiscard) {
-            handlerProxy.messageOthers(gameState, gameState.whoseTurn, new DiscardMessage(toDiscard, gameState.names[gameState.whoseTurn]));
+        if(controllers.deck.toDiscard) {
+            controllers.players.messageOthers(controllers.turn.get(), new DiscardMessage(controllers.deck.toDiscard, controllers.names.get(controllers.turn.get())));
         }
 
-        if(gameState.hands[gameState.whoseTurn].length === 0) {
-            handlerProxy.messageAll(gameState, new OutOfCardsMessage(gameState.names[gameState.whoseTurn]));
-            gameState.points[gameState.whoseTurn] -= 10;
-            gameState.state = GameState.State.END_ROUND;
+        if(controllers.hand.get(controllers.turn.get()).length === 0) {
+            controllers.players.messageAll(new OutOfCardsMessage(controllers.names.get(controllers.turn.get())));
+            controllers.score.decreaseScore(controllers.turn.get(), 10);
+            controllers.state.set(GameStates.END_ROUND);
             return;
         }
 
-        gameState.state = GameState.State.WAIT_FOR_TURN_PLAYER_WANT;
-        gameState.whoseTurn = (gameState.whoseTurn + 1) % gameState.numPlayers;
-        gameState.whoseAsk = gameState.whoseTurn;
+        controllers.state.set(GameStates.WAIT_FOR_TURN_PLAYER_WANT);
+        controllers.turn.next();
+        controllers.ask.set(controllers.turn.get());
     }
 
-    private handlePlayerWant(gameState: GameState, handlerProxy: HandlerProxy) {
-        
-        const whoseAsk = gameState.whoseAsk;
-        const card = gameState.deck.top;
+    private handlePlayerWant(controllers: Controllers) {
+        const whoseAsk = controllers.ask.get();
+        const card = controllers.deck.deck.top;
 
-        const wantCard = gameState.wantCard;
+        const wantCard = controllers.canIHaveThat.wantCard;
 
         if(!card) {
             throw new Error('Invalid State');
         }
 
         if(wantCard) {
-            let draw = gameState.deck.draw();
+            let draw = controllers.deck.deck.draw();
             if (!draw) {
-                if(!gameState.deck.shuffleDiscard()) {
+                if(!controllers.deck.deck.shuffleDiscard()) {
                     // TODO add another deck?
                     throw new InvalidError('Deck ran out of cards');
                 } else {
-                    handlerProxy.messageAll(gameState, new ReshuffleMessage());
-                    draw = gameState.deck.draw();
+                    controllers.players.messageAll(new ReshuffleMessage());
+                    draw = controllers.deck.deck.draw();
                 }
             }
             if(whoseAsk === undefined) {
                 throw new InvalidError('Invalid State');
             }
-            this.giveCard(gameState, handlerProxy, whoseAsk, card, draw);
-            handlerProxy.messageOthers(gameState, whoseAsk, new PickupMessage(card, gameState.names[whoseAsk], true));
-            gameState.deck.takeTop();
+            this.giveCard(controllers, whoseAsk, card, draw);
+            controllers.players.messageOthers(whoseAsk, new PublicPickup(card, controllers.names.get(whoseAsk), true));
+            controllers.deck.deck.takeTop();
 
-            gameState.state = GameState.State.START_TURN;
+            controllers.state.set(GameStates.START_TURN);
         } else {
-            gameState.whoseAsk = (gameState.whoseAsk + 1) % gameState.numPlayers;
-            if(gameState.whoseAsk === gameState.whoseTurn) {
-                gameState.state = GameState.State.HANDLE_NO_PLAYER_WANT;
+            controllers.ask.next();
+            if(controllers.ask.get() === controllers.turn.get()) {
+                controllers.state.set(GameStates.HANDLE_NO_PLAYER_WANT);
             } else {
-                gameState.state = GameState.State.WAIT_FOR_PLAYER_WANT;
+                controllers.state.set(GameStates.WAIT_FOR_PLAYER_WANT);
             }
         }
     }
 
-    private startTurn(gameState: GameState, handlerProxy: HandlerProxy) {
-        const whoseTurn = gameState.whoseTurn;
+    private startTurn(controllers: Controllers) {
+        const whoseTurn = controllers.turn.get();
 
-        let draw = gameState.deck.draw();
+        let draw = controllers.deck.deck.draw();
         if (!draw) {
-            if(!gameState.deck.shuffleDiscard()) {
+            if(!controllers.deck.deck.shuffleDiscard()) {
                 // TODO add another deck?
                 throw new InvalidError('Deck ran out of cards');
             } else {
-                handlerProxy.messageAll(gameState, new ReshuffleMessage());
-                draw = gameState.deck.draw();
+                controllers.players.messageAll(new ReshuffleMessage());
+                draw = controllers.deck.deck.draw();
             }
         }
-        this.giveCard(gameState, handlerProxy, whoseTurn, draw);
+        this.giveCard(controllers, whoseTurn, draw);
 
-        gameState.state = GameState.State.WAIT_FOR_TURN;
+        controllers.state.set(GameStates.WAIT_FOR_TURN);
     }
+}
+
+/**
+ * Sets up the state for a new round
+ */
+export function setupRound(controllers: Controllers) {
+    controllers.hand.reset();
+    controllers.melds.reset();
+    controllers.deck.resetDeck();
 }

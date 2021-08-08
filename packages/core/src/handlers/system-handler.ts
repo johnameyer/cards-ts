@@ -1,3 +1,4 @@
+import { Serializable } from "../intermediary/serializable";
 import { Message } from "../messages/message";
 import { Handler, HandlerAction } from "./handler";
 import { MessageHandlerParams } from "./message-handler";
@@ -8,7 +9,7 @@ export type SystemHandlerParams = MessageHandlerParams & WaitingHandlerParams;
 /**
  * Interface to listen for all system events (e.g. message and waiting)
  */
-export abstract class SystemHandler<HandlerData, ResponseMessage extends Message> implements Handler<SystemHandlerParams, HandlerData, ResponseMessage> {
+export abstract class SystemHandler<HandlerData extends Serializable, ResponseMessage extends Message> implements Handler<SystemHandlerParams, HandlerData, ResponseMessage> {
    /**
     * Sends a message to the handler
     */
@@ -17,5 +18,5 @@ export abstract class SystemHandler<HandlerData, ResponseMessage extends Message
    /**
     * Updates a handler on who the game is currently waiting on
     */
-   abstract handleWaitingFor: HandlerAction<HandlerData, ResponseMessage, [string[] | undefined]>;
+   abstract handleWaitingFor: HandlerAction<HandlerData, ResponseMessage, [number[] | number | undefined]>;
 }

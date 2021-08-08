@@ -1,14 +1,10 @@
-import { Handler, HandlerAction } from "@cards-ts/core";
-import { HandlerData } from "./handler-data";
-import { DataResponseMessage, DealerDiscardResponseMessage, GoingAloneResponseMessage, OrderUpResponseMessage, NameTrumpResponseMessage, TurnResponseMessage } from "./messages/response";
+import { ControllerHandlerState, DataResponseMessage, Handler, HandlerAction, PlayCardResponseMessage } from "@cards-ts/core";
+import { Controllers } from "./controllers/controllers";
+import { GameHandlerParams } from "./game-handler-params";
+import { DealerDiscardResponseMessage, GoingAloneResponseMessage, OrderUpResponseMessage, NameTrumpResponseMessage } from "./messages/response";
 import { ResponseMessage } from "./messages/response-message";
 
-export type GameHandlerParams = {
-    orderUp: [],
-    nameTrump: [],
-    dealerDiscard: [],
-    turn: []
-}
+export type HandlerData = ControllerHandlerState<Controllers>;
 
 export abstract class GameHandler implements Handler<GameHandlerParams, HandlerData, ResponseMessage> {
     abstract handleOrderUp: HandlerAction<HandlerData, DataResponseMessage | OrderUpResponseMessage | GoingAloneResponseMessage>;
@@ -17,5 +13,5 @@ export abstract class GameHandler implements Handler<GameHandlerParams, HandlerD
 
     abstract handleDealerDiscard: HandlerAction<HandlerData, DataResponseMessage | DealerDiscardResponseMessage>;
 
-    abstract handleTurn: HandlerAction<HandlerData, DataResponseMessage | TurnResponseMessage>;
+    abstract handleTurn: HandlerAction<HandlerData, DataResponseMessage | PlayCardResponseMessage>;
 }

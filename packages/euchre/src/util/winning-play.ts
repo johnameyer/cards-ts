@@ -1,7 +1,7 @@
 import { Card, Rank, Suit } from '@cards-ts/core';
 import { isLeftBower, isRightBower } from "./bower";
 
-export function winningPlay(currentTrick: (Card | undefined)[], currentTrump: Suit) {
+export function winningPlay(currentTrick: readonly (Card | undefined)[], currentTrump: Suit) {
     const first = currentTrick.findIndex(card => card);
     const leadingSuit = (currentTrick[first] as Card).suit;
     let winningPlayer = first;

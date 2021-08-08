@@ -1,12 +1,10 @@
-import { Handler, HandlerAction, HandlerResponsesQueue } from "@cards-ts/core";
-import { HandlerData } from "./handler-data";
-import { DiscardResponseMessage, GoDownResponseMessage, PlayResponseMessage, WantCardResponseMessage } from "./messages/response";
+import { ControllerHandlerState, DiscardResponseMessage, Handler, HandlerAction } from "@cards-ts/core";
+import { Controllers } from "./controllers/controllers";
+import { GameHandlerParams } from "./game-handler-params";
+import { GoDownResponseMessage, PlayResponseMessage, WantCardResponseMessage } from "./messages/response";
 import { ResponseMessage } from "./messages/response-message";
 
-export type GameHandlerParams = {
-    wantCard: [],
-    turn: []
-}
+export type HandlerData = ControllerHandlerState<Controllers>;
 
 /**
  * Class that players interact with the game using
