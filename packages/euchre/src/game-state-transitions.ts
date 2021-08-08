@@ -1,265 +1,236 @@
-import { GameState } from "./game-state";
-import { GameParams } from "./game-params";
-import { HandlerData } from "./handler-data";
-import { GameHandlerParams } from "./game-handler";
-import { GenericGameStateTransitions, Deck, Rank, SpacingMessage } from '@cards-ts/core';
-import { DealOutMessage, LeadsMessage, PlayedMessage, EndRoundMessage, DealerMessage, OrderUpMessage, PassMessage, NameTrumpMessage, TrumpMessage, WonTrickMessage, WonRoundMessage, GoingAloneMessage } from "./messages/status";
-import { ResponseMessage } from "./messages/response-message";
-import { StateTransformer } from "./state-transformer";
-import { HandlerProxy as GenericHandlerProxy } from "@cards-ts/core/lib/games/handler-proxy";
-import { SystemHandlerParams } from "@cards-ts/core/lib/handlers/system-handler";
-import { getTeamFor, getTeams } from "./util/teams";
+import { GameStates } from "./game-states";
+import { SpacingMessage, GenericGameState, GenericGameStateTransitions, TurnUpMessage, LeadsMessage } from '@cards-ts/core';
+import { PlayedMessage, EndRoundMessage, OrderUpMessage, PassMessage, NameTrumpMessage, TrumpMessage, WonTrickMessage, WonRoundMessage, GoingAloneMessage } from "./messages/status";
+import { getTeamFor } from "./util/teams";
 import { winningPlay } from "./util/winning-play";
-import { TurnUpMessage } from "./messages/status/turn-up-message";
+import { Controllers, GameControllers } from "./controllers/controllers";
 
-type HandlerProxy = GenericHandlerProxy<HandlerData, ResponseMessage, GameHandlerParams & SystemHandlerParams, GameParams, GameState.State, GameState, StateTransformer>;
+type GameState = GenericGameState<GameControllers>;
 
-export class GameStateTransitions implements GenericGameStateTransitions<HandlerData, ResponseMessage, GameHandlerParams & SystemHandlerParams, GameParams, GameState.State, GameState, StateTransformer> {
+export class GameStateTransitions implements GenericGameStateTransitions<typeof GameStates, Controllers> {
     public get() {
         return {
-            [GameState.State.START_GAME]: this.startGame,
-            [GameState.State.START_ROUND]: this.startRound,
-            [GameState.State.START_ORDERING_UP]: this.startOrderingUp,
-            [GameState.State.WAIT_FOR_ORDER_UP]: this.waitForOrderUp,
-            [GameState.State.HANDLE_ORDER_UP]: this.handleOrderUp,
-            [GameState.State.WAIT_FOR_DEALER_DISCARD]: this.waitForDealerDiscard,
-            [GameState.State.HANDLE_DEALER_DISCARD]: this.handleDealerDiscard,
-            [GameState.State.START_TRUMP_NAMING]: this.startTrumpNaming,
-            [GameState.State.WAIT_FOR_TRUMP_NAMING]: this.waitForTrumpNaming,
-            [GameState.State.HANDLE_TRUMP_NAMING]: this.handleTrumpNaming,
-            [GameState.State.START_TRICK]: this.startTrick,
-            [GameState.State.START_PLAY]: this.startPlay,
-            [GameState.State.WAIT_FOR_PLAY]: this.waitForPlay,
-            [GameState.State.HANDLE_PLAY]: this.handlePlay,
-            [GameState.State.END_PLAY]: this.endPlay,
-            [GameState.State.END_TRICK]: this.endTrick,
-            [GameState.State.END_ROUND]: this.endRound,
-            [GameState.State.END_GAME]: this.endGame,
+            [GameStates.START_GAME]: this.startGame,
+            [GameStates.START_ROUND]: this.startRound,
+            [GameStates.START_ORDERING_UP]: this.startOrderingUp,
+            [GameStates.WAIT_FOR_ORDER_UP]: this.waitForOrderUp,
+            [GameStates.HANDLE_ORDER_UP]: this.handleOrderUp,
+            [GameStates.WAIT_FOR_DEALER_DISCARD]: this.waitForDealerDiscard,
+            [GameStates.HANDLE_DEALER_DISCARD]: this.handleDealerDiscard,
+            [GameStates.START_TRUMP_NAMING]: this.startTrumpNaming,
+            [GameStates.WAIT_FOR_TRUMP_NAMING]: this.waitForTrumpNaming,
+            [GameStates.HANDLE_TRUMP_NAMING]: this.handleTrumpNaming,
+            [GameStates.START_TRICK]: this.startTrick,
+            [GameStates.START_PLAY]: this.startPlay,
+            [GameStates.WAIT_FOR_PLAY]: this.waitForPlay,
+            [GameStates.HANDLE_PLAY]: this.handlePlay,
+            [GameStates.END_PLAY]: this.endPlay,
+            [GameStates.END_TRICK]: this.endTrick,
+            [GameStates.END_ROUND]: this.endRound,
+            [GameStates.END_GAME]: this.endGame,
         }
     }
 
-    startGame(gameState: GameState) {
-        gameState.state = GameState.State.START_ROUND;
+    startGame(controllers: Controllers) {
+        controllers.state.set(GameStates.START_ROUND);
     }
 
-    startRound(gameState: GameState, handlerProxy: HandlerProxy) {
-        gameState.deck = new Deck(1, true, false, Rank.ranks.slice(Rank.ranks.indexOf(Rank.NINE)));
+    startRound(controllers: Controllers) {
+        controllers.deck.resetDeck();
+        controllers.hand.dealOut(true, true, 5); // TODO take from params?
+
+        controllers.euchre.flip();
+
+        controllers.tricksTaken.reset();
+
+        controllers.trick.resetLeader();
+        while(!isPlayingThisRound(controllers.trick.leader, controllers)) {
+            controllers.trick.leader++;
+        }
+
+        controllers.state.set(GameStates.START_ORDERING_UP);
+    }
+
+    startOrderingUp(controllers: Controllers) {
+        controllers.players.messageAll(new TurnUpMessage(controllers.euchre.flippedCard));
+
+        controllers.state.set(GameStates.WAIT_FOR_ORDER_UP);
+        controllers.trick.resetTurn();
+    }
+
+    waitForOrderUp(controllers: Controllers) {
+        controllers.players.handlerCall(controllers.turn.get(), 'orderUp');
         
-        handlerProxy.messageAll(gameState, new DealerMessage(gameState.names[gameState.dealer]));
+        controllers.state.set(GameStates.HANDLE_ORDER_UP);
+    }
 
-        for(let i = 0; i < 5; i++) { // TODO take from params?
-            for(let j = 0; j < gameState.numPlayers; j++) {
-                const drawn = gameState.deck.draw();
-                const player = (j + gameState.dealer) % gameState.numPlayers;
-                gameState.hands[player].push(drawn);
+    handleOrderUp(controllers: Controllers) {
+        if(controllers.euchre.bidder !== undefined) {
+            controllers.players.messageAll(new OrderUpMessage(controllers.names.get(controllers.turn.get())));
+            if(controllers.euchre.goingAlone !== undefined) {
+                controllers.players.messageAll(new GoingAloneMessage(controllers.names.get(controllers.turn.get())));
             }
-        }
-        for(let player = 0; player < gameState.numPlayers; player++) {
-            handlerProxy.message(gameState, player, new DealOutMessage(gameState.hands[player]));
-        }
-
-        gameState.flippedCard = gameState.deck.flip();
-        gameState.currentTrump = gameState.flippedCard.suit;
-
-        gameState.tricksTaken = new Array(gameState.numPlayers).fill(0);
-
-        gameState.leader = (gameState.dealer + 1) % gameState.numPlayers; // TODO make shared utility function
-        while(!isPlayingThisRound(gameState.leader, gameState)) {
-            gameState.leader = (gameState.leader + 1) % gameState.numPlayers; // TODO make shared utility function
-        }
-
-        gameState.state = GameState.State.START_ORDERING_UP;
-    }
-
-    startOrderingUp(gameState: GameState, handlerProxy: HandlerProxy) {
-        handlerProxy.messageAll(gameState, new TurnUpMessage(gameState.flippedCard));
-
-        gameState.state = GameState.State.WAIT_FOR_ORDER_UP;
-        gameState.whoseTurn = gameState.leader;
-    }
-
-    waitForOrderUp(gameState: GameState, handlerProxy: HandlerProxy) {
-        handlerProxy.handlerCall(gameState, gameState.whoseTurn, 'orderUp');
-        
-        gameState.state = GameState.State.HANDLE_ORDER_UP;
-    }
-
-    handleOrderUp(gameState: GameState, handlerProxy: HandlerProxy) {
-        if(gameState.bidder !== undefined) {
-            handlerProxy.messageAll(gameState, new OrderUpMessage(gameState.names[gameState.whoseTurn]));
-            if(gameState.goingAlone !== undefined) {
-                handlerProxy.messageAll(gameState, new GoingAloneMessage(gameState.names[gameState.whoseTurn]));
-            }
-            handlerProxy.messageAll(gameState, new TrumpMessage(gameState.currentTrump));
-            gameState.leader = (gameState.dealer + 1) % gameState.numPlayers;
-            gameState.state = GameState.State.WAIT_FOR_DEALER_DISCARD;
+            controllers.players.messageAll(new TrumpMessage(controllers.euchre.currentTrump));
+            controllers.state.set(GameStates.WAIT_FOR_DEALER_DISCARD);
         } else {
-            handlerProxy.messageAll(gameState, new PassMessage(gameState.names[gameState.whoseTurn]));
-            if(gameState.whoseTurn === gameState.dealer) {
-                gameState.state = GameState.State.START_TRUMP_NAMING;
+            controllers.players.messageAll(new PassMessage(controllers.names.get(controllers.turn.get())));
+            if(controllers.turn.get() === controllers.deck.dealer) {
+                controllers.state.set(GameStates.START_TRUMP_NAMING);
             } else {
-                gameState.whoseTurn = (gameState.whoseTurn + 1) % gameState.numPlayers;
-                gameState.state = GameState.State.WAIT_FOR_ORDER_UP;
+                controllers.turn.next();
+                controllers.state.set(GameStates.WAIT_FOR_ORDER_UP);
             }
         }
     }
 
-    waitForDealerDiscard(gameState: GameState, handlerProxy: HandlerProxy) {
-        handlerProxy.handlerCall(gameState, gameState.dealer, 'dealerDiscard');
+    waitForDealerDiscard(controllers: Controllers) {
+        controllers.turn.set(controllers.deck.dealer); // TODO rework this with the event handler logic
+
+        controllers.players.handlerCall(controllers.deck.dealer, 'dealerDiscard');
         
-        gameState.state = GameState.State.HANDLE_DEALER_DISCARD;
+        controllers.state.set(GameStates.HANDLE_DEALER_DISCARD);
     }
 
-    handleDealerDiscard(gameState: GameState, handlerProxy: HandlerProxy) {
-        gameState.hands[gameState.dealer].push(gameState.flippedCard);
+    handleDealerDiscard(controllers: Controllers) {
+        controllers.hand.giveCards(controllers.deck.dealer, [controllers.euchre.flippedCard]);
 
-        gameState.state = GameState.State.START_TRICK;
+        controllers.state.set(GameStates.START_TRICK);
     }
 
-    startTrumpNaming(gameState: GameState, handlerProxy: HandlerProxy) {
-        gameState.state = GameState.State.WAIT_FOR_TRUMP_NAMING;
-        gameState.whoseTurn = gameState.leader;
+    startTrumpNaming(controllers: Controllers) {
+        controllers.state.set(GameStates.WAIT_FOR_TRUMP_NAMING);
+        controllers.trick.resetTurn();
     }
 
-    waitForTrumpNaming(gameState: GameState, handlerProxy: HandlerProxy) {
-        handlerProxy.handlerCall(gameState, gameState.whoseTurn, 'nameTrump');
+    waitForTrumpNaming(controllers: Controllers) {
+        controllers.players.handlerCall(controllers.turn.get(), 'nameTrump');
         
-        gameState.state = GameState.State.HANDLE_TRUMP_NAMING;
+        controllers.state.set(GameStates.HANDLE_TRUMP_NAMING);
     }
 
-    handleTrumpNaming(gameState: GameState, handlerProxy: HandlerProxy) {
-        if(gameState.bidder !== undefined) {
-            handlerProxy.messageAll(gameState, new NameTrumpMessage(gameState.names[gameState.whoseTurn], gameState.currentTrump));
-            if(gameState.goingAlone !== undefined) {
-                handlerProxy.messageAll(gameState, new GoingAloneMessage(gameState.names[gameState.whoseTurn]));
+    handleTrumpNaming(controllers: Controllers) {
+        if(controllers.euchre.bidder !== undefined) {
+            controllers.players.messageAll(new NameTrumpMessage(controllers.names.get(controllers.turn.get()), controllers.euchre.currentTrump));
+            if(controllers.euchre.goingAlone !== undefined) {
+                controllers.players.messageAll(new GoingAloneMessage(controllers.names.get(controllers.turn.get())));
             }
-            gameState.leader = (gameState.dealer + 1) % gameState.numPlayers;
-            gameState.state = GameState.State.START_TRICK;
+            controllers.state.set(GameStates.START_TRICK);
         } else {
-            handlerProxy.messageAll(gameState, new PassMessage(gameState.names[gameState.whoseTurn]));
-            if(gameState.whoseTurn === gameState.dealer) {
+            controllers.players.messageAll(new PassMessage(controllers.names.get(controllers.turn.get())));
+            if(controllers.turn.get() === controllers.deck.dealer) {
                 // this depends e.g. misdeal
-                gameState.state = GameState.State.START_ROUND;
+                controllers.state.set(GameStates.START_ROUND);
             } else {
-                gameState.whoseTurn = (gameState.whoseTurn + 1) % gameState.numPlayers;
-                gameState.state = GameState.State.WAIT_FOR_TRUMP_NAMING;
+                controllers.turn.next();
+                controllers.state.set(GameStates.WAIT_FOR_TRUMP_NAMING);
             }
         }
     }
 
-    startTrick(gameState: GameState, handlerProxy: HandlerProxy) {
-        handlerProxy.messageAll(gameState, new SpacingMessage());
-        handlerProxy.messageAll(gameState, new LeadsMessage(gameState.names[gameState.leader]));
-        gameState.currentTrick = [];
-        gameState.whoseTurn = gameState.leader;
+    startTrick(controllers: Controllers) {
+        controllers.players.messageAll(new SpacingMessage());
+        controllers.players.messageAll(new LeadsMessage(controllers.names.get(controllers.trick.leader)));
+        controllers.trick.resetTrick();
+        controllers.trick.resetTurn();
 
-        gameState.state = GameState.State.START_PLAY;
+        controllers.state.set(GameStates.START_PLAY);
     }
 
-    startPlay(gameState: GameState) {
-        if(isPlayingThisRound(gameState.whoseTurn, gameState)) {
-            gameState.state = GameState.State.WAIT_FOR_PLAY;
+    startPlay(controllers: Controllers) {
+        if(isPlayingThisRound(controllers.turn.get(), controllers)) {
+            controllers.state.set(GameStates.WAIT_FOR_PLAY);
         } else {
-            gameState.currentTrick.push(undefined);
-            gameState.state = GameState.State.END_PLAY;
+            controllers.trick.addCard(undefined);
+            controllers.state.set(GameStates.END_PLAY);
         }
     }
 
-    waitForPlay(gameState: GameState, handlerProxy: HandlerProxy) {
-        handlerProxy.handlerCall(gameState, gameState.whoseTurn, 'turn');
+    waitForPlay(controllers: Controllers) {
+        controllers.players.handlerCall(controllers.turn.get(), 'turn');
         
-        gameState.state = GameState.State.HANDLE_PLAY;
+        controllers.state.set(GameStates.HANDLE_PLAY);
     }
 
-    handlePlay(gameState: GameState, handlerProxy: HandlerProxy) {
-        const { whoseTurn, playedCard, hands} = gameState;
-        gameState.currentTrick.push(playedCard);
-        const index = hands[whoseTurn].findIndex(card => card.equals(playedCard));
-        if(index == -1) {
-            throw new Error('Nonexistent card?');
-        }
-        hands[whoseTurn].splice(index, 1);
-        handlerProxy.messageOthers(gameState, whoseTurn, new PlayedMessage(gameState.names[whoseTurn], playedCard))
+    handlePlay(controllers: Controllers) {
+        const playedCard = controllers.trick.handlePlayed();
+        controllers.players.messageOthers(controllers.turn.get(), new PlayedMessage(controllers.names.get(controllers.turn.get()), playedCard))
 
-        gameState.state = GameState.State.END_PLAY;
+        controllers.state.set(GameStates.END_PLAY);
     }
 
-    endPlay(gameState: GameState) {
-        if(gameState.currentTrick.length === gameState.numPlayers) {
-            gameState.state = GameState.State.END_TRICK;
+    endPlay(controllers: Controllers) {
+        controllers.turn.next();
+        if(controllers.trick.trickIsCompleted()) {
+            controllers.state.set(GameStates.END_TRICK);
         } else {
-            gameState.whoseTurn = (gameState.whoseTurn + 1) % gameState.numPlayers;
-            gameState.state = GameState.State.START_PLAY;
+            controllers.state.set(GameStates.START_PLAY);
         }
     }
 
-    endTrick(gameState: GameState, handlerProxy: HandlerProxy) {
-        gameState.tricks++;
+    endTrick(controllers: Controllers) {
+        controllers.trick.incrementTricks();
 
-        const winner = (gameState.leader + winningPlay(gameState.currentTrick, gameState.currentTrump)) % gameState.numPlayers;
+        const winner = (controllers.trick.leader + winningPlay(controllers.trick.currentTrick, controllers.euchre.currentTrump)) % controllers.players.count;
 
-        handlerProxy.messageAll(gameState, new WonTrickMessage(gameState.names[winner]));
+        controllers.players.messageAll(new WonTrickMessage(controllers.names.get(winner)));
         
-        gameState.leader = winner;
-        gameState.tricksTaken[getTeamFor(winner, gameState.gameParams)] += 1;
+        controllers.trick.leader = winner;
+        controllers.tricksTaken.increaseScore(getTeamFor(winner, controllers.params.get()), 1);
 
-        // if(gameState.gameParams.quickEnd && !gameState.hands.flatMap(hand => hand).map(valueOfCard).some(value => value >= 0)) {
+        // if(controllers.gameParams.quickEnd && !controllers.hands.flatMap(hand => hand).map(valueOfCard).some(value => value >= 0)) {
         //     // might be nice to have a message here if round ends early
-        //     gameState.state = GameState.State.END_ROUND;
+        //     controllers.state.set(GameStates.END_ROUND);
         // } else
-         if(gameState.hands.some(hand => hand.length === 0)) {
-            gameState.state = GameState.State.END_ROUND;
+         if(controllers.hand.numberOfPlayersWithCards() < controllers.players.count) {
+            controllers.state.set(GameStates.END_ROUND);
         } else {
-            gameState.state = GameState.State.START_TRICK;
+            controllers.state.set(GameStates.START_TRICK);
         }
     }
 
-    endRound(gameState: GameState, handlerProxy: HandlerProxy) {
-        const bidderTeam = getTeamFor(gameState.bidder as number, gameState.gameParams);
-        const teams = getTeams(gameState.gameParams);
-        const numberOfTeams = teams.length;
+    endRound(controllers: Controllers) {
+        const bidderTeam = getTeamFor(controllers.euchre.bidder as number, controllers.params.get());
 
-        let winner = 0;
+        let winnerPlayer = 0;
 
-        for(let i = 1; i < numberOfTeams; i++) {
-            if(gameState.tricksTaken[i] > gameState.tricksTaken[winner]) {
-                winner = i;
+        for(let i = 1; i < controllers.players.count; i++) {
+            if(controllers.tricksTaken.get(i) > controllers.tricksTaken.get(winnerPlayer)) {
+                winnerPlayer = i;
             }
         }
 
-        let points = calculatePoints(bidderTeam, winner, gameState);
+        let points = calculatePoints(bidderTeam, winnerPlayer, controllers);
+        const winnerTeam = getTeamFor(winnerPlayer, controllers.params.get());
         // TODO rework this to group players
-        for(let teammate of teams[winner]) {
-            gameState.points[teammate] += points;
-        }
-        handlerProxy.messageAll(gameState, new WonRoundMessage(teams[winner].map(i => gameState.names[i]), points));
+        controllers.score.increaseScore(winnerTeam, points);
+
+        controllers.players.messageAll(new WonRoundMessage(winnerTeam.map(i => controllers.names.get(i)), points));
         
-        handlerProxy.messageAll(gameState, new EndRoundMessage(gameState.names, gameState.points));
-        handlerProxy.messageAll(gameState, new SpacingMessage());
+        controllers.players.messageAll(new EndRoundMessage(controllers.names.get(), controllers.score.get()));
+        controllers.players.messageAll(new SpacingMessage());
         
-        if(gameState.points.some(points => points >= gameState.gameParams.maxScore)) {
-            gameState.state = GameState.State.END_GAME;
+        if(controllers.score.playersOver(controllers.params.get().maxScore).length) {
+            controllers.state.set(GameStates.END_GAME);
         } else {
-            gameState.state = GameState.State.START_ROUND;
+            controllers.state.set(GameStates.START_ROUND);
 
-            gameState.dealer = (gameState.dealer + 1) % gameState.numPlayers;
+            controllers.deck.incrementDealer();
         }
 
-        gameState.tricks = 0;
-        gameState.bidder = undefined;
-        gameState.goingAlone = undefined;
+        controllers.trick.reset();
+        controllers.euchre.reset();
     }
 
-    endGame(gameState: GameState) {
-        gameState.completed = true;
+    endGame(controllers: Controllers) {
+        controllers.completed.complete();
     }
 
 }
 
-function calculatePoints(bidderTeam: number, winnerTeam: number, gameState: GameState) {
-    if (bidderTeam == winnerTeam) {
-        if (gameState.tricksTaken[winnerTeam] === 5) {
-            if(gameState.goingAlone) {
+function calculatePoints(bidderTeam: number[], winner: number, controllers: Controllers) {
+    if (bidderTeam.includes(winner)) {
+        if (controllers.tricksTaken.get(winner) === 5) {
+            if(controllers.euchre.goingAlone) {
                 return 4;
             }
             return 2;
@@ -271,14 +242,14 @@ function calculatePoints(bidderTeam: number, winnerTeam: number, gameState: Game
     }
 }
 
-function isPlayingThisRound(position: number, gameState: GameState) {
-    if(gameState.goingAlone === undefined) {
+function isPlayingThisRound(position: number, controllers: Controllers) {
+    if(controllers.euchre.goingAlone === undefined) {
         return true;
     }
-    if(position === gameState.goingAlone) {
+    if(position === controllers.euchre.goingAlone) {
         return true;
     }
-    if(getTeamFor(position, gameState.gameParams) !== getTeamFor(gameState.goingAlone, gameState.gameParams)) {
+    if(getTeamFor(position, controllers.params.get()) !== getTeamFor(controllers.euchre.goingAlone, controllers.params.get())) {
         return true;
     }
     return false;

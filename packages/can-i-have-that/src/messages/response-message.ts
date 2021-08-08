@@ -1,3 +1,4 @@
-import { WantCardResponseMessage, DataResponseMessage, DiscardResponseMessage, GoDownResponseMessage, PlayResponseMessage } from './response';
+import { DiscardResponseMessage, DataResponseMessage } from '@cards-ts/core';
+import { WantCardResponseMessage, GoDownResponseMessage, PlayResponseMessage } from './response';
 
 export type ResponseMessage = DiscardResponseMessage | GoDownResponseMessage | PlayResponseMessage | WantCardResponseMessage | DataResponseMessage;

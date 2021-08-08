@@ -1,59 +1,37 @@
-import { Deck } from '../cards/deck';
-import { Card } from '../cards/card';
-import { Serializable, SerializableObject } from '../intermediary/serializable';
+import { ControllerHandlerState, IndexedProviders, ControllerState, initializeControllers, validate, UnwrapProviders, IndexedControllers, ControllersProviders } from '../controllers/controller';
+import { deserialize, serialize } from '../intermediary/serializable';
 
 /**
  * A class used to track the current state of the game
  */
-export interface GenericGameState<GameParams extends Readonly<SerializableObject>, State extends string> extends SerializableObject {
-    /**
-     * The settings that a game runs under
-     */
-    readonly gameParams: GameParams;
+export class GenericGameState<Controllers extends IndexedControllers> {
+    // TODO reconsider how to use 'exposed' in contravariant position
+    private state?: ControllerState<Controllers> = undefined;
+    private allControllers!: Controllers;
+    
+    constructor(private readonly providers: ControllersProviders<Controllers>, state?: ControllerState<Controllers>) {
+        validate(providers);
+        this.state = state || {} as ControllerState<Controllers>;
+        this.allControllers = initializeControllers(providers, this.state);
+    }
+    
+    public get controllers(): Controllers {
+        if(!this.state) {
+            throw new Error('Not yet initialized');
+        }
+        return this.allControllers;
+    }
 
-    /**
-     * The number of players in the game, since the actual array is stored elsewhere
-     * @todo numPlayers is a field used to enable the utility methods in this file post-refactoring it is not certain if it actually needs to exist
-     */
-    numPlayers: number;
+    asHandlerData(position: number): ControllerHandlerState<Controllers> {
+        // TODO nicer way of cloning state, but without reverting to doing it at the controller level
+        // (cloning needed so that mutating in handler does not mutate upstream)
+        return Object.fromEntries(Object.entries(this.allControllers).map(([key, value]) => [key, deserialize(serialize(value.getFor(position)))])) as any;
+    }
 
-    /**
-     * The names of all the players
-     */
-    names: string[];
-
-    /**
-     * The cards of all hands
-     */
-    hands: Card[][];
-
-    /**
-     * The deck currently in use
-     */
-    deck: Deck;
-
-    /**
-     * The current state of the game, for the game state iterator
-     */
-    state: State;
-
-    /**
-     * Field indicating who the game is waiting on, whether it be a number of players or some specific players (by position)
-     */
-    waiting: number | number[];
-
-    /**
-     * Field indicating which of the hands have already responded
-     */
-    responded: boolean[];
-
-    /**
-     * Whether the game is completed
-     */
-    completed: boolean;
-
-    /**
-     * Field for the handlers to save their custom data (since they are meant to be stateless)
-     */
-    data: Serializable[];
+    public clone(): GenericGameState<Controllers> {
+        return new GenericGameState(
+            this.providers, 
+            Object.fromEntries(Object.entries(this.allControllers).map(([key, value]) => [key, deserialize(serialize((value as any).state))])) as any
+        );
+    }
 }

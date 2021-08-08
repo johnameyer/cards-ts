@@ -34,5 +34,5 @@ export namespace Message {
             return defaultTransformer(component, ', ');
         }
         return component.toString();
-    }).filter(isDefined).filter(isNonnull).reduce((a: string, b: string) => a + joiner + b) : '';
+    }).filter(isDefined).filter(isNonnull).reduce((a: string, b: string) => a + joiner + b, '') : '';
 }

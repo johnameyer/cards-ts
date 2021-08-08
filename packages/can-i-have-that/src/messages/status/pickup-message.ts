@@ -1,35 +1,25 @@
-import { Card, Message, Presentable } from "@cards-ts/core";
+import { Card, Presentable, Message } from "@cards-ts/core";
 
-function generateMessage(card: Card, player?: string, extra:boolean = false): Presentable[] {
-    if(player !== undefined) {
-        if(extra) {
-            return [player, 'picked up the', card, 'and an extra'];
-        } else {
-            return [player, 'picked up the', card];
-        }
+function generateMessage(card: Card, extra?: Card): Presentable[] {
+    if (extra) {
+        return ['Picked up', card, 'and', extra];
     } else {
-        return ['No player picked up the', card];
+        return ['Picked up', card];
     }
 }
 
+// TODO rework
+
 /**
- * A class designating to a handler that anpther player has picked up a card, or that a card was not picked up at all
+ * Class that denotes to a handler that they have been dealt or drawn a card
  */
 export class PickupMessage extends Message {
     /**
-     * Designates that a card was not picked up
+     * @param card the card being received
+     * @param extra the extra card that is drawn if applicable
+     * @param dealt whether or not the card was dealt
      */
-    constructor(card: Card);
-    /**
-     * Designates that a card was picked up by a player
-     */
-    constructor(card: Card, player: string, extra:boolean);
-    /**
-     * @param card the card the player picked up
-     * @param player the player picking up the card
-     * @param extra whether or not an extra card was taken
-     */
-    constructor(public readonly card: Card, public readonly player?: string, public readonly extra:boolean = false) {
-        super(generateMessage(card, player, extra));
+    constructor(public readonly card: Card, public readonly extra?: Card) {
+        super(generateMessage(card, extra));
     }
 }

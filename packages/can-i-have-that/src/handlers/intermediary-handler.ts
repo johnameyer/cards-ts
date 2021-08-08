@@ -1,7 +1,6 @@
-import { Card, Intermediary, Message, ThreeCardSet, FourCardRun, checkFourCardRunPossible, HandlerResponsesQueue } from '@cards-ts/core';
-import { Meld } from '@cards-ts/core/lib/cards/meld';
-import { HandlerData } from '../handler-data';
-import { DataResponseMessage, WantCardResponseMessage, DiscardResponseMessage, GoDownResponseMessage, PlayResponseMessage } from '../messages/response';
+import { Card, Intermediary, ThreeCardSet, FourCardRun, checkFourCardRunPossible, HandlerResponsesQueue, DiscardResponseMessage, Meld } from '@cards-ts/core';
+import { HandlerData } from '../game-handler';
+import { WantCardResponseMessage, GoDownResponseMessage, PlayResponseMessage } from '../messages/response';
 import { roundToString } from '../util/round-to-string';
 import { ClientHandler } from './client-handler';
 
@@ -32,7 +31,7 @@ const toInquirerValue = <T extends {toString: () => string}>(t: T) => ({
     value: t,
 });
 
-function reconcileDataAndHand(hand: Card[], data: any) {
+function reconcileDataAndHand(hand: Card[], data: any): { hand: Card[] } {
     if(!data) {
         data = {};
     }
@@ -41,13 +40,13 @@ function reconcileDataAndHand(hand: Card[], data: any) {
     } else {
         // TODO handle duplicates?
         for(let i = 0; i < hand.length; i++) {
-            if(!(data.hand as Card[]).find(card => hand[i].equals(card))) {
+            if(!(data.hand as Card[]).find(card => card.equals(hand[i]))) {
                 data.hand.push(hand[i]);
             }
         }
 
         for(let i = 0; i < data.hand.length; i++) {
-            if(!hand.find(card => data.hand[i].equals(card))) {
+            if(!hand.find(card => card.equals(data.hand[i]))) {
                 data.hand.splice(i, 1);
                 i--;
             }
@@ -61,13 +60,13 @@ export class IntermediaryHandler extends ClientHandler {
         super();
     }
 
-    handleWantCard = async ({hand, round, wouldBeTurn, deckCard, gameParams: {rounds}, data}: HandlerData, responsesQueue: HandlerResponsesQueue<WantCardResponseMessage>): Promise<void> => {
-        data = reconcileDataAndHand(hand, data);
+    handleWantCard = async ({hand, deck: { deckCard }, canIHaveThat: { round }, params: { rounds }, data: rawData, turn, ask}: HandlerData, responsesQueue: HandlerResponsesQueue<WantCardResponseMessage>): Promise<void> => {
+        const data = reconcileDataAndHand(hand, rawData);
 
         const handWith = hand.slice();
-        handWith.push(deckCard);
-        const message = ['Do you want', deckCard];
-        if(!wouldBeTurn) {
+        handWith.push(deckCard as Card);
+        const message = ['Do you want', deckCard as Card];
+        if(turn !== ask) {
             message.push('and an extra?');
         } else {
             message.push('?');
@@ -96,7 +95,7 @@ export class IntermediaryHandler extends ClientHandler {
                 case 'go-down-response':
                     return new GoDownResponseMessage(response.toPlay, gameState.data);
                 case 'play-response':
-                    return new PlayResponseMessage(response.playOn, response.toPlay, gameState.data);
+                    return new PlayResponseMessage(response.playOn, response.toPlay, response.newMeld, gameState.data);
             }
         }));
     }

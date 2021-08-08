@@ -4,5 +4,5 @@ export function getTeams(_params: GameParams) {
     return [[0, 2], [1, 3]];
 }
 export function getTeamFor(position: number, params: GameParams) {
-    return position % 2;
+    return getTeams(params).find(team => team.includes(position)) as number[];
 }

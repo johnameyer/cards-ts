@@ -1,23 +1,23 @@
-import { Card, ThreeCardSet, FourCardRun, HandlerResponsesQueue, Meld, Suit } from '@cards-ts/core';
-import { GameHandler } from '../game-handler';
-import { HandlerData } from '../handler-data';
-import { DiscardResponseMessage, GoDownResponseMessage, PlayResponseMessage, WantCardResponseMessage } from '../messages/response';
+import { Card, ThreeCardSet, FourCardRun, HandlerResponsesQueue, Suit, DiscardResponseMessage } from '@cards-ts/core';
+import { GameHandler, HandlerData } from '../game-handler';
+import { WantCardResponseMessage, GoDownResponseMessage, PlayResponseMessage } from '../messages/response';
 import { find } from '../util/find';
 
 export class LocalMaximumHandler extends GameHandler {
-    handleWantCard = ({hand, played, position, round, deckCard, wouldBeTurn, gameParams: {rounds}}: HandlerData, responsesQueue: HandlerResponsesQueue<WantCardResponseMessage>): void => {
+    handleWantCard = ({hand, melds: { melds }, players: { position }, canIHaveThat: { round }, params: { rounds }, deck: { deckCard }, turn, ask}: HandlerData, responsesQueue: HandlerResponsesQueue<WantCardResponseMessage>): void => {
         const currentRound = rounds[round];
-        if(played[position].length > 0) {
+        const wouldBeTurn = turn === ask;
+        if(melds[position].length > 0) {
             responsesQueue.push(new WantCardResponseMessage(false));
             return;
         }
-        if(deckCard.isWild()) {
+        if((deckCard as Card).isWild()) {
             // console.log(position, 'want wild', card.toString());
             responsesQueue.push(new WantCardResponseMessage(true));
             return;
         }
         const oldFound = find([...hand], currentRound);
-        const newFound = find([deckCard, ...hand], currentRound);
+        const newFound = find([(deckCard as Card), ...hand], currentRound);
         const advantage = newFound[0] - oldFound[0];
         if(oldFound[0] === 0 && newFound[0] === 0 && wouldBeTurn && (round !== rounds.length - 1 ? newFound[1] <= oldFound[1] : newFound[3].length <= oldFound[3].length)) {
             // pickup card if it is our turn, we have already completed, and it doesn't add value to us
@@ -50,19 +50,19 @@ export class LocalMaximumHandler extends GameHandler {
         return;
     }
 
-    handleTurn = ({hand, played, position, round, gameParams: {rounds}}: HandlerData, responsesQueue: HandlerResponsesQueue<DiscardResponseMessage | GoDownResponseMessage | PlayResponseMessage>) => {
+    handleTurn = ({hand, melds: { melds }, players: { position }, canIHaveThat: { round }, params: { rounds }}: HandlerData, responsesQueue: HandlerResponsesQueue<DiscardResponseMessage | GoDownResponseMessage | PlayResponseMessage>) => {
         const currentRound = rounds[round];
-        if(played[position].length === 0) {
+        if(melds[position].length === 0) {
             const found = find([...hand], currentRound);
             // console.log(currentRound.toString(), 'Need', found[0], 'Extra', found[3].length, found[2].toString());
             const without = (arr: Card[], card: Card) => {const result = arr.slice(); result.splice(arr.indexOf(card), 1); return result;};
             if(found[0] === 0 && (rounds.length - 1 !== round || found[1] === 0)) {
                 // TODO with handling of no discard on all down move this up
                 // console.log(position, 'can play', found[2].toString());
-                const melds = found[2].map((cards, i) => currentRound[i] === 3 ? new ThreeCardSet(cards) : new FourCardRun(cards));
-                played[position] = melds;
-                responsesQueue.push(new GoDownResponseMessage(melds));
-                for(const meld of melds) {
+                const newMelds = found[2].map((cards, i) => currentRound[i] === 3 ? new ThreeCardSet(cards) : new FourCardRun(cards));
+                melds[position] = newMelds;
+                responsesQueue.push(new GoDownResponseMessage(newMelds));
+                for(const meld of newMelds) {
                     for(const card of meld.cards) {
                         const index = hand.indexOf(card);
                         hand.splice(index, 1);
@@ -71,10 +71,10 @@ export class LocalMaximumHandler extends GameHandler {
             } else {
                 let possibleDiscards = [];
                 if(found[0] === 0) {
-                    possibleDiscards.push(...found[3].filter(card => !played.some(player => player.some(play => play.isLive(card)))));
+                    possibleDiscards.push(...found[3].filter(card => !melds.some(player => player.some(play => play.isLive(card)))));
                 }
                 if(!possibleDiscards.length) {
-                    possibleDiscards.push(...hand.filter(card => !played.some(player => player.some(play => play.isLive(card)))));
+                    possibleDiscards.push(...hand.filter(card => !melds.some(player => player.some(play => play.isLive(card)))));
                 }
                 // console.log(possibleDiscards.toString());
                 if(possibleDiscards.some(card => !card.isWild())) {
@@ -113,15 +113,15 @@ export class LocalMaximumHandler extends GameHandler {
                 responsesQueue.push(new DiscardResponseMessage(possibleDiscards[worst]));
             }
         }
-        if(played[position].length !== 0) {
-            const savedOldMelds = played.map(plays => plays.map(play => play.clone()));
+        if(melds[position].length !== 0) {
+            const savedOldMelds = melds.map(plays => plays.map(play => play.clone()));
             for(let i = 0; i < hand.length; i++) {
                 const card = hand[i];
-                for(let player = 0; player < played.length; player++) {
-                    for(let meld = 0; meld < played[player].length; meld++) {
-                        if(played[player][meld].isLive(card)) {
-                            played[player][meld].add(card);
-                            responsesQueue.push(new PlayResponseMessage(savedOldMelds[player][meld].clone(), [card], played[player][meld].clone()));
+                for(let player = 0; player < melds.length; player++) {
+                    for(let meld = 0; meld < melds[player].length; meld++) {
+                        if(melds[player][meld].isLive(card)) {
+                            melds[player][meld].add(card);
+                            responsesQueue.push(new PlayResponseMessage(savedOldMelds[player][meld].clone(), [card], melds[player][meld].clone()));
                             hand.splice(i, 1);
                             i--;
                             break;

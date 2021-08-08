@@ -66,6 +66,7 @@ __metadata:
     inquirer-table-prompt: ^0.2.1
     mocha: ^7.2.0
     rxjs: ^7.3.0
+    ts-node: 10.1.0
     typescript: ^4.3.5
   languageName: unknown
   linkType: soft
@@ -81,6 +82,7 @@ __metadata:
     "@types/yargs": ^15.0.5
     chai: ^4.3.4
     mocha: ^7.2.0
+    ts-node: 10.1.0
     typescript: ^4.3.5
     yargs: ^15.4.0
   bin:
@@ -98,6 +100,7 @@ __metadata:
     "@types/node": ^16.4.10
     "@types/yargs": ^15.0.5
     mocha: ^7.2.0
+    ts-node: 10.1.0
     typescript: ^4.3.5
     yargs: ^15.4.0
   bin:
@@ -115,6 +118,7 @@ __metadata:
     "@types/node": ^16.4.10
     "@types/yargs": ^15.0.5
     mocha: ^7.2.0
+    ts-node: 10.1.0
     typescript: ^4.3.5
     yargs: ^15.4.0
   bin:
@@ -1161,6 +1165,34 @@ __metadata:
   version: 1.1.2
   resolution: "@tootallnate/once@npm:1.1.2"
   checksum: e1fb1bbbc12089a0cb9433dc290f97bddd062deadb6178ce9bcb93bb7c1aecde5e60184bc7065aec42fe1663622a213493c48bbd4972d931aae48315f18e1be9
+  languageName: node
+  linkType: hard
+
+"@tsconfig/node10@npm:^1.0.7":
+  version: 1.0.8
+  resolution: "@tsconfig/node10@npm:1.0.8"
+  checksum: b8d5fffbc6b17ef64ef74f7fdbccee02a809a063ade785c3648dae59406bc207f70ea2c4296f92749b33019fa36a5ae716e42e49cc7f1bbf0fd147be0d6b970a
+  languageName: node
+  linkType: hard
+
+"@tsconfig/node12@npm:^1.0.7":
+  version: 1.0.9
+  resolution: "@tsconfig/node12@npm:1.0.9"
+  checksum: a01b2400ab3582b86b589c6d31dcd0c0656f333adecde85d6d7d4086adb059808b82692380bb169546d189bf771ae21d02544a75b57bd6da4a5dd95f8567bec9
+  languageName: node
+  linkType: hard
+
+"@tsconfig/node14@npm:^1.0.0":
+  version: 1.0.1
+  resolution: "@tsconfig/node14@npm:1.0.1"
+  checksum: 976345e896c0f059867f94f8d0f6ddb8b1844fb62bf36b727de8a9a68f024857e5db97ed51d3325e23e0616a5e48c034ff51a8d595b3fe7e955f3587540489be
+  languageName: node
+  linkType: hard
+
+"@tsconfig/node16@npm:^1.0.1":
+  version: 1.0.2
+  resolution: "@tsconfig/node16@npm:1.0.2"
+  checksum: ca94d3639714672bbfd55f03521d3f56bb6a25479bd425da81faf21f13e1e9d15f40f97377dedbbf477a5841c5b0c8f4cd1b391f33553d750b9202c54c2c07aa
   languageName: node
   linkType: hard
 
@@ -5422,7 +5454,7 @@ fsevents@~2.3.2:
     "@cards-ts/hearts": ^0.5.1
     "@cards-ts/war": ^0.5.1
     "@types/node": ^16.4.10
-    ts-node: ^9.0.0
+    ts-node: 10.1.0
     typescript: ^4.0.3
   languageName: unknown
   linkType: soft
@@ -6126,7 +6158,7 @@ fsevents@~2.3.2:
     eslint: ^6.8.0
     lerna: ^4.0.0
     ts-node-dev: ^1.1.8
-    typescript: ^4.0.2
+    typescript: ^4.3.5
   languageName: unknown
   linkType: soft
 
@@ -6909,6 +6941,40 @@ fsevents@~2.3.2:
   languageName: node
   linkType: hard
 
+"ts-node@npm:10.1.0":
+  version: 10.1.0
+  resolution: "ts-node@npm:10.1.0"
+  dependencies:
+    "@tsconfig/node10": ^1.0.7
+    "@tsconfig/node12": ^1.0.7
+    "@tsconfig/node14": ^1.0.0
+    "@tsconfig/node16": ^1.0.1
+    arg: ^4.1.0
+    create-require: ^1.1.0
+    diff: ^4.0.1
+    make-error: ^1.1.1
+    source-map-support: ^0.5.17
+    yn: 3.1.1
+  peerDependencies:
+    "@swc/core": ">=1.2.50"
+    "@swc/wasm": ">=1.2.50"
+    "@types/node": "*"
+    typescript: ">=2.7"
+  peerDependenciesMeta:
+    "@swc/core":
+      optional: true
+    "@swc/wasm":
+      optional: true
+  bin:
+    ts-node: dist/bin.js
+    ts-node-cwd: dist/bin-cwd.js
+    ts-node-script: dist/bin-script.js
+    ts-node-transpile-only: dist/bin-transpile.js
+    ts-script: dist/bin-script-deprecated.js
+  checksum: 96979e9a81f801733195fbfe2db540e7d223f1b0affbd29c9c2d346ef3879a8c3c562cab9ef712b96b624905b9a0f31b12fd5b6f9e087fcd6038df253b104cf2
+  languageName: node
+  linkType: hard
+
 "ts-node@npm:^9.0.0":
   version: 9.1.1
   resolution: "ts-node@npm:9.1.1"
@@ -7057,7 +7123,7 @@ fsevents@~2.3.2:
   languageName: node
   linkType: hard
 
-"typescript@^4.0.2, typescript@^4.0.3, typescript@^4.3.5":
+"typescript@^4.0.3, typescript@^4.3.5":
   version: 4.3.5
   resolution: "typescript@npm:4.3.5"
   bin:
@@ -7067,7 +7133,7 @@ fsevents@~2.3.2:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@^4.0.2#~builtin<compat/typescript>, typescript@patch:typescript@^4.0.3#~builtin<compat/typescript>, typescript@patch:typescript@^4.3.5#~builtin<compat/typescript>":
+"typescript@patch:typescript@^4.0.3#~builtin<compat/typescript>, typescript@patch:typescript@^4.3.5#~builtin<compat/typescript>":
   version: 4.3.5
   resolution: "typescript@patch:typescript@npm%3A4.3.5#~builtin<compat/typescript>::version=4.3.5&hash=d8b4e7"
   bin:

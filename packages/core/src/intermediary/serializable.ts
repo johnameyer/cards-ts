@@ -16,9 +16,12 @@ export type ReadonlySerializable = Presentable | Deck | readonly Serializable[] 
 
 export type SerializableObject = { [key: string]: Serializable };
 
-export const serialize = JSON.stringify;
+export const serialize = (value: any) => value === undefined ? 'undefined' : JSON.stringify(value);
 
 export function deserialize(str: string): Serializable {
+    if(str === 'undefined') {
+        return undefined;
+    }
     const result: unknown = JSON.parse(str);
     return reconstruct(result);
 }
@@ -46,14 +49,16 @@ export function reconstruct(result: unknown): Serializable {
                         return Deck.fromObj(result);
                     case 'rank':
                         return Rank.fromObj(result);
-                    case 'pair':
+                    case 'set':
                         return ThreeCardSet.fromObj(result);
                     case 'straight':
                         return FourCardRun.fromObj(result);
                 }
             }
         }
-    } catch {}
+    } catch (e) {
+        console.log(e);
+    }
     return Object.fromEntries(Object.entries(result as object).map(([key, value]) => [key, reconstruct(value)]));
 }
 

@@ -43,7 +43,7 @@ export function checkThreeCardSet(set: ThreeCardSet) {
  * A class representing a three (or more) of a kind
  */
 export class ThreeCardSet extends Meld {
-    public readonly type = 'pair';
+    public readonly type = 'set';
 
     /**
      * The wilds of this set

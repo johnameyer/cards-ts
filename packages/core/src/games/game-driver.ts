@@ -1,26 +1,28 @@
 import { GenericGameState } from './generic-game-state';
 import { Message } from '../messages/message';
-import { AbstractStateTransformer } from './abstract-state-transformer';
-import { HandlerProxy } from './handler-proxy';
-import { GenericValidator } from './generic-validator';
+import { EventHandlerInterface } from './event-handler-interface';
 import { GenericGameStateTransitions } from './generic-game-state-transitions';
-import { HandlerChain } from '../handlers/handler';
 import { SystemHandlerParams } from '../handlers/system-handler';
 import { SerializableObject } from '../intermediary/serializable';
+import { WaitingController, CompletedController, GameStateController } from '../controllers';
+import { IndexedControllers } from '../controllers/controller';
+import { GenericHandlerProxy } from './generic-handler-controller';
+import { STANDARD_STATES } from './game-states';
 
 /**
  * Class that handles the steps of the game
  */
-export class GameDriver<HandlerData, Handlers extends {[key: string]: any[]} & SystemHandlerParams, GameParams extends SerializableObject, State extends string, GameState extends GenericGameState<GameParams, State>, ResponseMessage extends Message, StateTransformer extends AbstractStateTransformer<GameParams, State, HandlerData, GameState, ResponseMessage>, Validator extends GenericValidator<GameParams, State, GameState, ResponseMessage>> {
+export class GameDriver<Handlers extends {[key: string]: any[]} & SystemHandlerParams, State extends typeof STANDARD_STATES, Controllers extends IndexedControllers & { waiting: WaitingController, completed: CompletedController, state: GameStateController<State> }, GameState extends GenericGameState<Controllers>, ResponseMessage extends Message, EventHandler extends EventHandlerInterface<Controllers, ResponseMessage>> {
     /**
      * Tells if the game is waiting on a player
      * @param state the state to analyze
      */
-    static isWaitingOnPlayer<GameParams extends SerializableObject, State extends string>(state: GenericGameState<GameParams, State>) {
-        if(Array.isArray(state.waiting)) {
-            return state.waiting.length !== 0;
+    static isWaitingOnPlayer<GameParams extends SerializableObject, State extends typeof STANDARD_STATES>(waitingController: WaitingController) {
+        const { waiting } = waitingController.get();
+        if(Array.isArray(waiting)) {
+            return waiting.length !== 0;
         } else {
-            return state.waiting <= 0;
+            return waiting <= 0;
         }
     }
 
@@ -29,31 +31,29 @@ export class GameDriver<HandlerData, Handlers extends {[key: string]: any[]} & S
      * @param state the state to analyze
      * @param subset the subset to check against
      */
-    static isWaitingOnPlayerSubset<GameParams extends SerializableObject, State extends string>(state: GenericGameState<GameParams, State>, subset: number[]) {
-        if(Array.isArray(state.waiting)) {
-            return state.waiting.length !== 0 && state.waiting.some(position => subset.includes(position));
+    static isWaitingOnPlayerSubset<GameParams extends SerializableObject, State extends typeof STANDARD_STATES>(waitingController: WaitingController, subset: number[]) {
+        const {waiting, responded} = waitingController.get();
+        if(Array.isArray(waiting)) {
+            return waiting.length !== 0 && waiting.some(position => subset.includes(position));
         } else {
-            return state.waiting <= 0 && subset.some(position => !state.responded[position]);
+            return waiting <= 0 && subset.some(position => !responded[position]);
         }
     }
-
-    protected handlerProxy: HandlerProxy<HandlerData, ResponseMessage, Handlers, GameParams, State, GameState, StateTransformer>;
 
     /**
      * Create the game driver
      * @param players the players in the game
      * @param gameParams the parameters to use for the game
      */
-    constructor(handlers: HandlerChain<Handlers, HandlerData, ResponseMessage>[], public gameState: GameState, protected transitions: GenericGameStateTransitions<HandlerData, ResponseMessage, Handlers, GameParams, State, GameState, StateTransformer>, protected stateTransformer: StateTransformer, protected responseValidator: Validator) {
+    constructor(protected handlerProxy: GenericHandlerProxy<ResponseMessage, Handlers>, public gameState: GameState, protected transitions: GenericGameStateTransitions<State, Controllers>, protected eventHandler: EventHandler) {
         // this.gameState.names = handlerProxy.getNames();
-        this.handlerProxy = new HandlerProxy(handlers, stateTransformer);
     }
 
     private handleEvent(position: number, message: ResponseMessage) {
-        const updatedMessage = this.responseValidator.validateEvent(this.gameState, position, message);
+        const updatedMessage = this.eventHandler.validateEvent(this.gameState.controllers, position, message);
 
         if(updatedMessage) {
-            this.gameState = this.stateTransformer.merge(this.gameState, position, updatedMessage);
+            this.eventHandler.merge(this.gameState.controllers, position, updatedMessage);
         }
     }
 
@@ -93,7 +93,7 @@ export class GameDriver<HandlerData, Handlers extends {[key: string]: any[]} & S
      * Tells if the game is waiting on a player
      */
     isWaitingOnPlayer() {
-        return GameDriver.isWaitingOnPlayer(this.gameState);
+        return GameDriver.isWaitingOnPlayer(this.gameState.controllers.waiting);
     }
 
     
@@ -102,7 +102,7 @@ export class GameDriver<HandlerData, Handlers extends {[key: string]: any[]} & S
      * @param subset the subset to check against
      */
     isWaitingOnPlayerSubset(subset: number[]) {
-        return GameDriver.isWaitingOnPlayerSubset(this.gameState, subset);
+        return GameDriver.isWaitingOnPlayerSubset(this.gameState.controllers.waiting, subset);
     }
 
     /**
@@ -110,14 +110,14 @@ export class GameDriver<HandlerData, Handlers extends {[key: string]: any[]} & S
      */
     public async start() {
         const transitions = this.transitions.get();
-        while(!this.gameState.completed) {
-            transitions[this.gameState.state].call(this.transitions, this.gameState, this.handlerProxy);
+        while(!this.gameState.controllers.completed.get()) {
+            transitions[this.gameState.controllers.state.get()].call(this.transitions, this.gameState.controllers);
 
             // TODO consider this ordering
             await this.handlerProxy.handleOutgoing();
             this.handleSyncResponses();
 
-            while(!this.gameState.completed && GameDriver.isWaitingOnPlayer(this.gameState)) {
+            while(!this.gameState.controllers.completed.get() && GameDriver.isWaitingOnPlayer(this.gameState.controllers.waiting)) {
 
                 await this.handlerProxy.asyncResponseAvailable();
                 for await(const [position, message] of this.handlerProxy.receiveAsyncResponses()) {
@@ -138,8 +138,8 @@ export class GameDriver<HandlerData, Handlers extends {[key: string]: any[]} & S
      */
     public resume() {
         const transitions = this.transitions.get();
-        while(!this.gameState.completed && !GameDriver.isWaitingOnPlayer(this.gameState)) {
-            transitions[this.gameState.state].call(this.transitions, this.gameState, this.handlerProxy);
+        while(!!this.gameState.controllers.completed.get() && !GameDriver.isWaitingOnPlayer(this.gameState.controllers.waiting)) {
+            transitions[this.gameState.controllers.state.get()].call(this.transitions, this.gameState.controllers);
         }
     }
 }

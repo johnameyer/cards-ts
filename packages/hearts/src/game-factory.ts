@@ -1,27 +1,18 @@
-import { AbstractGameFactory, Handler, Intermediary } from "@cards-ts/core";
-import { GameHandlerParams } from "./game-handler";
+import { AbstractGameFactory, Intermediary, UnwrapProviders } from "@cards-ts/core";
+import { GameHandlerParams } from "./game-handler-params";
 import { GameParams } from "./game-params";
 import { GameSetup } from "./game-setup";
-import { GameState } from "./game-state";
+import { GameStates } from "./game-states";
 import { GameStateTransitions } from "./game-state-transitions";
-import { HandlerData } from "./handler-data";
 import { HeuristicHandler } from "./handlers/heuristic-handler";
 import { IntermediaryHandler } from "./handlers/intermediary-handler";
 import { ResponseMessage } from "./messages/response-message";
-import { Validator } from "./validator";
-import { StateTransformer } from "./state-transformer";
+import { buildProviders } from "./controllers/controllers";
+import { EventHandler } from "./event-handler";
 
-export class GameFactory extends AbstractGameFactory<HandlerData, GameHandlerParams, GameParams, GameState.State, GameState, ResponseMessage, StateTransformer, Validator> {
+export class GameFactory extends AbstractGameFactory<GameHandlerParams, GameParams, typeof GameStates, UnwrapProviders<ReturnType<typeof buildProviders>>, ResponseMessage, EventHandler> {
     protected getGameStateTransitions() {
         return new GameStateTransitions();
-    }
-
-    getValidator() {
-        return new Validator();
-    }
-
-    getStateTransformer() {
-        return new StateTransformer();
     }
     
     getGameSetup() {
@@ -33,6 +24,14 @@ export class GameFactory extends AbstractGameFactory<HandlerData, GameHandlerPar
     }
 
     getDefaultBotHandler() {
-        return new HeuristicHandler() as Handler<GameHandlerParams, HandlerData, ResponseMessage>;
+        return new HeuristicHandler();
+    }
+
+    getEventHandler(): EventHandler {
+        return new EventHandler();
+    }
+
+    getProviders() {
+        return buildProviders();
     }
 }

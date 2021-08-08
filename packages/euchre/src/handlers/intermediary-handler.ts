@@ -1,10 +1,9 @@
-import { GameHandler } from '../game-handler';
-import { HandlerData } from '../handler-data';
-import { Card, HandlerResponsesQueue } from '@cards-ts/core';
+import { GameHandler, HandlerData } from '../game-handler';
+import { Card, HandlerResponsesQueue, PlayCardResponseMessage } from '@cards-ts/core';
 import { Message } from '@cards-ts/core';
 import { Suit } from '@cards-ts/core';
 import { Intermediary } from '@cards-ts/core';
-import { TurnResponseMessage, OrderUpResponseMessage, NameTrumpResponseMessage, DealerDiscardResponseMessage, GoingAloneResponseMessage } from '../messages/response';
+import { OrderUpResponseMessage, NameTrumpResponseMessage, DealerDiscardResponseMessage, GoingAloneResponseMessage } from '../messages/response';
 import { ResponseMessage } from '../messages/response-message';
 import { compare } from '../util/compare';
 import { followsTrick } from '../util/follows-trick';
@@ -19,7 +18,7 @@ export class IntermediaryHandler extends GameHandler {
         super();
     }
 
-    handleOrderUp = ({ currentTrump }: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>) => {
+    handleOrderUp = ({ euchre: { currentTrump } }: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>) => {
         const [sent, knocked] = this.intermediary.form({
             type: 'confirm',
             message: ['Would you like to bid on', currentTrump, '?']
@@ -41,7 +40,7 @@ export class IntermediaryHandler extends GameHandler {
         return sent;
     }
 
-    handleNameTrump = ({ currentTrump }: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>) => {
+    handleNameTrump = ({ euchre: { currentTrump } }: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>) => {
         const [sent, trump] = this.intermediary.form({
             type: 'list',
             message: ['Select your desired trump suit'],
@@ -75,7 +74,7 @@ export class IntermediaryHandler extends GameHandler {
         return sent;
     }
 
-    handleTurn = ({ hand, currentTrick, currentTrump }: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>) => {
+    handleTurn = ({ hand, trick: { currentTrick }, euchre: { currentTrump }}: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>) => {
         let choices = hand;
         if(currentTrick.length > 0) {
             const follows = choices.filter(card => followsTrick(currentTrick, currentTrump, card));
@@ -88,7 +87,7 @@ export class IntermediaryHandler extends GameHandler {
             message: ['Select the card to play'],
             choices: choices.sort(compare).map(toInquirerValue)
         });
-        responsesQueue.push(received.then(received => new TurnResponseMessage(received[0] as Card)));
+        responsesQueue.push(received.then(received => new PlayCardResponseMessage(received[0] as Card)));
         return sent;
     }
 

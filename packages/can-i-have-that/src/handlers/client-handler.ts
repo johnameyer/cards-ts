@@ -1,18 +1,17 @@
-import { GameHandler } from '../game-handler';
-import { Card, distinct, flatten, FourCardRun, HandlerResponsesQueue, InvalidError, Meld, Message, ThreeCardSet } from '@cards-ts/core';
-import { HandlerData } from '../handler-data';
-import { DataResponseMessage, DiscardResponseMessage, GoDownResponseMessage, PlayResponseMessage, WantCardResponseMessage } from '../messages/response';
+import { GameHandler, HandlerData } from '../game-handler';
+import { Card, DiscardResponseMessage, distinct, flatten, FourCardRun, HandlerResponsesQueue, InvalidError, Meld, Message, ThreeCardSet } from '@cards-ts/core';
+import { GoDownResponseMessage, PlayResponseMessage, WantCardResponseMessage } from '../messages/response';
 
 /**
  * Breaks up the decisions made during a turn into individual components
  */
 export abstract class ClientHandler extends GameHandler {
-    public abstract handleWantCard: ({hand, played, position, round, wouldBeTurn, gameParams: {rounds}, data}: HandlerData, queue: HandlerResponsesQueue<WantCardResponseMessage>) => Promise<void>;
+    public abstract handleWantCard: ({hand, melds: { melds }, players: { position }, canIHaveThat: { whoseAsk, round }, params: { rounds }, data}: HandlerData, queue: HandlerResponsesQueue<WantCardResponseMessage>) => Promise<void>;
 
-    handleTurn = async ({hand, played, position, round, gameParams: {rounds}, data}: HandlerData, responsesQueue: HandlerResponsesQueue<GoDownResponseMessage | DiscardResponseMessage | PlayResponseMessage>): Promise<void> => {
+    handleTurn = async ({hand, melds: { melds }, players: { position }, canIHaveThat: { round }, params: {rounds}, data}: HandlerData, responsesQueue: HandlerResponsesQueue<GoDownResponseMessage | DiscardResponseMessage | PlayResponseMessage>): Promise<void> => {
         const currentRound = rounds[round];
         const last = round === rounds.length - 1;
-        let hasGoneDown = played[position].length !== 0;
+        let hasGoneDown = melds[position].length !== 0;
 
         // Allow player to go down if they have not yet
         if (!hasGoneDown) {
@@ -25,13 +24,13 @@ export abstract class ClientHandler extends GameHandler {
         }
 
         // Allow player to play on others if they have cards, have already played, and it is not the last round
-        if (hand.length && played[position].length && !last) {
-            await this.playOnOthers(hand, played, responsesQueue, data);
+        if (hand.length && melds[position].length && !last) {
+            await this.playOnOthers(hand, melds, responsesQueue, data);
         }
 
         // If the player has cards left and they are not going down on the last round
         if (hand.length && !(last && hasGoneDown)) {
-            const toDiscard = await this.discard(hand, currentRound, played, data);
+            const toDiscard = await this.discard(hand, currentRound, melds, data);
             hand.slice(hand.findIndex((card) => toDiscard.equals(card)));
             responsesQueue.push(new DiscardResponseMessage(toDiscard));
             return;

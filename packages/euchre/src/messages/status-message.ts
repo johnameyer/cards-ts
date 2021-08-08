@@ -1,4 +1,5 @@
-import { DealOutMessage, EndRoundMessage, LeadsMessage, PlayedMessage, DealerMessage, WonRoundMessage, NameTrumpMessage, OrderUpMessage, PassMessage, TrumpMessage, TurnUpMessage, WonTrickMessage } from './status';
+import { DealerMessage, LeadsMessage, TurnUpMessage } from '@cards-ts/core';
+import { DealOutMessage, EndRoundMessage, PlayedMessage, WonRoundMessage, NameTrumpMessage, OrderUpMessage, PassMessage, TrumpMessage, WonTrickMessage } from './status';
 import { GoingAloneMessage } from './status/going-alone-message';
 
 export type StatusMessage =

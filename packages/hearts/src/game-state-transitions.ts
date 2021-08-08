@@ -1,13 +1,7 @@
-import { GameState } from "./game-state";
-import { GameParams } from "./game-params";
-import { HandlerData } from "./handler-data";
-import { GameHandler, GameHandlerParams } from "./game-handler";
-import { GenericGameStateTransitions, Card, Deck, Rank, Suit, SystemHandler, SpacingMessage } from '@cards-ts/core';
-import { DealOutMessage, NoPassingMessage, PassingMessage, PassedMessage, LeadsMessage, PlayedMessage, ShotTheMoonMessage, ScoredMessage, EndRoundMessage } from "./messages/status";
-import { ResponseMessage } from "./messages/response-message";
-import { StateTransformer } from "./state-transformer";
-import { HandlerProxy as GenericHandlerProxy } from "@cards-ts/core/lib/games/handler-proxy";
-import { SystemHandlerParams } from "@cards-ts/core/lib/handlers/system-handler";
+import { GameStates } from "./game-states";
+import { GenericGameStateTransitions, Card, Rank, Suit, GenericGameState, SpacingMessage, LeadsMessage } from '@cards-ts/core';
+import { NoPassingMessage, PassingMessage, PassedMessage, PlayedMessage, ShotTheMoonMessage, ScoredMessage, EndRoundMessage } from "./messages/status";
+import { Controllers } from "./controllers/controllers";
 
 function valueOfCard(card: Card): number {
     if(card.equals(Card.fromString('QS'))) {
@@ -18,206 +12,172 @@ function valueOfCard(card: Card): number {
     }
     return 0;
 }
+type GameState = GenericGameState<Controllers>;
 
-type HandlerProxy = GenericHandlerProxy<HandlerData, ResponseMessage, GameHandlerParams & SystemHandlerParams, GameParams, GameState.State, GameState, StateTransformer>;
-
-export class GameStateTransitions implements GenericGameStateTransitions<HandlerData, ResponseMessage, GameHandlerParams & SystemHandlerParams, GameParams, GameState.State, GameState, StateTransformer> {
+export class GameStateTransitions implements GenericGameStateTransitions<typeof GameStates, Controllers> {
     public get() {
         return {
-            [GameState.State.START_GAME]: this.startGame,
-            [GameState.State.START_ROUND]: this.startRound,
-            [GameState.State.START_PASS]: this.startPass,
-            [GameState.State.WAIT_FOR_PASS]: this.waitForPass,
-            [GameState.State.HANDLE_PASS]: this.handlePass,
-            [GameState.State.START_FIRST_TRICK]: this.startFirstTrick,
-            [GameState.State.START_TRICK]: this.startTrick,
-            [GameState.State.START_PLAY]: this.startPlay,
-            [GameState.State.WAIT_FOR_PLAY]: this.waitForPlay,
-            [GameState.State.HANDLE_PLAY]: this.handlePlay,
-            [GameState.State.END_TRICK]: this.endTrick,
-            [GameState.State.END_ROUND]: this.endRound,
-            [GameState.State.END_GAME]: this.endGame,
+            [GameStates.START_GAME]: this.startGame,
+            [GameStates.START_ROUND]: this.startRound,
+            [GameStates.START_PASS]: this.startPass,
+            [GameStates.WAIT_FOR_PASS]: this.waitForPass,
+            [GameStates.HANDLE_PASS]: this.handlePass,
+            [GameStates.START_FIRST_TRICK]: this.startFirstTrick,
+            [GameStates.START_TRICK]: this.startTrick,
+            [GameStates.START_PLAY]: this.startPlay,
+            [GameStates.WAIT_FOR_PLAY]: this.waitForPlay,
+            [GameStates.HANDLE_PLAY]: this.handlePlay,
+            [GameStates.END_TRICK]: this.endTrick,
+            [GameStates.END_ROUND]: this.endRound,
+            [GameStates.END_GAME]: this.endGame,
         };
     }
 
-    startGame(gameState: GameState) {
-        gameState.pass = 1;
-
-        gameState.state = GameState.State.START_ROUND;
+    startGame(controllers: Controllers) {
+        controllers.state.set(GameStates.START_ROUND);
     }
 
-    startRound(gameState: GameState, handlerProxy: HandlerProxy) {
-        gameState.deck = new Deck(1, true, false);
+    startRound(controllers: Controllers) {
+        controllers.deck.resetDeck();
+        controllers.hand.dealOut(true, true);
 
-        while(gameState.deck.cards.length) {
-            for(let i = 0; i < gameState.numPlayers; i++) {
-                const drawn = gameState.deck.draw();
-                const player = (i + gameState.dealer) % gameState.numPlayers;
-                gameState.hands[player].push(drawn);
-            }
-        }
-        for(let player = 0; player < gameState.numPlayers; player++) {
-            handlerProxy.message(gameState, player, new DealOutMessage(gameState.hands[player]));
-        }
+        controllers.trickPoints.reset();
 
-        gameState.pointsTaken = new Array(gameState.numPlayers).fill(0);
-
-        if(gameState.pass === 0) {
-            gameState.state = GameState.State.START_FIRST_TRICK;
-            handlerProxy.messageAll(gameState, new NoPassingMessage());
+        if(controllers.passing.pass === 0) {
+            controllers.state.set(GameStates.START_FIRST_TRICK);
+            controllers.players.messageAll(new NoPassingMessage());
         } else {
-            gameState.state = GameState.State.START_PASS;
+            controllers.state.set(GameStates.START_PASS);
         }
     }
 
-    startPass(gameState: GameState, handlerProxy: HandlerProxy) {
-        handlerProxy.messageAll(gameState, new PassingMessage(gameState.gameParams.numToPass, gameState.pass, gameState.numPlayers));
+    startPass(controllers: Controllers) {
+        controllers.players.messageAll(new PassingMessage(controllers.params.get().numToPass, controllers.passing.pass, controllers.players.count));
 
-        gameState.state = GameState.State.WAIT_FOR_PASS;
-        gameState.passed = new Array(gameState.numPlayers).fill(undefined);
+        controllers.state.set(GameStates.WAIT_FOR_PASS);
+        controllers.passing.resetPassed();
     }
 
-    waitForPass(gameState: GameState, handlerProxy: HandlerProxy) {
-        handlerProxy.handlerCallAll(gameState, 'pass');
+    waitForPass(controllers: Controllers) {
+        controllers.players.handlerCallAll('pass');
         
-        gameState.state = GameState.State.HANDLE_PASS;
+        controllers.state.set(GameStates.HANDLE_PASS);
     }
 
-    handlePass(gameState: GameState, handlerProxy: HandlerProxy) {
-        for(let player = 0; player < gameState.numPlayers; player++) {
-            const passedFrom = (player + gameState.pass + gameState.numPlayers) % gameState.numPlayers; // TODO consider +- here
-            const passed = gameState.passed[passedFrom];
-            gameState.hands[passedFrom] = gameState.hands[passedFrom].filter(card => !passed.some(other => other.equals(card)));
-            handlerProxy.message(gameState, player, new PassedMessage(passed, gameState.names[passedFrom]));
-            gameState.hands[player].push(...passed);
+    handlePass(controllers: Controllers) {
+        for(let player = 0; player < controllers.players.count; player++) {
+            // TODO consider rolling this all into passing controller
+            const passedFrom = (player + controllers.passing.pass + controllers.players.count) % controllers.players.count; // TODO consider +- here
+            const passed = controllers.passing.passed[passedFrom];
+            controllers.hand.removeCards(passedFrom, passed);
+            controllers.players.message(player, new PassedMessage(passed, controllers.names.get()[passedFrom]));
+            controllers.hand.giveCards(player, passed);
         }
 
-        gameState.leader = (gameState.dealer + 1) % gameState.numPlayers;
-        gameState.state = GameState.State.START_FIRST_TRICK;
+        controllers.trick.resetTrick();
+        controllers.trick.resetLeader();
+        controllers.state.set(GameStates.START_FIRST_TRICK);
     }
 
-    startFirstTrick(gameState: GameState, handlerProxy: HandlerProxy) {
+    startFirstTrick(controllers: Controllers) {
         const startingCard = new Card(Suit.CLUBS, Rank.TWO);
-        gameState.leader = gameState.hands.findIndex(hand => hand.find(card => card.equals(startingCard)) !== undefined);
+        const leader = controllers.hand.hasCard(startingCard);
+        controllers.trick.leader = leader;
         
-        handlerProxy.messageAll(gameState, new SpacingMessage());
-        handlerProxy.messageAll(gameState, new LeadsMessage(gameState.names[gameState.leader]));
+        controllers.players.messageAll(new SpacingMessage());
+        controllers.players.messageAll(new LeadsMessage(controllers.names.get()[leader]));
 
-        const [removed] = gameState.hands[gameState.leader].splice(gameState.hands[gameState.leader].findIndex(card => card.equals(startingCard)), 1);
-        gameState.currentTrick = [removed];
-        handlerProxy.messageOthers(gameState, gameState.leader, new PlayedMessage(gameState.names[gameState.leader], removed))
+        controllers.hand.removeCards(leader, [startingCard]);
+        controllers.trick.addCard(startingCard);
+        controllers.players.messageOthers(leader, new PlayedMessage(controllers.names.get(leader), startingCard))
 
-        gameState.whoseTurn = (gameState.leader + 1) % gameState.numPlayers;
+        controllers.turn.next();
 
-        gameState.state = GameState.State.START_PLAY;
+        controllers.state.set(GameStates.START_PLAY);
     }
 
-    startTrick(gameState: GameState, handlerProxy: HandlerProxy) {
-        handlerProxy.messageAll(gameState, new SpacingMessage());
-        handlerProxy.messageAll(gameState, new LeadsMessage(gameState.names[gameState.leader]));
-        gameState.currentTrick = [];
-        gameState.whoseTurn = gameState.leader;
+    startTrick(controllers: Controllers) {
+        controllers.players.messageAll(new SpacingMessage());
+        controllers.players.messageAll(new LeadsMessage(controllers.names.get(controllers.trick.leader)));
+        controllers.trick.resetTrick();
 
-        gameState.state = GameState.State.START_PLAY;
+        controllers.state.set(GameStates.START_PLAY);
     }
 
-    startPlay(gameState: GameState) {
-        gameState.state = GameState.State.WAIT_FOR_PLAY;
+    startPlay(controllers: Controllers) {
+        controllers.state.set(GameStates.WAIT_FOR_PLAY);
     }
 
-    waitForPlay(gameState: GameState, handlerProxy: HandlerProxy) {
-        handlerProxy.handlerCall(gameState, gameState.whoseTurn, 'turn');
+    waitForPlay(controllers: Controllers) {
+        controllers.players.handlerCall(controllers.turn.get(), 'turn');
         
-        gameState.state = GameState.State.HANDLE_PLAY;
+        controllers.state.set(GameStates.HANDLE_PLAY);
     }
 
-    handlePlay(gameState: GameState, handlerProxy: HandlerProxy) {
-        const { whoseTurn, playedCard, hands} = gameState;
-        gameState.currentTrick.push(playedCard);
-        const index = hands[whoseTurn].findIndex(card => card.equals(playedCard));
-        if(index == -1) {
-            throw new Error('Nonexistent card?');
-        }
-        hands[whoseTurn].splice(index, 1);
-        handlerProxy.messageOthers(gameState, whoseTurn, new PlayedMessage(gameState.names[whoseTurn], playedCard))
+    handlePlay(controllers: Controllers) {
+        const whoseTurn = controllers.turn.get();
+        const played = controllers.trick.handlePlayed();
+        controllers.players.messageOthers(whoseTurn, new PlayedMessage(controllers.names.get()[whoseTurn], played))
 
-        if(gameState.currentTrick.length === gameState.numPlayers) {
-            gameState.state = GameState.State.END_TRICK;
+        controllers.turn.next();
+        if(controllers.trick.trickIsCompleted()) {
+            controllers.state.set(GameStates.END_TRICK);
         } else {
-            gameState.whoseTurn = (whoseTurn + 1) % gameState.numPlayers;
-            gameState.state = GameState.State.START_PLAY;
+            controllers.state.set(GameStates.START_PLAY);
         }
     }
 
-    endTrick(gameState: GameState) {
-        gameState.tricks++;
+    endTrick(controllers: Controllers) {
+        controllers.trick.incrementTricks();
+        
+        const winner = controllers.trick.findWinner((card, highest) => card.rank.order > highest.rank.order);
 
-        const leadingSuit = gameState.currentTrick[0].suit;
-        let winningPlayer = 0;
-        for(let i = 1; i < gameState.numPlayers; i++) {
-            const card = gameState.currentTrick[i];
-            if(card.suit === leadingSuit) {
-                if(card.rank.order > gameState.currentTrick[winningPlayer].rank.order) {
-                    winningPlayer = i;
-                }
-            }
-        }
+        const newLeader = (winner + controllers.trick.leader) % controllers.players.count;
+        controllers.trickPoints.increaseScore(newLeader, (controllers.trick.currentTrick as Card[]).map(valueOfCard).reduce((a, b) => a + b, 0));
+        controllers.trick.leader = newLeader;
 
-        gameState.pointsTaken[(winningPlayer + gameState.leader) % gameState.numPlayers] += gameState.currentTrick.map(valueOfCard).reduce((a, b) => a + b, 0);
-        gameState.leader = (winningPlayer + gameState.leader) % gameState.numPlayers;
-
-        if(gameState.gameParams.quickEnd && !gameState.hands.flatMap(hand => hand).map(valueOfCard).some(value => value >= 0)) {
+        if(controllers.params.get().quickEnd && !controllers.hand.get().flatMap(hand => hand).map(valueOfCard).some(value => value >= 0)) {
             // might be nice to have a message here if round ends early
-            gameState.state = GameState.State.END_ROUND;
-        } else if(gameState.hands.every(hand => hand.length === 0)) {
-            gameState.state = GameState.State.END_ROUND;
+            controllers.state.set(GameStates.END_ROUND);
+        } else if(controllers.hand.numberOfPlayersWithCards() === 0) {
+            controllers.state.set(GameStates.END_ROUND);
         } else {
-            gameState.state = GameState.State.START_TRICK;
+            controllers.state.set(GameStates.START_TRICK);
         }
     }
 
-    endRound(gameState: GameState, handlerProxy: HandlerProxy) {
-        gameState.tricks = 0;
+    endRound(controllers: Controllers) {
+        controllers.trick.reset();
 
-        for(let player = 0; player < gameState.numPlayers; player++) {
-            const newPoints = gameState.pointsTaken[player];
+        for(let player = 0; player < controllers.players.count; player++) {
+            const newPoints = controllers.trickPoints.get(player);
 
             if(newPoints === 26) { // MAX POINTS, not set upfront but by the number of cards in the deck
-                for(let otherPlayer = 0; otherPlayer < gameState.numPlayers; otherPlayer++) {
+                for(let otherPlayer = 0; otherPlayer < controllers.players.count; otherPlayer++) {
                     if(otherPlayer !== player) {
-                        gameState.points[otherPlayer] += newPoints;
+                        controllers.score.increaseScore(otherPlayer, newPoints);
                     }
                 }
-                handlerProxy.messageAll(gameState, new ShotTheMoonMessage(gameState.names[player]));
+                controllers.players.messageAll(new ShotTheMoonMessage(controllers.names.get()[player]));
             } else {
-                gameState.points[player] += newPoints;
-                handlerProxy.message(gameState, player, new ScoredMessage(newPoints));
+                controllers.score.increaseScore(player, newPoints);
+                controllers.players.message(player, new ScoredMessage(newPoints));
             }
         }
         
-        handlerProxy.messageAll(gameState, new EndRoundMessage(gameState.names, gameState.points));
+        controllers.players.messageAll(new EndRoundMessage(controllers.names.get(), controllers.score.get()));
 
-        if(gameState.pass === gameState.numPlayers / 2) { // handles even number going from across to keep
-            gameState.pass = 0;
-        } else if(gameState.pass > 0){ // 1 to the right goes to 1 to the left
-            gameState.pass = -gameState.pass;
-        } else { // 1 to the left goes to 2 to the right
-            gameState.pass = -gameState.pass + 1;
-        }
-
-        if(gameState.pass > gameState.numPlayers / 2) { // 2 to the left in 5 person game goes to keep
-            gameState.pass = 0;
-        }
+        controllers.passing.nextPass();
         
-        if(gameState.points.some(points => points >= gameState.gameParams.maxScore)) {
-            gameState.state = GameState.State.END_GAME;
+        if(controllers.score.get().some(points => points >= controllers.params.get().maxScore)) {
+            controllers.state.set(GameStates.END_GAME);
         } else {
-            gameState.state = GameState.State.START_ROUND;
+            controllers.state.set(GameStates.START_ROUND);
         }   
     }
 
-    endGame(gameState: GameState) {
-        gameState.completed = true;
+    endGame(controllers: Controllers) {
+        controllers.completed.complete();
     }
 
 }

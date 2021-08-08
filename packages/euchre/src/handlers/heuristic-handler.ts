@@ -1,32 +1,26 @@
-import { GameHandlerParams } from '../game-handler';
-import { HandlerData } from '../handler-data';
-import { Card, combinations, distinct, Handler, HandlerResponsesQueue, MessageHandlerParams } from '@cards-ts/core';
+import { HandlerData } from '../game-handler';
+import { GameHandlerParams } from "../game-handler-params";
+import { Card, DataResponseMessage, Handler, HandlerResponsesQueue, MessageHandlerParams, PlayCardResponseMessage } from '@cards-ts/core';
 import { Message } from '@cards-ts/core';
 import { Suit } from '@cards-ts/core';
 import { Rank } from '@cards-ts/core';
-import { DataResponseMessage, TurnResponseMessage, OrderUpResponseMessage, NameTrumpResponseMessage, DealerDiscardResponseMessage } from '../messages/response';
+import { OrderUpResponseMessage, NameTrumpResponseMessage, DealerDiscardResponseMessage } from '../messages/response';
 import { ResponseMessage } from '../messages/response-message';
 import { PlayedMessage } from '../messages/status';
 import { followsTrick } from '../util/follows-trick';
 import { getTeamFor } from '../util/teams';
 import { getComplementarySuit } from '../util/suit-colors';
 import { winningPlay } from '../util/winning-play';
+import { Serializable } from 'child_process';
 
-const tuple = <T extends any[]>(...args: T): T => args;
 
 interface HeuristicHandlerData {
+    [key: string]: Serializable;
+
     playerOutOfSuit: {[player: string]: Suit[]};
     numTimesPlayed: {[letter: string]: number};
 }
 
-const emptyGrouper = () => {
-    const obj: {[letter: string]: Card[]} = {};
-    obj[Suit.SPADES.letter] = [];
-    obj[Suit.CLUBS.letter] = [];
-    obj[Suit.HEARTS.letter] = [];
-    obj[Suit.DIAMONDS.letter] = [];
-    return obj;
-};
 
 const emptyCounter = () => {
     const obj: {[letter: string]: number} = {};
@@ -68,14 +62,13 @@ export class HeuristicHandler implements Handler<GameHandlerParams & MessageHand
     }
 
     handleOrderUp = (handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): void => {
-        const data = wrapData(handlerData);
-        const { hand, position, dealer, currentTrump, gameParams, flippedCard } = handlerData;
+        const { hand, players: { position }, deck: { dealer }, euchre: { currentTrump, flippedCard }, params: gameParams } = handlerData;
         let score = this.cardsScore(hand, currentTrump);
-        if(getTeamFor(position, gameParams) === getTeamFor(dealer, gameParams)) {
+        if(getTeamFor(position, gameParams).includes(dealer)) {
             score += this.cardScore(flippedCard, currentTrump);
         }
         // console.log(flippedCard.toString());
-        // console.log(hand.filter(card => followsSuit(currentTrump, currentTrump, card)).map(card => card.toString()));
+        // console.log(hand.filter(card => followsTrick([flippedCard], currentTrump, card)).map(card => card.toString()));
         // console.log(score);
         // console.log();
 
@@ -85,8 +78,7 @@ export class HeuristicHandler implements Handler<GameHandlerParams & MessageHand
     }
 
     handleNameTrump = (handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): void => {
-        const data = wrapData(handlerData);
-        const { hand, flippedCard } = handlerData;
+        const { hand, euchre: { flippedCard } } = handlerData;
         type SuitScore = [Suit, number];
         const [suit, score] = Suit.suits.filter(suit => suit != flippedCard.suit)
             .map(suit => [suit, this.cardsScore(hand, suit)] as SuitScore)
@@ -101,14 +93,13 @@ export class HeuristicHandler implements Handler<GameHandlerParams & MessageHand
     }
 
     handleDealerDiscard = (handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): void => {
-        const data = wrapData(handlerData);
         const { hand } = handlerData;
         responsesQueue.push(new DealerDiscardResponseMessage(hand[0]));
     }
 
     handleTurn = (handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): void => {
         const data = wrapData(handlerData);
-        const { hand, currentTrick, tricks, pointsTaken, currentTrump } = handlerData;
+        const { hand, euchre: { currentTrump }, trick: {currentTrick} } = handlerData;
         let playable = hand.filter(card => followsTrick(currentTrick, currentTrump, card));
         if(!playable.length) {
             playable = hand;
@@ -118,22 +109,22 @@ export class HeuristicHandler implements Handler<GameHandlerParams & MessageHand
             const wouldWin = playable.filter(card => winningPlay([...currentTrick, card], currentTrump) === currentTrick.length);
             if(!wouldWin) {
                 const throwaway = playable.slice().sort(Card.compare)[0];
-                responsesQueue.push(new TurnResponseMessage(throwaway, data));
+                responsesQueue.push(new PlayCardResponseMessage(throwaway, data));
             } else {
                 const winner = wouldWin.slice().sort(Card.compare)[0];
-                responsesQueue.push(new TurnResponseMessage(winner, data));
+                responsesQueue.push(new PlayCardResponseMessage(winner, data));
             }
             // console.error(e);
         }
         // Logic failed
         const fallbackCard = hand.filter(card => followsTrick(currentTrick, currentTrump, card))[0] || hand[0];
         // console.log(fallbackCard.toString());
-        responsesQueue.push(new TurnResponseMessage(fallbackCard, data));
+        responsesQueue.push(new PlayCardResponseMessage(fallbackCard, data));
     }
 
     handleMessage = (gameState: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>, message: Message): void => {
         const data = wrapData(gameState);
-        const { currentTrick } = gameState;
+        const { trick: { currentTrick } } = gameState;
         if(isPlayedMessage(message)) {
             const followSuit = currentTrick.find(card => card)?.suit;
             if(followSuit) {
