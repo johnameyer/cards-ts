@@ -1,4 +1,4 @@
-import { GenericControllerProvider, GlobalController } from "./controller";
+import { GenericControllerProvider, GlobalController } from './controller';
 
 type WaitingState = {
     /**
@@ -20,7 +20,7 @@ export class WaitingControllerProvider implements GenericControllerProvider<Wait
     initialState(): WaitingState {
         return {
             waiting: [],
-            responded: []  
+            responded: [],  
         };
     }
 
@@ -36,7 +36,7 @@ export class WaitingController extends GlobalController<WaitingState, {}> {
     }
 
     get() {
-        return Object.freeze({...this.state});
+        return Object.freeze({ ...this.state });
     }
 
     removePosition(position: number) {

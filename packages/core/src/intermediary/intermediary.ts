@@ -1,6 +1,6 @@
 import { DisplayElement, DisplayElementCallReturn } from './display-element';
 import { Presenter } from './presenter';
-import { deserialize, Serializable } from "./serializable";
+import { Serializable, deserialize } from './serializable';
 
 export type IntermediaryMapping<T extends Array<DisplayElement<keyof Presenter>>> = {
     [I in keyof T]: T[I] extends DisplayElement<infer Key> ? DisplayElementCallReturn<Key> : never
@@ -22,7 +22,7 @@ export namespace Intermediary {
         return components.map(component => ({
             ...component,
             // @ts-ignore
-            validate: component.validate ? component.validate.toString() : undefined
+            validate: component.validate ? component.validate.toString() : undefined,
         }));
     }
 
@@ -34,8 +34,8 @@ export namespace Intermediary {
             cards: component.cards ? deserialize(component.cards) : undefined,
             // @ts-ignore
             choices: component.choices ? component.choices.map(({ name, value }) => ({ name, value: deserialize(value) })) : undefined,
-            validate: component.validate ? new Function('return ' +component.validate)() : undefined,
-            validateParam: component.validateParam ? Object.fromEntries(Object.entries<any>(component.validateParam).map(([key, value]) => [key, deserialize(value)])) : undefined
+            validate: component.validate ? new Function('return ' + component.validate)() : undefined,
+            validateParam: component.validateParam ? Object.fromEntries(Object.entries<any>(component.validateParam).map(([ key, value ]) => [ key, deserialize(value) ])) : undefined,
         }));
     }
 }

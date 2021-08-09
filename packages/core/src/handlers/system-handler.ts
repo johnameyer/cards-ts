@@ -1,8 +1,8 @@
-import { Serializable } from "../intermediary/serializable";
-import { Message } from "../messages/message";
-import { Handler, HandlerAction } from "./handler";
-import { MessageHandlerParams } from "./message-handler";
-import { WaitingHandlerParams } from "./waiting-handler";
+import { Serializable } from '../intermediary/serializable';
+import { Message } from '../messages/message';
+import { Handler, HandlerAction } from './handler';
+import { MessageHandlerParams } from './message-handler';
+import { WaitingHandlerParams } from './waiting-handler';
 
 export type SystemHandlerParams = MessageHandlerParams & WaitingHandlerParams;
 

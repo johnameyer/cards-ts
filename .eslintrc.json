@@ -6,7 +6,8 @@
     "extends": [
         "eslint:recommended",
         "plugin:@typescript-eslint/eslint-recommended",
-        "plugin:@typescript-eslint/recommended"
+        "plugin:@typescript-eslint/recommended",
+        "plugin:import/typescript"
     ],
     "globals": {
         "Atomics": "readonly",
@@ -18,20 +19,105 @@
         "sourceType": "module"
     },
     "plugins": [
-        "@typescript-eslint"
+        "@typescript-eslint",
+        "unused-imports",
+        "import"
     ],
+    "settings": {
+        "import/external-module-folders": [ ".yarn", "packages" ]
+    },
     "rules": {
-        // TODO indent seems broken
-        // "indent": [
-        //     "error",
-        //     4
-        // ],
-        "linebreak-style": [ "error", "unix" ],
-        "quotes": [ "error", "single" ],
-        "semi": [ "error", "always" ],
-        "@typescript-eslint/no-namespace": "error",
-        "no-inner-declarations": "error",
+        "@typescript-eslint/no-namespace": "off",
+        "no-inner-declarations": "off",
+        "prefer-const": "error",
+        "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
         // "@typescript-eslint/no-submodule-imports": "error",
-        "prefer-const": "error"
+
+        // TODO remove
+        "@typescript-eslint/explicit-module-boundary-types": "warn",
+        "@typescript-eslint/ban-ts-comment": "warn",
+        "no-empty": "warn",
+        "no-empty-function": "warn",
+        "@typescript-eslint/no-empty-function": "warn",
+        "@typescript-eslint/ban-types": "warn",
+        "prefer-rest-params": "warn",
+        "no-fallthrough": "warn",
+        
+        "array-bracket-spacing": ["error", "always", { "objectsInArrays": false, "arraysInArrays": false }],
+        "block-spacing": "error",
+        "brace-style": "error",
+        "camelcase": "error",
+        // "capitalized-comments": "error",
+        "comma-dangle": ["error", "always-multiline"],
+        "comma-spacing": "error",
+        "comma-style": "error",
+        "computed-property-spacing": "error",
+        "curly": "error",
+        "eol-last": "error",
+        "func-call-spacing": "error",
+        "implicit-arrow-linebreak": "error",
+        "indent": "error",
+        "key-spacing": "error",
+        "keyword-spacing": ["error", { "overrides": {
+            "if": { "after": false },
+            "for": { "after": false },
+            "while": { "after": false }
+        }}],
+        "linebreak-style": "error",
+        "lines-between-class-members": "error",
+        "multiline-comment-style": "error",
+        "new-parens": "error",
+        "newline-per-chained-call": "error",
+        "no-multiple-empty-lines": "error",
+        "no-unneeded-ternary": "error",
+        "no-whitespace-before-property": "error",
+        "object-curly-newline": ["error", { "consistent": true }],
+        "object-curly-spacing": ["error", "always", { "objectsInObjects": false }],
+        "operator-assignment": "error",
+        "operator-linebreak": ["error", "before"],
+        "prefer-object-spread": "error",
+        "quote-props": ["error", "as-needed"],
+        "quotes": ["error", "single"],
+        "semi": ["error", "always"],
+        "semi-spacing": "error",
+        "semi-style": "error",
+        "space-before-blocks": "error",
+        "space-before-function-paren": ["error", {"anonymous": "never", "named": "never", "asyncArrow": "always"}],
+        "space-in-parens": ["error", "never"],
+        "space-infix-ops": "error",
+        "space-unary-ops": ["error", {"words": true, "nonwords": false}],
+        "spaced-comment": "error",
+        "switch-colon-spacing": "error",
+        
+        "arrow-spacing": "error",
+        "generator-star-spacing": ["error", {"before": true, "after": true}],
+        "prefer-numeric-literals": "error",
+        // "sort-imports": "error", - replace with fixable version
+        "yield-star-spacing": ["error", "both"],
+        
+        "dot-location": ["error", "property"],
+        "dot-notation": "error",
+        "eqeqeq": "error",
+        "no-else-return": "error",
+        "no-multi-spaces": "error",
+        "yoda": "error",
+
+        // imports
+        "unused-imports/no-unused-imports": "error",
+        "import/no-cycle": "error",
+        "import/no-absolute-path": "error",
+        "import/no-useless-path-segments": "error",
+        "import/no-extraneous-dependencies": "error",
+        "import/no-mutable-exports": "error",
+        "import/no-unused-modules": "error",
+        "import/first": "error",
+        "import/order": "error",
+        "import/newline-after-import": "error",
+        "import/no-relative-packages": "error"
+        // TODO disable importing from inside of package src
+        // "import/no-restricted-paths": ["error", { "zones": [{
+        //     "target": "*",
+        //     "from": "@cards-ts/*/src/*"
+        // }]}]
     }
 }

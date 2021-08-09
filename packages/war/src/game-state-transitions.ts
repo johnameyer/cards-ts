@@ -1,7 +1,7 @@
-import { GameStates } from "./game-states";
 import { SpacingMessage, GenericGameState, GenericGameStateTransitions } from '@cards-ts/core';
-import { FlippedMessage, GameOverMessage, StalemateMessage, WonBattleMessage, WonWarMessage } from "./messages/status";
-import { Controllers } from "./controllers/controllers";
+import { GameStates } from './game-states';
+import { FlippedMessage, GameOverMessage, StalemateMessage, WonBattleMessage, WonWarMessage } from './messages/status';
+import { Controllers } from './controllers/controllers';
 
 type GameState = GenericGameState<Controllers>;
 
@@ -50,9 +50,9 @@ export class GameStateTransitions implements GenericGameStateTransitions<typeof 
     handleFlip(controllers: Controllers) {
         controllers.war.flipCards();
 
-        if(controllers.war.getMaxPlayed() == 1) {
+        if(controllers.war.getMaxPlayed() === 1) {
             controllers.state.set(GameStates.END_BATTLE);
-        } else if ((controllers.war.getMaxPlayed() - 1) % 4 == 0 || controllers.hand.numberOfPlayersWithCards() != controllers.names.get().length) {
+        } else if((controllers.war.getMaxPlayed() - 1) % 4 === 0 || controllers.hand.numberOfPlayersWithCards() !== controllers.names.get().length) {
             controllers.state.set(GameStates.END_WAR);
         } else {
             controllers.state.set(GameStates.START_FLIP);
@@ -113,8 +113,8 @@ export class GameStateTransitions implements GenericGameStateTransitions<typeof 
     }
 
     endGame(controllers: Controllers) {
-        if (controllers.hand.numberOfPlayersWithCards() > 1) {
-            controllers.players.messageAll(new StalemateMessage())
+        if(controllers.hand.numberOfPlayersWithCards() > 1) {
+            controllers.players.messageAll(new StalemateMessage());
         } else {
             controllers.players.messageAll(new GameOverMessage(controllers.names.get(controllers.hand.handWithMostCards())));
         }

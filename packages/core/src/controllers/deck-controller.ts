@@ -1,8 +1,8 @@
-import { Card } from "../cards/card";
-import { Deck } from "../cards/deck";
-import { GenericHandlerController } from "../games/generic-handler-controller";
-import { SystemHandlerParams } from "../handlers/system-handler";
-import { AbstractController, GenericControllerProvider } from "./controller";
+import { Card } from '../cards/card';
+import { Deck } from '../cards/deck';
+import { GenericHandlerController } from '../games/generic-handler-controller';
+import { SystemHandlerParams } from '../handlers/system-handler';
+import { AbstractController, GenericControllerProvider } from './controller';
 
 /**
  * The deck currently in use
@@ -35,8 +35,8 @@ export class DeckControllerProvider implements GenericControllerProvider<DeckSta
     initialState(): DeckState {
         return {
             deck: new Deck(...this.params),
-            dealer: 0
-        }
+            dealer: 0,
+        };
     }
 }
 
@@ -56,7 +56,7 @@ export class DeckController extends AbstractController<DeckState, DeckDependenci
     getFor() {
         return {
             dealer: this.state.dealer,
-            deckCard: this.state.deck.top
+            deckCard: this.state.deck.top,
         };
     }
 

@@ -1,4 +1,4 @@
-import { Message, Suit } from "@cards-ts/core";
+import { Message, Suit } from '@cards-ts/core';
 
 /**
  * Designates that a player has either selected the trump or passed
@@ -7,6 +7,6 @@ export class NameTrumpResponseMessage extends Message {
     readonly type = 'name-trump-response';
 
     constructor(public readonly trump: Suit | undefined, public readonly data?: any) {
-        super(trump ? ['Picked', trump] : ['Passed']);
+        super(trump ? [ 'Picked', trump ] : [ 'Passed' ]);
     }
 }

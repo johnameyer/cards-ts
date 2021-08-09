@@ -1,13 +1,12 @@
 import { isDefined } from '../util/is-defined';
 import { Message } from '../messages/message';
-import { ResponseQueue } from './response-queue';
 import { range } from '../util/range';
 import { HandlerChain } from '../handlers/handler';
 import { SystemHandlerParams } from '../handlers/system-handler';
-import { AbstractController, GenericControllerProvider, ControllerHandlerState } from '../controllers/controller';
+import { AbstractController, ControllerHandlerState, GenericControllerProvider } from '../controllers/controller';
 import { WaitingController } from '../controllers/waiting-controller';
 import { Provider } from '../util/provider';
-import { GameStateController } from '../controllers';
+import { ResponseQueue } from './response-queue';
 
 type PlayerHandlerState = {
     count: number;
@@ -25,13 +24,15 @@ export class GenericHandlerProxy<ResponseMessage extends Message, Handlers exten
 
     private readonly incomingData = new ResponseQueue<ResponseMessage>();
 
-    // getNames() {
-    //     const names: string[] = [];
-    //     for(let i = 0; i < this.players.length; i++) {
-    //         names[i] = this.players[i].getName(names);
-    //     }
-    //     return names;
-    // }
+    /*
+     * getNames() {
+     *     const names: string[] = [];
+     *     for(let i = 0; i < this.players.length; i++) {
+     *         names[i] = this.players[i].getName(names);
+     *     }
+     *     return names;
+     * }
+     */
 
     message(position: number, message: Message) {
         this.outgoingData.push(Promise.resolve(this.players[position].call('message', this.handlerData.get()(position), this.incomingData.for(position), message)));
@@ -40,25 +41,25 @@ export class GenericHandlerProxy<ResponseMessage extends Message, Handlers exten
     messageAll(message: Message) {
         this.outgoingData.push(...this.players
             .map((player, position) => Promise.resolve(player.call('message', this.handlerData.get()(position), this.incomingData.for(position), message)))
-            .filter(isDefined)
+            .filter(isDefined),
         );
     }
 
     messageOthers(excludedPosition: number, message: Message) {
         this.outgoingData.push(...this.players
             .filter((_, position) => position !== excludedPosition)
-            .map((player, position) =>
-                Promise.resolve(player.call('message', this.handlerData.get()(position), this.incomingData.for(position), message))
-            ).filter(isDefined)
+            .map((player, position) => Promise.resolve(player.call('message', this.handlerData.get()(position), this.incomingData.for(position), message)),
+            )
+            .filter(isDefined),
         );
     }
 
     waitingOthers(waitingOn?: number[]) {
         this.outgoingData.push(...this.players
             .filter((_player, index) => !waitingOn?.includes(index))
-            .map((player, position) =>
-                Promise.resolve(player.call('waitingFor', this.handlerData.get()(position), this.incomingData.for(position), waitingOn))
-            ).filter(isDefined)
+            .map((player, position) => Promise.resolve(player.call('waitingFor', this.handlerData.get()(position), this.incomingData.for(position), waitingOn)),
+            )
+            .filter(isDefined),
         );
     }
 
@@ -75,12 +76,12 @@ export class GenericHandlerProxy<ResponseMessage extends Message, Handlers exten
             .map((player, position) => {
                 try {
                     return player.call(method, this.handlerData.get()(position), this.incomingData.for(position), ...args);
-                } catch(e) {
+                } catch (e) {
                     console.error(e);
                 }
                 return;
             })
-            .filter(isDefined)
+            .filter(isDefined),
         );
     }
 
@@ -135,7 +136,7 @@ export class GenericHandlerController<ResponseMessage extends Message, Handlers 
     getFor(position: number) {
         return {
             count: this.count,
-            position
+            position,
         };
     }
 
@@ -173,7 +174,7 @@ export class GenericHandlerController<ResponseMessage extends Message, Handlers 
      * @param args the args to call with
      */
     handlerCall<Method extends keyof Handlers>(position: number, method: Method, ...args: Handlers[Method]): void {
-        this.controllers.waiting.set([position]);
+        this.controllers.waiting.set([ position ]);
         this.handlerProxy.handlerCall(position, method, ...args);
     }
 

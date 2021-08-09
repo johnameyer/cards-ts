@@ -1,11 +1,11 @@
-import { GenericGameState } from './generic-game-state';
 import { Message } from '../messages/message';
-import { EventHandlerInterface } from './event-handler-interface';
-import { GenericGameStateTransitions } from './generic-game-state-transitions';
 import { SystemHandlerParams } from '../handlers/system-handler';
 import { SerializableObject } from '../intermediary/serializable';
-import { WaitingController, CompletedController, GameStateController } from '../controllers';
+import { CompletedController, GameStateController, WaitingController } from '../controllers';
 import { IndexedControllers } from '../controllers/controller';
+import { GenericGameStateTransitions } from './generic-game-state-transitions';
+import { EventHandlerInterface } from './event-handler-interface';
+import { GenericGameState } from './generic-game-state';
 import { GenericHandlerProxy } from './generic-handler-controller';
 import { STANDARD_STATES } from './game-states';
 
@@ -21,9 +21,9 @@ export class GameDriver<Handlers extends {[key: string]: any[]} & SystemHandlerP
         const { waiting } = waitingController.get();
         if(Array.isArray(waiting)) {
             return waiting.length !== 0;
-        } else {
-            return waiting <= 0;
-        }
+        } 
+        return waiting <= 0;
+        
     }
 
     /**
@@ -32,12 +32,12 @@ export class GameDriver<Handlers extends {[key: string]: any[]} & SystemHandlerP
      * @param subset the subset to check against
      */
     static isWaitingOnPlayerSubset<GameParams extends SerializableObject, State extends typeof STANDARD_STATES>(waitingController: WaitingController, subset: number[]) {
-        const {waiting, responded} = waitingController.get();
+        const { waiting, responded } = waitingController.get();
         if(Array.isArray(waiting)) {
             return waiting.length !== 0 && waiting.some(position => subset.includes(position));
-        } else {
-            return waiting <= 0 && subset.some(position => !responded[position]);
-        }
+        } 
+        return waiting <= 0 && subset.some(position => !responded[position]);
+        
     }
 
     /**
@@ -68,8 +68,8 @@ export class GameDriver<Handlers extends {[key: string]: any[]} & SystemHandlerP
      * Handles events coming in from local handlers
      */
     public handleSyncResponses() {
-        for(const [position, message] of this.handlerProxy.receiveSyncResponses()) {
-            if(message){
+        for(const [ position, message ] of this.handlerProxy.receiveSyncResponses()) {
+            if(message) {
                 this.handleEvent(position, message);
             }
         }
@@ -120,7 +120,7 @@ export class GameDriver<Handlers extends {[key: string]: any[]} & SystemHandlerP
             while(!this.gameState.controllers.completed.get() && GameDriver.isWaitingOnPlayer(this.gameState.controllers.waiting)) {
 
                 await this.handlerProxy.asyncResponseAvailable();
-                for await(const [position, message] of this.handlerProxy.receiveAsyncResponses()) {
+                for await (const [ position, message ] of this.handlerProxy.receiveAsyncResponses()) {
                     if(message) {
                         this.handleEvent(position, message);
                     }

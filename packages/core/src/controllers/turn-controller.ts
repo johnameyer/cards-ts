@@ -1,8 +1,8 @@
-import { GenericHandlerController } from "../games/generic-handler-controller";
-import { SystemHandlerParams } from "../handlers/system-handler";
-import { GenericControllerProvider, GlobalController } from "./controller";
-import { DeckController } from "./deck-controller";
-import { HandsController } from "./hands-controller";
+import { GenericHandlerController } from '../games/generic-handler-controller';
+import { SystemHandlerParams } from '../handlers/system-handler';
+import { GenericControllerProvider, GlobalController } from './controller';
+import { DeckController } from './deck-controller';
+import { HandsController } from './hands-controller';
 
 type TurnState = number;
 
@@ -27,9 +27,6 @@ export class TurnControllerProvider implements GenericControllerProvider<TurnSta
 }
 
 export class TurnController extends GlobalController<TurnState, TurnDependencies> {
-    validate() {
-    }
-
     get() {
         return this.state;
     }

@@ -1,5 +1,5 @@
-import { Card, Suit } from "@cards-ts/core";
-import { GameParams } from "./game-params";
+import { Card, Suit } from '@cards-ts/core';
+import { GameParams } from './game-params';
 
 export interface HandlerData {
     gameParams: GameParams;

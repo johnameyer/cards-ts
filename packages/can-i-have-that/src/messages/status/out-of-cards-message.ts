@@ -1,7 +1,7 @@
-import { Message } from "@cards-ts/core";
+import { Message } from '@cards-ts/core';
 
 export class OutOfCardsMessage extends Message {
     constructor(public readonly name: string) {
-        super([name, 'is out of cards']);
+        super([ name, 'is out of cards' ]);
     }
 }

@@ -1,17 +1,17 @@
 import { GenericGameSetup, Intermediary } from '@cards-ts/core';
-import { GameParams } from "./game-params";
+import { GameParams } from './game-params';
 
 export class GameSetup implements GenericGameSetup<GameParams> {
     getDefaultParams(): GameParams {
-        return  {
+        return {
             // TODO limitWarToMinCards: true
-            maxBattles: 200
+            maxBattles: 200,
         };
     }
     
     async setupForIntermediary(host: Intermediary): Promise<GameParams> {
-        const [_, resultsPromise] = host.form(
-            {type: 'input', message: ['How many battles before declaring a stalemate? (default 200)']},
+        const [ _, resultsPromise ] = host.form(
+            { type: 'input', message: [ 'How many battles before declaring a stalemate? (default 200)' ] },
         );
 
         const results = await resultsPromise;
@@ -19,7 +19,7 @@ export class GameSetup implements GenericGameSetup<GameParams> {
         const maxBattles = Number(results[0]) || 200;
 
         return {
-            maxBattles
+            maxBattles,
         };
     }
 
@@ -38,13 +38,13 @@ export class GameSetup implements GenericGameSetup<GameParams> {
 
     getYargs(): {[key: string]: import('yargs').Options} {
         return {
-            maxBattles: { alias: 'n', description: 'How many battles before declaring a stalemate', type: 'number', default: 200 }
+            maxBattles: { alias: 'n', description: 'How many battles before declaring a stalemate', type: 'number', default: 200 },
         };
     }
 
     setupForYargs(params: any): GameParams {
         return {
-            maxBattles: Number(params.maxBattles)
+            maxBattles: Number(params.maxBattles),
         };
     }
 }

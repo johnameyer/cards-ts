@@ -1,4 +1,3 @@
-import { GenericGameState } from './generic-game-state';
 import { Message } from '../messages/message';
 import { IndexedControllers } from '../controllers/controller';
 

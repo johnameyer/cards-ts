@@ -1,11 +1,11 @@
-import { Card } from "../cards/card";
-import { GenericHandlerController } from "../games/generic-handler-controller";
-import { SystemHandlerParams } from "../handlers/system-handler";
-import { isDefined } from "../util/is-defined";
-import { GenericControllerProvider, GlobalController } from "./controller";
-import { DeckController } from "./deck-controller";
-import { HandsController } from "./hands-controller";
-import { TurnController } from "./turn-controller";
+import { Card } from '../cards/card';
+import { GenericHandlerController } from '../games/generic-handler-controller';
+import { SystemHandlerParams } from '../handlers/system-handler';
+import { isDefined } from '../util/is-defined';
+import { GenericControllerProvider, GlobalController } from './controller';
+import { DeckController } from './deck-controller';
+import { HandsController } from './hands-controller';
+import { TurnController } from './turn-controller';
 
 type TricksState = {
     currentTrick: (Card | undefined)[];
@@ -34,7 +34,7 @@ export class TricksControllerProvider implements GenericControllerProvider<Trick
             currentTrick: [],
             leader: 0,
             playedCard: undefined as any as Card,
-            tricks: 0
+            tricks: 0,
         };
     }
 
@@ -91,7 +91,7 @@ export class TricksController extends GlobalController<TricksState, TricksDepend
         const playedCard = this.state.playedCard;
         this.state.playedCard = undefined as any as Card;
         this.addCard(playedCard);
-        this.controllers.hand.removeCards(this.controllers.turn.get(), [playedCard]);
+        this.controllers.hand.removeCards(this.controllers.turn.get(), [ playedCard ]);
         return playedCard;
     }
 
@@ -102,7 +102,7 @@ export class TricksController extends GlobalController<TricksState, TricksDepend
     /**
      * @param comparator a function returning true if the current card is better than the previous
      */
-    findWinner(comparator: (current: Card, previous: Card) => boolean, followsSuit: boolean = false) {
+    findWinner(comparator: (current: Card, previous: Card) => boolean, followsSuit = false) {
         const first = this.state.currentTrick.findIndex(isDefined);
         let winningPlayer = first;
         const leadingSuit = (this.state.currentTrick[first] as Card).suit;

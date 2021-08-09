@@ -1,9 +1,9 @@
-import { GameStates } from "../game-states";
-import { GameParams } from "../game-params";
-import { CanIHaveThatControllerProvider } from "./can-i-have-that-controller";
-import { GameHandlerParams } from "../game-handler-params";
-import { ResponseMessage } from "../messages/response-message";
-import { DefaultControllers, SystemHandlerParams, DeckControllerProvider, PointsControllerProvider, TurnControllerProvider, MeldControllerProvider, DefaultControllerKeys, ValidatedProviders, HandsControllerProvider, ControllersProviders, UnwrapProviders } from "@cards-ts/core";
+import { DefaultControllers, SystemHandlerParams, DeckControllerProvider, PointsControllerProvider, TurnControllerProvider, MeldControllerProvider, DefaultControllerKeys, ValidatedProviders, HandsControllerProvider, ControllersProviders, UnwrapProviders } from '@cards-ts/core';
+import { GameStates } from '../game-states';
+import { GameParams } from '../game-params';
+import { GameHandlerParams } from '../game-handler-params';
+import { ResponseMessage } from '../messages/response-message';
+import { CanIHaveThatControllerProvider } from './can-i-have-that-controller';
 
 type TypedDefaultControllers = DefaultControllers<GameParams, typeof GameStates, ResponseMessage, GameHandlerParams & SystemHandlerParams>;
 
@@ -15,7 +15,7 @@ export const buildProviders = () => {
         turn: new TurnControllerProvider(),
         ask: new TurnControllerProvider(),
         melds: new MeldControllerProvider(),
-        canIHaveThat: new CanIHaveThatControllerProvider()
+        canIHaveThat: new CanIHaveThatControllerProvider(),
     };
 
     return providers as Omit<ValidatedProviders<typeof providers & ControllersProviders<TypedDefaultControllers>>, DefaultControllerKeys>;

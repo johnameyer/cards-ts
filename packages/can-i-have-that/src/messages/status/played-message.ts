@@ -1,10 +1,10 @@
-import { Card, Message, Meld, Presentable } from "@cards-ts/core";
+import { Card, Message, Meld, Presentable } from '@cards-ts/core';
 
 function generateMessage(cards: Card[], meld: Meld, player: string): Presentable[] {
-    if(cards.length == meld.cards.length) {
-        return [player, 'played', meld.toString()];
+    if(cards.length === meld.cards.length) {
+        return [ player, 'played', meld.toString() ];
     }
-    return [player, 'played', cards, 'on', meld.toString()];
+    return [ player, 'played', cards, 'on', meld.toString() ];
 }
 
 /**

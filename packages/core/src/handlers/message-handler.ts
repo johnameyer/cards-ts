@@ -1,6 +1,6 @@
-import { Serializable } from "../intermediary/serializable";
-import { Message } from "../messages/message";
-import { Handler, HandlerAction } from "./handler";
+import { Serializable } from '../intermediary/serializable';
+import { Message } from '../messages/message';
+import { Handler, HandlerAction } from './handler';
 
 export type MessageHandlerParams = {
    message: [Message]

@@ -1,4 +1,4 @@
-import { GlobalController, GenericControllerProvider } from "@cards-ts/core";
+import { GlobalController, GenericControllerProvider } from '@cards-ts/core';
 
 type RoundState = number;
 

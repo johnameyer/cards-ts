@@ -1,10 +1,10 @@
-import { Card } from "../cards/card";
-import { Meld } from "../cards/meld";
-import { GenericHandlerController } from "../games/generic-handler-controller";
-import { SystemHandlerParams } from "../handlers/system-handler";
-import { GenericControllerProvider, GlobalController } from "./controller";
-import { DeckController } from "./deck-controller";
-import { TurnController } from "./turn-controller";
+import { Card } from '../cards/card';
+import { Meld } from '../cards/meld';
+import { GenericHandlerController } from '../games/generic-handler-controller';
+import { SystemHandlerParams } from '../handlers/system-handler';
+import { GenericControllerProvider, GlobalController } from './controller';
+import { DeckController } from './deck-controller';
+import { TurnController } from './turn-controller';
 
 type MeldState = {
     /**
@@ -29,9 +29,10 @@ export class MeldControllerProvider implements GenericControllerProvider<MeldSta
 
     initialState(controllers: MeldDependencies) {
         return {
-            melds: new Array(controllers.players.count).fill(0).map(() => []),
+            melds: new Array(controllers.players.count).fill(0)
+                .map(() => []),
             toPlay: [],
-            toPlayOnOthers: []
+            toPlayOnOthers: [],
         };
     }
 

@@ -1,4 +1,4 @@
-import { Message, Presentable } from "@cards-ts/core";
+import { Message, Presentable } from '@cards-ts/core';
 
 function generateMessage(players: readonly string[], scores: readonly number[]): Presentable[] {
     const arr: string[] = [];

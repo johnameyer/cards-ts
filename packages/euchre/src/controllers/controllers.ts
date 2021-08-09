@@ -1,9 +1,9 @@
-import { DefaultControllerKeys, DefaultControllers, SystemHandlerParams, Rank, ControllersProviders, DeckControllerProvider, HandsControllerProvider, PointsControllerProvider, TricksControllerProvider, TurnControllerProvider, UnwrapProviders, ValidatedProviders } from "@cards-ts/core";
-import { GameParams } from "../game-params";
-import { GameStates } from "../game-states";
-import { ResponseMessage } from "../messages/response-message";
-import { GameHandlerParams } from "../game-handler-params";
-import { EuchreControllerProvider } from "./euchre-controller";
+import { DefaultControllerKeys, DefaultControllers, SystemHandlerParams, Rank, ControllersProviders, DeckControllerProvider, HandsControllerProvider, PointsControllerProvider, TricksControllerProvider, TurnControllerProvider, UnwrapProviders, ValidatedProviders } from '@cards-ts/core';
+import { GameParams } from '../game-params';
+import { GameStates } from '../game-states';
+import { ResponseMessage } from '../messages/response-message';
+import { GameHandlerParams } from '../game-handler-params';
+import { EuchreControllerProvider } from './euchre-controller';
 
 type TypedDefaultControllers = DefaultControllers<GameParams, typeof GameStates, ResponseMessage, GameHandlerParams & SystemHandlerParams>;
 
@@ -15,7 +15,7 @@ export const buildProviders = () => {
         score: new PointsControllerProvider(),
         euchre: new EuchreControllerProvider(),
         tricksTaken: new PointsControllerProvider(),
-        turn: new TurnControllerProvider()
+        turn: new TurnControllerProvider(),
     };
     return providers as Omit<ValidatedProviders<typeof providers & ControllersProviders<TypedDefaultControllers>>, DefaultControllerKeys>;
 };

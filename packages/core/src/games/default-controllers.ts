@@ -1,10 +1,10 @@
-import { NamesControllerProvider, DataControllerProvider, GameStateControllerProvider, ParamsControllerProvider, WaitingControllerProvider, CompletedControllerProvider, CompletedController, DataController, GameStateController, NamesController, ParamsController, WaitingController } from "../controllers";
-import { ValidatedProviders } from "../controllers/controller";
-import { SystemHandlerParams } from "../handlers/system-handler";
-import { Serializable } from "../intermediary/serializable";
-import { Message } from "../messages/message";
-import { STANDARD_STATES } from "./game-states";
-import { GenericHandlerController, GenericHandlerControllerProvider, GenericHandlerProxy } from "./generic-handler-controller";
+import { CompletedController, CompletedControllerProvider, DataController, DataControllerProvider, GameStateController, GameStateControllerProvider, NamesController, NamesControllerProvider, ParamsController, ParamsControllerProvider, WaitingController, WaitingControllerProvider } from '../controllers';
+import { ValidatedProviders } from '../controllers/controller';
+import { SystemHandlerParams } from '../handlers/system-handler';
+import { Serializable } from '../intermediary/serializable';
+import { Message } from '../messages/message';
+import { STANDARD_STATES } from './game-states';
+import { GenericHandlerController, GenericHandlerControllerProvider, GenericHandlerProxy } from './generic-handler-controller';
 
 export const buildDefaultProviders = <GameParams extends Serializable, State extends typeof STANDARD_STATES, ResponseMessage extends Message, Handlers extends {[key: string]: any[]} & SystemHandlerParams>(params: GameParams, names: string[], initialState: keyof State, proxy: GenericHandlerProxy<ResponseMessage, Handlers>) => {
     const controllers = {
@@ -14,7 +14,7 @@ export const buildDefaultProviders = <GameParams extends Serializable, State ext
         params: new ParamsControllerProvider(params),
         waiting: new WaitingControllerProvider(),
         completed: new CompletedControllerProvider(),
-        players: new GenericHandlerControllerProvider(proxy)
+        players: new GenericHandlerControllerProvider(proxy),
     };
     return controllers as ValidatedProviders<typeof controllers>;
 };

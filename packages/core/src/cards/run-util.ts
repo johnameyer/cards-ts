@@ -10,9 +10,9 @@ import { Card } from './card';
  * @todo can this be reconsolidated into the runs directly
  */
 export function checkRun(t: Meld): void {
-    if (t.runType === 3) {
+    if(t.runType === 3) {
         checkThreeCardSet(t as ThreeCardSet);
-    } else if (t.runType === 4) {
+    } else if(t.runType === 4) {
         checkFourCardRun(t as FourCardRun);
     }
 }
@@ -24,11 +24,11 @@ export function checkRun(t: Meld): void {
  */
 export function runFromObj(t: any): Meld {
     // TODO different from individual fromObj methods?
-    if (t.runType === 3) {
+    if(t.runType === 3) {
         return new ThreeCardSet(t.cards.map(Card.fromObj));
-    } else if (t.runType === 4) {
+    } else if(t.runType === 4) {
         return new FourCardRun(t.cards.map(Card.fromObj));
-    } else {
-        throw new Error('Unknown run type');
-    }
+    } 
+    throw new Error('Unknown run type');
+    
 }

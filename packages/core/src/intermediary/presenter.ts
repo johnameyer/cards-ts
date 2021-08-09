@@ -1,5 +1,5 @@
-import { Serializable } from './serializable';
 import { Card } from '../cards/card';
+import { Serializable } from './serializable';
 import { Presentable } from './presentable';
 
 /**
@@ -47,7 +47,7 @@ export interface Presenter {
      * The validator function passed must not use any closure variables to work properly over a serialized interface
      * @param options the options to pass
      */
-    place<T extends Presentable, ValidateParam extends Serializable = undefined>(options: { message: Presentable[]; choices: { name: string; value: T }[]; placeholder: string; validate?: (input: number, param: ValidateParam) => true | string | Promise<true | string>; validateParam?: ValidateParam }):  (() => number | Promise<number>);
+    place<T extends Presentable, ValidateParam extends Serializable = undefined>(options: { message: Presentable[]; choices: { name: string; value: T }[]; placeholder: string; validate?: (input: number, param: ValidateParam) => true | string | Promise<true | string>; validateParam?: ValidateParam }): (() => number | Promise<number>);
     
     /**
      * Print a message or list of serializables

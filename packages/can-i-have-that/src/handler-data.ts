@@ -1,5 +1,5 @@
-import { Card, Meld } from "@cards-ts/core";
-import { GameParams } from "./game-params";
+import { Card, Meld } from '@cards-ts/core';
+import { GameParams } from './game-params';
 
 /**
  * Class that contains data that is passed to the handlers every time they make their turn

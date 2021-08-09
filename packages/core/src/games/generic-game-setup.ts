@@ -1,4 +1,4 @@
-import { Intermediary } from "../intermediary/intermediary";
+import { Intermediary } from '../intermediary/intermediary';
 
 type ErrorForKey<T> = {
     readonly [Key in keyof T]?: string

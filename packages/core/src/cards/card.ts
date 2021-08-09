@@ -14,10 +14,10 @@ export class Card {
      * @returns the card
      */
     public static fromString(str: string): Card {
-        if (str === '*') {
+        if(str === '*') {
             return new Card(Suit.NONE, Rank.JOKER);
         }
-        if (str.length < 2 || str.length > 3) {
+        if(str.length < 2 || str.length > 3) {
             throw new ValueError('String is not valid card');
         }
         try {
@@ -48,7 +48,7 @@ export class Card {
      * @returns -1 if the first card comes first, 1 if the second card comes first, or 0 otherwise
      */
     public static compare(one: Card, two: Card): number {
-        if (one.rank !== two.rank) {
+        if(one.rank !== two.rank) {
             return Rank.compare(one.rank, two.rank);
         }
         return Suit.compare(one.suit, two.suit);
@@ -65,7 +65,7 @@ export class Card {
                 public readonly rank: Rank,
                 public readonly deck: number = -1,
                 private readonly jokerNum: number = -1,
-                ) {
+    ) {
         Object.freeze(this);
     }
 
@@ -74,7 +74,7 @@ export class Card {
      * @returns the string representation
      */
     public toString() {
-        if (this.rank === Rank.JOKER) {
+        if(this.rank === Rank.JOKER) {
             return '* (Joker)';
         }
         return this.rank.toString() + ' of ' + this.suit.toString();
@@ -94,19 +94,19 @@ export class Card {
      * @returns if the cards are equivalent
      */
     public equals(other?: any): boolean {
-        if (!other) {
+        if(!other) {
             return false;
         }
         if(typeof other !== typeof this) {
             return false;
         }
-        if (this.deck + 1 && other.deck + 1 && this.deck !== other.deck) {
+        if(this.deck + 1 && other.deck + 1 && this.deck !== other.deck) {
             return false;
         }
-        if (this.rank === Rank.JOKER && other.rank === Rank.JOKER) { // Joker has no suit
+        if(this.rank === Rank.JOKER && other.rank === Rank.JOKER) { // Joker has no suit
             return !(this.jokerNum + 1) || !(other.jokerNum + 1) || this.jokerNum === other.jokerNum;
         }
-        if (this.rank !== other.rank) {
+        if(this.rank !== other.rank) {
             return false;
         }
         return this.suit === other.suit;
@@ -116,4 +116,4 @@ export class Card {
 /**
  * Array of template cards of the cards that are considered wild
  */
-export const potentialWilds =  ['*', '2C', '2S', '2H', '2D'].map(Card.fromString);
+export const potentialWilds = [ '*', '2C', '2S', '2H', '2D' ].map(Card.fromString);

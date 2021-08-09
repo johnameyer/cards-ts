@@ -1,4 +1,4 @@
-import { AbstractHandsController, Card, GenericControllerProvider, GenericHandlerController, GlobalController, HandsController, Serializable } from "@cards-ts/core";
+import { AbstractHandsController, Card, GenericControllerProvider, GenericHandlerController, GlobalController, Serializable } from '@cards-ts/core';
 
 export interface WarState {
     [key: string]: Serializable;
@@ -17,9 +17,10 @@ export class WarControllerProvider implements GenericControllerProvider<WarState
 
     initialState(controllers: WarDependencies): WarState {
         return {
-            playedCards: new Array(controllers.players.count).fill(undefined).map(() => []),
-            battleCount: 0
-        }
+            playedCards: new Array(controllers.players.count).fill(undefined)
+                .map(() => []),
+            battleCount: 0,
+        };
     }
 
     dependencies() {
@@ -43,7 +44,7 @@ export class WarController extends GlobalController<WarState, WarDependencies> {
                 max = i;
             }
         }
-        return compared.findIndex(rank => rank == compared[max]) == max ? max : -1;
+        return compared.findIndex(rank => rank === compared[max]) === max ? max : -1;
     }
 
     public givePlayedTo(max: number) {
@@ -51,7 +52,8 @@ export class WarController extends GlobalController<WarState, WarDependencies> {
     }
 
     public resetPlayed() {
-        this.state.playedCards = new Array(this.controllers.players.count).fill(undefined).map(() => []);
+        this.state.playedCards = new Array(this.controllers.players.count).fill(undefined)
+            .map(() => []);
     }
 
     public get battleCountAndOne() {
@@ -64,7 +66,7 @@ export class WarController extends GlobalController<WarState, WarDependencies> {
 
     public flipCards() {
         for(let i = 0; i < this.state.playedCards.length; i++) {
-            let flipped = this.controllers.hand.shift(i);
+            const flipped = this.controllers.hand.shift(i);
             if(flipped) {
                 this.state.playedCards[i].push(flipped);
             }

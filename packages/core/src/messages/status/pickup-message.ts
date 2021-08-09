@@ -1,17 +1,17 @@
-import { Card } from "../../cards/card";
-import { Presentable } from "../../intermediary/presentable";
-import { Message } from "../message";
+import { Card } from '../../cards/card';
+import { Presentable } from '../../intermediary/presentable';
+import { Message } from '../message';
 
-function generateMessage(card: Card, player?: string, extra:boolean = false): Presentable[] {
+function generateMessage(card: Card, player?: string, extra = false): Presentable[] {
     if(player !== undefined) {
         if(extra) {
-            return [player, 'picked up the', card, 'and an extra'];
-        } else {
-            return [player, 'picked up the', card];
-        }
-    } else {
-        return ['No player picked up the', card];
-    }
+            return [ player, 'picked up the', card, 'and an extra' ];
+        } 
+        return [ player, 'picked up the', card ];
+        
+    } 
+    return [ 'No player picked up the', card ];
+    
 }
 
 /**
@@ -22,10 +22,12 @@ export class PickupMessage extends Message {
      * Designates that a card was not picked up
      */
     constructor(card: Card);
+
     /**
      * Designates that a card was picked up by a player
      */
     constructor(card: Card, player: string, extra:boolean);
+
     /**
      * @param card the card the player picked up
      * @param player the player picking up the card

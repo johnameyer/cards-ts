@@ -1,9 +1,9 @@
-import { Card } from "../../cards/card";
-import { Presentable } from "../../intermediary/presentable";
-import { Message } from "../message";
+import { Card } from '../../cards/card';
+import { Presentable } from '../../intermediary/presentable';
+import { Message } from '../message';
 
 function generateMessage(card: Card): Presentable[] {
-    return [card, 'was turned over'];
+    return [ card, 'was turned over' ];
 }
 
 /**

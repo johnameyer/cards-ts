@@ -1,19 +1,19 @@
-import { Handler, HandlerChain } from "../handlers/handler";
-import { SystemHandlerParams } from "../handlers/system-handler";
-import { Intermediary } from "../intermediary/intermediary";
-import { IntermediarySystemHandler } from "../intermediary/intermediary-system-handler";
-import { EventHandlerInterface } from "./event-handler-interface";
-import { GameDriver } from "./game-driver";
-import { GenericGameSetup } from "./generic-game-setup";
-import { GenericGameState } from "./generic-game-state";
-import { GenericGameStateTransitions } from "./generic-game-state-transitions";
-import { Message } from "../messages/message";
-import { SerializableObject } from "../intermediary/serializable";
-import { buildDefaultProviders, DefaultControllerKeys, DefaultControllers } from "./default-controllers";
-import { ControllerHandlerState, ControllersProviders, ControllerState, IndexedControllers, IndexedProviders, UnwrapProviders } from "../controllers/controller";
-import { GenericHandlerProxy } from "./generic-handler-controller";
-import { Provider } from "../util/provider";
-import { STANDARD_STATES } from "./game-states";
+import { Handler, HandlerChain } from '../handlers/handler';
+import { SystemHandlerParams } from '../handlers/system-handler';
+import { Intermediary } from '../intermediary/intermediary';
+import { IntermediarySystemHandler } from '../intermediary/intermediary-system-handler';
+import { Message } from '../messages/message';
+import { SerializableObject } from '../intermediary/serializable';
+import { ControllerHandlerState, ControllerState, ControllersProviders, IndexedControllers } from '../controllers/controller';
+import { Provider } from '../util/provider';
+import { EventHandlerInterface } from './event-handler-interface';
+import { GameDriver } from './game-driver';
+import { GenericGameSetup } from './generic-game-setup';
+import { GenericGameState } from './generic-game-state';
+import { GenericGameStateTransitions } from './generic-game-state-transitions';
+import { DefaultControllerKeys, DefaultControllers, buildDefaultProviders } from './default-controllers';
+import { GenericHandlerProxy } from './generic-handler-controller';
+import { STANDARD_STATES } from './game-states';
 
 /**
  * Wraps the classes in a game library into one common interface to make usages less verbose
@@ -53,7 +53,8 @@ export abstract class AbstractGameFactory<Handles extends {[key: string]: any[]}
      * Creates a new handler chain containing the intermediary handler and the system intermediary handler
      */
     getIntermediaryHandlerChain(intermediary: Intermediary): HandlerChain<Handles & SystemHandlerParams, ControllerHandlerState<Controllers & DefaultControllers<GameParams, State, ResponseMessage, Handles & SystemHandlerParams>>, ResponseMessage> {
-        return new HandlerChain<Handles & SystemHandlerParams, ControllerHandlerState<Controllers>, ResponseMessage>().append(this.getIntermediaryHandler(intermediary)).append(new IntermediarySystemHandler(intermediary));
+        return new HandlerChain<Handles & SystemHandlerParams, ControllerHandlerState<Controllers>, ResponseMessage>().append(this.getIntermediaryHandler(intermediary))
+            .append(new IntermediarySystemHandler(intermediary));
     }
 
     /**

@@ -1,8 +1,8 @@
-import { Presentable } from "../../intermediary/presentable";
-import { Message } from "../message";
+import { Presentable } from '../../intermediary/presentable';
+import { Message } from '../message';
 
 function generateMessage(leader: string): Presentable[] {
-    return [leader, 'leads next trick'];
+    return [ leader, 'leads next trick' ];
 }
 
 /**
