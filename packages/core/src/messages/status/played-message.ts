@@ -1,13 +1,13 @@
-import { Card } from "../../cards/card";
-import { Meld } from "../../cards/meld";
-import { Presentable } from "../../intermediary/presentable";
-import { Message } from "../message";
+import { Card } from '../../cards/card';
+import { Meld } from '../../cards/meld';
+import { Presentable } from '../../intermediary/presentable';
+import { Message } from '../message';
 
 function generateMessage(cards: Card[], meld: Meld, player: string): Presentable[] {
-    if(cards.length == meld.cards.length) {
-        return [player, 'played', meld.toString()];
+    if(cards.length === meld.cards.length) {
+        return [ player, 'played', meld.toString() ];
     }
-    return [player, 'played', cards, 'on', meld.toString()];
+    return [ player, 'played', cards, 'on', meld.toString() ];
 }
 
 /**

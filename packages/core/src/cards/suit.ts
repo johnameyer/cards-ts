@@ -10,19 +10,24 @@ export class Suit {
      * Whether to use the symbol version when printing or the letter version
      */
     public static symbolic = false;
+
     /**
      * Suit used only for jokers
      */
     public static readonly NONE = new Suit('-', '-');
+
     public static readonly DIAMONDS: Suit = new Suit('♦', 'Diamonds');
+
     public static readonly CLUBS: Suit = new Suit('♣', 'Clubs');
+
     public static readonly HEARTS: Suit = new Suit('♥', 'Hearts');
+
     public static readonly SPADES: Suit = new Suit('♠', 'Spades');
 
     /**
      * The normal suits that appear in the deck
      */
-    public static readonly suits: Suit[] = [Suit.DIAMONDS, Suit.CLUBS, Suit.HEARTS, Suit.SPADES];
+    public static readonly suits: Suit[] = [ Suit.DIAMONDS, Suit.CLUBS, Suit.HEARTS, Suit.SPADES ];
 
     /**
      * Look up the suit from the letter
@@ -78,11 +83,11 @@ export class Suit {
      * Returns the string representation of this
      */
     public toString(): string {
-        if (Suit.symbolic) {
+        if(Suit.symbolic) {
             return this.symbol;
-        } else {
-            return this.name;
-        }
+        } 
+        return this.name;
+        
     }
 
     get letter() {

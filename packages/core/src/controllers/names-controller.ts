@@ -1,4 +1,4 @@
-import { GenericControllerProvider, GlobalController } from "./controller";
+import { GenericControllerProvider, GlobalController } from './controller';
 
 /**
  * The names of all the players
@@ -24,7 +24,9 @@ export class NamesControllerProvider implements GenericControllerProvider<NamesS
 
 export class NamesController extends GlobalController<NamesState, {}> {
     get(): string[];
+
     get(position: number): string;
+
     get(position?: number): string | string[] {
         return position !== undefined ? this.state[position] : this.state;
     }

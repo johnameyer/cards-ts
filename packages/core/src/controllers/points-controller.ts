@@ -1,7 +1,7 @@
-import { GenericHandlerController } from "../games/generic-handler-controller";
-import { SystemHandlerParams } from "../handlers/system-handler";
-import { isDefined } from "../util/is-defined";
-import { GenericControllerProvider, GlobalController } from "./controller";
+import { GenericHandlerController } from '../games/generic-handler-controller';
+import { SystemHandlerParams } from '../handlers/system-handler';
+import { isDefined } from '../util/is-defined';
+import { GenericControllerProvider, GlobalController } from './controller';
 
 type PointsState = number[];
 
@@ -45,7 +45,9 @@ export class PointsController extends GlobalController<PointsState, PointsDepend
     }
 
     get(): number[];
+
     get(position: number): number;
+
     get(position?: number): number | number[] {
         return position !== undefined ? this.state[position] : this.state;
     }

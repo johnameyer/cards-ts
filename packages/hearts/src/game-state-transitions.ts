@@ -1,7 +1,7 @@
-import { GameStates } from "./game-states";
 import { GenericGameStateTransitions, Card, Rank, Suit, GenericGameState, SpacingMessage, LeadsMessage } from '@cards-ts/core';
-import { NoPassingMessage, PassingMessage, PassedMessage, PlayedMessage, ShotTheMoonMessage, ScoredMessage, EndRoundMessage } from "./messages/status";
-import { Controllers } from "./controllers/controllers";
+import { GameStates } from './game-states';
+import { NoPassingMessage, PassingMessage, PassedMessage, PlayedMessage, ShotTheMoonMessage, ScoredMessage, EndRoundMessage } from './messages/status';
+import { Controllers } from './controllers/controllers';
 
 function valueOfCard(card: Card): number {
     if(card.equals(Card.fromString('QS'))) {
@@ -87,9 +87,9 @@ export class GameStateTransitions implements GenericGameStateTransitions<typeof 
         controllers.players.messageAll(new SpacingMessage());
         controllers.players.messageAll(new LeadsMessage(controllers.names.get()[leader]));
 
-        controllers.hand.removeCards(leader, [startingCard]);
+        controllers.hand.removeCards(leader, [ startingCard ]);
         controllers.trick.addCard(startingCard);
-        controllers.players.messageOthers(leader, new PlayedMessage(controllers.names.get(leader), startingCard))
+        controllers.players.messageOthers(leader, new PlayedMessage(controllers.names.get(leader), startingCard));
 
         controllers.turn.next();
 
@@ -117,7 +117,7 @@ export class GameStateTransitions implements GenericGameStateTransitions<typeof 
     handlePlay(controllers: Controllers) {
         const whoseTurn = controllers.turn.get();
         const played = controllers.trick.handlePlayed();
-        controllers.players.messageOthers(whoseTurn, new PlayedMessage(controllers.names.get()[whoseTurn], played))
+        controllers.players.messageOthers(whoseTurn, new PlayedMessage(controllers.names.get()[whoseTurn], played));
 
         controllers.turn.next();
         if(controllers.trick.trickIsCompleted()) {
@@ -136,7 +136,9 @@ export class GameStateTransitions implements GenericGameStateTransitions<typeof 
         controllers.trickPoints.increaseScore(newLeader, (controllers.trick.currentTrick as Card[]).map(valueOfCard).reduce((a, b) => a + b, 0));
         controllers.trick.leader = newLeader;
 
-        if(controllers.params.get().quickEnd && !controllers.hand.get().flatMap(hand => hand).map(valueOfCard).some(value => value >= 0)) {
+        if(controllers.params.get().quickEnd && !controllers.hand.get().flatMap(hand => hand)
+            .map(valueOfCard)
+            .some(value => value >= 0)) {
             // might be nice to have a message here if round ends early
             controllers.state.set(GameStates.END_ROUND);
         } else if(controllers.hand.numberOfPlayersWithCards() === 0) {

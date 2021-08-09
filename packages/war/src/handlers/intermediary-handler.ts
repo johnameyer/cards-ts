@@ -1,6 +1,6 @@
-import { GameHandler, HandlerData } from '../game-handler';
 import { HandlerResponsesQueue } from '@cards-ts/core';
 import { Intermediary } from '@cards-ts/core';
+import { GameHandler, HandlerData } from '../game-handler';
 import { ResponseMessage } from '../messages/response-message';
 import { FlipResponseMessage } from '../messages/response';
 
@@ -15,11 +15,12 @@ export class IntermediaryHandler extends GameHandler {
     }
 
     async handleFlip(_handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): Promise<void> {
-        while (true){
-            let [sent, received] = this.intermediary.form({type: 'confirm', message: ['Flip?']});
+        let responded = false;
+        while(responded) {
+            const [ sent, received ] = this.intermediary.form({ type: 'confirm', message: [ 'Flip?' ] });
             if((await received)[0]) {
                 responsesQueue.push(new FlipResponseMessage());
-                break;
+                responded = true;
             }
         }
     }

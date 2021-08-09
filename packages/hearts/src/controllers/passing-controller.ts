@@ -1,6 +1,6 @@
-import { AbstractHandsController, Card, GenericControllerProvider, GenericHandlerController, GlobalController, Serializable, SystemHandlerParams } from "@cards-ts/core";
-import { GameHandlerParams } from "../game-handler-params";
-import { ResponseMessage } from "../messages/response-message";
+import { AbstractHandsController, Card, GenericControllerProvider, GenericHandlerController, GlobalController, Serializable, SystemHandlerParams } from '@cards-ts/core';
+import { GameHandlerParams } from '../game-handler-params';
+import { ResponseMessage } from '../messages/response-message';
 
 export interface PassingState {
     [key: string]: Serializable;
@@ -20,8 +20,8 @@ export class PassingControllerProvider implements GenericControllerProvider<Pass
     initialState(controllers: PassingDependencies): PassingState {
         return {
             pass: 1,
-            passed: new Array(controllers.players.count).fill(undefined)
-        }
+            passed: new Array(controllers.players.count).fill(undefined),
+        };
     }
 
     dependencies() {
@@ -53,7 +53,7 @@ export class PassingController extends GlobalController<PassingState, PassingDep
     nextPass() {
         if(this.state.pass === this.controllers.players.count / 2) { // handles even number going from across to keep
             this.state.pass = 0;
-        } else if(this.state.pass > 0){ // 1 to the right goes to 1 to the left
+        } else if(this.state.pass > 0) { // 1 to the right goes to 1 to the left
             this.state.pass = -this.state.pass;
         } else { // 1 to the left goes to 2 to the right
             this.state.pass = -this.state.pass + 1;

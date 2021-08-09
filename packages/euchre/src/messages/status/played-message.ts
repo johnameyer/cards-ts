@@ -1,8 +1,8 @@
-import { Message, Presentable } from "@cards-ts/core";
-import { Card } from "@cards-ts/core";
+import { Message, Presentable } from '@cards-ts/core';
+import { Card } from '@cards-ts/core';
 
 function generateMessage(player: string, card: Card): Presentable[] {
-    return [player, 'played', card];
+    return [ player, 'played', card ];
 }
 
 /**

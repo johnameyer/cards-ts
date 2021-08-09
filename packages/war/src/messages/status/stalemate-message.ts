@@ -1,7 +1,7 @@
-import { Message, Presentable } from "@cards-ts/core";
+import { Message, Presentable } from '@cards-ts/core';
 
 function generateMessage(): Presentable[] {
-    return ['Game went over the max number of battles'];
+    return [ 'Game went over the max number of battles' ];
 }
 
 /**

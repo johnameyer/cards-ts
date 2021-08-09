@@ -1,5 +1,5 @@
-import { GameStateController, IndexedControllers, WaitingController } from "../controllers";
-import { STANDARD_STATES } from "./game-states";
+import { GameStateController, IndexedControllers, WaitingController } from '../controllers';
+import { STANDARD_STATES } from './game-states';
 
 type Transition<State extends typeof STANDARD_STATES, Controllers extends IndexedControllers & { waiting: WaitingController, state: GameStateController<State> }> = (controllers: Controllers) => void;
 

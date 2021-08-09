@@ -15,5 +15,4 @@ export type StatusMessage =
     | TrumpMessage
     | TurnUpMessage
     | WonTrickMessage
-    | GoingAloneMessage
-    ;
+    | GoingAloneMessage;

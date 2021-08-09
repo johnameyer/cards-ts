@@ -1,11 +1,11 @@
-import { Card, Serializable, Message, Presentable } from "@cards-ts/core";
+import { Card, Message, Presentable } from '@cards-ts/core';
 
 function generateMessage(card: Card, player?: string): Presentable[] {
     if(player) {
-        return [player, 'discarded', card];
-    } else {
-        return ['First card is', card];
-    }
+        return [ player, 'discarded', card ];
+    } 
+    return [ 'First card is', card ];
+    
 }
 
 /**

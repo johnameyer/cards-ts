@@ -1,7 +1,7 @@
-import { Message, Presentable } from "@cards-ts/core";
+import { Message, Presentable } from '@cards-ts/core';
 
 function generateMessage(): Presentable[] {
-    return ['No passing this round'];
+    return [ 'No passing this round' ];
 }
 
 /**

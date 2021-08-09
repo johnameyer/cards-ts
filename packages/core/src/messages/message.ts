@@ -1,7 +1,7 @@
-import { Presentable } from "../intermediary/presentable";
-import { ReadonlySerializable } from "../intermediary/serializable";
+import { Presentable } from '../intermediary/presentable';
+import { ReadonlySerializable } from '../intermediary/serializable';
 import { isDefined } from '../util/is-defined';
-import { isNonnull } from "../util/is-nonnull";
+import { isNonnull } from '../util/is-nonnull';
 
 /**
  * Parent class for any message to be delivered to handlers
@@ -34,5 +34,7 @@ export namespace Message {
             return defaultTransformer(component, ', ');
         }
         return component.toString();
-    }).filter(isDefined).filter(isNonnull).reduce((a: string, b: string) => a + joiner + b, '') : '';
+    }).filter(isDefined)
+        .filter(isNonnull)
+        .reduce((a: string, b: string) => a + joiner + b, '') : '';
 }

@@ -1,6 +1,6 @@
 import { Card, InvalidError, SpacingMessage, GenericGameState, GenericGameStateTransitions, PickupMessage as PublicPickup, DiscardMessage, EndRoundMessage, OutOfCardsMessage, PlayedMessage, ReshuffleMessage } from '@cards-ts/core';
 import { GameStates } from './game-states';
-import { Controllers } from "./controllers/controllers";
+import { Controllers } from './controllers/controllers';
 import { PickupMessage, StartRoundMessage } from './messages/status';
 
 type GameState = GenericGameState<Controllers>;
@@ -8,7 +8,7 @@ type GameState = GenericGameState<Controllers>;
 /**
  * Class that handles the steps of the game
  */
- export class GameStateTransitions implements GenericGameStateTransitions<typeof GameStates, Controllers> {
+export class GameStateTransitions implements GenericGameStateTransitions<typeof GameStates, Controllers> {
 
     /**
      * Gives a card to the player and notifies them
@@ -17,9 +17,9 @@ type GameState = GenericGameState<Controllers>;
      * @param extra the accompanying extra card, if applicable
      * @param dealt whether or not the card was dealt to the player
      */
-    private giveCard(controllers: Controllers, player: number, card: Card, extra?: Card, message: boolean = true) {
+    private giveCard(controllers: Controllers, player: number, card: Card, extra?: Card, message = true) {
         controllers.hand.get(player).push(card);
-        if (extra) {
+        if(extra) {
             controllers.hand.get(player).push(extra);
         }
         if(message) {
@@ -28,9 +28,11 @@ type GameState = GenericGameState<Controllers>;
     }
 
     public get() {
-        // console.log('P', gameState.points);
-        // console.log('C', gameState.hands.map(hand => hand.length));
-        // console.log(GameStates);
+        /*
+         * console.log('P', gameState.points);
+         * console.log('C', gameState.hands.map(hand => hand.length));
+         * console.log(GameStates);
+         */
         return {
             [GameStates.START_GAME]: this.startGame,
             [GameStates.START_ROUND]: this.startRound,
@@ -73,8 +75,9 @@ type GameState = GenericGameState<Controllers>;
 
     private endRound(controllers: Controllers) {
         controllers.canIHaveThat.nextRound();
-        for (let player = 0; player < controllers.players.count; player++) {
-            controllers.score.increaseScore(player, controllers.hand.get(player).map(card => card.rank.value).reduce((a, b) => a + b, 0));
+        for(let player = 0; player < controllers.players.count; player++) {
+            controllers.score.increaseScore(player, controllers.hand.get(player).map(card => card.rank.value)
+                .reduce((a, b) => a + b, 0));
         }
 
         controllers.players.messageAll(new EndRoundMessage(controllers.names.get(), controllers.score.get()));
@@ -99,7 +102,7 @@ type GameState = GenericGameState<Controllers>;
     }
 
     private handleNoPlayerWant(controllers: Controllers) {
-        if (controllers.deck.deck.top !== null) {
+        if(controllers.deck.deck.top !== null) {
             controllers.players.messageAll(new PublicPickup(controllers.deck.deck.top));
             controllers.deck.deck.clearTop();
         }
@@ -155,9 +158,11 @@ type GameState = GenericGameState<Controllers>;
     }
 
     private handleTurn(controllers: Controllers) {
-        // if(!controllers.toPlay) {
-        //     throw new InvalidError('Invalid State');
-        // }
+        /*
+         * if(!controllers.toPlay) {
+         *     throw new InvalidError('Invalid State');
+         * }
+         */
 
         if(!controllers.deck.toDiscard) {
             // TODO check for final round
@@ -217,7 +222,7 @@ type GameState = GenericGameState<Controllers>;
 
         if(wantCard) {
             let draw = controllers.deck.deck.draw();
-            if (!draw) {
+            if(!draw) {
                 if(!controllers.deck.deck.shuffleDiscard()) {
                     // TODO add another deck?
                     throw new InvalidError('Deck ran out of cards');
@@ -248,7 +253,7 @@ type GameState = GenericGameState<Controllers>;
         const whoseTurn = controllers.turn.get();
 
         let draw = controllers.deck.deck.draw();
-        if (!draw) {
+        if(!draw) {
             if(!controllers.deck.deck.shuffleDiscard()) {
                 // TODO add another deck?
                 throw new InvalidError('Deck ran out of cards');

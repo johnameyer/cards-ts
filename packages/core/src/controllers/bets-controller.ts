@@ -1,9 +1,9 @@
-import { GenericControllerProvider, GlobalController } from "./controller";
+import { GenericControllerProvider, GlobalController } from './controller';
 
 type BetsState = number[];
 
 export class BetsControllerProvider implements GenericControllerProvider<BetsState, {}, BetsController> {
-    initialState(){
+    initialState() {
         return [];
     }
 
@@ -11,7 +11,7 @@ export class BetsControllerProvider implements GenericControllerProvider<BetsSta
         return {};
     }
 
-    controller(state: BetsState, controllers: {}){
+    controller(state: BetsState, controllers: {}) {
         return new BetsController(state, controllers);
     }
 }

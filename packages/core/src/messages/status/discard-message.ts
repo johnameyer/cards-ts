@@ -1,13 +1,13 @@
-import { Card } from "../../cards/card";
-import { Presentable } from "../../intermediary/presentable";
-import { Message } from "../message";
+import { Card } from '../../cards/card';
+import { Presentable } from '../../intermediary/presentable';
+import { Message } from '../message';
 
 function generateMessage(card: Card, player?: string): Presentable[] {
     if(player) {
-        return [player, 'discarded', card];
-    } else {
-        return ['First card is', card];
-    }
+        return [ player, 'discarded', card ];
+    } 
+    return [ 'First card is', card ];
+    
 }
 
 /**

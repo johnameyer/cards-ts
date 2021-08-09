@@ -1,6 +1,6 @@
-import { Message } from "../messages/message";
-import { HandlerResponsesQueue } from "../games/response-queue";
-import { Serializable } from "../intermediary/serializable";
+import { Message } from '../messages/message';
+import { HandlerResponsesQueue } from '../games/response-queue';
+import { Serializable } from '../intermediary/serializable';
 
 export type HandlerAction<HandlerData, ResponseMessage, Vargs extends any[] = any[]> = (this: any, gameState: HandlerData, response: HandlerResponsesQueue<ResponseMessage>, ...args: Vargs) => void | Promise<void>;
 
@@ -28,9 +28,9 @@ export class HandlerChain<Handlers extends {[key: string]: any[]}, HandlerData e
      * @param handler the handler to add
      */
     append<AddedHandlers extends {[key: string]: any[]}, AddedResponseMessages extends Message>(
-        handler: Handler<AddedHandlers, HandlerData, AddedResponseMessages>
+        handler: Handler<AddedHandlers, HandlerData, AddedResponseMessages>,
     ): HandlerChain<Handlers & AddedHandlers, HandlerData, ResponseMessage | AddedResponseMessages> {
-        const handlers = [...this.handlers, handler] as any as Handler<Handlers & AddedHandlers, HandlerData, ResponseMessage | AddedResponseMessages>[];
+        const handlers = [ ...this.handlers, handler ] as any as Handler<Handlers & AddedHandlers, HandlerData, ResponseMessage | AddedResponseMessages>[];
         return new HandlerChain(handlers);
     }
     
@@ -48,4 +48,4 @@ export class HandlerChain<Handlers extends {[key: string]: any[]}, HandlerData e
     }
 }
 
-const capitalize = ([ first, ...rest ]: string) => first.toLocaleUpperCase() + rest.join('')
+const capitalize = ([ first, ...rest ]: string) => first.toLocaleUpperCase() + rest.join('');

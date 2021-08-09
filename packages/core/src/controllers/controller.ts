@@ -1,4 +1,4 @@
-import { Serializable } from "../intermediary/serializable";
+import { Serializable } from '../intermediary/serializable';
 
 export abstract class AbstractController<State extends Serializable, WrappedControllers extends IndexedControllers, HandlerData extends Serializable = State> {
     constructor(protected state: State, protected controllers: WrappedControllers) {
@@ -7,6 +7,7 @@ export abstract class AbstractController<State extends Serializable, WrappedCont
 
     abstract getFor(position: number): HandlerData;
 
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     validate(): void {} // TODO can we make this more declarative - matchers per state field + overall checker?
 }
 
@@ -63,8 +64,8 @@ function getTopologicalOrdering<T extends IndexedProviders>(controllers: T): (st
     const children = new Set();
     const edgesByDestination = new Map<string, Set<string>>();
 
-    for(const [key, controller] of Object.entries(controllers as IndexedProviders)) {
-        if(Object.keys(controller.dependencies()).length == 0) {
+    for(const [ key, controller ] of Object.entries(controllers as IndexedProviders)) {
+        if(Object.keys(controller.dependencies()).length === 0) {
             children.add(key);
         } else {
             if(!Object.keys(controller.dependencies()).some(dependency => !controllers[dependency as string])) {
@@ -86,7 +87,7 @@ function getTopologicalOrdering<T extends IndexedProviders>(controllers: T): (st
         edgesByDestination.delete(node);
         for(const parent of edgesForNode) {
             const nowChildless = Object.keys(controllers[parent].dependencies())
-                .every(child => controllers[child as string] && !edgesByDestination.get(child as string))
+                .every(child => controllers[child as string] && !edgesByDestination.get(child as string));
             if(nowChildless) {
                 children.add(parent);
             }
@@ -102,7 +103,7 @@ function getTopologicalOrdering<T extends IndexedProviders>(controllers: T): (st
 export function validate<T extends IndexedProviders>(controllers: T): ValidatedProviders<T> {
     const keysToInclude = new Set(getTopologicalOrdering(controllers));
 
-    return Object.fromEntries(Object.entries(controllers).filter(([key, _value]) => keysToInclude.has(key))) as ValidatedProviders<T>;
+    return Object.fromEntries(Object.entries(controllers).filter(([ key, _value ]) => keysToInclude.has(key))) as ValidatedProviders<T>;
 }
 
 export function initializeControllers<T extends IndexedControllers>(providers: ControllersProviders<T>, state: ControllerState<T>) {
@@ -110,7 +111,7 @@ export function initializeControllers<T extends IndexedControllers>(providers: C
 
     for(const name of getTopologicalOrdering(validate(providers)) as (keyof T)[]) {
         const dependencyKeys = Object.keys(providers[name].dependencies());
-        const dependencyControllers = Object.fromEntries(Object.entries(retained).filter(([key, _val]) => dependencyKeys.includes(key)));
+        const dependencyControllers = Object.fromEntries(Object.entries(retained).filter(([ key, _val ]) => dependencyKeys.includes(key)));
         if(!state[name]) {
             state[name] = providers[name].initialState(dependencyControllers) as any;
         }

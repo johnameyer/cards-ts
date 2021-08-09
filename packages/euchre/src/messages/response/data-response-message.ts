@@ -1,4 +1,4 @@
-import { Message } from "@cards-ts/core";
+import { Message } from '@cards-ts/core';
 
 /**
  * Sets the data for this player to the data provided

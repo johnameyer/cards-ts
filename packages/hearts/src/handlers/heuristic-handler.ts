@@ -1,6 +1,6 @@
+import { Message, combinations, distinct, Handler, HandlerResponsesQueue, isDefined, MessageHandlerParams, Serializable, Suit, Rank, DataResponseMessage, PlayCardResponseMessage, Card } from '@cards-ts/core';
 import { HandlerData } from '../game-handler';
-import { GameHandlerParams } from "../game-handler-params";
-import { Message, Card, combinations, distinct, Handler, HandlerResponsesQueue, isDefined, MessageHandlerParams, Serializable, Suit, Rank, DataResponseMessage, PlayCardResponseMessage } from '@cards-ts/core';
+import { GameHandlerParams } from '../game-handler-params';
 import { ResponseMessage } from '../messages/response-message';
 import { PlayedMessage } from '../messages/status';
 import { PassResponseMessage } from '../messages/response';
@@ -38,7 +38,7 @@ function throwAwayRisk(hand: Card[], sorted: {[letter: string]: Card[]}, canBeHe
     // TODO try to share points based on who has taken the most this round / game
 
     // If we have a dangerous spade KS, AS, throw that away
-    let highSpades = hand.find(card => card.suit === Suit.SPADES && card.rank.difference(Rank.QUEEN) < 0);
+    const highSpades = hand.find(card => card.suit === Suit.SPADES && card.rank.difference(Rank.QUEEN) < 0);
     if(highSpades) {
         return highSpades;
     }
@@ -61,15 +61,18 @@ function throwAwayRisk(hand: Card[], sorted: {[letter: string]: Card[]}, canBeHe
         .filter(suit => sorted[suit.letter].length)
         .map(suit => tuple(suit, sorted[suit.letter].reduce((sum, card) => sum += card.rank.order, 0) / sorted[suit.letter].length))
         .sort((a, b) => b[1] - a[1])
-        .map(([suit, _]) => suit);
+        .map(([ suit, _ ]) => suit);
 
     if(!canBeHeart) {
         worstSuits = worstSuits.filter(suit => suit !== Suit.HEARTS);
     }
 
-    const worstOfSuit = sorted[worstSuits[0].letter].slice().sort(Card.compare).reverse()[0];
+    const worstOfSuit = sorted[worstSuits[0].letter].slice().sort(Card.compare)
+        .reverse()[0];
     if(worstOfSuit.equals(QS) && !canBeHeart) {
-        return sorted[worstSuits[0].letter].slice().sort(Card.compare).reverse()[1] || sorted[worstSuits[1].letter].slice().sort(Card.compare).reverse()[0];
+        return sorted[worstSuits[0].letter].slice().sort(Card.compare)
+            .reverse()[1] || sorted[worstSuits[1].letter].slice().sort(Card.compare)
+            .reverse()[0];
     }
     return worstOfSuit;
 }
@@ -80,7 +83,7 @@ function wrapData(handlerData: HandlerData) {
         handlerData.data = {
             playerOutOfSuit: {},
             numTimesPlayed: emptyCounter(),
-            queenPlayed: false
+            queenPlayed: false,
         };
     }
 
@@ -90,7 +93,7 @@ function wrapData(handlerData: HandlerData) {
 export class HeuristicHandler implements Handler<GameHandlerParams & MessageHandlerParams, HandlerData, ResponseMessage> {
     handlePass = (handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): void => {
         const data = wrapData(handlerData);
-        const { hand, params: { numToPass } } = handlerData;
+        const { hand, params: { numToPass }} = handlerData;
         const toPass = [];
         const sorted = hand.reduce<{[s: string]: Card[]}>((obj, card) => {
             const suit = card.suit;
@@ -100,7 +103,7 @@ export class HeuristicHandler implements Handler<GameHandlerParams & MessageHand
 
         // Try to throw away clubs and diamonds first
         const count = (arr: Suit[]) => arr.map(suit => sorted[suit.letter].length).reduce((a, b) => a + b, 0);
-        const throwawaySuits = [Suit.CLUBS, Suit.DIAMONDS];
+        const throwawaySuits = [ Suit.CLUBS, Suit.DIAMONDS ];
         const countSorted = combinations(throwawaySuits).sort((a, b) => count(a) - count(b));
         let i = 0;
         while(countSorted[i] && count(countSorted[i]) <= numToPass) {
@@ -143,7 +146,8 @@ export class HeuristicHandler implements Handler<GameHandlerParams & MessageHand
         }
 
         // Then try to throw away our high cards of the safe suits
-        toPass.push(...hand.filter(card => [Suit.CLUBS, Suit.DIAMONDS].includes(card.suit)).sort(Card.compare).reverse());
+        toPass.push(...hand.filter(card => [ Suit.CLUBS, Suit.DIAMONDS ].includes(card.suit)).sort(Card.compare)
+            .reverse());
 
         responsesQueue.push(new PassResponseMessage(toPass.filter(distinct).slice(0, numToPass), data));
         return;
@@ -166,23 +170,25 @@ export class HeuristicHandler implements Handler<GameHandlerParams & MessageHand
                     // Throw high club on first trick
                     responsesQueue.push(new PlayCardResponseMessage(sorted[Suit.CLUBS.letter].sort(Card.compare).reverse()[0], data));
                     return;
-                } else {
-                    // Or another card, considering we can't throw a heart
-                    responsesQueue.push(new PlayCardResponseMessage(throwAwayRisk(hand, sorted, false, data), data));
-                    return;
-                }
+                } 
+                // Or another card, considering we can't throw a heart
+                responsesQueue.push(new PlayCardResponseMessage(throwAwayRisk(hand, sorted, false, data), data));
+                return;
+                
             }
 
             if(currentTrick.length) {
                 const follow = (currentTrick[0] as Card).suit;
-                const winningRank = currentTrick.filter(isDefined).filter(card => card.suit === follow).sort(Card.compare).reverse()[0].rank;
+                const winningRank = currentTrick.filter(isDefined).filter(card => card.suit === follow)
+                    .sort(Card.compare)
+                    .reverse()[0].rank;
 
                 const pointsInTrick = currentTrick.reduce((count, card) => count + (QS.equals(card) ? 13 : ((card as Card).suit === Suit.HEARTS ? 1 : 0)), 0);
 
                 const cardsOfSuitAscending = hand.filter(card => card.suit === follow).sort(Card.compare);
                 const cardsOfSuitDescending = cardsOfSuitAscending.slice().reverse();
 
-                if(cardsOfSuitDescending.length == 0) {
+                if(cardsOfSuitDescending.length === 0) {
                     // Throw a dangerour card away
                     responsesQueue.push(new PlayCardResponseMessage(throwAwayRisk(hand, sorted, true, data), data));
                     return;
@@ -197,7 +203,7 @@ export class HeuristicHandler implements Handler<GameHandlerParams & MessageHand
                         }
                     }
                 }
-                if(follow != Suit.HEARTS && !Object.values(data.playerOutOfSuit).some(arr => arr.includes(follow)) && data.numTimesPlayed[follow.letter] == 1) {
+                if(follow !== Suit.HEARTS && !Object.values(data.playerOutOfSuit).some(arr => arr.includes(follow)) && data.numTimesPlayed[follow.letter] === 1) {
                     // Safe-ish round, throw a high card
                     if(follow !== Suit.SPADES) {
                         responsesQueue.push(new PlayCardResponseMessage(cardsOfSuitDescending[0], data));
@@ -216,7 +222,7 @@ export class HeuristicHandler implements Handler<GameHandlerParams & MessageHand
                     return;
                 }
                 const nearplay = cardsOfSuitAscending.find(card => -card.rank.difference(winningRank) <= 2 - Math.floor(currentTrick.length / 2));
-                if(currentTrick.length != 3 && (data.numTimesPlayed[follow.letter] > 0 || follow == Suit.HEARTS) && nearplay) {
+                if(currentTrick.length !== 3 && (data.numTimesPlayed[follow.letter] > 0 || follow === Suit.HEARTS) && nearplay) {
                     // We can't underplay, so try to play relatively close
                     responsesQueue.push(new PlayCardResponseMessage(nearplay, data));
                     return;
@@ -232,53 +238,57 @@ export class HeuristicHandler implements Handler<GameHandlerParams & MessageHand
                 // We probably are doomed on this hand, so just go high anyway
                 responsesQueue.push(new PlayCardResponseMessage(cardsOfSuitDescending[0], data));
                 return;
-            } else {
-                if(sorted[Suit.SPADES.letter]?.length > 3){
-                    // Bring out dead - try to pull out the queen
-                    responsesQueue.push(new PlayCardResponseMessage(sorted[Suit.SPADES.letter].sort(Card.compare)[0], data));
+            } 
+            if(sorted[Suit.SPADES.letter]?.length > 3) {
+                // Bring out dead - try to pull out the queen
+                responsesQueue.push(new PlayCardResponseMessage(sorted[Suit.SPADES.letter].sort(Card.compare)[0], data));
+                return;
+            }
+
+            if(canBeHeart && sorted[Suit.HEARTS.letter]?.length) {
+                let card;
+                if(data.numTimesPlayed[Suit.HEARTS.letter] === 0) {
+                    card = sorted[Suit.HEARTS.letter].sort(Card.compare).map((card, index) => ({ card, lower: card.rank.order - Rank.TWO.order - index }))
+                        .filter(({ card, lower }) => lower <= 2)
+                        .reverse()[0]?.card;
+                } else {
+                    card = sorted[Suit.HEARTS.letter].sort(Card.compare).map((card, index) => ({ card, lower: card.rank.order - Rank.TWO.order - index }))
+                        .filter(({ card, lower }) => lower <= 4)
+                        .reverse()[0]?.card;
+                }
+                if(card) {
+                    // Start a land war - low hearts we will probably win
+                    responsesQueue.push(new PlayCardResponseMessage(card, data));
                     return;
                 }
+            }
 
-                if(canBeHeart && sorted[Suit.HEARTS.letter]?.length) {
-                    let card;
-                    if(data.numTimesPlayed[Suit.HEARTS.letter] == 0) {
-                        card = sorted[Suit.HEARTS.letter].sort(Card.compare).map((card, index) => ({card, lower: card.rank.order - Rank.TWO.order - index})).filter(({card, lower}) => lower <= 2).reverse()[0]?.card;
-                    } else {
-                        card = sorted[Suit.HEARTS.letter].sort(Card.compare).map((card, index) => ({card, lower: card.rank.order - Rank.TWO.order - index})).filter(({card, lower}) => lower <= 4).reverse()[0]?.card;
-                    }
-                    if(card) {
-                        // Start a land war - low hearts we will probably win
-                        responsesQueue.push(new PlayCardResponseMessage(card, data));
-                        return;
-                    }
-                }
-
-                const suitOfLeast = [
-                    ...Object.entries(sorted)
+            const suitOfLeast = [
+                ...Object.entries(sorted)
                     .filter(entry => entry[0] !== Suit.HEARTS.letter)
                     .filter(entry => entry[0] !== Suit.SPADES.letter || data.queenPlayed || !(entry[1].some(card => card.rank.difference(Rank.QUEEN) > 0)))
                     .filter(entry => entry[1].length > 0)
                     .sort((first, second) => second[1].length - first[1].length)
                     .map(entry => entry[0]),
-                    Suit.HEARTS.letter
-                ];
+                Suit.HEARTS.letter,
+            ];
 
-                // Start with suit we have least of, avoiding queen and hearts
-                const least = sorted[suitOfLeast[0]].sort(Card.compare);
-                // TODO don't start with 2/3 on first of suit?
-                if(!QS.equals(least[0])) {
-                    responsesQueue.push(new PlayCardResponseMessage(least[0], data));
-                    return;
-                } else if(least.length > 1){
-                    responsesQueue.push(new PlayCardResponseMessage(least[1], data));
-                    return;
-                } else if(suitOfLeast.length > 1) {
-                    responsesQueue.push(new PlayCardResponseMessage(sorted[suitOfLeast[1]].sort(Card.compare)[0], data));
-                    return;
-                }
-                
-                responsesQueue.push(new PlayCardResponseMessage(hand.filter(card => !QS.equals(card))[0], data));
+            // Start with suit we have least of, avoiding queen and hearts
+            const least = sorted[suitOfLeast[0]].sort(Card.compare);
+            // TODO don't start with 2/3 on first of suit?
+            if(!QS.equals(least[0])) {
+                responsesQueue.push(new PlayCardResponseMessage(least[0], data));
+                return;
+            } else if(least.length > 1) {
+                responsesQueue.push(new PlayCardResponseMessage(least[1], data));
+                return;
+            } else if(suitOfLeast.length > 1) {
+                responsesQueue.push(new PlayCardResponseMessage(sorted[suitOfLeast[1]].sort(Card.compare)[0], data));
+                return;
             }
+                
+            responsesQueue.push(new PlayCardResponseMessage(hand.filter(card => !QS.equals(card))[0], data));
+            
         } catch (e) {
             // console.error(e);
         }
@@ -288,7 +298,7 @@ export class HeuristicHandler implements Handler<GameHandlerParams & MessageHand
 
     handleMessage = (gameState: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>, message: Message): void => {
         const data = wrapData(gameState);
-        const { trick: { currentTrick } } = gameState;
+        const { trick: { currentTrick }} = gameState;
         if(isPlayedMessage(message)) {
             if(data.numTimesPlayed[Suit.CLUBS.letter] === 0) {
                 data.numTimesPlayed[Suit.CLUBS.letter]++;
@@ -297,7 +307,7 @@ export class HeuristicHandler implements Handler<GameHandlerParams & MessageHand
                 data.numTimesPlayed[(currentTrick[0] as Card).suit.letter]++;
             }
             if(currentTrick.length > 1 && message.card.suit !== (currentTrick[0] as Card).suit) {
-                data.playerOutOfSuit[message.player] = [...(data.playerOutOfSuit[message.player] || []) as Suit[], (currentTrick[0] as Card).suit].filter((val, index, arr) => arr.indexOf(val) === index);
+                data.playerOutOfSuit[message.player] = [ ...(data.playerOutOfSuit[message.player] || []) as Suit[], (currentTrick[0] as Card).suit ].filter((val, index, arr) => arr.indexOf(val) === index);
             }
             if(QS.equals(message.card)) { 
                 data.queenPlayed = true;
@@ -308,15 +318,17 @@ export class HeuristicHandler implements Handler<GameHandlerParams & MessageHand
         // TODO handle getting passed all of same suit
     }
 
-    // shouldTryToShootTheMoon(handlerData: HandlerData) {
-    //     for(let player = 0; player < handlerData.numPlayers; player++)
-    //         if(player !== handlerData.position) {
-    //             if(handlerData.pointsTaken[player] > 0) {
-    //                 return false;
-    //             }
-    //         }
-    //     }
-    // }
+    /*
+     * shouldTryToShootTheMoon(handlerData: HandlerData) {
+     *     for(let player = 0; player < handlerData.numPlayers; player++)
+     *         if(player !== handlerData.position) {
+     *             if(handlerData.pointsTaken[player] > 0) {
+     *                 return false;
+     *             }
+     *         }
+     *     }
+     * }
+     */
 }
 
 function isPlayedMessage(message: Message): message is PlayedMessage {

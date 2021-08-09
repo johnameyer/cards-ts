@@ -14,13 +14,13 @@ function followsSuit(suit: Suit | undefined, trumpSuit: Suit, card: Card) {
     if(card.rank === Rank.JACK) {
         if(suit === trumpSuit) {
             return card.suit === suit || card.suit === getComplementarySuit(suit);
-        } else {
-            return card.suit === suit && card.suit !== getComplementarySuit(trumpSuit);
-        }
-    } else {
-        if(card.suit === suit) {
-            return true;
-        }
+        } 
+        return card.suit === suit && card.suit !== getComplementarySuit(trumpSuit);
+        
+    } 
+    if(card.suit === suit) {
+        return true;
     }
+    
     return false;
 }

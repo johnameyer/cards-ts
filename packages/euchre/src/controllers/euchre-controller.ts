@@ -1,6 +1,6 @@
-import { AbstractHandsController, Card, DeckController, GenericControllerProvider, GenericHandlerController, GlobalController, Serializable, Suit, SystemHandlerParams } from "@cards-ts/core";
-import { GameHandlerParams } from "../game-handler-params";
-import { ResponseMessage } from "../messages/response-message";
+import { AbstractHandsController, Card, DeckController, GenericControllerProvider, GenericHandlerController, GlobalController, Serializable, Suit, SystemHandlerParams } from '@cards-ts/core';
+import { GameHandlerParams } from '../game-handler-params';
+import { ResponseMessage } from '../messages/response-message';
 
 export interface EuchreState {
     [key: string]: Serializable;
@@ -26,8 +26,8 @@ export class EuchreControllerProvider implements GenericControllerProvider<Euchr
             bidder: undefined,
             currentTrump: undefined as any as Suit,
             flippedCard: undefined as any as Card,
-            goingAlone: undefined
-        }
+            goingAlone: undefined,
+        };
     }
 
     dependencies() {
@@ -73,7 +73,7 @@ export class EuchreController extends GlobalController<EuchreState, EuchreDepend
         this.state.currentTrump = this.state.flippedCard.suit;
     }
 
-    reset(){
+    reset() {
         this.state = new EuchreControllerProvider().initialState();
     }
 }

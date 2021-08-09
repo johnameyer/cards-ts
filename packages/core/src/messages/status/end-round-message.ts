@@ -1,5 +1,5 @@
-import { Presentable } from "../../intermediary/presentable";
-import { Message } from "../message";
+import { Presentable } from '../../intermediary/presentable';
+import { Message } from '../message';
 
 function generateMessage(players: readonly string[], scores: readonly number[]): Presentable[] {
     const arr: string[] = [];

@@ -1,13 +1,13 @@
-import { Message, Presentable } from "@cards-ts/core";
+import { Message, Presentable } from '@cards-ts/core';
 
 function generateMessage(numToPass: number, passing: number, numPlayers: number): Presentable[] {
     if(passing === numPlayers / 2) {
-        return ['Passing', numToPass, 'cards across'];
+        return [ 'Passing', numToPass, 'cards across' ];
     } else if(passing < 0) {
-        return ['Passing', numToPass, 'cards', -passing, 'to the left'];
-    } else {
-        return ['Passing', numToPass, 'cards', passing, 'to the right'];
-    }
+        return [ 'Passing', numToPass, 'cards', -passing, 'to the left' ];
+    } 
+    return [ 'Passing', numToPass, 'cards', passing, 'to the right' ];
+    
 }
 
 /**

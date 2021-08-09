@@ -1,5 +1,5 @@
-import { AbstractController, DeckController, ParamsController, GenericControllerProvider } from "@cards-ts/core";
-import { GameParams } from "../game-params";
+import { AbstractController, DeckController, ParamsController, GenericControllerProvider } from '@cards-ts/core';
+import { GameParams } from '../game-params';
 
 type CanIHaveThatState = {
     wantCard?: boolean;
@@ -12,10 +12,10 @@ type CanIHaveThatState = {
 type CanIHaveThatDependencies = { deck: DeckController, params: ParamsController<GameParams> };
 
 export class CanIHaveThatControllerProvider implements GenericControllerProvider<CanIHaveThatState, CanIHaveThatDependencies, CanIHaveThatController> {
-    initialState(){
+    initialState() {
         return {
             whoseAsk: 0,
-            round: 0
+            round: 0,
         };
     }
 
@@ -23,7 +23,7 @@ export class CanIHaveThatControllerProvider implements GenericControllerProvider
         return { deck: true, params: true } as const;
     }
 
-    controller(state: CanIHaveThatState, controllers: CanIHaveThatDependencies){
+    controller(state: CanIHaveThatState, controllers: CanIHaveThatDependencies) {
         return new CanIHaveThatController(state, controllers);
     }
 }
@@ -32,8 +32,8 @@ export class CanIHaveThatController extends AbstractController<CanIHaveThatState
     getFor() {
         return {
             whoseAsk: this.state.whoseAsk,
-            round: this.state.round
-        }
+            round: this.state.round,
+        };
     }    
 
     validate(): void {
@@ -87,7 +87,7 @@ export class CanIHaveThatController extends AbstractController<CanIHaveThatState
      */
     getNumToDeal() {
         const roundNeeded = this.getRound().reduce((one, two) => one + two, 0);
-        if (this.getRound() === this.controllers.params.get().rounds[-1]) {
+        if(this.getRound() === this.controllers.params.get().rounds[-1]) {
             return roundNeeded; // on the last hand, since there is no discard, deal one less
         }
         return roundNeeded + 1;

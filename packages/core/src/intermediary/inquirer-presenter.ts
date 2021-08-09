@@ -1,11 +1,12 @@
-import { Presenter } from './presenter';
-import { Serializable } from "./serializable";
 import inquirer from 'inquirer';
+// @ts-ignore
+import selectLine from 'inquirer-select-line';
 import { Message } from '../messages/message';
-import { Card } from '..';
+import { Card } from '../cards/card';
+import { Presenter } from './presenter';
 import { Presentable } from './presentable';
 
-inquirer.registerPrompt('selectLine', require('inquirer-select-line'));
+inquirer.registerPrompt('selectLine', selectLine);
 
 /**
  * Prompts questions to the user using the Inquirer library
@@ -23,7 +24,7 @@ export class InquirerPresenter implements Presenter {
             validate: options.validate ? (input) => options.validate(input, options.validateParam) : undefined,
             message: Message.defaultTransformer(options.message),
             name: 'checkbox',
-            type: 'checkbox'
+            type: 'checkbox',
         }])).checkbox;
     }
 
@@ -32,7 +33,7 @@ export class InquirerPresenter implements Presenter {
             ...options,
             message: Message.defaultTransformer(options.message),
             name: 'list',
-            type: 'list'
+            type: 'list',
         }])).list;
     }
 
@@ -43,7 +44,7 @@ export class InquirerPresenter implements Presenter {
             validate: options.validate ? (input) => options.validate(input, options.validateParam) : undefined,
             message: Message.defaultTransformer(options.message),
             name: 'input',
-            type: 'input'
+            type: 'input',
         }])).input;
     }
 
@@ -52,7 +53,7 @@ export class InquirerPresenter implements Presenter {
             ...options,
             message: Message.defaultTransformer(options.message),
             name: 'confirm',
-            type: 'confirm'
+            type: 'confirm',
         }])).confirm;
     }
 
@@ -63,7 +64,7 @@ export class InquirerPresenter implements Presenter {
             validate: options.validate ? (input) => options.validate(input, options.validateParam) : undefined,
             message: Message.defaultTransformer(options.message),
             name: 'selectLine',
-            type: 'selectLine'
+            type: 'selectLine',
         }])).selectLine;
     }
 

@@ -12,5 +12,5 @@ export const GameStates = {
     END_BATTLE: 'END_BATTLE',
     
     START_WAR: 'START_WAR',
-    END_WAR: 'END_WAR'
+    END_WAR: 'END_WAR',
 } as const;

@@ -1,5 +1,5 @@
-import { Serializable } from "../intermediary/serializable";
-import { AbstractController, GenericControllerProvider } from "./controller";
+import { Serializable } from '../intermediary/serializable';
+import { AbstractController, GenericControllerProvider } from './controller';
 
 /**
  * Field for the handlers to save their custom data (since they are meant to be stateless)

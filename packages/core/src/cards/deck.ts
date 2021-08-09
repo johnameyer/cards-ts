@@ -40,12 +40,12 @@ export class Deck {
      * @returns the new deck
      */
     constructor(num = 0, shouldShuffle = true, includeJokers = true, ranks = Rank.ranks) {
-        if (num >= 0) {
+        if(num >= 0) {
             this.cards = [];
-            for (let deck = 0; deck < num; deck ++) {
-                for (const suit of Suit.suits) {
-                    for (const rank of ranks) {
-                        if (rank !== Rank.JOKER) {
+            for(let deck = 0; deck < num; deck++) {
+                for(const suit of Suit.suits) {
+                    for(const rank of ranks) {
+                        if(rank !== Rank.JOKER) {
                             this.cards.push(new Card(suit, rank, deck));
                         }
                     }
@@ -59,7 +59,7 @@ export class Deck {
         } else {
             throw new InvalidError('Must have a non-negative number of cards');
         }
-        if (shouldShuffle) {
+        if(shouldShuffle) {
             shuffle(this.cards);
         }
     }
@@ -69,7 +69,7 @@ export class Deck {
      * @returns the top card, or null available
      */
     get top(): Card | null {
-        if (!this.topAvailable || this.discards.length === 0) {
+        if(!this.topAvailable || this.discards.length === 0) {
             return null;
         }
         return this.discards[this.discards.length - 1];
@@ -94,7 +94,7 @@ export class Deck {
      */
     public flip(): Card {
         const card = this.draw();
-        if (card === undefined) {
+        if(card === undefined) {
             throw new Error('No cards to flip');
         }
         this.discard(card);

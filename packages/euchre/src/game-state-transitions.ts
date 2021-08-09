@@ -1,9 +1,9 @@
-import { GameStates } from "./game-states";
 import { SpacingMessage, GenericGameState, GenericGameStateTransitions, TurnUpMessage, LeadsMessage } from '@cards-ts/core';
-import { PlayedMessage, EndRoundMessage, OrderUpMessage, PassMessage, NameTrumpMessage, TrumpMessage, WonTrickMessage, WonRoundMessage, GoingAloneMessage } from "./messages/status";
-import { getTeamFor } from "./util/teams";
-import { winningPlay } from "./util/winning-play";
-import { Controllers, GameControllers } from "./controllers/controllers";
+import { GameStates } from './game-states';
+import { PlayedMessage, EndRoundMessage, OrderUpMessage, PassMessage, NameTrumpMessage, TrumpMessage, WonTrickMessage, WonRoundMessage, GoingAloneMessage } from './messages/status';
+import { getTeamFor } from './util/teams';
+import { winningPlay } from './util/winning-play';
+import { Controllers, GameControllers } from './controllers/controllers';
 
 type GameState = GenericGameState<GameControllers>;
 
@@ -28,7 +28,7 @@ export class GameStateTransitions implements GenericGameStateTransitions<typeof 
             [GameStates.END_TRICK]: this.endTrick,
             [GameStates.END_ROUND]: this.endRound,
             [GameStates.END_GAME]: this.endGame,
-        }
+        };
     }
 
     startGame(controllers: Controllers) {
@@ -92,7 +92,7 @@ export class GameStateTransitions implements GenericGameStateTransitions<typeof 
     }
 
     handleDealerDiscard(controllers: Controllers) {
-        controllers.hand.giveCards(controllers.deck.dealer, [controllers.euchre.flippedCard]);
+        controllers.hand.giveCards(controllers.deck.dealer, [ controllers.euchre.flippedCard ]);
 
         controllers.state.set(GameStates.START_TRICK);
     }
@@ -153,7 +153,7 @@ export class GameStateTransitions implements GenericGameStateTransitions<typeof 
 
     handlePlay(controllers: Controllers) {
         const playedCard = controllers.trick.handlePlayed();
-        controllers.players.messageOthers(controllers.turn.get(), new PlayedMessage(controllers.names.get(controllers.turn.get()), playedCard))
+        controllers.players.messageOthers(controllers.turn.get(), new PlayedMessage(controllers.names.get(controllers.turn.get()), playedCard));
 
         controllers.state.set(GameStates.END_PLAY);
     }
@@ -177,11 +177,13 @@ export class GameStateTransitions implements GenericGameStateTransitions<typeof 
         controllers.trick.leader = winner;
         controllers.tricksTaken.increaseScore(getTeamFor(winner, controllers.params.get()), 1);
 
-        // if(controllers.gameParams.quickEnd && !controllers.hands.flatMap(hand => hand).map(valueOfCard).some(value => value >= 0)) {
-        //     // might be nice to have a message here if round ends early
-        //     controllers.state.set(GameStates.END_ROUND);
-        // } else
-         if(controllers.hand.numberOfPlayersWithCards() < controllers.players.count) {
+        /*
+         * if(controllers.gameParams.quickEnd && !controllers.hands.flatMap(hand => hand).map(valueOfCard).some(value => value >= 0)) {
+         *     // might be nice to have a message here if round ends early
+         *     controllers.state.set(GameStates.END_ROUND);
+         * } else
+         */
+        if(controllers.hand.numberOfPlayersWithCards() < controllers.players.count) {
             controllers.state.set(GameStates.END_ROUND);
         } else {
             controllers.state.set(GameStates.START_TRICK);
@@ -199,7 +201,7 @@ export class GameStateTransitions implements GenericGameStateTransitions<typeof 
             }
         }
 
-        let points = calculatePoints(bidderTeam, winnerPlayer, controllers);
+        const points = calculatePoints(bidderTeam, winnerPlayer, controllers);
         const winnerTeam = getTeamFor(winnerPlayer, controllers.params.get());
         // TODO rework this to group players
         controllers.score.increaseScore(winnerTeam, points);
@@ -228,18 +230,18 @@ export class GameStateTransitions implements GenericGameStateTransitions<typeof 
 }
 
 function calculatePoints(bidderTeam: number[], winner: number, controllers: Controllers) {
-    if (bidderTeam.includes(winner)) {
-        if (controllers.tricksTaken.get(winner) === 5) {
+    if(bidderTeam.includes(winner)) {
+        if(controllers.tricksTaken.get(winner) === 5) {
             if(controllers.euchre.goingAlone) {
                 return 4;
             }
             return 2;
         }
         return 1;
-    } else {
-        return 2;
-        // 'euchred'
-    }
+    } 
+    return 2;
+    // 'euchred'
+    
 }
 
 function isPlayingThisRound(position: number, controllers: Controllers) {

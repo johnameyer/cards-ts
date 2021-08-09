@@ -1,4 +1,4 @@
-import { ControllerHandlerState, IndexedProviders, ControllerState, initializeControllers, validate, UnwrapProviders, IndexedControllers, ControllersProviders } from '../controllers/controller';
+import { ControllerHandlerState, ControllerState, ControllersProviders, IndexedControllers, initializeControllers, validate } from '../controllers/controller';
 import { deserialize, serialize } from '../intermediary/serializable';
 
 /**
@@ -7,6 +7,7 @@ import { deserialize, serialize } from '../intermediary/serializable';
 export class GenericGameState<Controllers extends IndexedControllers> {
     // TODO reconsider how to use 'exposed' in contravariant position
     private state?: ControllerState<Controllers> = undefined;
+
     private allControllers!: Controllers;
     
     constructor(private readonly providers: ControllersProviders<Controllers>, state?: ControllerState<Controllers>) {
@@ -23,15 +24,17 @@ export class GenericGameState<Controllers extends IndexedControllers> {
     }
 
     asHandlerData(position: number): ControllerHandlerState<Controllers> {
-        // TODO nicer way of cloning state, but without reverting to doing it at the controller level
-        // (cloning needed so that mutating in handler does not mutate upstream)
-        return Object.fromEntries(Object.entries(this.allControllers).map(([key, value]) => [key, deserialize(serialize(value.getFor(position)))])) as any;
+        /*
+         * TODO nicer way of cloning state, but without reverting to doing it at the controller level
+         * (cloning needed so that mutating in handler does not mutate upstream)
+         */
+        return Object.fromEntries(Object.entries(this.allControllers).map(([ key, value ]) => [ key, deserialize(serialize(value.getFor(position))) ])) as any;
     }
 
     public clone(): GenericGameState<Controllers> {
         return new GenericGameState(
             this.providers, 
-            Object.fromEntries(Object.entries(this.allControllers).map(([key, value]) => [key, deserialize(serialize((value as any).state))])) as any
+            Object.fromEntries(Object.entries(this.allControllers).map(([ key, value ]) => [ key, deserialize(serialize((value as any).state)) ])) as any,
         );
     }
 }

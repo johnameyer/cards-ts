@@ -1,10 +1,10 @@
-import { Card } from "../cards/card";
-import { GenericHandlerController } from "../games/generic-handler-controller";
-import { SystemHandlerParams } from "../handlers/system-handler";
-import { Serializable } from "../intermediary/serializable";
-import { DealtOutMessage } from "../messages/status";
-import { AbstractController, GenericControllerProvider } from "./controller";
-import { DeckController } from "./deck-controller";
+import { Card } from '../cards/card';
+import { GenericHandlerController } from '../games/generic-handler-controller';
+import { SystemHandlerParams } from '../handlers/system-handler';
+import { Serializable } from '../intermediary/serializable';
+import { DealtOutMessage } from '../messages/status';
+import { AbstractController, GenericControllerProvider } from './controller';
+import { DeckController } from './deck-controller';
 
 /**
  * The cards of all hands
@@ -23,13 +23,13 @@ export abstract class AbstractHandsController<HandlerType extends Serializable> 
         }
     }
 
-    public dealOut(shouldMessage: boolean = true, shouldAnnounceDealer: boolean = false, numCards: number = -1) {
+    public dealOut(shouldMessage = true, shouldAnnounceDealer = false, numCards = -1) {
         const deck = this.controllers.deck.deck;
         deck.shuffle();
-        while(deck.cards.length && numCards != 0) {
+        while(deck.cards.length && numCards !== 0) {
             for(let j = 0; j < this.controllers.players.count; j++) {
                 const player = (j + this.controllers.deck.dealer) % this.controllers.players.count;
-                this.giveCards(player, [deck.draw()]);
+                this.giveCards(player, [ deck.draw() ]);
             }
             numCards--;
         }
@@ -59,7 +59,7 @@ export abstract class AbstractHandsController<HandlerType extends Serializable> 
     }
 
     public handWithMostCards() {
-        return this.state.reduce<[number, number]>(([index, count], cards, newIndex) => cards.length > count ? [newIndex, cards.length] : [index, count], [0, 0])[0];
+        return this.state.reduce<[number, number]>(([ index, count ], cards, newIndex) => cards.length > count ? [ newIndex, cards.length ] : [ index, count ], [ 0, 0 ])[0];
     }
 
     public shift(position: number) {
@@ -67,13 +67,17 @@ export abstract class AbstractHandsController<HandlerType extends Serializable> 
     }
 
     get(): Card[][];
+
     get(position: number): Card[];
+
     get(position?: number): Card[] | Card[][] {
         return position !== undefined ? this.state[position] : this.state;
     }
     
     hasCard(card: Card): number;
+
     hasCard(card: Card, position: number): boolean;
+
     hasCard(card: Card, position?: number): number | boolean {
         if(position !== undefined) {
             return this.state[position].findIndex(card.equals.bind(card)) >= 0;
@@ -91,7 +95,8 @@ export abstract class AbstractHandsController<HandlerType extends Serializable> 
     }
 
     reset() {
-        this.state = new Array(this.controllers.players.count).fill(undefined).map(() => []);
+        this.state = new Array(this.controllers.players.count).fill(undefined)
+            .map(() => []);
     }
 }
 
@@ -99,7 +104,8 @@ abstract class AbstractHandsControllerProvider<HandsController extends AbstractH
     abstract controller(state: HandsState, controllers: HandDependencies): HandsController;
 
     initialState(controllers: HandDependencies): HandsState {
-        return new Array(controllers.players.count).fill(undefined).map(() => []);
+        return new Array(controllers.players.count).fill(undefined)
+            .map(() => []);
     }
 
     dependencies() {

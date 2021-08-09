@@ -1,7 +1,7 @@
-import { Message, Presentable } from "@cards-ts/core";
+import { Message, Presentable } from '@cards-ts/core';
 
 function generateMessage(points: number): Presentable[] {
-    return ['Received', points, 'points'];
+    return [ 'Received', points, 'points' ];
 }
 
 /**

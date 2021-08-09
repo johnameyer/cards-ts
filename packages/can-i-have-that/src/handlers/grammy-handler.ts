@@ -1,5 +1,5 @@
-import { GameHandler, HandlerData } from '../game-handler';
 import { Card, DiscardResponseMessage, HandlerResponsesQueue } from '@cards-ts/core';
+import { GameHandler, HandlerData } from '../game-handler';
 import { WantCardResponseMessage } from '../messages/response';
 
 export class GrammyHandler extends GameHandler {
@@ -7,7 +7,7 @@ export class GrammyHandler extends GameHandler {
         responsesQueue.push(new WantCardResponseMessage(true, gameState.data));
     }
 
-    handleTurn = ({hand, data}: HandlerData, responsesQueue: HandlerResponsesQueue<DiscardResponseMessage>) => {
+    handleTurn = ({ hand, data }: HandlerData, responsesQueue: HandlerResponsesQueue<DiscardResponseMessage>) => {
         responsesQueue.push(new DiscardResponseMessage(hand.sort(Card.compare).reverse()[0], data));
     }
 }

@@ -20,14 +20,14 @@ jobs:
       - name: Install Dependencies
         run: yarn add --cached
 
-      - name: Check Circular Dependencies
-        run: yarn run madge
+      # - name: Check Circular Dependencies
+      #   run: yarn run madge
 
       - name: Build
         run: yarn run build
 
-      # - name: Lint
-      #   run: npm run lint
+      - name: Lint
+        run: npm run lint
 
       - name: Test
         run: yarn run test
@@ -35,6 +35,7 @@ jobs:
       - name: Playable Tests
         run: yarn start
         working-directory: ./spec/
+        timeout-minutes: 20
       
       - name: Upload Logs
         uses: actions/upload-artifact@v2

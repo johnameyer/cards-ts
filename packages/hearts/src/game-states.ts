@@ -23,5 +23,5 @@ export const GameStates = {
     
     END_ROUND: 'END_ROUND',
     
-    END_GAME: 'END_GAME'
+    END_GAME: 'END_GAME',
 } as const;
