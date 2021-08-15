@@ -5,6 +5,9 @@ import { GenericControllerProvider, GlobalController } from './controller';
  */
 type NamesState = string[];
 
+/**
+ * @category Controller Provider
+ */
 export class NamesControllerProvider implements GenericControllerProvider<NamesState, {}, NamesController> {
     constructor(private readonly initialNames: string[]) {
     }
@@ -22,6 +25,10 @@ export class NamesControllerProvider implements GenericControllerProvider<NamesS
     }
 }
 
+/**
+ * Holds the names for the players
+ * @category Controller
+ */
 export class NamesController extends GlobalController<NamesState, {}> {
     get(): string[];
 
@@ -30,6 +37,7 @@ export class NamesController extends GlobalController<NamesState, {}> {
     get(position?: number): string | string[] {
         return position !== undefined ? this.state[position] : this.state;
     }
+    // TODO indexed global controller
 
     override validate() {
         if(!Array.isArray(this.state)) {

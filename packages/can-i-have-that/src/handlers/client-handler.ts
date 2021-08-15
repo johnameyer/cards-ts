@@ -1,4 +1,4 @@
-import { Card, DiscardResponseMessage, distinct, flatten, FourCardRun, HandlerResponsesQueue, InvalidError, Meld, ThreeCardSet } from '@cards-ts/core';
+import { Card, DiscardResponseMessage, distinct, FourCardRun, HandlerResponsesQueue, InvalidError, Meld, ThreeCardSet } from '@cards-ts/core';
 import { GameHandler, HandlerData } from '../game-handler';
 import { GoDownResponseMessage, PlayResponseMessage, WantCardResponseMessage } from '../messages/response';
 
@@ -44,7 +44,7 @@ export abstract class ClientHandler extends GameHandler {
 
     async playOnOthers(hand: Card[], played: Meld[][], responsesQueue: HandlerResponsesQueue<PlayResponseMessage>, data: unknown) {
         let runToPlayOn: Meld | null;
-        while(hand.length && (runToPlayOn = await this.whichPlay(played.reduce(flatten, []), hand, data))) {
+        while(hand.length && (runToPlayOn = await this.whichPlay(played.flat(), hand, data))) {
             await this.askToPlayOnRun(runToPlayOn, hand, responsesQueue, data);
         }
     }
@@ -75,8 +75,8 @@ export abstract class ClientHandler extends GameHandler {
     async discard(cardsLeft: Card[], roun: (3 | 4)[], played: Meld[][], data: unknown) {
         let live: Card[];
         if(played.some((arr) => arr.length > 0)) {
-            live = played.reduce(flatten, []).map((run) => run.liveCards())
-                .reduce(flatten, [])
+            live = played.flat().map((run) => run.liveCards())
+                .flat()
                 .filter(distinct);
             live.sort(Card.compare);
             // TODO

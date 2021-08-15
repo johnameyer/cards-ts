@@ -9,7 +9,8 @@
     "madge": "lerna run madge",
     "build": "lerna run build",
     "lint": "lerna run lint",
-    "test": "lerna run test"
+    "test": "lerna run test",
+    "docs": "typedoc"
   },
   "repository": {
     "type": "git",
@@ -34,6 +35,7 @@
     "eslint-plugin-unused-imports": "^1.1.2",
     "lerna": "^4.0.0",
     "ts-node-dev": "^1.1.8",
+    "typedoc": "^0.21.5",
     "typescript": "^4.3.5"
   },
   "packageManager": "yarn@3.0.0"

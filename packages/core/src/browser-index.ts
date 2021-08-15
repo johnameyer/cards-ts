@@ -4,12 +4,11 @@ export { checkFourCardRunPossible, FourCardRun } from './cards/four-card-run';
 export { InvalidError } from './cards/invalid-error';
 export { Meld } from './cards/meld';
 export { Rank } from './cards/rank';
-export { runFromObj } from './cards/run-util';
 export { Suit } from './cards/suit';
 export { ThreeCardSet } from './cards/three-card-set';
 export { ValueError } from './cards/value-error';
 
-export { AbstractController, AbstractHandsController, BetsController, CompletedController, HiddenHandsControllerProvider, ControllersProviders, UnwrapProviders, ControllerHandlerState, HandsControllerProvider, ControllerState, DataController, DeckController, GameStateController, GlobalController, HandsController, HiddenHandsController, IndexedControllers, NamesController, ParamsController, PointsController, TricksController, ValidatedProviders, WaitingController, initializeControllers, MeldController, TurnController, GenericControllerProvider, BetsControllerProvider, CompletedControllerProvider, DataControllerProvider, DeckControllerProvider, GameStateControllerProvider, IndexedProviders, MeldControllerProvider, NamesControllerProvider, ParamsControllerProvider, PointsControllerProvider, StatelessController, TricksControllerProvider, TurnControllerProvider, WaitingControllerProvider } from './controllers';
+export { AbstractController, AbstractHandsController, BetsController, CompletedController, HiddenHandsControllerProvider, ControllersProviders, UnwrapProviders, ControllerHandlerState, HandsControllerProvider, ControllerState, DataController, DeckController, GameStateController, GlobalController, HandsController, HiddenHandsController, IndexedControllers, NamesController, ParamsController, PointsController, TricksController, ValidatedProviders, WaitingController, MeldController, TurnController, GenericControllerProvider, BetsControllerProvider, CompletedControllerProvider, DataControllerProvider, DeckControllerProvider, GameStateControllerProvider, IndexedProviders, MeldControllerProvider, NamesControllerProvider, ParamsControllerProvider, PointsControllerProvider, StatelessController, TricksControllerProvider, TurnControllerProvider, WaitingControllerProvider } from './controllers';
 
 export { AbstractGameFactory } from './games/abstract-game-factory';
 export { GameDriver } from './games/game-driver';
@@ -44,8 +43,6 @@ export { DataResponseMessage, DiscardResponseMessage, PlayCardResponseMessage } 
 
 export { combinations } from './util/combinations';
 export { distinct } from './util/distinct';
-export { flatten } from './util/flatten';
 export { isDefined } from './util/is-defined';
-export { isNestedArray } from './util/is-nested-array';
 export { isPromise } from './util/is-promise';
 export { zip } from './util/zip';

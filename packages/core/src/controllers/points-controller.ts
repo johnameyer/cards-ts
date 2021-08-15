@@ -9,6 +9,9 @@ type PointsDependencies = {
     players: GenericHandlerController<any, SystemHandlerParams>;
 };
 
+/**
+ * @category Controller Provider
+ */
 export class PointsControllerProvider implements GenericControllerProvider<PointsState, PointsDependencies, PointsController> {
     controller(state: PointsState, controllers: PointsDependencies): PointsController {
         return new PointsController(state, controllers);
@@ -23,6 +26,10 @@ export class PointsControllerProvider implements GenericControllerProvider<Point
     }
 }
 
+/**
+ * Handles scores for players
+ * @category Controller
+ */
 export class PointsController extends GlobalController<PointsState, PointsDependencies> {
     increaseScore(players: number | number[], increment: number) {
         if(Array.isArray(players)) {

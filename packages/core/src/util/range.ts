@@ -5,7 +5,7 @@
  * @example range(5, 1)
  * > [1,2,3,4,5]
  */
-export function range(size: number, startAt = 0): Array<number> {
+export function range(size: number, startAt = 0): number[] {
     return [ ...Array(size).keys() ].map(i => i + startAt);
 }
 

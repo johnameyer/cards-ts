@@ -10,3 +10,4 @@ yarn-error.log
 !.yarn/plugins
 !.yarn/versions
 .pnp.cjs
+docs

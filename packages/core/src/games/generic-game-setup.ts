@@ -1,11 +1,15 @@
 import { Intermediary } from '../intermediary/intermediary';
 
+/**
+ * Represents possible error messages for the subset of params in T
+ */
 type ErrorForKey<T> = {
     readonly [Key in keyof T]?: string
 }
 
 /**
  * Gives a nicer way to setup a game
+ * @typeParam GameParams the params this sets up for
  */
 export interface GenericGameSetup<GameParams> {
     /**

@@ -11,6 +11,7 @@ function generateMessage(players: readonly string[], scores: readonly number[]):
 
 /**
  * Class denoting to handlers that the round has ended
+ * @category Message
  */
 export class EndRoundMessage extends Message {
     /**

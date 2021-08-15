@@ -2,7 +2,9 @@ import { Message } from '../messages/message';
 import { IndexedControllers } from '../controllers/controller';
 
 /**
- * Abstract class for handling incoming events
+ * Abstract class for validating and merging incoming events
+ * @typeParam Controllers the state controllers for this game
+ * @typeParam ResponseMessage the response messages this game expects
  */
 export interface EventHandlerInterface<Controllers extends IndexedControllers, ResponseMessage extends Message> {
     /**

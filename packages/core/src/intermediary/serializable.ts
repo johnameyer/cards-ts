@@ -6,6 +6,9 @@ import { Suit } from '../cards/suit';
 import { ThreeCardSet } from '../cards/three-card-set';
 import { Presentable } from './presentable';
 
+/**
+ * Things that the library knows how to serialize and deserialize
+ */
 export type Serializable = Presentable | Deck | Serializable[] | {
     [key: string]: Serializable;
 } | undefined | null;
@@ -16,8 +19,18 @@ export type ReadonlySerializable = Presentable | Deck | readonly Serializable[] 
 
 export type SerializableObject = { [key: string]: Serializable };
 
-export const serialize = (value: any) => value === undefined ? 'undefined' : JSON.stringify(value);
+/**
+ * Writes a value to a string
+ * @param value the value to write to a string
+ * @returns the value as a string
+ */
+export const serialize = (value: Serializable): string => value === undefined ? 'undefined' : JSON.stringify(value);
 
+/**
+ * Deserializes from a string
+ * @param str the value as a string
+ * @returns the deserialized object
+ */
 export function deserialize(str: string): Serializable {
     if(str === 'undefined') {
         return undefined;
@@ -26,6 +39,9 @@ export function deserialize(str: string): Serializable {
     return reconstruct(result);
 }
 
+/**
+ * Creates serializable objects out of plain object values
+ */
 export function reconstruct(result: unknown): Serializable {
     if(result === undefined || result === null) {
         return undefined;
@@ -59,7 +75,7 @@ export function reconstruct(result: unknown): Serializable {
     } catch (e) {
         console.log(e);
     }
-    return Object.fromEntries(Object.entries(result as object).map(([ key, value ]) => [ key, reconstruct(value) ]));
+    return Object.fromEntries(Object.entries(result as Record<string, unknown>).map(([ key, value ]) => [ key, reconstruct(value) ]));
 }
 
 function hasType(t: unknown): t is { type: unknown } {

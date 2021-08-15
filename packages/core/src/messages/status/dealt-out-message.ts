@@ -8,6 +8,7 @@ function generateMessage(cards: Card[]): Presentable[] {
 
 /**
  * Class that denotes to a handler that they have been dealt or drawn a card
+ * @category Message
  */
 export class DealtOutMessage extends Message {
     /**

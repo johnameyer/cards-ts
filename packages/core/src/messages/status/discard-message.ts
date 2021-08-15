@@ -12,6 +12,7 @@ function generateMessage(card: Card, player?: string): Presentable[] {
 
 /**
  * Class that denotes to a handler that a player has discarded a card
+ * @category Message
  */
 export class DiscardMessage extends Message {
     // TODO consider how to represent the player better for programmatic handlers' tracking

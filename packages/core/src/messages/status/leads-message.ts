@@ -7,6 +7,7 @@ function generateMessage(leader: string): Presentable[] {
 
 /**
  * Class that denotes to a handler that a certain player is leading this round
+ * @category Message
  */
 export class LeadsMessage extends Message {
 

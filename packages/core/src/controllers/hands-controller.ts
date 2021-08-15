@@ -16,6 +16,10 @@ type HandDependencies = {
     players: GenericHandlerController<any, SystemHandlerParams>;
 };
 
+/**
+ * Handles state for players' hands
+ * Has children classes that allow for hiding and showing the hands to handlers
+ */
 export abstract class AbstractHandsController<HandlerType extends Serializable> extends AbstractController<HandsState, HandDependencies, HandlerType> {
     override validate() {
         if(!Array.isArray(this.state)) {
@@ -100,6 +104,9 @@ export abstract class AbstractHandsController<HandlerType extends Serializable> 
     }
 }
 
+/**
+ * @category Controller Provider
+ */
 abstract class AbstractHandsControllerProvider<HandsController extends AbstractHandsController<any>> implements GenericControllerProvider<HandsState, HandDependencies, HandsController> {
     abstract controller(state: HandsState, controllers: HandDependencies): HandsController;
 
@@ -113,24 +120,37 @@ abstract class AbstractHandsControllerProvider<HandsController extends AbstractH
     }
 }
 
+/**
+ * @category Controller Provider
+ */
 export class HandsControllerProvider extends AbstractHandsControllerProvider<HandsController> {
     controller(state: HandsState, controllers: HandDependencies): HandsController {
         return new HandsController(state, controllers);
     }
 }
 
+/**
+ * Handles state for players' hands and shows it to handlers
+ */
 export class HandsController extends AbstractHandsController<Card[]> {
     getFor(position: number) {
         return this.state[position];
     }
 }
 
+/**
+ * @category Controller Provider
+ */
 export class HiddenHandsControllerProvider extends AbstractHandsControllerProvider<HiddenHandsController> {
     controller(state: HandsState, controllers: HandDependencies): HiddenHandsController {
         return new HiddenHandsController(state, controllers);
     }
 }
 
+/**
+ * Handles state for players' hands but keeps it hidden from handlers
+ * @category Controller
+ */
 export class HiddenHandsController extends AbstractHandsController<undefined> {
     getFor() {
         return undefined;

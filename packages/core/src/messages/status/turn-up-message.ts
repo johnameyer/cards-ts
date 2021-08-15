@@ -8,6 +8,7 @@ function generateMessage(card: Card): Presentable[] {
 
 /**
  * Class that denotes to a handler that a card was flipped over
+ * @category Message
  */
 export class TurnUpMessage extends Message {
 

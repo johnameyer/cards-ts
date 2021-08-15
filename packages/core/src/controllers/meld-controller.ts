@@ -22,6 +22,9 @@ type MeldDependencies = {
     players: GenericHandlerController<any, SystemHandlerParams>;
 };
 
+/**
+ * @category Controller Provider
+ */
 export class MeldControllerProvider implements GenericControllerProvider<MeldState, {}, MeldController> {
     controller(state: MeldState, controllers: MeldDependencies): MeldController {
         return new MeldController(state, controllers);
@@ -41,6 +44,10 @@ export class MeldControllerProvider implements GenericControllerProvider<MeldSta
     }
 }
 
+/**
+ * Handles the state for meld type games
+ * @category Controller
+ */
 export class MeldController extends GlobalController<MeldState, MeldDependencies> {
     resetTurn() {
         this.controllers.turn.set((this.controllers.deck.dealer + 1) % this.controllers.players.count);
