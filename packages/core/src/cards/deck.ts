@@ -155,7 +155,7 @@ export class Deck {
         if(!(obj instanceof Object)) {
             throw new Error('Object is falsy');
         }
-        if(!Array.isArray(obj.cards) || !Array.isArray(obj.discards) || !obj.topAvailable) {
+        if(!Array.isArray(obj.cards) || !Array.isArray(obj.discards) || (obj.topAvailable !== true && obj.topAvailable !== false)) {
             throw new Error('Shape of object is wrong');
         }
         const deck = new Deck();
