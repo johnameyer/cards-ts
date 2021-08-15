@@ -1,5 +1,11 @@
 import { Serializable } from '../intermediary/serializable';
 
+/**
+ * Parent class of controllers, which own a slice of state
+ * @typeParam State the state to be wrapped
+ * @typeParam WrappedControllers the controllers that this controller depends on
+ * @typeParam HandlerData the data that this controller provides to handlers
+ */
 export abstract class AbstractController<State extends Serializable, WrappedControllers extends IndexedControllers, HandlerData extends Serializable = State> {
     constructor(protected state: State, protected controllers: WrappedControllers) {
         this.validate();
@@ -7,7 +13,7 @@ export abstract class AbstractController<State extends Serializable, WrappedCont
 
     abstract getFor(position: number): HandlerData;
 
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    // eslint-disable-next-line @typescript-eslint/no-empty-function, no-empty-function
     validate(): void {} // TODO can we make this more declarative - matchers per state field + overall checker?
 }
 

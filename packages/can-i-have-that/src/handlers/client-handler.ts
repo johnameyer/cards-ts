@@ -44,7 +44,7 @@ export abstract class ClientHandler extends GameHandler {
 
     async playOnOthers(hand: Card[], played: Meld[][], responsesQueue: HandlerResponsesQueue<PlayResponseMessage>, data: unknown) {
         let runToPlayOn: Meld | null;
-        while(hand.length && (runToPlayOn = await this.whichPlay(played.reduce(flatten, []), hand, data))) {
+        while(hand.length && (runToPlayOn = await this.whichPlay(played.flat(), hand, data))) {
             await this.askToPlayOnRun(runToPlayOn, hand, responsesQueue, data);
         }
     }

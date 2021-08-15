@@ -4,7 +4,7 @@
  * @example combinations([1,2])
  * > [[], [1], [2], [1,2]]
  */
-export const combinations = <T>(arr: T[]) => {
+export const combinations = <T>(arr: T[]): T[][] => {
     const inner = function(current: readonly T[], future: readonly T[], results: T[][]) {
         if(future.length === 0) {
             results.push([ ...current ]);

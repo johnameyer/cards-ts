@@ -1,6 +1,5 @@
 import { Message } from '../messages/message';
 import { SystemHandlerParams } from '../handlers/system-handler';
-import { SerializableObject } from '../intermediary/serializable';
 import { CompletedController, GameStateController, WaitingController } from '../controllers';
 import { IndexedControllers } from '../controllers/controller';
 import { GenericGameStateTransitions } from './generic-game-state-transitions';
@@ -10,14 +9,14 @@ import { GenericHandlerProxy } from './generic-handler-controller';
 import { STANDARD_STATES } from './game-states';
 
 /**
- * Class that handles the steps of the game
+ * Class that steps though the game using the game state transitions
  */
-export class GameDriver<Handlers extends {[key: string]: any[]} & SystemHandlerParams, State extends typeof STANDARD_STATES, Controllers extends IndexedControllers & { waiting: WaitingController, completed: CompletedController, state: GameStateController<State> }, GameState extends GenericGameState<Controllers>, ResponseMessage extends Message, EventHandler extends EventHandlerInterface<Controllers, ResponseMessage>> {
+export class GameDriver<Handlers extends {[key: string]: unknown[]} & SystemHandlerParams, State extends typeof STANDARD_STATES, Controllers extends IndexedControllers & { waiting: WaitingController, completed: CompletedController, state: GameStateController<State> }, GameState extends GenericGameState<Controllers>, ResponseMessage extends Message, EventHandler extends EventHandlerInterface<Controllers, ResponseMessage>> {
     /**
      * Tells if the game is waiting on a player
      * @param state the state to analyze
      */
-    static isWaitingOnPlayer<GameParams extends SerializableObject, State extends typeof STANDARD_STATES>(waitingController: WaitingController) {
+    static isWaitingOnPlayer(waitingController: WaitingController) {
         const { waiting } = waitingController.get();
         if(Array.isArray(waiting)) {
             return waiting.length !== 0;
@@ -31,24 +30,30 @@ export class GameDriver<Handlers extends {[key: string]: any[]} & SystemHandlerP
      * @param state the state to analyze
      * @param subset the subset to check against
      */
-    static isWaitingOnPlayerSubset<GameParams extends SerializableObject, State extends typeof STANDARD_STATES>(waitingController: WaitingController, subset: number[]) {
+    static isWaitingOnPlayerSubset(waitingController: WaitingController, subset: number[]) {
         const { waiting, responded } = waitingController.get();
         if(Array.isArray(waiting)) {
             return waiting.length !== 0 && waiting.some(position => subset.includes(position));
         } 
         return waiting <= 0 && subset.some(position => !responded[position]);
-        
     }
 
     /**
      * Create the game driver
-     * @param players the players in the game
-     * @param gameParams the parameters to use for the game
+     * @param handlerProxy the wrapper for the handlers
+     * @param gameState the game state and controllers
+     * @param transitions the transitions for the game
+     * @param eventHandler the event handler for the game
      */
-    constructor(protected handlerProxy: GenericHandlerProxy<ResponseMessage, Handlers>, public gameState: GameState, protected transitions: GenericGameStateTransitions<State, Controllers>, protected eventHandler: EventHandler) {
+    constructor(private handlerProxy: GenericHandlerProxy<ResponseMessage, Handlers>, private gameState: GameState, private transitions: GenericGameStateTransitions<State, Controllers>, private eventHandler: EventHandler) {
         // this.gameState.names = handlerProxy.getNames();
     }
 
+    /**
+     * Handle an incoming event from one of the handlers
+     * @param position the position the event is coming from
+     * @param message the message to handle
+     */
     private handleEvent(position: number, message: ResponseMessage) {
         const updatedMessage = this.eventHandler.validateEvent(this.gameState.controllers, position, message);
 

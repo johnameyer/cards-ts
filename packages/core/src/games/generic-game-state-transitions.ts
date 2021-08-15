@@ -1,6 +1,9 @@
 import { GameStateController, IndexedControllers, WaitingController } from '../controllers';
 import { STANDARD_STATES } from './game-states';
 
+/**
+ * A single transforming function, ran when a certain state is entered
+ */
 type Transition<State extends typeof STANDARD_STATES, Controllers extends IndexedControllers & { waiting: WaitingController, state: GameStateController<State> }> = (controllers: Controllers) => void;
 
 /**
@@ -8,7 +11,7 @@ type Transition<State extends typeof STANDARD_STATES, Controllers extends Indexe
  */
 export interface GenericGameStateTransitions<State extends typeof STANDARD_STATES, Controllers extends IndexedControllers & { waiting: WaitingController, state: GameStateController<State> }> {
     /**
-     * Get the functions that transform the state, arranged by the state enum
+     * Get the functions that transform the state, arranged by the state enum (these will be bound to this class)
      */
     get(): { [state in keyof State]: Transition<State, Controllers> };
 }

@@ -16,9 +16,10 @@ import { GenericHandlerProxy } from './generic-handler-controller';
 import { STANDARD_STATES } from './game-states';
 
 /**
- * Wraps the classes in a game library into one common interface to make usages less verbose
+ * Wraps the classes in a game library into one common interface to make usages less verbose and to hide internal implementation details
  */
-export abstract class AbstractGameFactory<Handles extends {[key: string]: any[]}, GameParams extends SerializableObject, State extends typeof STANDARD_STATES, Controllers extends IndexedControllers, ResponseMessage extends Message, EventHandler extends EventHandlerInterface<Controllers, ResponseMessage>> {
+export abstract class AbstractGameFactory<Handles extends {[key: string]: unknown[]}, GameParams extends SerializableObject, State extends typeof STANDARD_STATES, Controllers extends IndexedControllers, ResponseMessage extends Message, EventHandler extends EventHandlerInterface<Controllers, ResponseMessage>> {
+    // TODO the abstract members here should probably just be broken into another class that this class then consumes, perhaps with https://github.com/johnameyer/cards-ts/issues/45 ?
 
     /**
      * Returns the game state transitions for this game
@@ -47,6 +48,9 @@ export abstract class AbstractGameFactory<Handles extends {[key: string]: any[]}
      */
     abstract getDefaultBotHandler(): Handler<Handles, ControllerHandlerState<Controllers & DefaultControllers<GameParams, State, ResponseMessage, Handles & SystemHandlerParams>>, ResponseMessage>;
 
+    /**
+     * Returns the controller providers specific to the game, to be merged with the default controllers
+     */
     abstract getProviders(): Omit<ControllersProviders<Controllers>, DefaultControllerKeys>;
 
     /**
@@ -67,12 +71,14 @@ export abstract class AbstractGameFactory<Handles extends {[key: string]: any[]}
     /**
      * Creates a new driver using elements from this game factory
      * @param players the players in the game
+     * @param params the params to run this game under
+     * @param names the initial names of the players
      * @param state the state to wrap
      */
     getGameDriver(players: HandlerChain<Handles & SystemHandlerParams, ControllerHandlerState<Controllers & DefaultControllers<GameParams, State, ResponseMessage, Handles & SystemHandlerParams>>, ResponseMessage>[], params: GameParams, names: string[], state?: ControllerState<Controllers>) {
         const handlerData = new Provider<(position: number) => any>();
         const handlerProxy = new GenericHandlerProxy(players, handlerData);
-        const providers = { ...this.getProviders(), ...buildDefaultProviders(params, names, STANDARD_STATES.START_GAME, handlerProxy) } as any as ControllersProviders<Controllers & DefaultControllers<GameParams, State, ResponseMessage, Handles & SystemHandlerParams>>;
+        const providers = { ...this.getProviders(), ...buildDefaultProviders(params, names, handlerProxy) } as any as ControllersProviders<Controllers & DefaultControllers<GameParams, State, ResponseMessage, Handles & SystemHandlerParams>>;
         const gameState = new GenericGameState<Controllers & DefaultControllers<GameParams, State, ResponseMessage, Handles & SystemHandlerParams>>(providers, state);
         handlerData.set((position) => gameState.asHandlerData(position));
         return new GameDriver(handlerProxy, gameState, this.getGameStateTransitions(), this.getEventHandler());

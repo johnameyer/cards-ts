@@ -4,8 +4,8 @@ import { AbstractController, GenericControllerProvider } from './controller';
 type GameState<Enum extends typeof STANDARD_STATES> = Exclude<keyof Enum, number | symbol>;
 
 export class GameStateControllerProvider<Enum extends typeof STANDARD_STATES> implements GenericControllerProvider<GameState<Enum>, {}, GameStateController<Enum>> {
-    constructor(private readonly initial: keyof Enum) { }
-    
+    private readonly initial: keyof Enum = STANDARD_STATES.START_GAME;
+
     controller(state: GameState<Enum>, controllers: {}): GameStateController<Enum> {
         return new GameStateController(state, controllers);
     }

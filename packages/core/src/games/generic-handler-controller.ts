@@ -111,6 +111,9 @@ type HandlerControllerDependencies = {
     waiting: WaitingController;
 };
 
+/**
+ * Provides the handlers controller
+ */
 export class GenericHandlerControllerProvider<ResponseMessage extends Message, Handlers extends {[key: string]: any[]} & SystemHandlerParams> implements GenericControllerProvider<undefined, HandlerControllerDependencies, GenericHandlerController<ResponseMessage, Handlers>> {
     constructor(private readonly handlerProxy: GenericHandlerProxy<ResponseMessage, Handlers>) { }
     
@@ -128,6 +131,9 @@ export class GenericHandlerControllerProvider<ResponseMessage extends Message, H
 }
 
 // TODO figure out if we need response message here at all or whether we should shoot for incoming messge
+/**
+ * Allows for controlling the handlers
+ */
 export class GenericHandlerController<ResponseMessage extends Message, Handlers extends {[key: string]: any[]} & SystemHandlerParams> extends AbstractController<undefined, HandlerControllerDependencies, PlayerHandlerState> {
     constructor(private readonly handlerProxy: GenericHandlerProxy<ResponseMessage, Handlers>, controllers: HandlerControllerDependencies) {
         super(undefined, controllers);
