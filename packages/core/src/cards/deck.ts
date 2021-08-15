@@ -40,6 +40,7 @@ export class Deck {
      * @returns the new deck
      */
     constructor(num = 0, shouldShuffle = true, includeJokers = true, ranks = Rank.ranks) {
+        // TODO make this just take cards and move the rest of this to a static function
         if(num >= 0) {
             this.cards = [];
             for(let deck = 0; deck < num; deck++) {
@@ -146,15 +147,15 @@ export class Deck {
     /**
      * Mark the top card as no longer available
      */
-    public clearTop() {
+    public clearTop(): void {
         this.topAvailable = false;
     }
 
-    public static fromObj(obj: any) {
+    public static fromObj(obj: any): Deck {
         if(!(obj instanceof Object)) {
             throw new Error('Object is falsy');
         }
-        if(!Array.isArray(obj.cards) || !Array.isArray(obj.discards)) {
+        if(!Array.isArray(obj.cards) || !Array.isArray(obj.discards) || !obj.topAvailable) {
             throw new Error('Shape of object is wrong');
         }
         const deck = new Deck();

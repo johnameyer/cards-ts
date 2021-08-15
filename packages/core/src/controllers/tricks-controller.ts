@@ -8,12 +8,24 @@ import { HandsController } from './hands-controller';
 import { TurnController } from './turn-controller';
 
 type TricksState = {
+    /**
+     * The cards currently played in the trick, with undefined for players who are not playing this round
+     */
     currentTrick: (Card | undefined)[];
 
+    /**
+     * Who is leading / led the trick
+     */
     leader: number;
 
+    /**
+     * The card that was just played
+     */
     playedCard: Card;
 
+    /**
+     * The number of tricks so far
+     */
     tricks: number;
 }
 
@@ -24,6 +36,9 @@ type TricksDependencies = {
     turn: TurnController;
 };
 
+/**
+ * @category Controller Provider
+ */
 export class TricksControllerProvider implements GenericControllerProvider<TricksState, TricksDependencies, TricksController> {
     controller(state: TricksState, controllers: TricksDependencies): TricksController {
         return new TricksController(state, controllers);
@@ -44,6 +59,10 @@ export class TricksControllerProvider implements GenericControllerProvider<Trick
     }
 }
 
+/**
+ * Handles state for trick based games
+ * @category Controller
+ */
 export class TricksController extends GlobalController<TricksState, TricksDependencies> {
     override validate() {
         if(this.state.currentTrick && !Array.isArray(this.state.currentTrick)) {

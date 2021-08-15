@@ -3,6 +3,7 @@ import { Message } from '../message';
 
 /**
  * Designates that a card is to be played and optionally data to be set for this player
+ * @category Message
  */
 export class PlayCardResponseMessage extends Message {
     readonly type = 'turn-response';

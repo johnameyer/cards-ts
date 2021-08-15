@@ -17,6 +17,9 @@ type DeckState = {
 
 type DeckDependencies = { players: GenericHandlerController<any, SystemHandlerParams> };
 
+/**
+ * @category Controller Provider
+ */
 export class DeckControllerProvider implements GenericControllerProvider<DeckState, DeckDependencies, DeckController> {
     private params;
 
@@ -40,6 +43,10 @@ export class DeckControllerProvider implements GenericControllerProvider<DeckSta
     }
 }
 
+/**
+ * Controls a deck for the game
+ * @category Controller
+ */
 export class DeckController extends AbstractController<DeckState, DeckDependencies, Pick<DeckState, 'dealer'> & { deckCard: Card | null }> {
     constructor(state: DeckState, controllers: DeckDependencies, private readonly params: ConstructorParameters<typeof Deck>) {
         super(state, controllers);

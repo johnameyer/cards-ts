@@ -12,6 +12,9 @@ type WaitingState = {
     responded: number[];
 }
 
+/**
+ * @category Controller Provider
+ */
 export class WaitingControllerProvider implements GenericControllerProvider<WaitingState, {}, WaitingController> {
     controller(state: WaitingState, controllers: {}): WaitingController {
         return new WaitingController(state, controllers);
@@ -29,6 +32,10 @@ export class WaitingControllerProvider implements GenericControllerProvider<Wait
     }
 }
 
+/**
+ * Controls state around who the game is currently waiting for
+ * @category Controller
+ */
 export class WaitingController extends GlobalController<WaitingState, {}> {
     set(waitFor: WaitingState['waiting']) {
         this.state.waiting = waitFor;

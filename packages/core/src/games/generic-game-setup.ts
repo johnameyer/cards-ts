@@ -9,6 +9,7 @@ type ErrorForKey<T> = {
 
 /**
  * Gives a nicer way to setup a game
+ * @typeParam GameParams the params this sets up for
  */
 export interface GenericGameSetup<GameParams> {
     /**

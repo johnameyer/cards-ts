@@ -10,8 +10,17 @@ import { STANDARD_STATES } from './game-states';
 
 /**
  * Class that steps though the game using the game state transitions
+ * 
+ * Shouldn't be manually constructed - game factory should handle
+ * @typeParam Handlers the custom event handlers that this game has
+ * @typeParam State the state enum for this game
+ * @typeParam Controllers the state controllers for this game
+ * @typeParam ResponseMessage the response messages this game expects
+ * @typeParam EventHandler the event handler for this game
  */
 export class GameDriver<Handlers extends {[key: string]: unknown[]} & SystemHandlerParams, State extends typeof STANDARD_STATES, Controllers extends IndexedControllers & { waiting: WaitingController, completed: CompletedController, state: GameStateController<State> }, GameState extends GenericGameState<Controllers>, ResponseMessage extends Message, EventHandler extends EventHandlerInterface<Controllers, ResponseMessage>> {
+    // TODO remove GameState from here?
+
     /**
      * Tells if the game is waiting on a player
      * @param state the state to analyze

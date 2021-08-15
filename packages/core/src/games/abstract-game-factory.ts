@@ -17,8 +17,16 @@ import { STANDARD_STATES } from './game-states';
 
 /**
  * Wraps the classes in a game library into one common interface to make usages less verbose and to hide internal implementation details
+ * @typeParam Handles the custom event handlers that this game has
+ * @typeParam GameParams the custom params for this game
+ * @typeParam State the state enum for this game
+ * @typeParam Controllers the state controllers for this game
+ * @typeParam ResponseMessage the response messages this game expects
+ * @typeParam EventHandler the event handler for this game
  */
 export abstract class AbstractGameFactory<Handles extends {[key: string]: unknown[]}, GameParams extends SerializableObject, State extends typeof STANDARD_STATES, Controllers extends IndexedControllers, ResponseMessage extends Message, EventHandler extends EventHandlerInterface<Controllers, ResponseMessage>> {
+    // TODO remove event handler since it doesn't matter here
+
     // TODO the abstract members here should probably just be broken into another class that this class then consumes, perhaps with https://github.com/johnameyer/cards-ts/issues/45 ?
 
     /**

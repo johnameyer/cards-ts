@@ -1,17 +1,16 @@
 import { GenericHandlerController } from '../games/generic-handler-controller';
 import { SystemHandlerParams } from '../handlers/system-handler';
 import { GenericControllerProvider, GlobalController } from './controller';
-import { DeckController } from './deck-controller';
-import { HandsController } from './hands-controller';
 
 type TurnState = number;
 
 type TurnDependencies = {
-    deck: DeckController;
     players: GenericHandlerController<any, SystemHandlerParams>;
-    hand: HandsController;
 };
 
+/**
+ * @category Controller Provider
+ */
 export class TurnControllerProvider implements GenericControllerProvider<TurnState, TurnDependencies, TurnController> {
     controller(state: TurnState, controllers: TurnDependencies): TurnController {
         return new TurnController(state, controllers);
@@ -22,10 +21,14 @@ export class TurnControllerProvider implements GenericControllerProvider<TurnSta
     }
 
     dependencies() {
-        return { deck: true, players: true, hand: true } as const;
+        return { players: true } as const;
     }
 }
 
+/**
+ * Controls state around whose turn it is for something
+ * @category Controller
+ */
 export class TurnController extends GlobalController<TurnState, TurnDependencies> {
     get() {
         return this.state;

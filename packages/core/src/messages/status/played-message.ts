@@ -12,6 +12,7 @@ function generateMessage(cards: Card[], meld: Meld, player: string): Presentable
 
 /**
  * A class designating that a player put down cards on the table
+ * @category Message
  */
 export class PlayedMessage extends Message {
     /**

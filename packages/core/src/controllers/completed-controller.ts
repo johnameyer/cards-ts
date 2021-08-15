@@ -5,6 +5,9 @@ import { GenericControllerProvider, GlobalController } from './controller';
  */
 type CompletedState = boolean;
 
+/**
+ * @category Controller Provider
+ */
 export class CompletedControllerProvider implements GenericControllerProvider<CompletedState, {}, CompletedController> {
     controller(state: CompletedState, controllers: {}): CompletedController {
         return new CompletedController(state, controllers);
@@ -19,6 +22,10 @@ export class CompletedControllerProvider implements GenericControllerProvider<Co
     }
 }
 
+/**
+ * Stores whether the game has ended
+ * @category Controller
+ */
 export class CompletedController extends GlobalController<CompletedState, {}> {
     get() {
         return this.state;

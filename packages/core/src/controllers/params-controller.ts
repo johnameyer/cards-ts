@@ -6,6 +6,9 @@ import { GenericControllerProvider, GlobalController } from './controller';
  */
 export type ParamsState<GameParams extends Serializable> = GameParams;
 
+/**
+ * @category Controller Provider
+ */
 export class ParamsControllerProvider<GameParams extends Serializable> implements GenericControllerProvider<ParamsState<GameParams>, {}, ParamsController<GameParams>> {
     private params: GameParams;
     
@@ -26,8 +29,13 @@ export class ParamsControllerProvider<GameParams extends Serializable> implement
     }
 }
 
+/**
+ * Handles the params for a game
+ * @category Controller
+ */
 export class ParamsController<GameParams extends Serializable> extends GlobalController<ParamsState<GameParams>, {}> {
     get(): Readonly<GameParams> {
         return this.state as any as Readonly<GameParams>;
     }
+    // TODO universal global controller
 }

@@ -6,6 +6,9 @@ import { AbstractController, GenericControllerProvider } from './controller';
  */
 type DataState = Serializable[];
 
+/**
+ * @category Controller Provider
+ */
 export class DataControllerProvider implements GenericControllerProvider<DataState, {}, DataController> {
     controller(state: DataState, controllers: {}): DataController {
         return new DataController(state, controllers);
@@ -20,6 +23,10 @@ export class DataControllerProvider implements GenericControllerProvider<DataSta
     }
 }
 
+/**
+ * Controls the data for the handlers
+ * @category Controller
+ */
 export class DataController extends AbstractController<DataState, {}, Serializable> {
     getDataFor(handler: number) {
         return this.state[handler];

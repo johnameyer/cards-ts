@@ -28,6 +28,10 @@ export const buildDefaultProviders = <GameParams extends Serializable, State ext
 
 /**
  * The type of the default controllers, once initialized from their providers in buildDefaultProviders
+ * @typeParam Handlers the custom event handlers that this game has
+ * @typeParam GameParams the custom params for this game
+ * @typeParam State the state enum for this game
+ * @typeParam ResponseMessage the response messages this game expects
  * @link buildDefaultProviders
  */
 export type DefaultControllers<GameParams extends Serializable, State extends typeof STANDARD_STATES, ResponseMessage extends Message, Handlers extends {[key: string]: any[]} & SystemHandlerParams> = {

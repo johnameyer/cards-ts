@@ -5,6 +5,7 @@ import { isNonnull } from '../util/is-nonnull';
 
 /**
  * Parent class for any message to be delivered to handlers
+ * @category Message
  */
 export abstract class Message {
     readonly [key: string]: ReadonlySerializable;

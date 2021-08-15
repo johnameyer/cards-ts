@@ -16,6 +16,7 @@ function generateMessage(card: Card, player?: string, extra = false): Presentabl
 
 /**
  * A class designating to a handler that anpther player has picked up a card, or that a card was not picked up at all
+ * @category Message
  */
 export class PickupMessage extends Message {
     /**

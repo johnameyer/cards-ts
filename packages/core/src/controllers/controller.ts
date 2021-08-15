@@ -5,6 +5,7 @@ import { Serializable } from '../intermediary/serializable';
  * @typeParam State the state to be wrapped
  * @typeParam WrappedControllers the controllers that this controller depends on
  * @typeParam HandlerData the data that this controller provides to handlers
+ * @category Controller
  */
 export abstract class AbstractController<State extends Serializable, WrappedControllers extends IndexedControllers, HandlerData extends Serializable = State> {
     constructor(protected state: State, protected controllers: WrappedControllers) {
@@ -17,6 +18,10 @@ export abstract class AbstractController<State extends Serializable, WrappedCont
     validate(): void {} // TODO can we make this more declarative - matchers per state field + overall checker?
 }
 
+/**
+ * Provides a controller
+ * @category Controller Provider
+ */
 export interface GenericControllerProvider<State extends Serializable, WrappedControllers extends IndexedControllers, Controller extends AbstractController<State, WrappedControllers, any>> {
     /**
      * Return the initial state for the controller
@@ -29,12 +34,23 @@ export interface GenericControllerProvider<State extends Serializable, WrappedCo
     dependencies(): { readonly [key in keyof WrappedControllers]: true };
 }
 
+/**
+ * Subclass of abstract controller that shows the state for all handlers
+ * @typeParam State the state to be wrapped
+ * @typeParam WrappedControllers the controllers that this controller depends on
+ * @category Controller
+ */
 export abstract class GlobalController<State extends Serializable, WrappedControllers extends IndexedControllers> extends AbstractController<State, WrappedControllers> {
     override getFor() {
         return this.state;
     }
 }
 
+/**
+ * Subclass of abstract controller for a controller with no state
+ * @typeParam WrappedControllers the controllers that this controller depends on
+ * @category Controller
+ */
 export abstract class StatelessController<WrappedControllers extends IndexedControllers> extends AbstractController<undefined, WrappedControllers> {
     initialState(): undefined {
         return undefined;
@@ -45,22 +61,42 @@ export abstract class StatelessController<WrappedControllers extends IndexedCont
     }
 }
 
+/**
+ * Controllers indexed by a string
+ * @category Controller
+ */
 export interface IndexedControllers {
     [key: string]: AbstractController<any, any, any>
 }
 
+/**
+ * Controller providers indexed by a string
+ * @category Controller Provider
+ */
 export interface IndexedProviders {
     [key: string]: GenericControllerProvider<any, any, AbstractController<any, any, any>>
 }
 
+/**
+ * Gets the associated controllers out of providers
+ * @category Controller
+ */
 export type UnwrapProviders<T extends IndexedProviders> = {
     [key in keyof T]: T[key] extends GenericControllerProvider<any, any, any> ? ReturnType<T[key]['controller']> : never
 }
 
+/**
+ * Gets the providers that would produce controllers
+ * @category Controller
+ */
 export type ControllersProviders<T extends IndexedControllers> = {
     [key in keyof T]: GenericControllerProvider<any, any, T[key]>
 }
 
+/**
+ * The providers that will exist once the dependency tree is run (assuming no loops) by removing items whose dependencies cannot be fulfilled
+ * @category Controller
+ */
 export type ValidatedProviders<T extends IndexedProviders> = {
     [key in keyof T]: T[key] extends GenericControllerProvider<any, infer U, any> ? (UnwrapProviders<T> extends U ? T[key] : never) : never
 }
@@ -131,6 +167,10 @@ export type ControllerState<T> = {
     [key in keyof T]: T[key] extends AbstractController<infer State, any> ? State : never
 }
 
+/**
+ * Gets the handler state of controllers
+ * @category Controller
+ */
 export type ControllerHandlerState<T> = {
-    [key in keyof T]: T[key] extends AbstractController<infer State, any> ? ReturnType<T[key]['getFor']> : never
+    [key in keyof T]: T[key] extends AbstractController<any, any> ? ReturnType<T[key]['getFor']> : never
 }
