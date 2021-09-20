@@ -62,13 +62,16 @@ export class GameDriver<Handlers extends {[key: string]: unknown[]} & SystemHand
      * Handle an incoming event from one of the handlers
      * @param position the position the event is coming from
      * @param message the message to handle
+     * @returns if the message was merged
      */
-    private handleEvent(position: number, message: ResponseMessage) {
+    public handleEvent(position: number, message: ResponseMessage) {
         const updatedMessage = this.eventHandler.validateEvent(this.gameState.controllers, position, message);
 
         if(updatedMessage) {
             this.eventHandler.merge(this.gameState.controllers, position, updatedMessage);
         }
+
+        return !!updatedMessage;
     }
 
     /**
