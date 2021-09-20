@@ -152,7 +152,7 @@ export class GameDriver<Handlers extends {[key: string]: unknown[]} & SystemHand
      */
     public resume() {
         const transitions = this.transitions.get();
-        while(!!this.gameState.controllers.completed.get() && !GameDriver.isWaitingOnPlayer(this.gameState.controllers.waiting)) {
+        while(!this.gameState.controllers.completed.get() && !GameDriver.isWaitingOnPlayer(this.gameState.controllers.waiting)) {
             transitions[this.gameState.controllers.state.get()].call(this.transitions, this.gameState.controllers);
         }
     }
