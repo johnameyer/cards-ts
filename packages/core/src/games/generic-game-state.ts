@@ -7,20 +7,15 @@ import { reconstruct } from '../intermediary/serializable';
  */
 export class GenericGameState<Controllers extends IndexedControllers> {
     // TODO reconsider how to use 'exposed' in contravariant position
-    private state?: ControllerState<Controllers> = undefined;
-
     private allControllers!: Controllers;
     
     constructor(private readonly providers: ControllersProviders<Controllers>, state?: ControllerState<Controllers>) {
         validate(providers);
-        this.state = state || {} as ControllerState<Controllers>;
-        this.allControllers = initializeControllers(providers, this.state);
+        state = state || {} as ControllerState<Controllers>;
+        this.allControllers = initializeControllers(providers, state);
     }
     
     public get controllers(): Controllers {
-        if(!this.state) {
-            throw new Error('Not yet initialized');
-        }
         return this.allControllers;
     }
 
@@ -34,8 +29,12 @@ export class GenericGameState<Controllers extends IndexedControllers> {
 
     public clone(): GenericGameState<Controllers> {
         return new GenericGameState(
-            this.providers, 
-            Object.fromEntries(Object.entries(this.allControllers).map(([ key, value ]) => [ key, reconstruct((value as any).state) ])) as any,
+            this.providers,
+            this.state
         );
+    }
+
+    get state() {
+        return Object.fromEntries(Object.entries(this.allControllers).map(([ key, value ]) => [ key, reconstruct((value as any).state) ])) as ControllerState<Controllers>;
     }
 }
