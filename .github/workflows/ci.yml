@@ -15,25 +15,25 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
+          cache: pnpm
 
       - name: Install Dependencies
-        run: yarn add --cached
+        run: pnpm i
 
-      # - name: Check Circular Dependencies
-      #   run: yarn run madge
+      - name: Check Circular Dependencies
+        run: pnpm madgeall
 
       - name: Build
-        run: yarn run build
+        run: pnpm buildall
 
       - name: Lint
-        run: npm run lint
+        run: pnpm lintall
 
       - name: Test
-        run: yarn run test
+        run: pnpm testall
 
       - name: Playable Tests
-        run: yarn start
+        run: pnpm start
         working-directory: ./spec/
         timeout-minutes: 20
       
