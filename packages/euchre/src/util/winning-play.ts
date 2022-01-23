@@ -1,5 +1,5 @@
-import { Card, Rank, Suit } from '@cards-ts/core';
 import { isLeftBower, isRightBower } from './bower';
+import { Card, Rank, Suit } from '@cards-ts/core';
 
 export function winningPlay(currentTrick: readonly (Card | undefined)[], currentTrump: Suit) {
     const first = currentTrick.findIndex(card => card);

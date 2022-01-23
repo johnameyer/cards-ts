@@ -1,8 +1,8 @@
-import { Card, Intermediary, ThreeCardSet, FourCardRun, checkFourCardRunPossible, HandlerResponsesQueue, DiscardResponseMessage, Meld } from '@cards-ts/core';
 import { HandlerData } from '../game-handler';
 import { WantCardResponseMessage, GoDownResponseMessage, PlayResponseMessage } from '../messages/response';
 import { roundToString } from '../util/round-to-string';
 import { ClientHandler } from './client-handler';
+import { Card, Intermediary, ThreeCardSet, FourCardRun, checkFourCardRunPossible, HandlerResponsesQueue, DiscardResponseMessage, Meld } from '@cards-ts/core';
 
 function flatten<T>(reduction: T[], arr: T[]) {
     reduction.push(...arr);

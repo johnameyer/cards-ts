@@ -1,12 +1,12 @@
+import { GameHandler, HandlerData } from '../game-handler';
+import { ResponseMessage } from '../messages/response-message';
+import { compare } from '../util/compare';
+import { PassResponseMessage } from '../messages/response';
 import { Card, HandlerResponsesQueue, PlayCardResponseMessage } from '@cards-ts/core';
 import { Message } from '@cards-ts/core';
 import { Suit } from '@cards-ts/core';
 import { Rank } from '@cards-ts/core';
 import { Intermediary } from '@cards-ts/core';
-import { GameHandler, HandlerData } from '../game-handler';
-import { ResponseMessage } from '../messages/response-message';
-import { compare } from '../util/compare';
-import { PassResponseMessage } from '../messages/response';
 
 const QS = new Card(Suit.SPADES, Rank.QUEEN);
 

@@ -1,8 +1,4 @@
 import { Serializable } from 'child_process';
-import { Card, DataResponseMessage, Handler, HandlerResponsesQueue, MessageHandlerParams, PlayCardResponseMessage } from '@cards-ts/core';
-import { Message } from '@cards-ts/core';
-import { Suit } from '@cards-ts/core';
-import { Rank } from '@cards-ts/core';
 import { GameHandlerParams } from '../game-handler-params';
 import { HandlerData } from '../game-handler';
 import { OrderUpResponseMessage, NameTrumpResponseMessage, DealerDiscardResponseMessage } from '../messages/response';
@@ -12,6 +8,10 @@ import { followsTrick } from '../util/follows-trick';
 import { getTeamFor } from '../util/teams';
 import { getComplementarySuit } from '../util/suit-colors';
 import { winningPlay } from '../util/winning-play';
+import { Rank } from '@cards-ts/core';
+import { Suit } from '@cards-ts/core';
+import { Message } from '@cards-ts/core';
+import { Card, DataResponseMessage, Handler, HandlerResponsesQueue, MessageHandlerParams, PlayCardResponseMessage } from '@cards-ts/core';
 
 
 interface HeuristicHandlerData {

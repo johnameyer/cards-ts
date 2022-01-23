@@ -1,12 +1,12 @@
-import { Card, HandlerResponsesQueue, PlayCardResponseMessage } from '@cards-ts/core';
-import { Message } from '@cards-ts/core';
-import { Suit } from '@cards-ts/core';
-import { Intermediary } from '@cards-ts/core';
 import { GameHandler, HandlerData } from '../game-handler';
 import { OrderUpResponseMessage, NameTrumpResponseMessage, DealerDiscardResponseMessage, GoingAloneResponseMessage } from '../messages/response';
 import { ResponseMessage } from '../messages/response-message';
 import { compare } from '../util/compare';
 import { followsTrick } from '../util/follows-trick';
+import { Intermediary } from '@cards-ts/core';
+import { Suit } from '@cards-ts/core';
+import { Message } from '@cards-ts/core';
+import { Card, HandlerResponsesQueue, PlayCardResponseMessage } from '@cards-ts/core';
 
 const toInquirerValue = <T extends {toString: () => string}>(t: T) => ({
     name: t.toString(),
