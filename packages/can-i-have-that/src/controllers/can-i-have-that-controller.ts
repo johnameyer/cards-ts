@@ -1,5 +1,5 @@
-import { AbstractController, DeckController, ParamsController, GenericControllerProvider } from '@cards-ts/core';
 import { GameParams } from '../game-params';
+import { AbstractController, DeckController, ParamsController, GenericControllerProvider } from '@cards-ts/core';
 
 type CanIHaveThatState = {
     wantCard?: boolean;

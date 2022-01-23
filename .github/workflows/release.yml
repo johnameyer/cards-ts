@@ -1,8 +1,13 @@
-name: ci
-on: [push]
+name: Release
+
+on:
+  push:
+    branches:
+      - master
 
 jobs:
-  ci:
+  release:
+    name: Release
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -10,6 +15,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+        with:
+          # Changsets action requires full history
+          fetch-depth: 0
 
       - uses: pnpm/action-setup@v2.0.1
         with:
@@ -25,26 +33,15 @@ jobs:
       - name: Install Dependencies
         run: pnpm i
 
-      - name: Check Circular Dependencies
-        run: pnpm madgeall
-
       - name: Build
         run: pnpm buildall
 
-      - name: Lint
-        run: pnpm lintall
-
-      - name: Test
-        run: pnpm testall
-
-      - name: Playable Tests
-        run: pnpm start
-        working-directory: ./spec/
-        timeout-minutes: 20
-      
-      - name: Upload Logs
-        uses: actions/upload-artifact@v2
+      - name: Create Release PR Or Publish
+        id: changesets
+        uses: changesets/action@v1
         with:
-          name: logs
-          path: ./spec/logs/
-        if: success() || failure()
+          version: pnpm changeset version
+          publish: pnpm changeset publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

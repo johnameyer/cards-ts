@@ -1,9 +1,9 @@
-import { DefaultControllerKeys, DefaultControllers, SystemHandlerParams, DeckControllerProvider, HandsControllerProvider, PointsControllerProvider, TricksControllerProvider, TurnControllerProvider, ControllersProviders, UnwrapProviders, ValidatedProviders } from '@cards-ts/core';
 import { GameStates } from '../game-states';
 import { GameParams } from '../game-params';
 import { GameHandlerParams } from '../game-handler-params';
 import { ResponseMessage } from '../messages/response-message';
 import { PassingControllerProvider } from './passing-controller';
+import { DefaultControllerKeys, DefaultControllers, SystemHandlerParams, DeckControllerProvider, HandsControllerProvider, PointsControllerProvider, TricksControllerProvider, TurnControllerProvider, ControllersProviders, UnwrapProviders, ValidatedProviders } from '@cards-ts/core';
 
 type TypedDefaultControllers = DefaultControllers<GameParams, typeof GameStates, ResponseMessage, GameHandlerParams & SystemHandlerParams>;
 

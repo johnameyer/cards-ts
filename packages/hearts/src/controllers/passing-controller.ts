@@ -1,6 +1,6 @@
-import { AbstractHandsController, Card, GenericControllerProvider, GenericHandlerController, GlobalController, Serializable, SystemHandlerParams } from '@cards-ts/core';
 import { GameHandlerParams } from '../game-handler-params';
 import { ResponseMessage } from '../messages/response-message';
+import { AbstractHandsController, Card, GenericControllerProvider, GenericHandlerController, GlobalController, Serializable, SystemHandlerParams } from '@cards-ts/core';
 
 export interface PassingState {
     [key: string]: Serializable;

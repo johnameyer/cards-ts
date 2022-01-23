@@ -1,6 +1,6 @@
-import { Card, DiscardResponseMessage, HandlerResponsesQueue } from '@cards-ts/core';
 import { GameHandler, HandlerData } from '../game-handler';
 import { WantCardResponseMessage } from '../messages/response';
+import { Card, DiscardResponseMessage, HandlerResponsesQueue } from '@cards-ts/core';
 
 export class GrammyHandler extends GameHandler {
     handleWantCard = (gameState: HandlerData, responsesQueue: HandlerResponsesQueue<WantCardResponseMessage>) => {
