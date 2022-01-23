@@ -60,7 +60,7 @@ export class EuchreController extends GlobalController<EuchreState, EuchreDepend
     }
 
     setBidder(bidder?: number, trump?: Suit) {
-        if(bidder) {
+        if(bidder !== undefined) {
             this.state.bidder = bidder;
         }
         if(trump) {
