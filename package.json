@@ -33,7 +33,7 @@
     "eslint-plugin-unused-imports": "^1.1.5",
     "ts-node-dev": "^1.1.8",
     "typedoc": "^0.21.9",
-    "typescript": "^4.5.5"
+    "typescript": "4.3.5"
   },
   "packageManager": "pnpm@6.27.1"
 }

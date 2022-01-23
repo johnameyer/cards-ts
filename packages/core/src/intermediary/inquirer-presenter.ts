@@ -1,8 +1,8 @@
-// @ts-ignore
 import { Message } from '../messages/message';
 import { Card } from '../cards/card';
 import { Presenter } from './presenter';
 import { Presentable } from './presentable';
+// @ts-ignore
 import selectLine from 'inquirer-select-line';
 import inquirer from 'inquirer';
 

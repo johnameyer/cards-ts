@@ -22,7 +22,7 @@
     "lint": "eslint src/**/*.ts --fix",
     "build": "tsc",
     "clean": "rm -rf lib tsconfig.tsbuildinfo",
-    "madge": "npx madge --circular --extensions ts ./src",
+    "madge": "pnpm dlx madge --circular --extensions ts ./src",
     "test": "mocha -r ts-node/register spec/**/*.spec.ts",
     "prepack": "npm run clean && npm run build"
   },

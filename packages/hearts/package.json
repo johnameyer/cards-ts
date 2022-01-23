@@ -22,7 +22,7 @@
     "lint": "eslint src/**/*.ts --fix",
     "build": "tsc && find lib/ -name \\*.js -exec sed -i '1s|#!/usr/bin/env ts-node|#!/usr/bin/env node|' \\{\\} \\;",
     "clean": "rm -rf lib tsconfig.tsbuildinfo",
-    "madge": "npx madge --circular --extensions ts ./src",
+    "madge": "pnpm dlx madge --circular --extensions ts ./src",
     "start": "pnpm buildall -w && node lib/start.js start",
     "ts-start": "ts-node src/start.ts start",
     "debug": "ts-node-dev --rs=false --inspect --transpileOnly src/start.ts start",
