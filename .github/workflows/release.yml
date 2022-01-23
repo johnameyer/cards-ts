@@ -32,12 +32,15 @@ jobs:
       - name: Install Dependencies
         run: pnpm i
 
+      - name: Build
+        run: pnpm buildall
+
       - name: Changesets PR / Publish
         id: changesets
         uses: changesets/action@v1
         with:
           version: pnpm changeset version
-          publish: pnpm buildall && pnpm changeset publish
+          publish: pnpm changeset publish
           title: Version packages
           commit: Publish
         env:
