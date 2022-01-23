@@ -1,5 +1,4 @@
-name: Release
-
+name: release
 on:
   push:
     branches:
@@ -33,15 +32,36 @@ jobs:
       - name: Install Dependencies
         run: pnpm i
 
-      - name: Build
-        run: pnpm buildall
-
-      - name: Create Release PR Or Publish
+      - name: Changesets PR / Publish
         id: changesets
         uses: changesets/action@v1
         with:
           version: pnpm changeset version
-          publish: pnpm changeset publish
+          publish: pnpm buildall && pnpm changeset publish
+          title: Version packages
+          commit: Publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        
+      - name: Documentation
+        if: steps.changesets.outputs.published == 'true'
+        run: pnpm doc
+
+      - name: Commit Files
+        if: steps.changesets.outputs.published == 'true'
+        run: |
+          git checkout -b gh-pages
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          touch docs/.nojekyll
+          git add -f docs
+          git commit -m "Update docs"
+
+      - name: Push Changes
+        if: steps.changesets.outputs.published == 'true'
+        uses: ad-m/github-push-action@master
+        with:
+          branch: gh-pages
+          force: true
+          github_token: ${{ secrets.GITHUB_TOKEN }}

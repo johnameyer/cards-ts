@@ -7,7 +7,7 @@
     "lintall": "pnpm run -r lint",
     "madgeall": "pnpm run -r madge",
     "testall": "pnpm run -r test",
-    "docs": "typedoc"
+    "doc": "typedoc"
   },
   "repository": {
     "type": "git",
