@@ -1,6 +1,6 @@
-import { AbstractHandsController, Card, DeckController, GenericControllerProvider, GenericHandlerController, GlobalController, Serializable, Suit, SystemHandlerParams } from '@cards-ts/core';
 import { GameHandlerParams } from '../game-handler-params';
 import { ResponseMessage } from '../messages/response-message';
+import { AbstractHandsController, Card, DeckController, GenericControllerProvider, GenericHandlerController, GlobalController, Serializable, Suit, SystemHandlerParams } from '@cards-ts/core';
 
 export interface EuchreState {
     [key: string]: Serializable;

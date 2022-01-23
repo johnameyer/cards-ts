@@ -24,7 +24,7 @@
         "import"
     ],
     "settings": {
-        "import/external-module-folders": [ ".yarn", "packages" ]
+        "import/external-module-folders": [ "packages" ]
     },
     "rules": {
         "@typescript-eslint/no-namespace": "off",

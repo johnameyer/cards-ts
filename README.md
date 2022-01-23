@@ -17,7 +17,7 @@ Other implementations of card games or expansions of the core library are welcom
 
 ## Getting Started
 
-We use lerna and yarn workspaces to support a number of games on top of the core library. See the documentation pages [here](https://johnameyer.github.io/cards-ts) or see the wiki articles [here](https://github.com/johnameyer/cards-ts/tree/master/wiki).
+We use pnpm workspaces to support a number of games on top of the core library. See the documentation pages [here](https://johnameyer.github.io/cards-ts) or see the wiki articles [here](https://github.com/johnameyer/cards-ts/tree/master/wiki).
 
 ### Running a card game with npx
 
@@ -30,15 +30,15 @@ npx @cards-ts/hearts # or can-i-have-that, etc.
 #### Building
 
 ```bash
-yarn # typically only needed the first time
-lerna run build # use "--include-dependencies --scope=@cards-ts/$GAME" to just build the game dependencies
+pnpm i # typically only needed the first time
+pnpm buildall # use "--include-dependencies --scope=@cards-ts/$GAME" to just build the game dependencies
 ```
 
 #### Running
 
 ```bash
 GAME=can-i-have-that # or hearts, etc.
-lerna exec yarn run start --scope=@cards-ts/$GAME
+pnpm start --filter=@cards-ts/$GAME
 ```
 
 or
@@ -46,12 +46,12 @@ or
 ```bash
 GAME=can-i-have-that # or hearts, etc.
 cd packages/$GAME
-yarn start
+pnpm start
 ```
 
 ## Testing
 
-The tests in [spec folder](https://github.com/johnameyer/cards-ts/tree/spec) test that each game exports a minimum number of fields and that the bots will be able to complete the game successfully (Run with `yarn start` in the folder locally). Each package can also contain a spec folder as well for unit testing components with mocha (Run all with `lerna run test` or in a package with `npm run test`).
+The tests in [spec folder](https://github.com/johnameyer/cards-ts/tree/spec) test that each game exports a minimum number of fields and that the bots will be able to complete the game successfully (Run with `pnpm start` in the folder locally). Each package can also contain a spec folder as well for unit testing components with mocha (Run all with `pnpm testall` or in a package with `pnpm test`).
 
 ## Versioning
 

@@ -30,7 +30,7 @@ export class GenericGameState<Controllers extends IndexedControllers> {
     public clone(): GenericGameState<Controllers> {
         return new GenericGameState(
             this.providers,
-            this.state
+            this.state,
         );
     }
 

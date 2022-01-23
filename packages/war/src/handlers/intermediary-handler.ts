@@ -1,8 +1,8 @@
-import { HandlerResponsesQueue } from '@cards-ts/core';
-import { Intermediary } from '@cards-ts/core';
 import { GameHandler, HandlerData } from '../game-handler';
 import { ResponseMessage } from '../messages/response-message';
 import { FlipResponseMessage } from '../messages/response';
+import { Intermediary } from '@cards-ts/core';
+import { HandlerResponsesQueue } from '@cards-ts/core';
 
 const toInquirerValue = <T extends {toString: () => string}>(t: T) => ({
     name: t.toString(),
