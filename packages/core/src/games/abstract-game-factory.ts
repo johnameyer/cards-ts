@@ -66,7 +66,7 @@ export abstract class AbstractGameFactory<Handles extends {[key: string]: unknow
      */
     getIntermediaryHandlerChain(intermediary: Intermediary): HandlerChain<Handles & SystemHandlerParams, ControllerHandlerState<Controllers & DefaultControllers<GameParams, State, ResponseMessage, Handles & SystemHandlerParams>>, ResponseMessage> {
         return new HandlerChain<Handles & SystemHandlerParams, ControllerHandlerState<Controllers>, ResponseMessage>().append(this.getIntermediaryHandler(intermediary))
-            .append(new IntermediarySystemHandler(intermediary));
+            .append(new IntermediarySystemHandler(intermediary) as Handler<SystemHandlerParams, ControllerHandlerState<Controllers>, ResponseMessage>);
     }
 
     /**

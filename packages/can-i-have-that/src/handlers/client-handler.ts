@@ -38,7 +38,7 @@ export abstract class ClientHandler extends GameHandler {
 
         // TODO need to handle live cards - should go back and allow player to play?
         return;
-    }
+    };
 
     superTurn = this.handleTurn;
 

@@ -1,5 +1,6 @@
 {
-    "packages": "./packages/*",
+    "entryPoints": ["packages/*"],
+    "entryPointStrategy": "packages",
     "name": "@Cards-TS",
     "out": "docs"
 }
