@@ -5,7 +5,6 @@
 [![npm version](https://img.shields.io/npm/v/@cards-ts/core?logo=npm)](https://www.npmjs.com/package/@cards-ts/core)
 [![GitHub Last Commit](https://img.shields.io/github/last-commit/johnameyer/cards-ts?logo=github)](https://github.com/johnameyer/cards-ts)
 [![Typescript](https://img.shields.io/github/languages/top/johnameyer/cards-ts?logo=typescript)]()
-[![Dependencies](https://img.shields.io/david/johnameyer/cards-ts?logo=npm)]()
 [![Documentation](https://img.shields.io/static/v1?label=docs&message=hosted&color=informational&logo=typescript)](https://johnameyer.github.io/cards-ts)
 </div>
 
