@@ -78,7 +78,7 @@ export class HeuristicHandler implements Handler<GameHandlerParams & MessageHand
         // calculate based on who passed so far
 
         responsesQueue.push(new OrderUpResponseMessage(score > 55)); // 60?
-    }
+    };
 
     handleNameTrump = (handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): void => {
         const { hand, euchre: { flippedCard }} = handlerData;
@@ -95,12 +95,12 @@ export class HeuristicHandler implements Handler<GameHandlerParams & MessageHand
          */
 
         responsesQueue.push(new NameTrumpResponseMessage(score > 55 ? suit : undefined));
-    }
+    };
 
     handleDealerDiscard = (handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): void => {
         const { hand } = handlerData;
         responsesQueue.push(new DealerDiscardResponseMessage(hand[0]));
-    }
+    };
 
     handleTurn = (handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): void => {
         const data = wrapData(handlerData);
@@ -125,7 +125,7 @@ export class HeuristicHandler implements Handler<GameHandlerParams & MessageHand
         const fallbackCard = hand.filter(card => followsTrick(currentTrick, currentTrump, card))[0] || hand[0];
         // console.log(fallbackCard.toString());
         responsesQueue.push(new PlayCardResponseMessage(fallbackCard, data));
-    }
+    };
 
     handleMessage = (gameState: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>, message: Message): void => {
         const data = wrapData(gameState);
@@ -140,7 +140,7 @@ export class HeuristicHandler implements Handler<GameHandlerParams & MessageHand
             }
             responsesQueue.push(new DataResponseMessage(data));
         }
-    }
+    };
 }
 
 function isPlayedMessage(message: Message): message is PlayedMessage {

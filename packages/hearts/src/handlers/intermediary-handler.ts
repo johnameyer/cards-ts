@@ -31,7 +31,7 @@ export class IntermediaryHandler extends GameHandler {
         });
         responsesQueue.push(received.then(results => new PassResponseMessage(results[0] as Card[])));
         return sent;
-    }
+    };
 
     handleTurn = ({ hand, trick: { tricks, currentTrick }, trickPoints: pointsTaken }: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>) => {
         let choices = hand;
@@ -51,7 +51,7 @@ export class IntermediaryHandler extends GameHandler {
         });
         responsesQueue.push(received.then(received => new PlayCardResponseMessage(received[0] as Card)));
         return sent;
-    }
+    };
 
     message(_handlerData: HandlerData, _responsesQueue: HandlerResponsesQueue<ResponseMessage>, message: Message) {
         const [ sent ] = this.intermediary.print(...message.components);

@@ -151,7 +151,7 @@ export class HeuristicHandler implements Handler<GameHandlerParams & MessageHand
 
         responsesQueue.push(new PassResponseMessage(toPass.filter(distinct).slice(0, numToPass), data));
         return;
-    }
+    };
 
     handleTurn = (handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): void => {
         const data = wrapData(handlerData);
@@ -294,7 +294,7 @@ export class HeuristicHandler implements Handler<GameHandlerParams & MessageHand
         }
         // Logic failed
         responsesQueue.push(new PlayCardResponseMessage(hand[0], data));
-    }
+    };
 
     handleMessage = (gameState: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>, message: Message): void => {
         const data = wrapData(gameState);
@@ -316,7 +316,7 @@ export class HeuristicHandler implements Handler<GameHandlerParams & MessageHand
             responsesQueue.push(new DataResponseMessage(data));
         }
         // TODO handle getting passed all of same suit
-    }
+    };
 
     /*
      * shouldTryToShootTheMoon(handlerData: HandlerData) {

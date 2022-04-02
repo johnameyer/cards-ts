@@ -38,7 +38,7 @@ export class IntermediaryHandler extends GameHandler {
         responsesQueue.push(knocked.then(results => new OrderUpResponseMessage(results[0])));
         responsesQueue.push(goAlone.then(results => results && results[0] ? new GoingAloneResponseMessage() : undefined));
         return sent;
-    }
+    };
 
     handleNameTrump = ({ euchre: { currentTrump }}: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>) => {
         const [ sent, trump ] = this.intermediary.form({
@@ -61,7 +61,7 @@ export class IntermediaryHandler extends GameHandler {
         responsesQueue.push(trump.then(results => new NameTrumpResponseMessage(results[0] as Suit | undefined)));
         responsesQueue.push(goAlone.then(results => results && results[0] ? new GoingAloneResponseMessage() : undefined));
         return sent;
-    }
+    };
 
     
     handleDealerDiscard = ({ hand }: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>) => {
@@ -72,7 +72,7 @@ export class IntermediaryHandler extends GameHandler {
         });
         responsesQueue.push(received.then(results => new DealerDiscardResponseMessage(results[0] as Card)));
         return sent;
-    }
+    };
 
     handleTurn = ({ hand, trick: { currentTrick }, euchre: { currentTrump }}: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>) => {
         let choices = hand;
@@ -89,7 +89,7 @@ export class IntermediaryHandler extends GameHandler {
         });
         responsesQueue.push(received.then(received => new PlayCardResponseMessage(received[0] as Card)));
         return sent;
-    }
+    };
 
     handleMessage(_handlerData: HandlerData, _responsesQueue: HandlerResponsesQueue<ResponseMessage>, message: Message) {
         const [ sent ] = this.intermediary.print(...message.components);

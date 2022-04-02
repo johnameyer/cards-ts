@@ -54,7 +54,7 @@ export class LocalMaximumHandler extends GameHandler {
         }
         responsesQueue.push(new WantCardResponseMessage(false));
         return;
-    }
+    };
 
     handleTurn = ({ hand, melds: { melds }, players: { position }, canIHaveThat: { round }, params: { rounds }}: HandlerData, responsesQueue: HandlerResponsesQueue<DiscardResponseMessage | GoDownResponseMessage | PlayResponseMessage>) => {
         const currentRound = rounds[round];
@@ -147,5 +147,5 @@ export class LocalMaximumHandler extends GameHandler {
             responsesQueue.push(new DiscardResponseMessage(hand[0]));
         }
         return;
-    }
+    };
 }

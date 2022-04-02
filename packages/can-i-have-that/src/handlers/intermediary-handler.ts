@@ -84,7 +84,7 @@ export class IntermediaryHandler extends ClientHandler {
         }));
 
         return sent;
-    }
+    };
 
     handleTurn = async (gameState: HandlerData, responsesQueue: HandlerResponsesQueue<DiscardResponseMessage | GoDownResponseMessage | PlayResponseMessage>) => {
         gameState.data = reconcileDataAndHand(gameState.hand, gameState.data);
@@ -98,7 +98,7 @@ export class IntermediaryHandler extends ClientHandler {
                 return new PlayResponseMessage(response.playOn, response.toPlay, response.newMeld, gameState.data);
             }
         }));
-    }
+    };
 
     async playOnOthers(hand: Card[], played: (ThreeCardSet | FourCardRun)[][], responsesQueue: HandlerResponsesQueue<PlayResponseMessage>, data: unknown) {
         while(hand.length && await this.wantToPlay(played.reduce(flatten, []), hand, data)) {
@@ -219,7 +219,7 @@ function validateCardsToPlay(input: Card[], { run }: {run: Meld}): string | bool
         } else {
             checkFourCardRunPossible([ ...run.cards, ...input ]);
         }
-    } catch (e) {
+    } catch (e: any) {
         return e.toString();
     }
     return true;
@@ -237,7 +237,7 @@ function validateSelectCards(input: Card[], { num }: { num: 3 | 4 }) {
             checkFourCardRunPossible(input);
         }
         return true;
-    } catch (e) {
+    } catch (e: any) {
         return e.toString();
     }
 }
