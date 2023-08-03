@@ -2434,7 +2434,7 @@ packages:
     resolution: {integrity: sha512-aKS4WQjPenRxiQsC93MNfjx+nbF4PAdYzmd/1JIj8HYzqfbu86beTuNgXDzPknWk0n0uARlyewZo4s++ES36Ow==}
     hasBin: true
     dependencies:
-      minimist: 1.2.5
+      minimist: 1.2.8
     dev: true
 
   /jsonc-parser/3.0.0:
@@ -2610,8 +2610,8 @@ packages:
       kind-of: 6.0.3
     dev: false
 
-  /minimist/1.2.5:
-    resolution: {integrity: sha512-FM9nNUYrRBAELZQT3xeZQ7fmMOBg6nWNmJKTcgsJeaLstP/UODVpGsr5OhXhhXg6f+qtJ8uiZ+PUxkDWcgIXLw==}
+  /minimist/1.2.8:
+    resolution: {integrity: sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA==}
     dev: true
 
   /mixme/0.5.4:
@@ -3519,7 +3519,7 @@ packages:
     dependencies:
       chokidar: 3.5.3
       dynamic-dedupe: 0.3.0
-      minimist: 1.2.5
+      minimist: 1.2.8
       mkdirp: 1.0.4
       resolve: 1.22.0
       rimraf: 2.7.1
@@ -3581,7 +3581,7 @@ packages:
     dependencies:
       '@types/json5': 0.0.29
       json5: 1.0.1
-      minimist: 1.2.5
+      minimist: 1.2.8
       strip-bom: 3.0.0
     dev: true
 
