@@ -1,6 +1,6 @@
-import { GameHandler, HandlerData } from '../game-handler';
-import { WantCardResponseMessage, GoDownResponseMessage, PlayResponseMessage } from '../messages/response';
-import { find } from '../util/find';
+import { GameHandler, HandlerData } from '../game-handler.js';
+import { WantCardResponseMessage, GoDownResponseMessage, PlayResponseMessage } from '../messages/response/index.js';
+import { find } from '../util/find.js';
 import { Card, ThreeCardSet, FourCardRun, HandlerResponsesQueue, Suit, DiscardResponseMessage } from '@cards-ts/core';
 
 export class LocalMaximumHandler extends GameHandler {

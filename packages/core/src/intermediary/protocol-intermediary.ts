@@ -1,8 +1,8 @@
-import { DisplayElement } from './display-element';
-import { Presenter } from './presenter';
-import { Serializable, reconstruct } from './serializable';
-import { Intermediary, IntermediaryMapping } from './intermediary';
-import { Protocol } from './protocol';
+import { DisplayElement } from './display-element.js';
+import { Presenter } from './presenter.js';
+import { Serializable, reconstruct } from './serializable.js';
+import { Intermediary, IntermediaryMapping } from './intermediary.js';
+import { Protocol } from './protocol.js';
 
 /**
  * Sends the messages or forms over a protocol

@@ -1,6 +1,6 @@
-import { GameHandler, HandlerData } from '../game-handler';
-import { ResponseMessage } from '../messages/response-message';
-import { FlipResponseMessage } from '../messages/response';
+import { GameHandler, HandlerData } from '../game-handler.js';
+import { ResponseMessage } from '../messages/response-message.js';
+import { FlipResponseMessage } from '../messages/response/index.js';
 import { Intermediary } from '@cards-ts/core';
 import { HandlerResponsesQueue } from '@cards-ts/core';
 

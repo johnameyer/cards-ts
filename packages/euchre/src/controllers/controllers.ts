@@ -1,8 +1,8 @@
-import { GameParams } from '../game-params';
-import { GameStates } from '../game-states';
-import { ResponseMessage } from '../messages/response-message';
-import { GameHandlerParams } from '../game-handler-params';
-import { EuchreControllerProvider } from './euchre-controller';
+import { GameParams } from '../game-params.js';
+import { GameStates } from '../game-states.js';
+import { ResponseMessage } from '../messages/response-message.js';
+import { GameHandlerParams } from '../game-handler-params.js';
+import { EuchreControllerProvider } from './euchre-controller.js';
 import { DefaultControllerKeys, DefaultControllers, SystemHandlerParams, Rank, ControllersProviders, DeckControllerProvider, HandsControllerProvider, PointsControllerProvider, TricksControllerProvider, TurnControllerProvider, UnwrapProviders, ValidatedProviders } from '@cards-ts/core';
 
 type TypedDefaultControllers = DefaultControllers<GameParams, typeof GameStates, ResponseMessage, GameHandlerParams & SystemHandlerParams>;

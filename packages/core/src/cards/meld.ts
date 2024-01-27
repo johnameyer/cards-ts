@@ -1,4 +1,4 @@
-import { Card } from './card';
+import { Card } from './card.js';
 /**
  * Parent class for three card sets and four card runs
  */

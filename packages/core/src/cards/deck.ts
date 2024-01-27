@@ -1,7 +1,7 @@
-import { Card } from './card';
-import { Suit } from './suit';
-import { Rank } from './rank';
-import { InvalidError } from './invalid-error';
+import { Card } from './card.js';
+import { Suit } from './suit.js';
+import { Rank } from './rank.js';
+import { InvalidError } from './invalid-error.js';
 
 function choiceAndRemove<T>(items: T[]): T {
     return items.splice(Math.floor(Math.random() * items.length), 1)[0];

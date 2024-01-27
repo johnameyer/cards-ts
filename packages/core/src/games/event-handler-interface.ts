@@ -1,5 +1,5 @@
-import { Message } from '../messages/message';
-import { IndexedControllers } from '../controllers/controller';
+import { Message } from '../messages/message.js';
+import { IndexedControllers } from '../controllers/controller.js';
 
 /**
  * Abstract class for validating and merging incoming events

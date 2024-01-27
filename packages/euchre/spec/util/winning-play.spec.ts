@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import 'mocha';
 import { Card, Suit } from '@cards-ts/core';
-import { winningPlay } from '../../src/util/winning-play';
-import { getComplementarySuit } from '../../src/util/suit-colors';
+import { winningPlay } from '../../src/util/winning-play.js';
+import { getComplementarySuit } from '../../src/util/suit-colors.js';
 
 const get = Card.fromString;
 

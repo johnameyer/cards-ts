@@ -1,5 +1,5 @@
-import { GameStateController, IndexedControllers, WaitingController } from '../controllers';
-import { STANDARD_STATES } from './game-states';
+import { GameStateController, IndexedControllers, WaitingController } from '../controllers/index.js';
+import { STANDARD_STATES } from './game-states.js';
 
 /**
  * A single transforming function, ran when a certain state is entered

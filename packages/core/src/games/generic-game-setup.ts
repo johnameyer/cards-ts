@@ -1,4 +1,4 @@
-import { Intermediary } from '../intermediary/intermediary';
+import { Intermediary } from '../intermediary/intermediary.js';
 
 /**
  * Represents possible error messages for the subset of params in T

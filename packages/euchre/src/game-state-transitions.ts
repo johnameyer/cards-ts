@@ -1,9 +1,9 @@
 import { SpacingMessage, GenericGameState, GenericGameStateTransitions, TurnUpMessage, LeadsMessage } from '@cards-ts/core';
-import { GameStates } from './game-states';
-import { PlayedMessage, EndRoundMessage, OrderUpMessage, PassMessage, NameTrumpMessage, TrumpMessage, WonTrickMessage, WonRoundMessage, GoingAloneMessage } from './messages/status';
-import { getTeamFor } from './util/teams';
-import { winningPlay } from './util/winning-play';
-import { Controllers, GameControllers } from './controllers/controllers';
+import { GameStates } from './game-states.js';
+import { PlayedMessage, EndRoundMessage, OrderUpMessage, PassMessage, NameTrumpMessage, TrumpMessage, WonTrickMessage, WonRoundMessage, GoingAloneMessage } from './messages/status/index.js';
+import { getTeamFor } from './util/teams.js';
+import { winningPlay } from './util/winning-play.js';
+import { Controllers, GameControllers } from './controllers/controllers.js';
 
 type GameState = GenericGameState<GameControllers>;
 

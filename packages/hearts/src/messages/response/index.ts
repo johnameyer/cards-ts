@@ -1,1 +1,1 @@
-export { PassResponseMessage } from './pass-response-message';
+export { PassResponseMessage } from './pass-response-message.js';

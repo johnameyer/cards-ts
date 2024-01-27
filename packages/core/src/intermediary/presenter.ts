@@ -1,6 +1,6 @@
-import { Card } from '../cards/card';
-import { Serializable } from './serializable';
-import { Presentable } from './presentable';
+import { Card } from '../cards/card.js';
+import { Serializable } from './serializable.js';
+import { Presentable } from './presentable.js';
 
 /**
  * Interface describing the different forms of questions that can be posed to the user over a variety of mediums

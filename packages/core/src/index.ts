@@ -1,3 +1,3 @@
-export * from './browser-index';
+export * from './browser-index.js';
 
-export { InquirerPresenter } from './intermediary/inquirer-presenter';
+export { InquirerPresenter } from './intermediary/inquirer-presenter.js';

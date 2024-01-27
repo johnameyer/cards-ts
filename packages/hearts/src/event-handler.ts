@@ -1,7 +1,7 @@
 import { Suit, Card, Rank, distinct, isDefined, EventHandlerInterface, PlayCardResponseMessage } from '@cards-ts/core';
-import { Controllers } from './controllers/controllers';
-import { PassResponseMessage } from './messages/response';
-import { ResponseMessage } from './messages/response-message';
+import { Controllers } from './controllers/controllers.js';
+import { PassResponseMessage } from './messages/response/index.js';
+import { ResponseMessage } from './messages/response-message.js';
 
 const QS = new Card(Suit.SPADES, Rank.QUEEN);
 

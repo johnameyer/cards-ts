@@ -1,8 +1,8 @@
-import { HandlerData } from '../game-handler';
-import { GameHandlerParams } from '../game-handler-params';
-import { ResponseMessage } from '../messages/response-message';
-import { PlayedMessage } from '../messages/status';
-import { PassResponseMessage } from '../messages/response';
+import { HandlerData } from '../game-handler.js';
+import { GameHandlerParams } from '../game-handler-params.js';
+import { ResponseMessage } from '../messages/response-message.js';
+import { PlayedMessage } from '../messages/status/index.js';
+import { PassResponseMessage } from '../messages/response/index.js';
 import { Message, combinations, distinct, Handler, HandlerResponsesQueue, isDefined, MessageHandlerParams, Serializable, Suit, Rank, DataResponseMessage, PlayCardResponseMessage, Card } from '@cards-ts/core';
 
 const tuple = <T extends any[]>(...args: T): T => args;
@@ -78,7 +78,7 @@ function throwAwayRisk(hand: Card[], sorted: {[letter: string]: Card[]}, canBeHe
 }
 
 function wrapData(handlerData: HandlerData) {
-    // @ts-ignore
+    // @ts-expect-error
     if(!handlerData.data?.playerOutOfSuit) {
         handlerData.data = {
             playerOutOfSuit: {},

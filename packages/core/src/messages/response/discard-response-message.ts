@@ -1,5 +1,5 @@
-import { Card } from '../../cards/card';
-import { Message } from '../message';
+import { Card } from '../../cards/card.js';
+import { Message } from '../message.js';
 
 /**
  * Designates a card to be discarded

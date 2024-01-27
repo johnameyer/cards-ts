@@ -1,8 +1,8 @@
 import { ControllerHandlerState, DiscardResponseMessage, Handler, HandlerAction } from '@cards-ts/core';
-import { Controllers } from './controllers/controllers';
-import { GameHandlerParams } from './game-handler-params';
-import { GoDownResponseMessage, PlayResponseMessage, WantCardResponseMessage } from './messages/response';
-import { ResponseMessage } from './messages/response-message';
+import { Controllers } from './controllers/controllers.js';
+import { GameHandlerParams } from './game-handler-params.js';
+import { GoDownResponseMessage, PlayResponseMessage, WantCardResponseMessage } from './messages/response/index.js';
+import { ResponseMessage } from './messages/response-message.js';
 
 export type HandlerData = ControllerHandlerState<Controllers>;
 

@@ -1,4 +1,4 @@
-import { Message } from './message';
+import { Message } from './message.js';
 
 /**
  * Empty message for adding spacing

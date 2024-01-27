@@ -1,6 +1,6 @@
-import { Suit } from './suit';
-import { Rank } from './rank';
-import { ValueError } from './value-error';
+import { Suit } from './suit.js';
+import { Rank } from './rank.js';
+import { ValueError } from './value-error.js';
 
 /**
  * Class to represent cards in a deck

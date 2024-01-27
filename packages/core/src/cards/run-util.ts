@@ -1,6 +1,6 @@
-import { Meld } from './meld';
-import { ThreeCardSet, checkThreeCardSet } from './three-card-set';
-import { FourCardRun, checkFourCardRun } from './four-card-run';
+import { Meld } from './meld.js';
+import { ThreeCardSet, checkThreeCardSet } from './three-card-set.js';
+import { FourCardRun, checkFourCardRun } from './four-card-run.js';
 
 /**
  * Function to check that a run is valid

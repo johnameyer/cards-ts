@@ -1,5 +1,5 @@
-import { isLeftBower } from './bower';
-import { getComplementarySuit } from './suit-colors';
+import { isLeftBower } from './bower.js';
+import { getComplementarySuit } from './suit-colors.js';
 import { Card, Rank, Suit } from '@cards-ts/core';
 
 export function followsTrick(trick: readonly (Card | undefined)[], trumpSuit: Suit, card: Card) {

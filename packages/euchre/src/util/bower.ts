@@ -1,4 +1,4 @@
-import { getComplementarySuit } from './suit-colors';
+import { getComplementarySuit } from './suit-colors.js';
 import { Card, Rank, Suit } from '@cards-ts/core';
 
 export function isLeftBower(card: Card, trump: Suit) {

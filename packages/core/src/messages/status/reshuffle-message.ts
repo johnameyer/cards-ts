@@ -1,4 +1,4 @@
-import { Message } from '../message';
+import { Message } from '../message.js';
 
 /**
  * A class designating that the deck was reshuffled

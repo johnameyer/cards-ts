@@ -1,4 +1,4 @@
-import { Presenter } from './presenter';
+import { Presenter } from './presenter.js';
 
 export type Await<T> = T extends PromiseLike<infer U> ? U : T;
 

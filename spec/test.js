@@ -1,12 +1,15 @@
-#!/usr/bin/env ts-node
+#!/usr/bin/env node
 
-if(!performance) {
-    var { performance } = require('perf_hooks');
-}
+// TODO change extension back to typescript when https://githusb.com/TypeStrong/ts-node/issues/2026 is resolved
 
 import { IncrementalIntermediary, InquirerPresenter } from '@cards-ts/core';
 
-async function run(libraryName: string) {
+if(!performance) {
+    // eslint-disable-next-line no-var, @typescript-eslint/no-var-requires
+    var { performance } = await import('perf_hooks');
+}
+
+async function run(libraryName) {
     try {
         const start = performance.now();
 
@@ -20,9 +23,9 @@ async function run(libraryName: string) {
 
         const _humanPlayer = new IntermediaryHandler(new IncrementalIntermediary(new InquirerPresenter()));
 
-        const numPlayers = libraryName == 'war' ? 2 : 4;
+        const numPlayers = libraryName === 'war' ? 2 : 4;
 
-        let names: string[] = ['Jerome', 'Leah', 'Greg', 'Bart'].slice(0, numPlayers);
+        const names = [ 'Jerome', 'Leah', 'Greg', 'Bart' ].slice(0, numPlayers);
 
         const handlers = Array(numPlayers);
         for(let i = 0; i < handlers.length; i++) {
@@ -45,16 +48,17 @@ async function run(libraryName: string) {
         }
 
         return libraryName;
-    } catch(e) {
-        throw [libraryName, e];
+    } catch (e) {
+        throw [ libraryName, e ];
     }
 }
 
 run(process.argv[2]).then(libraryName => {
     console.log(libraryName + ': completed');
-}).catch(([libraryName, e]) => {
-    console.log(libraryName + ': threw');
-    console.log(e);
+})
+    .catch(([ libraryName, e ]) => {
+        console.log(libraryName + ': threw');
+        console.log(e);
     
-    console.log(libraryName + ': errored');
-});
+        console.log(libraryName + ': errored');
+    });

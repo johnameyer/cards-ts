@@ -1,12 +1,12 @@
-import { isDefined } from '../util/is-defined';
-import { Message } from '../messages/message';
-import { range } from '../util/range';
-import { HandlerChain } from '../handlers/handler';
-import { SystemHandlerParams } from '../handlers/system-handler';
-import { AbstractController, ControllerHandlerState, GenericControllerProvider } from '../controllers/controller';
-import { WaitingController } from '../controllers/waiting-controller';
-import { Provider } from '../util/provider';
-import { ResponseQueue } from './response-queue';
+import { isDefined } from '../util/is-defined.js';
+import { Message } from '../messages/message.js';
+import { range } from '../util/range.js';
+import { HandlerChain } from '../handlers/handler.js';
+import { SystemHandlerParams } from '../handlers/system-handler.js';
+import { AbstractController, ControllerHandlerState, GenericControllerProvider } from '../controllers/controller.js';
+import { WaitingController } from '../controllers/waiting-controller.js';
+import { Provider } from '../util/provider.js';
+import { ResponseQueue } from './response-queue.js';
 
 type PlayerHandlerState = {
     count: number;

@@ -1,4 +1,4 @@
-import { GenericControllerProvider, GlobalController } from './controller';
+import { GenericControllerProvider, GlobalController } from './controller.js';
 
 type BetsState = number[];
 

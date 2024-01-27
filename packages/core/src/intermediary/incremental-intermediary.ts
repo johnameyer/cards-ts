@@ -1,7 +1,7 @@
-import { DisplayElement } from './display-element';
-import { Presenter } from './presenter';
-import { Intermediary, IntermediaryMapping } from './intermediary';
-import { Presentable } from './presentable';
+import { DisplayElement } from './display-element.js';
+import { Presenter } from './presenter.js';
+import { Intermediary, IntermediaryMapping } from './intermediary.js';
+import { Presentable } from './presentable.js';
 
 /**
  * Class that presents each display element one at a time
@@ -30,7 +30,7 @@ export class IncrementalIntermediary implements Intermediary {
             const results: any[] = [];
             for(const component of components) {
                 const func = this.presenter[component.type];
-                // @ts-ignore
+                // @ts-expect-error
                 results.push(func(component)());
             }
             resolver(Promise.all(results) as any as IntermediaryMapping<T>);

@@ -2,13 +2,13 @@
 
 import yargs from 'yargs';
 import { ControllerHandlerState, HandlerChain, IncrementalIntermediary, InquirerPresenter, SystemHandlerParams } from '@cards-ts/core';
-import { GameHandlerParams } from './game-handler-params';
-import { ResponseMessage } from './messages/response-message';
-import { GameSetup } from './game-setup';
-import { GameFactory } from './game-factory';
-import { Controllers } from './controllers/controllers';
+import { GameHandlerParams } from './game-handler-params.js';
+import { ResponseMessage } from './messages/response-message.js';
+import { GameSetup } from './game-setup.js';
+import { GameFactory } from './game-factory.js';
+import { Controllers } from './controllers/controllers.js';
 
-yargs.command([ 'start', '$0' ], 'begin a new game', yargs => {
+yargs(process.argv.slice(2)).command([ 'start', '$0' ], 'begin a new game', yargs => {
     yargs.option('players', {
         alias: 'p',
         type: 'number',

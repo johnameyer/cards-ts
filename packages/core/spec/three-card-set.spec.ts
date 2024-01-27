@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import 'mocha';
-import { Card, ThreeCardSet } from '../src';
+import { Card, ThreeCardSet } from '../src/index.js';
 
 describe('ThreeCardSet', () => {
     let J: Card, TH: Card, QS: Card, QH: Card, QC: Card, KH: Card;

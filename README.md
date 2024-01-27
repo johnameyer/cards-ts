@@ -1,7 +1,7 @@
 <h1 align="center">Cards-TS</h1>
 <div align="center">
 
-[![Github CI](https://img.shields.io/github/workflow/status/johnameyer/cards-ts/ci?logo=github)](https://github.com/johnameyer/cards-ts/actions)
+[![Github CI](https://img.shields.io/github/actions/workflow/status/johnameyer/cards-ts/ci.yml?logo=github)](https://github.com/johnameyer/cards-ts/actions)
 [![npm version](https://img.shields.io/npm/v/@cards-ts/core?logo=npm)](https://www.npmjs.com/package/@cards-ts/core)
 [![GitHub Last Commit](https://img.shields.io/github/last-commit/johnameyer/cards-ts?logo=github)](https://github.com/johnameyer/cards-ts)
 [![Typescript](https://img.shields.io/github/languages/top/johnameyer/cards-ts?logo=typescript)]()

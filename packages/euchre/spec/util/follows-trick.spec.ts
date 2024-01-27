@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 import { Card, Rank, Suit } from '@cards-ts/core';
-import { followsTrick } from '../../src/util/follows-trick';
+import { followsTrick } from '../../src/util/follows-trick.js';
 
 const get = Card.fromString;
 

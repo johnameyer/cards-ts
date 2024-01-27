@@ -1,4 +1,4 @@
-import { GameParams } from '../game-params';
+import { GameParams } from '../game-params.js';
 
 export function getTeams(_params: GameParams) {
     return [[ 0, 2 ], [ 1, 3 ]];

@@ -1,7 +1,7 @@
-import { GenericHandlerController } from '../games/generic-handler-controller';
-import { SystemHandlerParams } from '../handlers/system-handler';
-import { isDefined } from '../util/is-defined';
-import { GenericControllerProvider, GlobalController } from './controller';
+import { GenericHandlerController } from '../games/generic-handler-controller.js';
+import { SystemHandlerParams } from '../handlers/system-handler.js';
+import { isDefined } from '../util/is-defined.js';
+import { GenericControllerProvider, GlobalController } from './controller.js';
 
 type PointsState = number[];
 

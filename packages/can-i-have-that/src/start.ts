@@ -1,14 +1,14 @@
 #!/usr/bin/env ts-node
 
-import yargs from 'yargs';
+import yargs from 'yargs/yargs';
 import { HandlerChain, IncrementalIntermediary, InquirerPresenter, SystemHandlerParams } from '@cards-ts/core';
-import { HandlerData } from './game-handler';
-import { GameHandlerParams } from './game-handler-params';
-import { ResponseMessage } from './messages/response-message';
-import { GameSetup } from './game-setup';
-import { GameFactory } from './game-factory';
+import { HandlerData } from './game-handler.js';
+import { GameHandlerParams } from './game-handler-params.js';
+import { ResponseMessage } from './messages/response-message.js';
+import { GameSetup } from './game-setup.js';
+import { GameFactory } from './game-factory.js';
 
-yargs.command([ 'start', '$0' ], 'begin a new game', yargs => {
+yargs(process.argv.slice(2)).command([ 'start', '$0' ], 'begin a new game', yargs => {
     yargs.option('players', {
         alias: 'p',
         type: 'number',

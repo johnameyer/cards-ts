@@ -1,5 +1,5 @@
-import { Serializable } from '../intermediary/serializable';
-import { GenericControllerProvider, GlobalController } from './controller';
+import { Serializable } from '../intermediary/serializable.js';
+import { GenericControllerProvider, GlobalController } from './controller.js';
 
 /**
  * The settings that a game runs under

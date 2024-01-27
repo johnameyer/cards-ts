@@ -1,8 +1,8 @@
-import { Message } from '../messages/message';
-import { Card } from '../cards/card';
-import { Presenter } from './presenter';
-import { Presentable } from './presentable';
-// @ts-ignore
+import { Message } from '../messages/message.js';
+import { Card } from '../cards/card.js';
+import { Presenter } from './presenter.js';
+import { Presentable } from './presentable.js';
+// @ts-expect-error
 import selectLine from 'inquirer-select-line';
 import inquirer from 'inquirer';
 
@@ -20,7 +20,7 @@ export class InquirerPresenter implements Presenter {
     checkbox<T, ValidateParam>(options: { message: Presentable[]; type: string; choices: { name: string; value: T }[]; validate?: (input: T[], validateParam: ValidateParam) => true | string | Promise<true | string>; validateParam?: ValidateParam }) {
         return async () => (await inquirer.prompt([{
             ...options,
-            // @ts-ignore
+            // @ts-expect-error
             validate: options.validate ? (input) => options.validate(input, options.validateParam) : undefined,
             message: Message.defaultTransformer(options.message),
             name: 'checkbox',
@@ -40,7 +40,7 @@ export class InquirerPresenter implements Presenter {
     input<ValidateParam>(options: { message: Presentable[]; validate?: (input: string, param: ValidateParam) => true | string | Promise<true | string>; validateParam?: ValidateParam }) {
         return async () => (await inquirer.prompt([{
             ...options,
-            // @ts-ignore
+            // @ts-expect-error
             validate: options.validate ? (input) => options.validate(input, options.validateParam) : undefined,
             message: Message.defaultTransformer(options.message),
             name: 'input',
@@ -60,7 +60,7 @@ export class InquirerPresenter implements Presenter {
     place<T, ValidateParam>(options: { message: Presentable[]; choices: { name: string; value: T }[]; placeholder: string; validate?: (input: number, param: ValidateParam) => true | string | Promise<true | string>; validateParam?: ValidateParam }) {
         return async () => (await inquirer.prompt([{
             ...options,
-            // @ts-ignore
+            // @ts-expect-error
             validate: options.validate ? (input) => options.validate(input, options.validateParam) : undefined,
             message: Message.defaultTransformer(options.message),
             name: 'selectLine',

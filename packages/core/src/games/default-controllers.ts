@@ -1,10 +1,10 @@
-import { CompletedController, CompletedControllerProvider, DataController, DataControllerProvider, GameStateController, GameStateControllerProvider, NamesController, NamesControllerProvider, ParamsController, ParamsControllerProvider, WaitingController, WaitingControllerProvider } from '../controllers';
-import { ValidatedProviders } from '../controllers/controller';
-import { SystemHandlerParams } from '../handlers/system-handler';
-import { Serializable } from '../intermediary/serializable';
-import { Message } from '../messages/message';
-import { STANDARD_STATES } from './game-states';
-import { GenericHandlerController, GenericHandlerControllerProvider, GenericHandlerProxy } from './generic-handler-controller';
+import { CompletedController, CompletedControllerProvider, DataController, DataControllerProvider, GameStateController, GameStateControllerProvider, NamesController, NamesControllerProvider, ParamsController, ParamsControllerProvider, WaitingController, WaitingControllerProvider } from '../controllers/index.js';
+import { ValidatedProviders } from '../controllers/controller.js';
+import { SystemHandlerParams } from '../handlers/system-handler.js';
+import { Serializable } from '../intermediary/serializable.js';
+import { Message } from '../messages/message.js';
+import { STANDARD_STATES } from './game-states.js';
+import { GenericHandlerController, GenericHandlerControllerProvider, GenericHandlerProxy } from './generic-handler-controller.js';
 
 /**
  * Build the default providers, which will be merged with the game specific providers in the game factory

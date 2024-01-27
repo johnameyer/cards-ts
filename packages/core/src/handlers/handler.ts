@@ -1,6 +1,6 @@
-import { Message } from '../messages/message';
-import { HandlerResponsesQueue } from '../games/response-queue';
-import { Serializable } from '../intermediary/serializable';
+import { Message } from '../messages/message.js';
+import { HandlerResponsesQueue } from '../games/response-queue.js';
+import { Serializable } from '../intermediary/serializable.js';
 
 export type HandlerAction<HandlerData, ResponseMessage, Vargs extends any[] = any[]> = (this: any, gameState: HandlerData, response: HandlerResponsesQueue<ResponseMessage>, ...args: Vargs) => void | Promise<void>;
 

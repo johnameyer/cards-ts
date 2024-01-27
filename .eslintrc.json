@@ -32,6 +32,7 @@
         "prefer-const": "error",
         "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
         // "@typescript-eslint/no-submodule-imports": "error",
+        "@typescript-eslint/no-explicit-any": "warn",
 
         // TODO remove
         "@typescript-eslint/explicit-module-boundary-types": "warn",

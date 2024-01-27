@@ -1,10 +1,10 @@
-import { Card } from '../cards/card';
-import { GenericHandlerController } from '../games/generic-handler-controller';
-import { SystemHandlerParams } from '../handlers/system-handler';
-import { Serializable } from '../intermediary/serializable';
-import { DealtOutMessage } from '../messages/status';
-import { AbstractController, GenericControllerProvider } from './controller';
-import { DeckController } from './deck-controller';
+import { Card } from '../cards/card.js';
+import { GenericHandlerController } from '../games/generic-handler-controller.js';
+import { SystemHandlerParams } from '../handlers/system-handler.js';
+import { Serializable } from '../intermediary/serializable.js';
+import { DealtOutMessage } from '../messages/status/index.js';
+import { AbstractController, GenericControllerProvider } from './controller.js';
+import { DeckController } from './deck-controller.js';
 
 /**
  * The cards of all hands

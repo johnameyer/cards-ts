@@ -1,5 +1,5 @@
-import { STANDARD_STATES } from '../games/game-states';
-import { AbstractController, GenericControllerProvider } from './controller';
+import { STANDARD_STATES } from '../games/game-states.js';
+import { AbstractController, GenericControllerProvider } from './controller.js';
 
 type GameState<Enum extends typeof STANDARD_STATES> = Exclude<keyof Enum, number | symbol>;
 

@@ -1,7 +1,7 @@
-import { Presentable } from '../intermediary/presentable';
-import { ReadonlySerializable } from '../intermediary/serializable';
-import { isDefined } from '../util/is-defined';
-import { isNonnull } from '../util/is-nonnull';
+import { Presentable } from '../intermediary/presentable.js';
+import { ReadonlySerializable } from '../intermediary/serializable.js';
+import { isDefined } from '../util/is-defined.js';
+import { isNonnull } from '../util/is-nonnull.js';
 
 /**
  * Parent class for any message to be delivered to handlers
@@ -29,9 +29,9 @@ export namespace Message {
             // TODO think about null here
             return null;
         }
-        // @ts-ignore
+        // @ts-expect-error
         if(component.map) {
-            // @ts-ignore
+            // @ts-expect-error
             return defaultTransformer(component, ', ');
         }
         return component.toString();
