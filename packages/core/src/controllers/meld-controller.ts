@@ -1,10 +1,10 @@
-import { Card } from '../cards/card';
-import { Meld } from '../cards/meld';
-import { GenericHandlerController } from '../games/generic-handler-controller';
-import { SystemHandlerParams } from '../handlers/system-handler';
-import { GenericControllerProvider, GlobalController } from './controller';
-import { DeckController } from './deck-controller';
-import { TurnController } from './turn-controller';
+import { Card } from '../cards/card.js';
+import { Meld } from '../cards/meld.js';
+import { GenericHandlerController } from '../games/generic-handler-controller.js';
+import { SystemHandlerParams } from '../handlers/system-handler.js';
+import { GenericControllerProvider, GlobalController } from './controller.js';
+import { DeckController } from './deck-controller.js';
+import { TurnController } from './turn-controller.js';
 
 type MeldState = {
     /**

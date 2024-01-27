@@ -1,5 +1,5 @@
 import { GenericGameSetup, Intermediary } from '@cards-ts/core';
-import { GameParams } from './game-params';
+import { GameParams } from './game-params.js';
 
 export class GameSetup implements GenericGameSetup<GameParams> {
     getDefaultParams(): GameParams {

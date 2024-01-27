@@ -1,4 +1,4 @@
-import { Message } from '../message';
+import { Message } from '../message.js';
 
 /**
  * Sets the data for this player to the data provided

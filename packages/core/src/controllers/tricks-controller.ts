@@ -1,11 +1,11 @@
-import { Card } from '../cards/card';
-import { GenericHandlerController } from '../games/generic-handler-controller';
-import { SystemHandlerParams } from '../handlers/system-handler';
-import { isDefined } from '../util/is-defined';
-import { GenericControllerProvider, GlobalController } from './controller';
-import { DeckController } from './deck-controller';
-import { HandsController } from './hands-controller';
-import { TurnController } from './turn-controller';
+import { Card } from '../cards/card.js';
+import { GenericHandlerController } from '../games/generic-handler-controller.js';
+import { SystemHandlerParams } from '../handlers/system-handler.js';
+import { isDefined } from '../util/is-defined.js';
+import { GenericControllerProvider, GlobalController } from './controller.js';
+import { DeckController } from './deck-controller.js';
+import { HandsController } from './hands-controller.js';
+import { TurnController } from './turn-controller.js';
 
 type TricksState = {
     /**

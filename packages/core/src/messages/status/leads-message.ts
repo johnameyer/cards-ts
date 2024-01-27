@@ -1,5 +1,5 @@
-import { Presentable } from '../../intermediary/presentable';
-import { Message } from '../message';
+import { Presentable } from '../../intermediary/presentable.js';
+import { Message } from '../message.js';
 
 function generateMessage(leader: string): Presentable[] {
     return [ leader, 'leads next trick' ];

@@ -1,6 +1,6 @@
-import { Card } from '../../cards/card';
-import { Presentable } from '../../intermediary/presentable';
-import { Message } from '../message';
+import { Card } from '../../cards/card.js';
+import { Presentable } from '../../intermediary/presentable.js';
+import { Message } from '../message.js';
 
 function generateMessage(card: Card, player?: string): Presentable[] {
     if(player) {

@@ -1,4 +1,4 @@
-import { GameParams } from '../game-params';
+import { GameParams } from '../game-params.js';
 import { AbstractController, DeckController, ParamsController, GenericControllerProvider } from '@cards-ts/core';
 
 type CanIHaveThatState = {

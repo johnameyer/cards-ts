@@ -1,4 +1,4 @@
-import { Serializable } from '../intermediary/serializable';
+import { Serializable } from '../intermediary/serializable.js';
 
 /**
  * Parent class of controllers, which own a slice of state

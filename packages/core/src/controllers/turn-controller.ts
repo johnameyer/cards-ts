@@ -1,6 +1,6 @@
-import { GenericHandlerController } from '../games/generic-handler-controller';
-import { SystemHandlerParams } from '../handlers/system-handler';
-import { GenericControllerProvider, GlobalController } from './controller';
+import { GenericHandlerController } from '../games/generic-handler-controller.js';
+import { SystemHandlerParams } from '../handlers/system-handler.js';
+import { GenericControllerProvider, GlobalController } from './controller.js';
 
 type TurnState = number;
 

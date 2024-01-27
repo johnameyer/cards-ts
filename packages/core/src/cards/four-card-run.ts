@@ -1,9 +1,9 @@
-import { zip } from '../util/zip';
-import { InvalidError } from './invalid-error';
-import { Rank } from './rank';
-import { Card, potentialWilds } from './card';
-import { Meld } from './meld';
-import { Suit } from './suit';
+import { zip } from '../util/zip.js';
+import { InvalidError } from './invalid-error.js';
+import { Rank } from './rank.js';
+import { Card, potentialWilds } from './card.js';
+import { Meld } from './meld.js';
+import { Suit } from './suit.js';
 
 declare global {
     interface Array<T> {

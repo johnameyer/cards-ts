@@ -1,7 +1,7 @@
-import { GameHandler, HandlerData } from '../game-handler';
-import { ResponseMessage } from '../messages/response-message';
-import { compare } from '../util/compare';
-import { PassResponseMessage } from '../messages/response';
+import { GameHandler, HandlerData } from '../game-handler.js';
+import { ResponseMessage } from '../messages/response-message.js';
+import { compare } from '../util/compare.js';
+import { PassResponseMessage } from '../messages/response/index.js';
 import { Card, HandlerResponsesQueue, PlayCardResponseMessage } from '@cards-ts/core';
 import { Message } from '@cards-ts/core';
 import { Suit } from '@cards-ts/core';
@@ -25,7 +25,6 @@ export class IntermediaryHandler extends GameHandler {
             type: 'checkbox',
             message: [ 'Select the cards to pass' ],
             choices: hand.sort(compare).map(toInquirerValue),
-            // @ts-ignore
             validate: validatePass,
             validateParam: { numToPass },
         });

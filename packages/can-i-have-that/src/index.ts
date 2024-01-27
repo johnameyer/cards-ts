@@ -1,2 +1,2 @@
-export { GameFactory } from './game-factory';
-export { IntermediaryHandler } from './handlers/intermediary-handler';
+export { GameFactory } from './game-factory.js';
+export { IntermediaryHandler } from './handlers/intermediary-handler.js';

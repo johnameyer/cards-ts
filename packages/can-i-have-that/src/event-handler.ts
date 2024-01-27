@@ -1,7 +1,7 @@
 import { Card, InvalidError, EventHandlerInterface, distinct, DiscardResponseMessage } from '@cards-ts/core';
-import { Controllers } from './controllers/controllers';
-import { WantCardResponseMessage, PlayResponseMessage, GoDownResponseMessage } from './messages/response';
-import { ResponseMessage } from './messages/response-message';
+import { Controllers } from './controllers/controllers.js';
+import { WantCardResponseMessage, PlayResponseMessage, GoDownResponseMessage } from './messages/response/index.js';
+import { ResponseMessage } from './messages/response-message.js';
 
 export class EventHandler implements EventHandlerInterface<Controllers, ResponseMessage> {
     validateEvent(controllers: Controllers, source: number, event: ResponseMessage): ResponseMessage | undefined {

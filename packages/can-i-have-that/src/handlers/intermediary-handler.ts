@@ -1,7 +1,7 @@
-import { HandlerData } from '../game-handler';
-import { WantCardResponseMessage, GoDownResponseMessage, PlayResponseMessage } from '../messages/response';
-import { roundToString } from '../util/round-to-string';
-import { ClientHandler } from './client-handler';
+import { HandlerData } from '../game-handler.js';
+import { WantCardResponseMessage, GoDownResponseMessage, PlayResponseMessage } from '../messages/response/index.js';
+import { roundToString } from '../util/round-to-string.js';
+import { ClientHandler } from './client-handler.js';
 import { Card, Intermediary, ThreeCardSet, FourCardRun, checkFourCardRunPossible, HandlerResponsesQueue, DiscardResponseMessage, Meld } from '@cards-ts/core';
 
 function flatten<T>(reduction: T[], arr: T[]) {
@@ -112,7 +112,6 @@ export class IntermediaryHandler extends ClientHandler {
             type: 'checkbox',
             message: [ 'Please enter cards in the ' + (num === 3 ? '3 of a kind' : '4 card run') ],
             choices: cardsLeft.sort(Card.compare).map((card) => ({ name: card.toString(), value: card })),
-            // @ts-ignore
             validate: validateSelectCards,
             validateParam: { num },
         })[1])[0] as Card[];
@@ -123,7 +122,6 @@ export class IntermediaryHandler extends ClientHandler {
             type: 'checkbox',
             message: [ 'Please select cards you\'d like to add' ],
             choices: data.hand.map(toInquirerValue),
-            // @ts-ignore
             validate: validateCardsToPlay,
             validateParam: { run: run as ThreeCardSet | FourCardRun },
         })[1])[0] as Card[];
@@ -150,7 +148,6 @@ export class IntermediaryHandler extends ClientHandler {
             message: [ 'Would you like to play cards on runs' ],
         })[1];
 
-        // @ts-ignore
         data.hand = orderedHand;
 
         return wantTo;
@@ -175,7 +172,6 @@ export class IntermediaryHandler extends ClientHandler {
             message: [ 'Would you like to go down' ],
         })[1];
 
-        // @ts-ignore
         data.hand = orderedHand;
 
         return wantTo;

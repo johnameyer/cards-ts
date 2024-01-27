@@ -1,5 +1,5 @@
-import { ControllerHandlerState, ControllerState, ControllersProviders, IndexedControllers, initializeControllers, validate } from '../controllers/controller';
-import { reconstruct } from '../intermediary/serializable';
+import { ControllerHandlerState, ControllerState, ControllersProviders, IndexedControllers, initializeControllers, validate } from '../controllers/controller.js';
+import { reconstruct } from '../intermediary/serializable.js';
 
 /**
  * A class used to track the current state of the game

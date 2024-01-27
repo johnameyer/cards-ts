@@ -4,7 +4,7 @@ export class TurnResponseMessage extends Message {
     public readonly type = 'turn-card-response';
 
     constructor(public readonly toDiscard: Card | null, public readonly toPlay: Meld[][], public readonly data?: any) {
-        // @ts-ignore
+        // @ts-expect-error
         super([ ...(toDiscard ? [ 'Discarded', toDiscard ] : []), ...(toPlay ? [ 'Played', toPlay as (ThreeCardSet | FourCardRun) ] : []) ]);
     }
 }

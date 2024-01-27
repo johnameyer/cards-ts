@@ -1,8 +1,9 @@
 {
   "name": "package-tests",
   "private": true,
+  "type": "module",
   "scripts": {
-    "start": "rm -rf ./logs/ && mkdir ./logs && cat ../games.txt | xargs -t -L 1 -I{} -P 8 bash -c 'ts-node test.ts {} &> logs/{}.log && tail -n 1 logs/{}.log && grep -q \"{}: completed\" logs/{}.log'"
+    "start": "rm -rf ./logs/ && mkdir ./logs && cat ../games.txt | xargs -t -L 1 -I{} -P 8 bash -c 'node test.js {} &> logs/{}.log && tail -n 1 logs/{}.log && grep -q \"{}: completed\" logs/{}.log'"
   },
   "dependencies": {
     "@cards-ts/can-i-have-that": "workspace:*",
@@ -12,8 +13,8 @@
     "@cards-ts/war": "workspace:*"
   },
   "devDependencies": {
-    "@types/node": "^17.0.10",
-    "ts-node": "10.4.0",
-    "typescript": "4.4.2"
+    "@types/node": "^17.0.45",
+    "ts-node": "^10.9.2",
+    "typescript": "5.3.3"
   }
 }

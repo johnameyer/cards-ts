@@ -1,5 +1,5 @@
-import { GameHandler, HandlerData } from '../game-handler';
-import { WantCardResponseMessage } from '../messages/response';
+import { GameHandler, HandlerData } from '../game-handler.js';
+import { WantCardResponseMessage } from '../messages/response/index.js';
 import { Card, DiscardResponseMessage, HandlerResponsesQueue } from '@cards-ts/core';
 
 export class GrammyHandler extends GameHandler {

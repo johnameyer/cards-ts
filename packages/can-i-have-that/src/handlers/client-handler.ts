@@ -1,5 +1,5 @@
-import { GameHandler, HandlerData } from '../game-handler';
-import { GoDownResponseMessage, PlayResponseMessage, WantCardResponseMessage } from '../messages/response';
+import { GameHandler, HandlerData } from '../game-handler.js';
+import { GoDownResponseMessage, PlayResponseMessage, WantCardResponseMessage } from '../messages/response/index.js';
 import { Card, DiscardResponseMessage, distinct, FourCardRun, HandlerResponsesQueue, InvalidError, Meld, ThreeCardSet } from '@cards-ts/core';
 
 /**

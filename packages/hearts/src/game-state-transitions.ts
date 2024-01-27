@@ -1,7 +1,7 @@
 import { GenericGameStateTransitions, Card, Rank, Suit, GenericGameState, SpacingMessage, LeadsMessage } from '@cards-ts/core';
-import { GameStates } from './game-states';
-import { NoPassingMessage, PassingMessage, PassedMessage, PlayedMessage, ShotTheMoonMessage, ScoredMessage, EndRoundMessage } from './messages/status';
-import { Controllers } from './controllers/controllers';
+import { GameStates } from './game-states.js';
+import { NoPassingMessage, PassingMessage, PassedMessage, PlayedMessage, ShotTheMoonMessage, ScoredMessage, EndRoundMessage } from './messages/status/index.js';
+import { Controllers } from './controllers/controllers.js';
 
 function valueOfCard(card: Card): number {
     if(card.equals(Card.fromString('QS'))) {

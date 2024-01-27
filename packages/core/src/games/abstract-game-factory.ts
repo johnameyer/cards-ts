@@ -1,19 +1,19 @@
-import { Handler, HandlerChain } from '../handlers/handler';
-import { SystemHandlerParams } from '../handlers/system-handler';
-import { Intermediary } from '../intermediary/intermediary';
-import { IntermediarySystemHandler } from '../intermediary/intermediary-system-handler';
-import { Message } from '../messages/message';
-import { SerializableObject } from '../intermediary/serializable';
-import { ControllerHandlerState, ControllerState, ControllersProviders, IndexedControllers } from '../controllers/controller';
-import { Provider } from '../util/provider';
-import { EventHandlerInterface } from './event-handler-interface';
-import { GameDriver } from './game-driver';
-import { GenericGameSetup } from './generic-game-setup';
-import { GenericGameState } from './generic-game-state';
-import { GenericGameStateTransitions } from './generic-game-state-transitions';
-import { DefaultControllerKeys, DefaultControllers, buildDefaultProviders } from './default-controllers';
-import { GenericHandlerProxy } from './generic-handler-controller';
-import { STANDARD_STATES } from './game-states';
+import { Handler, HandlerChain } from '../handlers/handler.js';
+import { SystemHandlerParams } from '../handlers/system-handler.js';
+import { Intermediary } from '../intermediary/intermediary.js';
+import { IntermediarySystemHandler } from '../intermediary/intermediary-system-handler.js';
+import { Message } from '../messages/message.js';
+import { SerializableObject } from '../intermediary/serializable.js';
+import { ControllerHandlerState, ControllerState, ControllersProviders, IndexedControllers } from '../controllers/controller.js';
+import { Provider } from '../util/provider.js';
+import { EventHandlerInterface } from './event-handler-interface.js';
+import { GameDriver } from './game-driver.js';
+import { GenericGameSetup } from './generic-game-setup.js';
+import { GenericGameState } from './generic-game-state.js';
+import { GenericGameStateTransitions } from './generic-game-state-transitions.js';
+import { DefaultControllerKeys, DefaultControllers, buildDefaultProviders } from './default-controllers.js';
+import { GenericHandlerProxy } from './generic-handler-controller.js';
+import { STANDARD_STATES } from './game-states.js';
 
 /**
  * Wraps the classes in a game library into one common interface to make usages less verbose and to hide internal implementation details

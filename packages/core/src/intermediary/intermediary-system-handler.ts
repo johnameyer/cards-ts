@@ -1,8 +1,8 @@
-import { Message } from '../messages/message';
-import { HandlerResponsesQueue } from '../games/response-queue';
-import { SystemHandler } from '../handlers/system-handler';
-import { Intermediary } from './intermediary';
-import { Serializable } from './serializable';
+import { Message } from '../messages/message.js';
+import { HandlerResponsesQueue } from '../games/response-queue.js';
+import { SystemHandler } from '../handlers/system-handler.js';
+import { Intermediary } from './intermediary.js';
+import { Serializable } from './serializable.js';
 
 export class IntermediarySystemHandler<HandlerData extends Serializable, ResponseMessage extends Message> extends SystemHandler<HandlerData, ResponseMessage> {
     constructor(private intermediary: Intermediary) {

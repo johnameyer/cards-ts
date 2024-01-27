@@ -1,5 +1,5 @@
 import { GenericGameSetup, Intermediary } from '@cards-ts/core';
-import { GameParams } from './game-params';
+import { GameParams } from './game-params.js';
 
 const FULL_GAME: (3 | 4)[][] = [[ 3, 3 ], [ 3, 4 ], [ 4, 4 ], [ 3, 3, 3 ], [ 3, 3, 4 ], [ 3, 4, 4 ], [ 4, 4, 4 ]];
 const SHORT_GAME: (3 | 4)[][] = [[ 3, 3 ], [ 3, 4 ], [ 4, 4 ]];

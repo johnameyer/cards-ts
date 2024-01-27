@@ -1,10 +1,10 @@
-import { Card } from '../cards/card';
-import { Deck } from '../cards/deck';
-import { FourCardRun } from '../cards/four-card-run';
-import { Rank } from '../cards/rank';
-import { Suit } from '../cards/suit';
-import { ThreeCardSet } from '../cards/three-card-set';
-import { Presentable } from './presentable';
+import { Card } from '../cards/card.js';
+import { Deck } from '../cards/deck.js';
+import { FourCardRun } from '../cards/four-card-run.js';
+import { Rank } from '../cards/rank.js';
+import { Suit } from '../cards/suit.js';
+import { ThreeCardSet } from '../cards/three-card-set.js';
+import { Presentable } from './presentable.js';
 
 /**
  * Things that the library knows how to serialize and deserialize

@@ -1,8 +1,8 @@
 import { EventHandlerInterface, PlayCardResponseMessage } from '@cards-ts/core';
-import { Controllers, GameControllers } from './controllers/controllers';
-import { DealerDiscardResponseMessage, GoingAloneResponseMessage, OrderUpResponseMessage, NameTrumpResponseMessage } from './messages/response';
-import { ResponseMessage } from './messages/response-message';
-import { followsTrick } from './util/follows-trick';
+import { Controllers, GameControllers } from './controllers/controllers.js';
+import { DealerDiscardResponseMessage, GoingAloneResponseMessage, OrderUpResponseMessage, NameTrumpResponseMessage } from './messages/response/index.js';
+import { ResponseMessage } from './messages/response-message.js';
+import { followsTrick } from './util/follows-trick.js';
 
 export class EventHandler implements EventHandlerInterface<GameControllers, ResponseMessage> {
     validateEvent(controllers: Controllers, source: number, event: ResponseMessage): ResponseMessage | undefined {

@@ -1,10 +1,10 @@
-import { zip } from '../util/zip';
-import { InvalidError } from './invalid-error';
-import { Meld } from './meld';
-import { Card, potentialWilds } from './card';
-import { Rank } from './rank';
-import { Suit } from './suit';
-import { ValueError } from './value-error';
+import { zip } from '../util/zip.js';
+import { InvalidError } from './invalid-error.js';
+import { Meld } from './meld.js';
+import { Card, potentialWilds } from './card.js';
+import { Rank } from './rank.js';
+import { Suit } from './suit.js';
+import { ValueError } from './value-error.js';
 
 /**
  * Checks if a three card set is valid

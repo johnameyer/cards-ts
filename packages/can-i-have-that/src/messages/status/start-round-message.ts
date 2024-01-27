@@ -1,5 +1,5 @@
 import { Message, Presentable } from '@cards-ts/core';
-import { roundToString } from '../../util/round-to-string';
+import { roundToString } from '../../util/round-to-string.js';
 
 function generateMessage(round: readonly number[]): Presentable[] {
     return roundToString(round);

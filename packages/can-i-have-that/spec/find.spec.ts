@@ -1,7 +1,7 @@
 import 'mocha';
 import { expect } from 'chai';
 import { Card } from '@cards-ts/core';
-import { find } from '../src/util/find';
+import { find } from '../src/util/find.js';
 
 function lengths(arr: any[][]) {
     return arr.map(subarr => subarr.length);

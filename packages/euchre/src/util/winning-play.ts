@@ -1,4 +1,4 @@
-import { isLeftBower, isRightBower } from './bower';
+import { isLeftBower, isRightBower } from './bower.js';
 import { Card, Rank, Suit } from '@cards-ts/core';
 
 export function winningPlay(currentTrick: readonly (Card | undefined)[], currentTrump: Suit) {

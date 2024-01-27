@@ -1,8 +1,8 @@
-import { Card } from '../cards/card';
-import { Deck } from '../cards/deck';
-import { GenericHandlerController } from '../games/generic-handler-controller';
-import { SystemHandlerParams } from '../handlers/system-handler';
-import { AbstractController, GenericControllerProvider } from './controller';
+import { Card } from '../cards/card.js';
+import { Deck } from '../cards/deck.js';
+import { GenericHandlerController } from '../games/generic-handler-controller.js';
+import { SystemHandlerParams } from '../handlers/system-handler.js';
+import { AbstractController, GenericControllerProvider } from './controller.js';
 
 /**
  * The deck currently in use

@@ -1,13 +1,13 @@
 import { Serializable } from 'child_process';
-import { GameHandlerParams } from '../game-handler-params';
-import { HandlerData } from '../game-handler';
-import { OrderUpResponseMessage, NameTrumpResponseMessage, DealerDiscardResponseMessage } from '../messages/response';
-import { ResponseMessage } from '../messages/response-message';
-import { PlayedMessage } from '../messages/status';
-import { followsTrick } from '../util/follows-trick';
-import { getTeamFor } from '../util/teams';
-import { getComplementarySuit } from '../util/suit-colors';
-import { winningPlay } from '../util/winning-play';
+import { GameHandlerParams } from '../game-handler-params.js';
+import { HandlerData } from '../game-handler.js';
+import { OrderUpResponseMessage, NameTrumpResponseMessage, DealerDiscardResponseMessage } from '../messages/response/index.js';
+import { ResponseMessage } from '../messages/response-message.js';
+import { PlayedMessage } from '../messages/status/index.js';
+import { followsTrick } from '../util/follows-trick.js';
+import { getTeamFor } from '../util/teams.js';
+import { getComplementarySuit } from '../util/suit-colors.js';
+import { winningPlay } from '../util/winning-play.js';
 import { Rank } from '@cards-ts/core';
 import { Suit } from '@cards-ts/core';
 import { Message } from '@cards-ts/core';
@@ -32,7 +32,7 @@ const emptyCounter = () => {
 };
 
 function wrapData(handlerData: HandlerData) {
-    // @ts-ignore
+    // @ts-expect-error
     if(!handlerData.data?.playerOutOfSuit) {
         handlerData.data = {
             playerOutOfSuit: {},

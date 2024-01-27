@@ -1,7 +1,7 @@
-import { Card } from '../../cards/card';
-import { Meld } from '../../cards/meld';
-import { Presentable } from '../../intermediary/presentable';
-import { Message } from '../message';
+import { Card } from '../../cards/card.js';
+import { Meld } from '../../cards/meld.js';
+import { Presentable } from '../../intermediary/presentable.js';
+import { Message } from '../message.js';
 
 function generateMessage(cards: Card[], meld: Meld, player: string): Presentable[] {
     if(cards.length === meld.cards.length) {

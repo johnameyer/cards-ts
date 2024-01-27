@@ -1,4 +1,4 @@
-import { Message } from '../message';
+import { Message } from '../message.js';
 
 /**
  * Designates that a player ran out of cards

@@ -1,7 +1,7 @@
 import { Card, InvalidError, SpacingMessage, GenericGameState, GenericGameStateTransitions, PickupMessage as PublicPickup, DiscardMessage, EndRoundMessage, OutOfCardsMessage, PlayedMessage, ReshuffleMessage } from '@cards-ts/core';
-import { GameStates } from './game-states';
-import { Controllers } from './controllers/controllers';
-import { PickupMessage, StartRoundMessage } from './messages/status';
+import { GameStates } from './game-states.js';
+import { Controllers } from './controllers/controllers.js';
+import { PickupMessage, StartRoundMessage } from './messages/status/index.js';
 
 type GameState = GenericGameState<Controllers>;
 

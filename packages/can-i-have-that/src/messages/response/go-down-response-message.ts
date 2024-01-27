@@ -4,7 +4,7 @@ export class GoDownResponseMessage extends Message {
     public readonly type = 'go-down-response';
 
     constructor(public readonly toPlay: Meld[], public readonly data?: any) {
-        // @ts-ignore
+        // @ts-expect-error
         super([ 'Played', toPlay as (ThreeCardSet | FourCardRun) ]);
     }
 }

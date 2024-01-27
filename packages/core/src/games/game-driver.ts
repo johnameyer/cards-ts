@@ -1,12 +1,12 @@
-import { Message } from '../messages/message';
-import { SystemHandlerParams } from '../handlers/system-handler';
-import { CompletedController, GameStateController, WaitingController } from '../controllers';
-import { IndexedControllers } from '../controllers/controller';
-import { GenericGameStateTransitions } from './generic-game-state-transitions';
-import { EventHandlerInterface } from './event-handler-interface';
-import { GenericGameState } from './generic-game-state';
-import { GenericHandlerProxy } from './generic-handler-controller';
-import { STANDARD_STATES } from './game-states';
+import { Message } from '../messages/message.js';
+import { SystemHandlerParams } from '../handlers/system-handler.js';
+import { CompletedController, GameStateController, WaitingController } from '../controllers/index.js';
+import { IndexedControllers } from '../controllers/controller.js';
+import { GenericGameStateTransitions } from './generic-game-state-transitions.js';
+import { EventHandlerInterface } from './event-handler-interface.js';
+import { GenericGameState } from './generic-game-state.js';
+import { GenericHandlerProxy } from './generic-handler-controller.js';
+import { STANDARD_STATES } from './game-states.js';
 
 /**
  * Class that steps though the game using the game state transitions

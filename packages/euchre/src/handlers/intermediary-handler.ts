@@ -1,8 +1,8 @@
-import { GameHandler, HandlerData } from '../game-handler';
-import { OrderUpResponseMessage, NameTrumpResponseMessage, DealerDiscardResponseMessage, GoingAloneResponseMessage } from '../messages/response';
-import { ResponseMessage } from '../messages/response-message';
-import { compare } from '../util/compare';
-import { followsTrick } from '../util/follows-trick';
+import { GameHandler, HandlerData } from '../game-handler.js';
+import { OrderUpResponseMessage, NameTrumpResponseMessage, DealerDiscardResponseMessage, GoingAloneResponseMessage } from '../messages/response/index.js';
+import { ResponseMessage } from '../messages/response-message.js';
+import { compare } from '../util/compare.js';
+import { followsTrick } from '../util/follows-trick.js';
 import { Intermediary } from '@cards-ts/core';
 import { Suit } from '@cards-ts/core';
 import { Message } from '@cards-ts/core';

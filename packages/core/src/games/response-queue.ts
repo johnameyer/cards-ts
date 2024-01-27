@@ -1,4 +1,4 @@
-import { isPromise } from '../util/is-promise';
+import { isPromise } from '../util/is-promise.js';
 
 export interface HandlerResponsesQueue<Item> {
     push(item: undefined | Item | Promise<undefined | Item>): void;
