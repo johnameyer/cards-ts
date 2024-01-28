@@ -4,6 +4,4 @@ export interface GameParams {
     readonly [key: string]: Serializable;
     
     readonly maxScore: number;
-
-    readonly quickEnd: boolean;
 }

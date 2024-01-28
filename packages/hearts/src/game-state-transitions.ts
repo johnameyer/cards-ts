@@ -1,7 +1,7 @@
-import { GenericGameStateTransitions, Card, Rank, Suit, GenericGameState, SpacingMessage, LeadsMessage } from '@cards-ts/core';
 import { GameStates } from './game-states.js';
 import { NoPassingMessage, PassingMessage, PassedMessage, PlayedMessage, ShotTheMoonMessage, ScoredMessage, EndRoundMessage } from './messages/status/index.js';
 import { Controllers } from './controllers/controllers.js';
+import { GenericGameStateTransitions, Card, Rank, Suit, GenericGameState, SpacingMessage, LeadsMessage } from '@cards-ts/core';
 
 function valueOfCard(card: Card): number {
     if(card.equals(Card.fromString('QS'))) {
@@ -138,7 +138,7 @@ export class GameStateTransitions implements GenericGameStateTransitions<typeof 
 
         if(controllers.params.get().quickEnd && !controllers.hand.get().flatMap(hand => hand)
             .map(valueOfCard)
-            .some(value => value >= 0)) {
+            .some(value => value > 0)) {
             // might be nice to have a message here if round ends early
             controllers.state.set(GameStates.END_ROUND);
         } else if(controllers.hand.numberOfPlayersWithCards() === 0) {

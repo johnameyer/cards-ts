@@ -16,7 +16,7 @@ export class IntermediaryHandler extends GameHandler {
 
     async handleFlip(_handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): Promise<void> {
         let responded = false;
-        while(responded) {
+        while(!responded) {
             const [ sent, received ] = this.intermediary.form({ type: 'confirm', message: [ 'Flip?' ] });
             if((await received)[0]) {
                 responsesQueue.push(new FlipResponseMessage());

@@ -22,7 +22,7 @@
     "hearts": "./lib/start.js"
   },
   "scripts": {
-    "lint": "eslint src/**/*.ts --fix",
+    "lint": "eslint 'src/**/*.ts' --fix",
     "build": "tsc && find lib/ -name \\*.js -exec sed -i '1s|#!/usr/bin/env ts-node|#!/usr/bin/env node|' \\{\\} \\;",
     "clean": "rm -rf lib tsconfig.tsbuildinfo",
     "madge": "pnpm dlx madge --circular --extensions ts ./src",

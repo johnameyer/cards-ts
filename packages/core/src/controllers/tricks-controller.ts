@@ -120,8 +120,10 @@ export class TricksController extends GlobalController<TricksState, TricksDepend
 
     /**
      * @param comparator a function returning true if the current card is better than the previous
+     * @param followsSuit if the winner must be of the same suit
      */
-    findWinner(comparator: (current: Card, previous: Card) => boolean, followsSuit = false) {
+    findWinner(comparator: (current: Card, previous: Card) => boolean, followsSuit = true) {
+        // TODO consider adding a trumps parameter, or is there a better way?
         const first = this.state.currentTrick.findIndex(isDefined);
         let winningPlayer = first;
         const leadingSuit = (this.state.currentTrick[first] as Card).suit;

@@ -1,5 +1,5 @@
-import { GenericGameSetup, Intermediary } from '@cards-ts/core';
 import { GameParams } from './game-params.js';
+import { GenericGameSetup, Intermediary } from '@cards-ts/core';
 
 export class GameSetup implements GenericGameSetup<GameParams> {
     getDefaultParams(): GameParams {
@@ -36,10 +36,10 @@ export class GameSetup implements GenericGameSetup<GameParams> {
         return errors;
     }
 
-    getYargs(): {[key: string]: import('yargs').Options} {
+    getYargs() {
         return {
             maxBattles: { alias: 'n', description: 'How many battles before declaring a stalemate', type: 'number', default: 200 },
-        };
+        } satisfies {[key: string]: import('yargs').Options};
     }
 
     setupForYargs(params: any): GameParams {
