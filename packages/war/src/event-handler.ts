@@ -1,6 +1,6 @@
-import { EventHandlerInterface } from '@cards-ts/core';
 import { Controllers } from './controllers/controllers.js';
 import { ResponseMessage } from './messages/response-message.js';
+import { EventHandlerInterface } from '@cards-ts/core';
 
 export class EventHandler implements EventHandlerInterface<Controllers, ResponseMessage> {
     merge(controllers: Controllers, sourceHandler: number, incomingEvent: ResponseMessage): void {

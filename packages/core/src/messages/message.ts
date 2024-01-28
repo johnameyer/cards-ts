@@ -37,5 +37,5 @@ export namespace Message {
         return component.toString();
     }).filter(isDefined)
         .filter(isNonnull)
-        .reduce((a: string, b: string) => a + joiner + b, '') : '';
+        .join(joiner) : '';
 }

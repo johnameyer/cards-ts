@@ -1,4 +1,3 @@
-import { AbstractGameFactory, Intermediary, UnwrapProviders } from '@cards-ts/core';
 import { GameHandlerParams } from './game-handler-params.js';
 import { GameParams } from './game-params.js';
 import { GameSetup } from './game-setup.js';
@@ -9,6 +8,7 @@ import { ResponseMessage } from './messages/response-message.js';
 import { EventHandler } from './event-handler.js';
 import { buildProviders } from './controllers/controllers.js';
 import { GameStateTransitions } from './game-state-transitions.js';
+import { AbstractGameFactory, Intermediary, UnwrapProviders } from '@cards-ts/core';
 
 export class GameFactory extends AbstractGameFactory<GameHandlerParams, GameParams, typeof GameStates, UnwrapProviders<ReturnType<typeof buildProviders>>, ResponseMessage, EventHandler> {
     protected getGameStateTransitions() {

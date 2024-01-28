@@ -1,5 +1,5 @@
-import { GenericGameSetup, Intermediary } from '@cards-ts/core';
 import { GameParams } from './game-params.js';
+import { GenericGameSetup, Intermediary } from '@cards-ts/core';
 
 export class GameSetup implements GenericGameSetup<GameParams> {
     getDefaultParams(): GameParams {
@@ -56,12 +56,12 @@ export class GameSetup implements GenericGameSetup<GameParams> {
         return errors;
     }
 
-    getYargs(): {[key: string]: import('yargs').Options} {
+    getYargs() {
         return {
             quickEnd: { description: 'End a round quickly if no points are remaining', type: 'boolean', default: true },
             maxScore: { description: 'Score to play to', type: 'number', default: 100 },
             numberToPass: { description: 'Number of cards to pass', type: 'number', default: 3 },
-        };
+        } satisfies {[key: string]: import('yargs').Options};
     }
 
     setupForYargs(params: any): GameParams {

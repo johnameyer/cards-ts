@@ -1,7 +1,7 @@
-import { SpacingMessage, GenericGameState, GenericGameStateTransitions } from '@cards-ts/core';
 import { GameStates } from './game-states.js';
 import { FlippedMessage, GameOverMessage, StalemateMessage, WonBattleMessage, WonWarMessage } from './messages/status/index.js';
 import { Controllers } from './controllers/controllers.js';
+import { SpacingMessage, GenericGameState, GenericGameStateTransitions } from '@cards-ts/core';
 
 type GameState = GenericGameState<Controllers>;
 

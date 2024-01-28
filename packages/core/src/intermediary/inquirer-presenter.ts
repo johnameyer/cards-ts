@@ -13,7 +13,7 @@ inquirer.registerPrompt('selectLine', selectLine);
  */
 export class InquirerPresenter implements Presenter {
     printCards(options: { cards: Card[] }): () => Card[] | Promise<Card[]> {
-        console.log('You have', Message.defaultTransformer(options.cards));
+        console.log('You have', Message.defaultTransformer(options.cards, ', '));
         return () => options.cards;
     }
 

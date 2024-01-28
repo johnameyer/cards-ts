@@ -174,7 +174,6 @@ export class HeuristicHandler implements Handler<GameHandlerParams & MessageHand
                 // Or another card, considering we can't throw a heart
                 responsesQueue.push(new PlayCardResponseMessage(throwAwayRisk(hand, sorted, false, data), data));
                 return;
-                
             }
 
             if(currentTrick.length) {
@@ -189,7 +188,7 @@ export class HeuristicHandler implements Handler<GameHandlerParams & MessageHand
                 const cardsOfSuitDescending = cardsOfSuitAscending.slice().reverse();
 
                 if(cardsOfSuitDescending.length === 0) {
-                    // Throw a dangerour card away
+                    // Throw a dangerous card away
                     responsesQueue.push(new PlayCardResponseMessage(throwAwayRisk(hand, sorted, true, data), data));
                     return;
                 }

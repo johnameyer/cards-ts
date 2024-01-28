@@ -1,9 +1,9 @@
-import { SpacingMessage, GenericGameState, GenericGameStateTransitions, TurnUpMessage, LeadsMessage } from '@cards-ts/core';
 import { GameStates } from './game-states.js';
 import { PlayedMessage, EndRoundMessage, OrderUpMessage, PassMessage, NameTrumpMessage, TrumpMessage, WonTrickMessage, WonRoundMessage, GoingAloneMessage } from './messages/status/index.js';
 import { getTeamFor } from './util/teams.js';
 import { winningPlay } from './util/winning-play.js';
 import { Controllers, GameControllers } from './controllers/controllers.js';
+import { SpacingMessage, GenericGameState, GenericGameStateTransitions, TurnUpMessage, LeadsMessage } from '@cards-ts/core';
 
 type GameState = GenericGameState<GameControllers>;
 
@@ -177,12 +177,6 @@ export class GameStateTransitions implements GenericGameStateTransitions<typeof 
         controllers.trick.leader = winner;
         controllers.tricksTaken.increaseScore(getTeamFor(winner, controllers.params.get()), 1);
 
-        /*
-         * if(controllers.gameParams.quickEnd && !controllers.hands.flatMap(hand => hand).map(valueOfCard).some(value => value >= 0)) {
-         *     // might be nice to have a message here if round ends early
-         *     controllers.state.set(GameStates.END_ROUND);
-         * } else
-         */
         if(controllers.hand.numberOfPlayersWithCards() < controllers.players.count) {
             controllers.state.set(GameStates.END_ROUND);
         } else {

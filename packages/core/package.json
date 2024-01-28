@@ -20,7 +20,7 @@
     "url": "git+ssh://git@github.com/johnameyer/cards-ts.git"
   },
   "scripts": {
-    "lint": "eslint src/**/*.ts --fix",
+    "lint": "eslint 'src/**/*.ts' --fix",
     "build": "tsc",
     "clean": "rm -rf lib tsconfig.tsbuildinfo",
     "madge": "pnpm dlx madge --circular --extensions ts ./src",
