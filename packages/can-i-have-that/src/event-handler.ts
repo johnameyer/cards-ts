@@ -3,7 +3,7 @@ import { WantCardResponseMessage, PlayResponseMessage, GoDownResponseMessage } f
 import { ResponseMessage } from './messages/response-message.js';
 import { Card, InvalidError, EventHandlerInterface, distinct, DiscardResponseMessage } from '@cards-ts/core';
 
-export class EventHandler implements EventHandlerInterface<Controllers, ResponseMessage> {
+export const eventHandler: EventHandlerInterface<Controllers, ResponseMessage> = {
     validateEvent(controllers: Controllers, source: number, event: ResponseMessage): ResponseMessage | undefined {
         // console.log(Object.fromEntries(Object.entries(event).map(([key, value]) => [key, value?.toString()])));
         switch (event.type) {
@@ -103,7 +103,7 @@ export class EventHandler implements EventHandlerInterface<Controllers, Response
             return event;
         }
         }
-    }
+    },
 
     merge(controllers: Controllers, source: number, incomingEvent: ResponseMessage) {
         switch (incomingEvent.type) {
@@ -181,5 +181,5 @@ export class EventHandler implements EventHandlerInterface<Controllers, Response
             return;
         }
         }
-    }
-}
+    },
+};

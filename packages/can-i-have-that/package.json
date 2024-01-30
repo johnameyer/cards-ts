@@ -24,8 +24,8 @@
     "build": "tsc && find lib/ -name \\*.js -exec sed -i '1s|#!/usr/bin/env ts-node|#!/usr/bin/env node|' \\{\\} \\;",
     "clean": "rm -rf lib tsconfig.tsbuildinfo",
     "madge": "pnpm dlx madge --circular --extensions ts ./src",
-    "start": "pnpm buildall -w && node lib/start.js start",
-    "ts-start": "ts-node src/start.ts start",
+    "start": "pnpm build && node lib/start.js",
+    "ts-start": "node --loader ts-node/esm src/start.ts",
     "debug": "ts-node-dev --rs=false --inspect --transpileOnly src/start.ts start",
     "test": "mocha spec/**/*.spec.ts",
     "prepack": "npm run clean && npm run build"
