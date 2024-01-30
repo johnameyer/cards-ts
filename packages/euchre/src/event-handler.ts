@@ -12,32 +12,32 @@ export const eventHandler: EventHandlerInterface<GameControllers, ResponseMessag
             if(source !== controllers.turn.get()) {
                 return undefined;
             }
-            const { selectingTrump, data } = event;
-            return new OrderUpResponseMessage(selectingTrump, data);
+            const { selectingTrump } = event;
+            return new OrderUpResponseMessage(selectingTrump);
         }
         case 'name-trump-response': {
             if(source !== controllers.turn.get()) {
                 return undefined;
             }
-            const { trump, data } = event;
+            const { trump } = event;
             try {
                 if(controllers.euchre.currentTrump === trump) {
                     throw new Error('Can\'t select the current trump suit as the trump');
                 }
-                return new NameTrumpResponseMessage(trump, data);
+                return new NameTrumpResponseMessage(trump);
             } catch (e) {
                 console.error('Invalid suit');
             }
-            return new NameTrumpResponseMessage(undefined, event.data);
+            return new NameTrumpResponseMessage(undefined);
         }
         case 'going-alone-response': {
-            return new GoingAloneResponseMessage(event.data);
+            return new GoingAloneResponseMessage();
         }
         case 'dealer-discard-response': {
             if(source !== controllers.turn.get()) {
                 return undefined;
             }
-            const { selected, data } = event;
+            const { selected } = event;
             try {
                 if(!selected) {
                     throw new Error('No card provided');
@@ -47,18 +47,18 @@ export const eventHandler: EventHandlerInterface<GameControllers, ResponseMessag
                     throw new Error('Cannot play card that is not in hand');
                 }
 
-                return new DealerDiscardResponseMessage(selected, data);
+                return new DealerDiscardResponseMessage(selected);
             } catch (e) {
                 console.error('Invalid dealer discard', e);
             }
                 
-            return new DealerDiscardResponseMessage(controllers.hand.get(source)[0], data);
+            return new DealerDiscardResponseMessage(controllers.hand.get(source)[0]);
         }
         case 'turn-response': {
             if(source !== controllers.turn.get()) {
                 return undefined;
             }
-            const { card, data } = event;
+            const { card } = event;
             /*
              * console.log(card.toString());
              * console.log(gameState.hands[source].sort(compare).toString());
@@ -76,15 +76,12 @@ export const eventHandler: EventHandlerInterface<GameControllers, ResponseMessag
                     throw new Error('Must follow suit if possible');
                 }
 
-                return new PlayCardResponseMessage(card, data);
+                return new PlayCardResponseMessage(card);
             } catch (e) {
                 console.error('Invalid turn', e);
             }
 
-            return new PlayCardResponseMessage(controllers.hand.get(source).filter(card => followsTrick(controllers.trick.currentTrick, controllers.euchre.currentTrump, card))[0] || controllers.hand.get(source)[0], data);
-        }
-        case 'data-response': {
-            return event;
+            return new PlayCardResponseMessage(controllers.hand.get(source).filter(card => followsTrick(controllers.trick.currentTrick, controllers.euchre.currentTrump, card))[0] || controllers.hand.get(source)[0]);
         }
         }
     },
@@ -93,13 +90,11 @@ export const eventHandler: EventHandlerInterface<GameControllers, ResponseMessag
         switch (incomingEvent.type) {
         case 'order-up-response': {
             controllers.euchre.setBidder(incomingEvent.selectingTrump ? sourceHandler : undefined);
-            controllers.data.setDataFor(sourceHandler, incomingEvent.data);
             controllers.waiting.removePosition(sourceHandler);
             return;
         }
         case 'name-trump-response': {
             controllers.euchre.setBidder(incomingEvent.trump ? sourceHandler : undefined, incomingEvent.trump || controllers.euchre.currentTrump);
-            controllers.data.setDataFor(sourceHandler, incomingEvent.data);
             controllers.waiting.removePosition(sourceHandler);
             return;
         }
@@ -109,18 +104,12 @@ export const eventHandler: EventHandlerInterface<GameControllers, ResponseMessag
         }
         case 'dealer-discard-response': {
             controllers.hand.removeCards(sourceHandler, [ incomingEvent.selected ]);
-            controllers.data.setDataFor(sourceHandler, incomingEvent.data);
             controllers.waiting.removePosition(sourceHandler);
             return;
         }
         case 'turn-response': {
-            controllers.data.setDataFor(sourceHandler, incomingEvent.data);
             controllers.trick.setPlayedCard(incomingEvent.card);
             controllers.waiting.removePosition(sourceHandler);
-            return;
-        }
-        case 'data-response': {
-            controllers.data.setDataFor(sourceHandler, incomingEvent.data);
             return;
         }
         }

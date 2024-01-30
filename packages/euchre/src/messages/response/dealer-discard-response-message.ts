@@ -6,7 +6,7 @@ import { Card, Message } from '@cards-ts/core';
 export class DealerDiscardResponseMessage extends Message {
     readonly type = 'dealer-discard-response';
 
-    constructor(public readonly selected: Card, public readonly data?: any) {
+    constructor(public readonly selected: Card) {
         super([ 'Discarded', selected ]);
     }
 }

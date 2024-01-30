@@ -2,7 +2,7 @@ import { OrderUpResponseMessage, NameTrumpResponseMessage, DealerDiscardResponse
 import { DataResponseMessage, PlayCardResponseMessage } from '@cards-ts/core';
 
 export type ResponseMessage = PlayCardResponseMessage
-    | DataResponseMessage
+   
     | OrderUpResponseMessage
     | NameTrumpResponseMessage
     | DealerDiscardResponseMessage

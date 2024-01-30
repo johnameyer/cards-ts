@@ -6,7 +6,7 @@ import { Message } from '@cards-ts/core';
 export class OrderUpResponseMessage extends Message {
     readonly type = 'order-up-response';
 
-    constructor(public readonly selectingTrump: boolean, public readonly data?: any) {
+    constructor(public readonly selectingTrump: boolean) {
         super(selectingTrump ? [ 'Picked trump' ] : [ 'Passed' ]);
     }
 }

@@ -27,7 +27,7 @@ export const eventHandler: EventHandlerInterface<Controllers, ResponseMessage> =
                     }
                 }
 
-                return new DiscardResponseMessage(event.toDiscard, event.data);
+                return new DiscardResponseMessage(event.toDiscard);
             } catch (e) {
                 console.error(e);
             }
@@ -68,7 +68,7 @@ export const eventHandler: EventHandlerInterface<Controllers, ResponseMessage> =
                     throw new Error('Could not find played-on meld');
                 }
 
-                return new PlayResponseMessage(event.playOn, validToPlay, event.newMeld, event.data);
+                return new PlayResponseMessage(event.playOn, validToPlay, event.newMeld);
             } catch (e) {
                 console.error(e);
             }
@@ -86,7 +86,7 @@ export const eventHandler: EventHandlerInterface<Controllers, ResponseMessage> =
                 if(!controllers.hand.hasCards(event.toPlay.flatMap(meld => meld.cards), controllers.turn.get())) {
                     throw new Error('Player did not have all the cards');
                 }
-                return new GoDownResponseMessage(event.toPlay, event.data);
+                return new GoDownResponseMessage(event.toPlay);
             } catch (e) {
                 console.error(e);
             }
@@ -97,10 +97,7 @@ export const eventHandler: EventHandlerInterface<Controllers, ResponseMessage> =
                 // TODO allow people to say they want card ahead of time
                 return undefined;
             }
-            return new WantCardResponseMessage(event.wantCard, event.data);
-        }
-        case 'data-response': {
-            return event;
+            return new WantCardResponseMessage(event.wantCard);
         }
         }
     },
@@ -109,7 +106,6 @@ export const eventHandler: EventHandlerInterface<Controllers, ResponseMessage> =
         switch (incomingEvent.type) {
         case 'want-card-response': {
             controllers.canIHaveThat.wantCard = incomingEvent.wantCard;
-            controllers.data.setDataFor(source, incomingEvent.data);
             controllers.waiting.removePosition(source);
             return;
         }
@@ -119,7 +115,6 @@ export const eventHandler: EventHandlerInterface<Controllers, ResponseMessage> =
             }
             controllers.hand.removeCards(controllers.turn.get(), [ incomingEvent.toDiscard ]);
             controllers.deck.toDiscard = incomingEvent.toDiscard;
-            controllers.data.setDataFor(source, incomingEvent.data);
             controllers.waiting.removePosition(source);
             return;
         }
@@ -137,7 +132,6 @@ export const eventHandler: EventHandlerInterface<Controllers, ResponseMessage> =
                 
             controllers.melds.play(incomingEvent.toPlay);
                 
-            controllers.data.setDataFor(source, incomingEvent.data);
             controllers.waiting.removePosition(source);
             return;
         }
@@ -172,12 +166,7 @@ export const eventHandler: EventHandlerInterface<Controllers, ResponseMessage> =
             controllers.melds.get()[player][meld] = newMeld;
             // TODO roll all of this into controller and add verification
 
-            controllers.data.setDataFor(source, incomingEvent.data);
             controllers.waiting.removePosition(source);
-            return;
-        }
-        case 'data-response': {
-            controllers.data.setDataFor(source, incomingEvent.data);
             return;
         }
         }

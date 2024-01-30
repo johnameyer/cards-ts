@@ -6,12 +6,7 @@ export const eventHandler: EventHandlerInterface<Controllers, ResponseMessage> =
     merge(controllers: Controllers, sourceHandler: number, incomingEvent: ResponseMessage): void {
         switch (incomingEvent.type) {
         case 'flip-response': {
-            controllers.data.setDataFor(sourceHandler, incomingEvent.data);
             controllers.waiting.removePosition(sourceHandler);
-            return;
-        }
-        case 'data-response': {
-            controllers.data.setDataFor(sourceHandler, incomingEvent.data);
             return;
         }
         }
@@ -20,9 +15,6 @@ export const eventHandler: EventHandlerInterface<Controllers, ResponseMessage> =
     validateEvent(_controllers: Controllers, _sourceHandler: number, event: ResponseMessage): ResponseMessage | undefined {
         switch (event.type) {
         case 'flip-response': {
-            return event;
-        }
-        case 'data-response': {
             return event;
         }
         }

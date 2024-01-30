@@ -32,18 +32,18 @@ export const eventHandler: EventHandlerInterface<Controllers, ResponseMessage> =
                     throw new Error('Can only pass cards that are in hand');
                 }
 
-                return new PassResponseMessage(cards, data);
+                return new PassResponseMessage(cards);
             } catch (e) {
                 console.error('Invalid pass', e);
             }
 
-            return new PassResponseMessage(controllers.hand.get(source).slice(0, controllers.params.get().numToPass), data);
+            return new PassResponseMessage(controllers.hand.get(source).slice(0, controllers.params.get().numToPass));
         }
         case 'turn-response': {
             if(source !== controllers.turn.get()) {
                 return undefined;
             }
-            const { card, data } = event;
+            const { card } = event;
             /*
              * console.log(card.toString());
              * console.log(controllers.hand.get(source).toString());
@@ -69,16 +69,13 @@ export const eventHandler: EventHandlerInterface<Controllers, ResponseMessage> =
                     throw new Error('Must follow suit if possible');
                 }
 
-                return new PlayCardResponseMessage(card, data);
+                return new PlayCardResponseMessage(card);
             } catch (e) {
                 console.error('Invalid turn', e);
             }
 
             const fallbackCard = controllers.hand.get(source).filter(card => card.suit === controllers.trick.currentTrick[0]?.suit)[0] || controllers.hand.get(source).filter(card => card.suit !== Suit.HEARTS)[0] || controllers.hand.get(source)[0];
-            return new PlayCardResponseMessage(fallbackCard, data);
-        }
-        case 'data-response': {
-            return event;
+            return new PlayCardResponseMessage(fallbackCard);
         }
         }
     },
@@ -88,18 +85,12 @@ export const eventHandler: EventHandlerInterface<Controllers, ResponseMessage> =
         switch (incomingEvent.type) {
         case 'pass-response': {
             controllers.passing.setPassedFor(sourceHandler, incomingEvent.cards);
-            controllers.data.setDataFor(sourceHandler, incomingEvent.data);
             controllers.waiting.removePosition(sourceHandler);
             return;
         }
         case 'turn-response': {
             controllers.trick.setPlayedCard(incomingEvent.card);
-            controllers.data.setDataFor(sourceHandler, incomingEvent.data);
             controllers.waiting.removePosition(sourceHandler);
-            return;
-        }
-        case 'data-response': {
-            controllers.data.setDataFor(sourceHandler, incomingEvent.data);
             return;
         }
         }

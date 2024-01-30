@@ -6,7 +6,7 @@ import { Message, Suit } from '@cards-ts/core';
 export class NameTrumpResponseMessage extends Message {
     readonly type = 'name-trump-response';
 
-    constructor(public readonly trump: Suit | undefined, public readonly data?: any) {
+    constructor(public readonly trump: Suit | undefined) {
         super(trump ? [ 'Picked', trump ] : [ 'Passed' ]);
     }
 }

@@ -39,7 +39,7 @@ export { ReadonlySerializable, Serializable, SerializableObject, serialize, dese
 export { Message } from './messages/message.js';
 export { SpacingMessage } from './messages/spacing-message.js';
 export { DealerMessage, DealtOutMessage, DiscardMessage, EndRoundMessage, LeadsMessage, OutOfCardsMessage, PickupMessage, PlayedMessage, ReshuffleMessage, TurnUpMessage } from './messages/status/index.js';
-export { DataResponseMessage, DiscardResponseMessage, PlayCardResponseMessage } from './messages/response/index.js';
+export { DiscardResponseMessage, PlayCardResponseMessage } from './messages/response/index.js';
 
 export { combinations } from './util/combinations.js';
 export { distinct } from './util/distinct.js';

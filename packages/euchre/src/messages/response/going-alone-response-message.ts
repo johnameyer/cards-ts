@@ -6,7 +6,7 @@ import { Message } from '@cards-ts/core';
 export class GoingAloneResponseMessage extends Message {
     readonly type = 'going-alone-response';
 
-    constructor(public readonly data?: any) {
+    constructor() {
         super([ 'Is going alone' ]);
     }
 }
