@@ -18,8 +18,7 @@ import { STANDARD_STATES } from './game-states.js';
  * @typeParam ResponseMessage the response messages this game expects
  * @typeParam EventHandler the event handler for this game
  */
-export class GameDriver<Handlers extends {[key: string]: unknown[]} & SystemHandlerParams, State extends typeof STANDARD_STATES, Controllers extends IndexedControllers & { waiting: WaitingController, completed: CompletedController, state: GameStateController<State> }, GameState extends GenericGameState<Controllers>, ResponseMessage extends Message, EventHandler extends EventHandlerInterface<Controllers, ResponseMessage>> {
-    // TODO remove GameState from here?
+export class GameDriver<Handlers extends {[key: string]: unknown[]} & SystemHandlerParams, State extends typeof STANDARD_STATES, Controllers extends IndexedControllers & { waiting: WaitingController, completed: CompletedController, state: GameStateController<State> }, ResponseMessage extends Message, EventHandler extends EventHandlerInterface<Controllers, ResponseMessage>> {
 
     /**
      * Tells if the game is waiting on a player
@@ -54,7 +53,7 @@ export class GameDriver<Handlers extends {[key: string]: unknown[]} & SystemHand
      * @param transitions the transitions for the game
      * @param eventHandler the event handler for the game
      */
-    constructor(private handlerProxy: GenericHandlerProxy<ResponseMessage, Handlers>, private gameState: GameState, private transitions: GenericGameStateTransitions<State, Controllers>, private eventHandler: EventHandler) {
+    constructor(private handlerProxy: GenericHandlerProxy<ResponseMessage, Handlers>, private gameState: GenericGameState<Controllers>, private transitions: GenericGameStateTransitions<State, Controllers>, private eventHandler: EventHandler) {
         // this.gameState.names = handlerProxy.getNames();
     }
 
@@ -126,9 +125,8 @@ export class GameDriver<Handlers extends {[key: string]: unknown[]} & SystemHand
      * Runs the game through to the end asynchronously
      */
     public async start() {
-        const transitions = this.transitions.get();
         while(!this.gameState.controllers.completed.get()) {
-            transitions[this.gameState.controllers.state.get()].call(this.transitions, this.gameState.controllers);
+            this.transitions[this.gameState.controllers.state.get()].call(undefined, this.gameState.controllers);
 
             // TODO consider this ordering
             await this.handlerProxy.handleOutgoing();
@@ -154,9 +152,8 @@ export class GameDriver<Handlers extends {[key: string]: unknown[]} & SystemHand
      * Runs the game until the next time it would have to wait
      */
     public resume() {
-        const transitions = this.transitions.get();
         while(!this.gameState.controllers.completed.get() && !GameDriver.isWaitingOnPlayer(this.gameState.controllers.waiting)) {
-            transitions[this.gameState.controllers.state.get()].call(this.transitions, this.gameState.controllers);
+            this.transitions[this.gameState.controllers.state.get()].call(undefined, this.gameState.controllers);
         }
     }
 }

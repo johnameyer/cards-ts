@@ -1,7 +1,7 @@
 import { GameStates } from './game-states.js';
 import { NoPassingMessage, PassingMessage, PassedMessage, PlayedMessage, ShotTheMoonMessage, ScoredMessage, EndRoundMessage } from './messages/status/index.js';
 import { Controllers } from './controllers/controllers.js';
-import { GenericGameStateTransitions, Card, Rank, Suit, GenericGameState, SpacingMessage, LeadsMessage } from '@cards-ts/core';
+import { GenericGameStateTransitions, Card, Rank, Suit, SpacingMessage, LeadsMessage } from '@cards-ts/core';
 
 function valueOfCard(card: Card): number {
     if(card.equals(Card.fromString('QS'))) {
@@ -12,32 +12,13 @@ function valueOfCard(card: Card): number {
     }
     return 0;
 }
-type GameState = GenericGameState<Controllers>;
 
-export class GameStateTransitions implements GenericGameStateTransitions<typeof GameStates, Controllers> {
-    public get() {
-        return {
-            [GameStates.START_GAME]: this.startGame,
-            [GameStates.START_ROUND]: this.startRound,
-            [GameStates.START_PASS]: this.startPass,
-            [GameStates.WAIT_FOR_PASS]: this.waitForPass,
-            [GameStates.HANDLE_PASS]: this.handlePass,
-            [GameStates.START_FIRST_TRICK]: this.startFirstTrick,
-            [GameStates.START_TRICK]: this.startTrick,
-            [GameStates.START_PLAY]: this.startPlay,
-            [GameStates.WAIT_FOR_PLAY]: this.waitForPlay,
-            [GameStates.HANDLE_PLAY]: this.handlePlay,
-            [GameStates.END_TRICK]: this.endTrick,
-            [GameStates.END_ROUND]: this.endRound,
-            [GameStates.END_GAME]: this.endGame,
-        };
-    }
-
-    startGame(controllers: Controllers) {
+export const gameStateTransitions: GenericGameStateTransitions<typeof GameStates, Controllers> = {
+    [GameStates.START_GAME]: (controllers) => {
         controllers.state.set(GameStates.START_ROUND);
-    }
+    },
 
-    startRound(controllers: Controllers) {
+    [GameStates.START_ROUND]: (controllers) => {
         controllers.deck.resetDeck();
         controllers.hand.dealOut(true, true);
 
@@ -49,22 +30,22 @@ export class GameStateTransitions implements GenericGameStateTransitions<typeof 
         } else {
             controllers.state.set(GameStates.START_PASS);
         }
-    }
+    },
 
-    startPass(controllers: Controllers) {
+    [GameStates.START_PASS]: (controllers) => {
         controllers.players.messageAll(new PassingMessage(controllers.params.get().numToPass, controllers.passing.pass, controllers.players.count));
 
         controllers.state.set(GameStates.WAIT_FOR_PASS);
         controllers.passing.resetPassed();
-    }
+    },
 
-    waitForPass(controllers: Controllers) {
+    [GameStates.WAIT_FOR_PASS]: (controllers) => {
         controllers.players.handlerCallAll('pass');
         
         controllers.state.set(GameStates.HANDLE_PASS);
-    }
+    },
 
-    handlePass(controllers: Controllers) {
+    [GameStates.HANDLE_PASS]: (controllers) => {
         for(let player = 0; player < controllers.players.count; player++) {
             // TODO consider rolling this all into passing controller
             const passedFrom = (player + controllers.passing.pass + controllers.players.count) % controllers.players.count; // TODO consider +- here
@@ -77,9 +58,9 @@ export class GameStateTransitions implements GenericGameStateTransitions<typeof 
         controllers.trick.resetTrick();
         controllers.trick.resetLeader();
         controllers.state.set(GameStates.START_FIRST_TRICK);
-    }
+    },
 
-    startFirstTrick(controllers: Controllers) {
+    [GameStates.START_FIRST_TRICK]: (controllers) => {
         const startingCard = new Card(Suit.CLUBS, Rank.TWO);
         const leader = controllers.hand.hasCard(startingCard);
         controllers.trick.leader = leader;
@@ -94,27 +75,27 @@ export class GameStateTransitions implements GenericGameStateTransitions<typeof 
         controllers.turn.next();
 
         controllers.state.set(GameStates.START_PLAY);
-    }
+    },
 
-    startTrick(controllers: Controllers) {
+    [GameStates.START_TRICK]: (controllers) => {
         controllers.players.messageAll(new SpacingMessage());
         controllers.players.messageAll(new LeadsMessage(controllers.names.get(controllers.trick.leader)));
         controllers.trick.resetTrick();
 
         controllers.state.set(GameStates.START_PLAY);
-    }
+    },
 
-    startPlay(controllers: Controllers) {
+    [GameStates.START_PLAY]: (controllers) => {
         controllers.state.set(GameStates.WAIT_FOR_PLAY);
-    }
+    },
 
-    waitForPlay(controllers: Controllers) {
+    [GameStates.WAIT_FOR_PLAY]: (controllers) => {
         controllers.players.handlerCall(controllers.turn.get(), 'turn');
         
         controllers.state.set(GameStates.HANDLE_PLAY);
-    }
+    },
 
-    handlePlay(controllers: Controllers) {
+    [GameStates.HANDLE_PLAY]: (controllers) => {
         const whoseTurn = controllers.turn.get();
         const played = controllers.trick.handlePlayed();
         controllers.players.messageOthers(whoseTurn, new PlayedMessage(controllers.names.get()[whoseTurn], played));
@@ -125,9 +106,9 @@ export class GameStateTransitions implements GenericGameStateTransitions<typeof 
         } else {
             controllers.state.set(GameStates.START_PLAY);
         }
-    }
+    },
 
-    endTrick(controllers: Controllers) {
+    [GameStates.END_TRICK]: (controllers) => {
         controllers.trick.incrementTricks();
         
         const winner = controllers.trick.findWinner((card, highest) => card.rank.order > highest.rank.order);
@@ -146,9 +127,9 @@ export class GameStateTransitions implements GenericGameStateTransitions<typeof 
         } else {
             controllers.state.set(GameStates.START_TRICK);
         }
-    }
+    },
 
-    endRound(controllers: Controllers) {
+    [GameStates.END_ROUND]: (controllers) => {
         controllers.trick.reset();
 
         for(let player = 0; player < controllers.players.count; player++) {
@@ -176,10 +157,10 @@ export class GameStateTransitions implements GenericGameStateTransitions<typeof 
         } else {
             controllers.state.set(GameStates.START_ROUND);
         }   
-    }
+    },
 
-    endGame(controllers: Controllers) {
+    [GameStates.END_GAME]: (controllers) => {
         controllers.completed.complete();
-    }
+    },
 
-}
+};

@@ -24,7 +24,7 @@ import { STANDARD_STATES } from './game-states.js';
  * @typeParam ResponseMessage the response messages this game expects
  * @typeParam EventHandler the event handler for this game
  */
-export abstract class AbstractGameFactory<Handles extends {[key: string]: unknown[]}, GameParams extends SerializableObject, State extends typeof STANDARD_STATES, Controllers extends IndexedControllers, ResponseMessage extends Message, EventHandler extends EventHandlerInterface<Controllers, ResponseMessage>> {
+export abstract class AbstractGameFactory<Handles extends {[key: string]: unknown[]}, GameParams extends SerializableObject, State extends typeof STANDARD_STATES, Controllers extends IndexedControllers, ResponseMessage extends Message> {
     // TODO remove event handler since it doesn't matter here
 
     // TODO the abstract members here should probably just be broken into another class that this class then consumes, perhaps with https://github.com/johnameyer/cards-ts/issues/45 ?
@@ -38,7 +38,7 @@ export abstract class AbstractGameFactory<Handles extends {[key: string]: unknow
     /**
      * Returns the state transformer for this game
      */
-    abstract getEventHandler(): EventHandler;
+    abstract getEventHandler(): EventHandlerInterface<Controllers, ResponseMessage>;
 
     /**
      * Returns the game setup for this game

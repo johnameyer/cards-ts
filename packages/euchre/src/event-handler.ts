@@ -4,7 +4,7 @@ import { ResponseMessage } from './messages/response-message.js';
 import { followsTrick } from './util/follows-trick.js';
 import { EventHandlerInterface, PlayCardResponseMessage } from '@cards-ts/core';
 
-export class EventHandler implements EventHandlerInterface<GameControllers, ResponseMessage> {
+export const eventHandler: EventHandlerInterface<GameControllers, ResponseMessage> = {
     validateEvent(controllers: Controllers, source: number, event: ResponseMessage): ResponseMessage | undefined {
         // TODO shore up the logic of what events we are expecting (not just the static handler logic)
         switch (event.type) {
@@ -87,7 +87,7 @@ export class EventHandler implements EventHandlerInterface<GameControllers, Resp
             return event;
         }
         }
-    }
+    },
 
     merge(controllers: Controllers, sourceHandler: number, incomingEvent: ResponseMessage) {
         switch (incomingEvent.type) {
@@ -124,5 +124,5 @@ export class EventHandler implements EventHandlerInterface<GameControllers, Resp
             return;
         }
         }
-    }
-}
+    },
+};

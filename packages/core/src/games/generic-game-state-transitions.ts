@@ -6,14 +6,14 @@ import { STANDARD_STATES } from './game-states.js';
  * @typeParam State the state enum for this game
  * @typeParam Controllers the state controllers for this game
  */
-type Transition<State extends typeof STANDARD_STATES, Controllers extends IndexedControllers & { waiting: WaitingController, state: GameStateController<State> }> = (controllers: Controllers) => void;
+type Transition<State extends typeof STANDARD_STATES, Controllers extends IndexedControllers & { waiting: WaitingController, state: GameStateController<State> }> = (this: void, controllers: Controllers) => void;
 
 /**
  * Interface for describing the changes in the state of the game and the effect on the game state
  */
-export interface GenericGameStateTransitions<State extends typeof STANDARD_STATES, Controllers extends IndexedControllers & { waiting: WaitingController, state: GameStateController<State> }> {
+export type GenericGameStateTransitions<State extends typeof STANDARD_STATES, Controllers extends IndexedControllers & { waiting: WaitingController, state: GameStateController<State> }> = {
     /**
-     * Get the functions that transform the state, arranged by the state enum (these will be bound to this class)
+     * Functions that transform the state, arranged by the state enum
      */
-    get(): { [state in keyof State]: Transition<State, Controllers> };
+    [state in keyof State]: Transition<State, Controllers>;
 }

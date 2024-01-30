@@ -1,33 +1,17 @@
 import { GameStates } from './game-states.js';
 import { FlippedMessage, GameOverMessage, StalemateMessage, WonBattleMessage, WonWarMessage } from './messages/status/index.js';
 import { Controllers } from './controllers/controllers.js';
-import { SpacingMessage, GenericGameState, GenericGameStateTransitions } from '@cards-ts/core';
+import { SpacingMessage, GenericGameStateTransitions } from '@cards-ts/core';
 
-type GameState = GenericGameState<Controllers>;
-
-export class GameStateTransitions implements GenericGameStateTransitions<typeof GameStates, Controllers> {
-    public get() {
-        return {
-            [GameStates.START_GAME]: this.startGame,
-            [GameStates.START_BATTLE]: this.startBattle,
-            [GameStates.START_FLIP]: this.startFlip,
-            [GameStates.WAIT_FOR_FLIP]: this.waitForFlip,
-            [GameStates.HANDLE_FLIP]: this.handleFlip,
-            [GameStates.END_BATTLE]: this.endBattle,
-            [GameStates.START_WAR]: this.startWar,
-            [GameStates.END_WAR]: this.endWar,
-            [GameStates.END_GAME]: this.endGame,
-        };
-    }
-
-    startGame(controllers: Controllers) {
+export const gameStateTransitions: GenericGameStateTransitions<typeof GameStates, Controllers> = {
+    [GameStates.START_GAME](controllers: Controllers) {
         controllers.deck.resetDeck();
         controllers.hand.dealOut(false);
 
         controllers.state.set(GameStates.START_BATTLE);
-    }
+    },
 
-    startBattle(controllers: Controllers) {
+    [GameStates.START_BATTLE](controllers: Controllers) {
         controllers.war.resetPlayed();
 
         controllers.state.set(GameStates.START_FLIP);
@@ -35,19 +19,19 @@ export class GameStateTransitions implements GenericGameStateTransitions<typeof 
         if(controllers.war.battleCountAndOne > controllers.params.get().maxBattles) {
             controllers.state.set(GameStates.END_GAME);
         }
-    }
+    },
 
-    startFlip(controllers: Controllers) {
+    [GameStates.START_FLIP](controllers: Controllers) {
         controllers.state.set(GameStates.WAIT_FOR_FLIP);
-    }
+    },
 
-    waitForFlip(controllers: Controllers) {
+    [GameStates.WAIT_FOR_FLIP](controllers: Controllers) {
         controllers.players.handlerCallAll('flip');
         
         controllers.state.set(GameStates.HANDLE_FLIP);
-    }
+    },
 
-    handleFlip(controllers: Controllers) {
+    [GameStates.HANDLE_FLIP](controllers: Controllers) {
         controllers.war.flipCards();
 
         if(controllers.war.getMaxPlayed() === 1) {
@@ -57,9 +41,9 @@ export class GameStateTransitions implements GenericGameStateTransitions<typeof 
         } else {
             controllers.state.set(GameStates.START_FLIP);
         }
-    }
+    },
 
-    endBattle(controllers: Controllers) {
+    [GameStates.END_BATTLE](controllers: Controllers) {
         const flipped = controllers.war.getLastFlipped();
         for(let i = 0; i < flipped.length; i++) {
             controllers.players.messageAll(new FlippedMessage(controllers.names.get(i), flipped[i]));
@@ -82,13 +66,13 @@ export class GameStateTransitions implements GenericGameStateTransitions<typeof 
         } else {
             controllers.state.set(GameStates.START_BATTLE);
         }
-    }
+    },
 
-    startWar(controllers: Controllers) {
+    [GameStates.START_WAR](controllers: Controllers) {
         controllers.state.set(GameStates.START_FLIP);
-    }
+    },
 
-    endWar(controllers: Controllers) {
+    [GameStates.END_WAR](controllers: Controllers) {
         const flipped = controllers.war.getLastFlipped();
         for(let i = 0; i < flipped.length; i++) {
             controllers.players.messageAll(new FlippedMessage(controllers.names.get(i), flipped[i]));
@@ -110,14 +94,14 @@ export class GameStateTransitions implements GenericGameStateTransitions<typeof 
         } else {
             controllers.state.set(GameStates.START_BATTLE);
         }
-    }
+    },
 
-    endGame(controllers: Controllers) {
+    [GameStates.END_GAME](controllers: Controllers) {
         if(controllers.hand.numberOfPlayersWithCards() > 1) {
             controllers.players.messageAll(new StalemateMessage());
         } else {
             controllers.players.messageAll(new GameOverMessage(controllers.names.get(controllers.hand.handWithMostCards())));
         }
         controllers.completed.complete();
-    }
-}
+    },
+};

@@ -14,7 +14,7 @@ export interface EventHandlerInterface<Controllers extends IndexedControllers, R
      * @param event the incoming event
      * @returns undefined if the event is to be ignored or otherwise the event that should be merged
      */
-    validateEvent(controllers: Controllers, sourceHandler: number, event: ResponseMessage): ResponseMessage | undefined;
+    validateEvent(this: void, controllers: Controllers, sourceHandler: number, event: ResponseMessage): ResponseMessage | undefined;
 
     /**
      * Consolidate an incoming event with the game state
@@ -22,5 +22,5 @@ export interface EventHandlerInterface<Controllers extends IndexedControllers, R
      * @param sourceHandler the handler or player generating the event
      * @param incomingEvent the changing event
      */
-    merge(controllers: Controllers, sourceHandler: number, incomingEvent: ResponseMessage): void;
+    merge(this: void, controllers: Controllers, sourceHandler: number, incomingEvent: ResponseMessage): void;
 }

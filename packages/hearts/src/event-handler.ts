@@ -5,7 +5,7 @@ import { Suit, Card, Rank, distinct, isDefined, EventHandlerInterface, PlayCardR
 
 const QS = new Card(Suit.SPADES, Rank.QUEEN);
 
-export class EventHandler implements EventHandlerInterface<Controllers, ResponseMessage> {
+export const eventHandler: EventHandlerInterface<Controllers, ResponseMessage> = {
     validateEvent(controllers: Controllers, source: number, event: ResponseMessage): ResponseMessage | undefined {
         switch (event.type) {
         case 'pass-response': {
@@ -81,7 +81,7 @@ export class EventHandler implements EventHandlerInterface<Controllers, Response
             return event;
         }
         }
-    }
+    },
 
     
     merge(controllers: Controllers, sourceHandler: number, incomingEvent: ResponseMessage): void {
@@ -103,5 +103,5 @@ export class EventHandler implements EventHandlerInterface<Controllers, Response
             return;
         }
         }
-    }
-}
+    },
+};
