@@ -1,6 +1,6 @@
 {
     "entryPoints": ["packages/*"],
-    "entryPointStrategy": "packages",
+    "entryPointStrategy": "legacy-packages",
     "name": "@Cards-TS",
-    "out": "docs"
+    "out": "docs",
 }
