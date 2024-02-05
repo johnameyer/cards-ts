@@ -1,9 +1,9 @@
 import { expect } from 'chai';
-import { Machine, MockControllers, loop, resume, buildGameState } from './helpers.js';
+import { NestedMachine, MockControllers, loop, resume, buildGameState } from './helpers.js';
 
 describe('loop', () => {
     it('continues until condition is no longer true', () => {
-        const transitions: Machine<MockControllers> = loop({
+        const transitions: NestedMachine<MockControllers> = loop({
             id: 'loop',
             condition: controllers => controllers.count.getFor() < 5,
             run: controllers => controllers.count.add(1),
