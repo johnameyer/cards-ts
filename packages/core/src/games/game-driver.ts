@@ -21,32 +21,6 @@ import { STANDARD_STATES } from './game-states.js';
 export class GameDriver<Handlers extends {[key: string]: unknown[]} & SystemHandlerParams, State extends typeof STANDARD_STATES, Controllers extends IndexedControllers & { waiting: WaitingController, completed: CompletedController, state: GameStateController<State> }, ResponseMessage extends Message, EventHandler extends EventHandlerInterface<Controllers, ResponseMessage>> {
 
     /**
-     * Tells if the game is waiting on a player
-     * @param state the state to analyze
-     */
-    static isWaitingOnPlayer(waitingController: WaitingController) {
-        const { waiting } = waitingController.get();
-        if(Array.isArray(waiting)) {
-            return waiting.length !== 0;
-        } 
-        return waiting <= 0;
-        
-    }
-
-    /**
-     * Tells if the game is waiting on any of the following players
-     * @param state the state to analyze
-     * @param subset the subset to check against
-     */
-    static isWaitingOnPlayerSubset(waitingController: WaitingController, subset: number[]) {
-        const { waiting, responded } = waitingController.get();
-        if(Array.isArray(waiting)) {
-            return waiting.length !== 0 && waiting.some(position => subset.includes(position));
-        } 
-        return waiting <= 0 && subset.some(position => !responded[position]);
-    }
-
-    /**
      * Create the game driver
      * @param handlerProxy the wrapper for the handlers
      * @param gameState the game state and controllers
@@ -92,7 +66,7 @@ export class GameDriver<Handlers extends {[key: string]: unknown[]} & SystemHand
     }
 
     /**
-     * Tells when a response has come in asyncronously
+     * Tells when a response has come in asynchronously
      */
     public async asyncResponseAvailable() {
         return this.handlerProxy.asyncResponseAvailable();
@@ -109,7 +83,7 @@ export class GameDriver<Handlers extends {[key: string]: unknown[]} & SystemHand
      * Tells if the game is waiting on a player
      */
     isWaitingOnPlayer() {
-        return GameDriver.isWaitingOnPlayer(this.gameState.controllers.waiting);
+        return this.gameState.controllers.waiting.isWaitingOnPlayer();
     }
 
     
@@ -118,13 +92,13 @@ export class GameDriver<Handlers extends {[key: string]: unknown[]} & SystemHand
      * @param subset the subset to check against
      */
     isWaitingOnPlayerSubset(subset: number[]) {
-        return GameDriver.isWaitingOnPlayerSubset(this.gameState.controllers.waiting, subset);
+        return this.gameState.controllers.waiting.isWaitingOnPlayerSubset(subset);
     }
 
     /**
      * Runs the game through to the end asynchronously
      */
-    public async start() {
+    public async start(): Promise<void> {
         while(!this.gameState.controllers.completed.get()) {
             this.transitions[this.gameState.controllers.state.get()].call(undefined, this.gameState.controllers);
 
@@ -132,7 +106,7 @@ export class GameDriver<Handlers extends {[key: string]: unknown[]} & SystemHand
             await this.handlerProxy.handleOutgoing();
             this.handleSyncResponses();
 
-            while(!this.gameState.controllers.completed.get() && GameDriver.isWaitingOnPlayer(this.gameState.controllers.waiting)) {
+            while(!this.gameState.controllers.completed.get() && this.isWaitingOnPlayer()) {
 
                 await this.handlerProxy.asyncResponseAvailable();
                 for await (const [ position, message ] of this.handlerProxy.receiveAsyncResponses()) {
@@ -152,8 +126,12 @@ export class GameDriver<Handlers extends {[key: string]: unknown[]} & SystemHand
      * Runs the game until the next time it would have to wait
      */
     public resume() {
-        while(!this.gameState.controllers.completed.get() && !GameDriver.isWaitingOnPlayer(this.gameState.controllers.waiting)) {
+        while(!this.gameState.controllers.completed.get() && !this.isWaitingOnPlayer()) {
             this.transitions[this.gameState.controllers.state.get()].call(undefined, this.gameState.controllers);
         }
+    }
+
+    public getState() {
+        return this.gameState.state; // TODO avoid external updates here
     }
 }
