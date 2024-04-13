@@ -1,4 +1,4 @@
-import { GenericControllerProvider, GlobalController } from '../src/index.js';
+import { GenericControllerProvider, GlobalController } from '../../src/index.js';
 
 export type MockState = number;
 
@@ -23,5 +23,5 @@ export class MockController extends GlobalController<MockState, {}> {
 }
 
 export const mockControllerProviders = {
-    count: new MockControllerProvider(),
+    mock: new MockControllerProvider(),
 };

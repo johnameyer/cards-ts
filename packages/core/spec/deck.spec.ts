@@ -32,7 +32,7 @@ describe('Deck', () => {
             const deck: Deck = new Deck(1);
             const drawn: Card[] = [];
             let card: Card;
-            for (let i = 0; i < 54; i++) {
+            for(let i = 0; i < 54; i++) {
                 card = deck.draw();
                 expect(card).to.be.ok;
                 expect(drawn.find((x) => card.equals(x))).to.be.undefined;
