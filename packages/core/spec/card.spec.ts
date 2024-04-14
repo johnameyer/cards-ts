@@ -1,6 +1,6 @@
-import { expect } from 'chai';
 import 'mocha';
 import { Card } from '../src/index.js';
+import { expect } from 'chai';
 
 describe('Card', () => {
     let J: Card, TH: Card, FH: Card, QH: Card, AH: Card, AC: Card, AS: Card;
@@ -15,23 +15,23 @@ describe('Card', () => {
     });
     describe('#compare', () => {
         it('should sort by rank', () => {
-            const cards = [QH, AH, FH].sort(Card.compare);
-            expect(cards).to.deep.equal([FH, QH, AH]);
+            const cards = [ QH, AH, FH ].sort(Card.compare);
+            expect(cards).to.deep.equal([ FH, QH, AH ]);
         });
 
         it('should sort by suit', () => {
-            const cards = [AC, AS, AH].sort(Card.compare);
-            expect(cards).to.deep.equal([AC, AH, AS]);
+            const cards = [ AC, AS, AH ].sort(Card.compare);
+            expect(cards).to.deep.equal([ AC, AH, AS ]);
         });
 
         it('should sort by suit then rank', () => {
-            const cards = [QH, AH, AC, AS, FH].sort(Card.compare);
-            expect(cards).to.deep.equal([FH, QH, AC, AH, AS]);
+            const cards = [ QH, AH, AC, AS, FH ].sort(Card.compare);
+            expect(cards).to.deep.equal([ FH, QH, AC, AH, AS ]);
         });
 
         it('should put wilds at the bottom', () => {
-            const cards = [AC, TH, J].sort(Card.compare);
-            expect(cards).to.deep.equal([J, TH, AC]);
+            const cards = [ AC, TH, J ].sort(Card.compare);
+            expect(cards).to.deep.equal([ J, TH, AC ]);
         });
     });
 

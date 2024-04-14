@@ -20,11 +20,11 @@
     "url": "git+ssh://git@github.com/johnameyer/cards-ts.git"
   },
   "scripts": {
-    "lint": "eslint 'src/**/*.ts' --fix",
+    "lint": "eslint '**/*.ts' --fix",
     "build": "tsc",
     "clean": "rm -rf lib tsconfig.tsbuildinfo",
     "madge": "pnpm dlx madge --circular --extensions ts ./src",
-    "test": "mocha spec/**/*.spec.ts",
+    "test": "pnpm tsc --project tsconfig.spec.json && mocha spec/*.spec.ts",
     "prepack": "npm run clean && npm run build"
   },
   "bugs": {

@@ -26,6 +26,14 @@
     "settings": {
         "import/external-module-folders": [ "packages" ]
     },
+    "overrides": [
+        {
+          "files": [ "**/spec/*.ts", "**/spec/**/*.ts" ],
+          "rules": {
+            "import/no-extraneous-dependencies": ["off"] // mocha and chai are hoisted and provide false positives
+          }
+        }
+    ],
     "rules": {
         "@typescript-eslint/no-namespace": "off",
         "no-inner-declarations": "off",
@@ -33,7 +41,7 @@
         "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
         // "@typescript-eslint/no-submodule-imports": "error",
         "@typescript-eslint/no-explicit-any": "warn",
-
+        
         // TODO remove
         "@typescript-eslint/explicit-module-boundary-types": "warn",
         "@typescript-eslint/ban-ts-comment": "warn",
@@ -102,7 +110,7 @@
         "no-else-return": "error",
         "no-multi-spaces": "error",
         "yoda": "error",
-
+        
         // imports
         "unused-imports/no-unused-imports": "error",
         "import/no-cycle": "error",
