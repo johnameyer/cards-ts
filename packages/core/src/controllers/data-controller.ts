@@ -4,7 +4,7 @@ import { AbstractController, GenericControllerProvider } from './controller.js';
 /**
  * Field for the handlers to save their custom data (since they are meant to be stateless)
  */
-type DataState = Serializable[];
+type DataState = Record<string, Serializable>[];
 
 /**
  * @category Controller Provider
@@ -27,16 +27,16 @@ export class DataControllerProvider implements GenericControllerProvider<DataSta
  * Controls the data for the handlers
  * @category Controller
  */
-export class DataController extends AbstractController<DataState, {}, Serializable> {
+export class DataController extends AbstractController<DataState, Record<string, never>, Record<string, Serializable>> {
     getDataFor(handler: number) {
         return this.state[handler];
     }
 
-    setDataFor(handler: number, value: Serializable) {
+    setDataFor(handler: number, value: Record<string, Serializable>) {
         this.state[handler] = value;
     }
 
-    override getFor(position: number): Serializable {
+    override getFor(position: number): Record<string, Serializable> {
         return this.state[position];
     }
 

@@ -60,7 +60,9 @@ export class GameDriver<Handlers extends {[key: string]: unknown[]} & SystemHand
     public handleSyncResponses() {
         for(const [ position, message ] of this.handlerProxy.receiveSyncResponses()) {
             if(message) {
-                this.handleEvent(position, message);
+                const { data, payload } = message;
+                // TODO data
+                this.handleEvent(position, payload);
             }
         }
     }
@@ -111,7 +113,9 @@ export class GameDriver<Handlers extends {[key: string]: unknown[]} & SystemHand
                 await this.handlerProxy.asyncResponseAvailable();
                 for await (const [ position, message ] of this.handlerProxy.receiveAsyncResponses()) {
                     if(message) {
-                        this.handleEvent(position, message);
+                        const { data, payload } = message;
+                        // TODO data
+                        this.handleEvent(position, payload);
                     }
                 }
                 
