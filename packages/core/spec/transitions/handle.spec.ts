@@ -1,7 +1,7 @@
 import { expect } from 'chai';
-import { MockHandler } from '../mock-handler.js';
-import { STANDARD_STATES } from '../../src/index.js';
-import { Machine, MockControllersWithPlayers, buildGameStateWithPlayers, handleSingle, resume } from './helpers.js';
+import { Machine, STANDARD_STATES, handleSingle } from '../../src/index.js';
+import { MockHandler, MockResponseMessage } from '../handlers/mock-handler.js';
+import { MockControllersWithPlayers, buildGameStateWithPlayers, resume } from './helpers.js';
 
 describe('handleSingle', () => {
     it('calls a single handler', () => {
@@ -11,14 +11,15 @@ describe('handleSingle', () => {
         });
 
         const mockHandler = new MockHandler();
+        mockHandler.setResponse(new MockResponseMessage(5));
 
         const gameState = buildGameStateWithPlayers([ mockHandler ]);
 
-        expect(mockHandler.get()).to.equals(0);
+        expect(mockHandler.timesCalled).to.equals(0);
 
         resume(gameState, transitions);
 
-        expect(mockHandler.get()).to.equals(1);
+        expect(mockHandler.timesCalled).to.equals(1);
         expect(gameState.state.waiting.waiting).to.deep.equals([ 0 ]);
         expect(gameState.state.state).to.not.equal(STANDARD_STATES.END_GAME); // TODO use completed?
 
