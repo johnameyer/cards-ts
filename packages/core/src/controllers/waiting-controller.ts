@@ -53,4 +53,29 @@ export class WaitingController extends GlobalController<WaitingState, {}> {
         this.state.waiting.splice(this.state.waiting.indexOf(position), 1);
         this.state.responded.push(position);
     }
+
+    /**
+     * Tells if the game is waiting on a player
+     * @param state the state to analyze
+     */
+    isWaitingOnPlayer() {
+        const { waiting } = this.get();
+        if(Array.isArray(waiting)) {
+            return waiting.length !== 0;
+        } 
+        return waiting > 0;
+    }
+
+    /**
+     * Tells if the game is waiting on any of the following players
+     * @param state the state to analyze
+     * @param subset the subset to check against
+     */
+    isWaitingOnPlayerSubset(subset: number[]) {
+        const { waiting, responded } = this.get();
+        if(Array.isArray(waiting)) {
+            return waiting.length !== 0 && waiting.some(position => subset.includes(position));
+        } 
+        return waiting > 0 && subset.some(position => !responded[position]);
+    }
 }
