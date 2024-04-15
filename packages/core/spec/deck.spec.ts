@@ -1,6 +1,6 @@
-import { expect } from 'chai';
 import 'mocha';
 import { Card, Deck, Rank, Suit } from '../src/index.js';
+import { expect } from 'chai';
 
 describe('Deck', () => {
     describe('#constructor', () => {
@@ -18,11 +18,10 @@ describe('Deck', () => {
     });
 
     describe('#draw', () => {
-        it('should grab and return all 54 cards', () => {
+        it('should grab a card', () => {
             const deck: Deck = new Deck(1);
             const drawn: Card[] = [];
-            let card: Card;
-            card = deck.draw();
+            const card = deck.draw();
             expect(card).to.be.ok;
             expect(drawn.find((x) => card.equals(x))).to.be.undefined;
             drawn.push(card);
@@ -32,7 +31,7 @@ describe('Deck', () => {
             const deck: Deck = new Deck(1);
             const drawn: Card[] = [];
             let card: Card;
-            for (let i = 0; i < 54; i++) {
+            for(let i = 0; i < 54; i++) {
                 card = deck.draw();
                 expect(card).to.be.ok;
                 expect(drawn.find((x) => card.equals(x))).to.be.undefined;
