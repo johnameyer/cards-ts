@@ -41,6 +41,8 @@ export { SpacingMessage } from './messages/spacing-message.js';
 export { DealerMessage, DealtOutMessage, DiscardMessage, EndRoundMessage, LeadsMessage, OutOfCardsMessage, PickupMessage, PlayedMessage, ReshuffleMessage, TurnUpMessage } from './messages/status/index.js';
 export { DataResponseMessage, DiscardResponseMessage, PlayCardResponseMessage } from './messages/response/index.js';
 
+export * from './state-machine/index.js';
+
 export { combinations } from './util/combinations.js';
 export { distinct } from './util/distinct.js';
 export { isDefined } from './util/is-defined.js';
