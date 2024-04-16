@@ -1,4 +1,4 @@
-import { GenericGameState, STANDARD_STATES, GameStateControllerProvider, WaitingControllerProvider, WaitingController, GenericHandlerController, Handler } from '../../src/index.js';
+import { GenericGameState, STANDARD_STATES, GameStateControllerProvider, WaitingControllerProvider, WaitingController, GenericHandlerController, Handler, TurnController, TurnControllerProvider } from '../../src/index.js';
 import { GenericHandlerControllerProvider } from '../../src/games/generic-handler-controller.js';
 import { NestedMachine, Machine, StatefulControllers } from '../../src/state-machine/index.js';
 import { mockControllerProviders, MockController } from '../controllers/mock-controller.js';
@@ -44,14 +44,25 @@ export function advance<T extends StatefulControllers>(gameState: GenericGameSta
         unnested.pop();
 
         if(!('defaultTransition' in state) || !state.defaultTransition) {
-            state;
             if(unnested.length === 0) {
                 gameState.controllers.state.set(STANDARD_STATES.END_GAME);
     
                 // console.log(`${currentState} => _`);
     
                 return false;
+            } 
+            // TODO vet process transitions of parent state - might need to keep moving up in the stack
+            const parent = deepFindState(unnested, machine);
+
+            unnested.pop();
+
+            if(!('defaultTransition' in parent)) {
+                throw new Error('Invalid');
             }
+
+            const nextState = parent.transitions?.find(transition => transition.condition.call(null, gameState.controllers))?.state ?? parent.defaultTransition;
+            unnested.push(nextState);
+            
         } else {
             const nextState = state.transitions?.find(transition => transition.condition.call(null, gameState.controllers))?.state ?? state.defaultTransition;
 
@@ -87,6 +98,7 @@ export type MockControllersWithPlayers = {
     mock: MockController,
     waiting: WaitingController,
     players: GenericHandlerController<any, MockHandlerParams>,
+    turn: TurnController,
 }
 
 export function buildGameStateWithPlayers(handlers: Handler<MockHandlerParams, any, any>[]) {
@@ -96,6 +108,7 @@ export function buildGameStateWithPlayers(handlers: Handler<MockHandlerParams, a
         waiting: new WaitingControllerProvider(),
         players: new GenericHandlerControllerProvider<any, MockHandlerParams>(handlerProxy),
         state: new GameStateControllerProvider(),
+        turn: new TurnControllerProvider(),
     };
 
     return new GenericGameState({ ...mockControllerProviders, ...mockControllerProvidersWithPlayers });

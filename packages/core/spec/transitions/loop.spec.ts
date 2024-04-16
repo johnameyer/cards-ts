@@ -6,7 +6,7 @@ describe('loop', () => {
     it('continues until condition is no longer true', () => {
         const transitions: NestedMachine<MockControllers> = loop({
             id: 'loop',
-            breakingIf: controllers => controllers.mock.getFor() < 5,
+            breakingIf: controllers => controllers.mock.getFor() >= 5,
             run: controllers => controllers.mock.add(1),
         });
 
