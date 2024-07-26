@@ -15,7 +15,7 @@ export { GameDriver } from './games/game-driver.js';
 export { STANDARD_STATES } from './games/game-states.js';
 export { GenericGameSetup } from './games/generic-game-setup.js';
 export { GenericGameState } from './games/generic-game-state.js';
-export { EventHandlerInterface } from './games/event-handler-interface.js';
+export { EventHandlerInterface, wrapEventHandler } from './games/event-handler-interface.js';
 export { GenericGameStateTransitions } from './games/generic-game-state-transitions.js';
 export { GenericHandlerController } from './games/generic-handler-controller.js';
 export { HandlerResponsesQueue, ResponseQueue } from './games/response-queue.js';

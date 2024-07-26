@@ -10,11 +10,11 @@ export class IntermediarySystemHandler<HandlerData extends Serializable, Respons
         super();
     }
     
-    handleMessage = async (_handlerData: HandlerData, _: HandlerResponsesQueue<WithData<ResponseMessage>>, message: Message) => {
+    handleMessage = async (_handlerData: HandlerData, _: HandlerResponsesQueue<ResponseMessage>, message: Message) => {
         await this.intermediary.print(...message.components)[0];
     };
 
-    handleWaitingFor = async (_handlerData: HandlerData, _: HandlerResponsesQueue<WithData<ResponseMessage>>, _who: number[] | number | undefined): Promise<void> => {
+    handleWaitingFor = async (_handlerData: HandlerData, _: HandlerResponsesQueue<ResponseMessage>, _who: number[] | number | undefined): Promise<void> => {
         // No-op
     };
 }

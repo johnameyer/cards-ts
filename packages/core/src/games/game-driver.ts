@@ -7,6 +7,7 @@ import { EventHandlerInterface } from './event-handler-interface.js';
 import { GenericGameState } from './generic-game-state.js';
 import { GenericHandlerProxy } from './generic-handler-controller.js';
 import { STANDARD_STATES } from './game-states.js';
+import { Serializable } from '../browser-index.js';
 
 /**
  * Class that steps though the game using the game state transitions
@@ -37,14 +38,21 @@ export class GameDriver<Handlers extends {[key: string]: unknown[]} & SystemHand
      * @param message the message to handle
      * @returns if the message was merged
      */
-    public handleEvent(position: number, message: ResponseMessage) {
-        const updatedMessage = this.eventHandler.validateEvent(this.gameState.controllers, position, message);
+    public handleEvent(position: number, message: ResponseMessage, data: Record<string, Serializable> | undefined) {
+        // TODO clean up events with only data
+        if(message != undefined) {
+            const updatedMessage = this.eventHandler.validateEvent(this.gameState.controllers, position, message);
 
-        if(updatedMessage) {
-            this.eventHandler.merge(this.gameState.controllers, position, updatedMessage);
+            if(updatedMessage) {
+                this.eventHandler.merge(this.gameState.controllers, position, updatedMessage, data);
+            }
+
+            return !!updatedMessage;
+        } else {
+            this.eventHandler.merge(this.gameState.controllers, position, undefined, data);
+
+            return false;
         }
-
-        return !!updatedMessage;
     }
 
     /**
@@ -60,9 +68,13 @@ export class GameDriver<Handlers extends {[key: string]: unknown[]} & SystemHand
     public handleSyncResponses() {
         for(const [ position, message ] of this.handlerProxy.receiveSyncResponses()) {
             if(message) {
-                const { data, payload } = message;
-                // TODO data
-                this.handleEvent(position, payload);
+                let payload, data;
+                if(Array.isArray(message)) {
+                    ([payload, data] = message);
+                } else {
+                    payload = message;
+                }
+                this.handleEvent(position, payload, data);
             }
         }
     }
@@ -113,9 +125,13 @@ export class GameDriver<Handlers extends {[key: string]: unknown[]} & SystemHand
                 await this.handlerProxy.asyncResponseAvailable();
                 for await (const [ position, message ] of this.handlerProxy.receiveAsyncResponses()) {
                     if(message) {
-                        const { data, payload } = message;
-                        // TODO data
-                        this.handleEvent(position, payload);
+                        let payload, data;
+                        if(Array.isArray(message)) {
+                            ([payload, data] = message);
+                        } else {
+                            payload = message;
+                        }
+                        this.handleEvent(position, payload, data);
                     }
                 }
                 

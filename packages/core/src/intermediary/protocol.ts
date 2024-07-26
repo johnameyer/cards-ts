@@ -1,5 +1,5 @@
-import { Serializable } from 'child_process';
 import { Observable } from 'rxjs';
+import { Serializable } from './serializable.js';
 
 /**
  * Generic interface for a medium that can have messages sent over channels

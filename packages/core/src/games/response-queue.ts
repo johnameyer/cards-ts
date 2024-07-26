@@ -1,16 +1,17 @@
+import { WithData } from '../handlers/handler.js';
 import { isPromise } from '../util/is-promise.js';
 
 export interface HandlerResponsesQueue<Item> {
-    push(item: undefined | Item | Promise<undefined | Item>): void;
+    push(item: undefined | Item | WithData<undefined | Item> | Promise<undefined | Item | WithData<undefined | Item>>): void;
 
-    map<PreMapped>(mapping: (item: PreMapped) => Item): HandlerResponsesQueue<PreMapped>;
+    map<PreMapped>(mapping: (item: PreMapped) => Item | WithData<Item>): HandlerResponsesQueue<PreMapped>;
 }
 
 /**
  * A queue that handlers push messages to to return them to the driver. Seamlessly handles async items and sync items.
  */
 export class ResponseQueue<Item> {
-    private asyncQueue: Promise<[number, Item | undefined]>[] = [];
+    private asyncQueue: Promise<[number, Item | WithData<Item> | undefined]>[] = [];
 
     private syncQueue: [number, Item | undefined][] = [];
 
@@ -44,7 +45,7 @@ export class ResponseQueue<Item> {
 
 
     * [Symbol.iterator]() {
-        let popped: undefined | [number, Item | undefined];
+        let popped: undefined | [number, Item | WithData<Item> | undefined];
         // eslint-disable-next-line no-cond-assign
         while(popped = this.syncQueue.shift()) {
             yield popped;

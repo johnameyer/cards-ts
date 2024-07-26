@@ -1,25 +1,22 @@
-import { Controllers, GameControllers } from './controllers/controllers.js';
+import { Controllers } from './controllers/controllers.js';
 import { DealerDiscardResponseMessage, GoingAloneResponseMessage, OrderUpResponseMessage, NameTrumpResponseMessage } from './messages/response/index.js';
 import { ResponseMessage } from './messages/response-message.js';
 import { followsTrick } from './util/follows-trick.js';
-import { EventHandlerInterface, PlayCardResponseMessage } from '@cards-ts/core';
+import { PlayCardResponseMessage, wrapEventHandler } from '@cards-ts/core';
 
-export const eventHandler: EventHandlerInterface<GameControllers, ResponseMessage> = {
-    validateEvent(controllers: Controllers, source: number, event: ResponseMessage): ResponseMessage | undefined {
+export const eventHandler = wrapEventHandler<Controllers, ResponseMessage>({
+    validateEvent: {
         // TODO shore up the logic of what events we are expecting (not just the static handler logic)
-        switch (event.type) {
-        case 'order-up-response': {
+        'order-up-response': (controllers, source, { selectingTrump }) => {
             if(source !== controllers.turn.get()) {
                 return undefined;
             }
-            const { selectingTrump } = event;
             return new OrderUpResponseMessage(selectingTrump);
-        }
-        case 'name-trump-response': {
+        },
+        'name-trump-response': (controllers, source, { trump }) => {
             if(source !== controllers.turn.get()) {
                 return undefined;
             }
-            const { trump } = event;
             try {
                 if(controllers.euchre.currentTrump === trump) {
                     throw new Error('Can\'t select the current trump suit as the trump');
@@ -29,15 +26,14 @@ export const eventHandler: EventHandlerInterface<GameControllers, ResponseMessag
                 console.error('Invalid suit');
             }
             return new NameTrumpResponseMessage(undefined);
-        }
-        case 'going-alone-response': {
+        },
+        'going-alone-response': (_controllers, _source, _incomingEvent) => {
             return new GoingAloneResponseMessage();
-        }
-        case 'dealer-discard-response': {
+        },
+        'dealer-discard-response': (controllers, source, { selected }) => {
             if(source !== controllers.turn.get()) {
                 return undefined;
             }
-            const { selected } = event;
             try {
                 if(!selected) {
                     throw new Error('No card provided');
@@ -53,12 +49,11 @@ export const eventHandler: EventHandlerInterface<GameControllers, ResponseMessag
             }
                 
             return new DealerDiscardResponseMessage(controllers.hand.get(source)[0]);
-        }
-        case 'turn-response': {
+        },
+        'turn-response': (controllers, source, { card }) => {
             if(source !== controllers.turn.get()) {
                 return undefined;
             }
-            const { card } = event;
             /*
              * console.log(card.toString());
              * console.log(gameState.hands[source].sort(compare).toString());
@@ -83,35 +78,26 @@ export const eventHandler: EventHandlerInterface<GameControllers, ResponseMessag
 
             return new PlayCardResponseMessage(controllers.hand.get(source).filter(card => followsTrick(controllers.trick.currentTrick, controllers.euchre.currentTrump, card))[0] || controllers.hand.get(source)[0]);
         }
-        }
     },
-
-    merge(controllers: Controllers, sourceHandler: number, incomingEvent: ResponseMessage) {
-        switch (incomingEvent.type) {
-        case 'order-up-response': {
+    merge: {
+        'order-up-response': (controllers, sourceHandler, incomingEvent) => {
             controllers.euchre.setBidder(incomingEvent.selectingTrump ? sourceHandler : undefined);
             controllers.waiting.removePosition(sourceHandler);
-            return;
-        }
-        case 'name-trump-response': {
+        },
+        'name-trump-response': (controllers, sourceHandler, incomingEvent) => {
             controllers.euchre.setBidder(incomingEvent.trump ? sourceHandler : undefined, incomingEvent.trump || controllers.euchre.currentTrump);
             controllers.waiting.removePosition(sourceHandler);
-            return;
-        }
-        case 'going-alone-response': {
+        },
+        'going-alone-response': (controllers, sourceHandler, incomingEvent) => {
             controllers.euchre.setGoingAlone(sourceHandler);
-            return;
-        }
-        case 'dealer-discard-response': {
+        },
+        'dealer-discard-response': (controllers, sourceHandler, incomingEvent) => {
             controllers.hand.removeCards(sourceHandler, [ incomingEvent.selected ]);
             controllers.waiting.removePosition(sourceHandler);
-            return;
-        }
-        case 'turn-response': {
+        },
+        'turn-response': (controllers, sourceHandler, incomingEvent) => {
             controllers.trick.setPlayedCard(incomingEvent.card);
             controllers.waiting.removePosition(sourceHandler);
-            return;
-        }
         }
     },
-};
+});

@@ -80,7 +80,7 @@ export class IntermediaryHandler extends ClientHandler {
 
         responsesQueue.push(received.then(([ , orderedHand, want ]) => {
             data.hand = orderedHand;
-            return new WantCardResponseMessage(want, data);
+            return [new WantCardResponseMessage(want), data];
         }));
 
         return sent;
@@ -88,14 +88,14 @@ export class IntermediaryHandler extends ClientHandler {
 
     handleTurn = async (gameState: HandlerData, responsesQueue: HandlerResponsesQueue<DiscardResponseMessage | GoDownResponseMessage | PlayResponseMessage>) => {
         gameState.data = reconcileDataAndHand(gameState.hand, gameState.data);
-        await this.superTurn(gameState, responsesQueue.map((response: DiscardResponseMessage | GoDownResponseMessage | PlayResponseMessage) => {
+        await this.superTurn(gameState, responsesQueue.map((response) => {
             switch (response.type) {
             case 'discard-response':
-                return new DiscardResponseMessage(response.toDiscard, gameState.data);
+                return [new DiscardResponseMessage(response.toDiscard), gameState.data];
             case 'go-down-response':
-                return new GoDownResponseMessage(response.toPlay, gameState.data);
+                return [new GoDownResponseMessage(response.toPlay), gameState.data];
             case 'play-response':
-                return new PlayResponseMessage(response.playOn, response.toPlay, response.newMeld, gameState.data);
+                return [new PlayResponseMessage(response.playOn, response.toPlay, response.newMeld), gameState.data];
             }
         }));
     };

@@ -1,15 +1,13 @@
 import { Controllers } from './controllers/controllers.js';
 import { PassResponseMessage } from './messages/response/index.js';
 import { ResponseMessage } from './messages/response-message.js';
-import { Suit, Card, Rank, distinct, isDefined, EventHandlerInterface, PlayCardResponseMessage } from '@cards-ts/core';
+import { Suit, Card, Rank, distinct, isDefined, PlayCardResponseMessage, wrapEventHandler } from '@cards-ts/core';
 
 const QS = new Card(Suit.SPADES, Rank.QUEEN);
 
-export const eventHandler: EventHandlerInterface<Controllers, ResponseMessage> = {
-    validateEvent(controllers: Controllers, source: number, event: ResponseMessage): ResponseMessage | undefined {
-        switch (event.type) {
-        case 'pass-response': {
-            const { cards, data } = event;
+export const eventHandler = wrapEventHandler<Controllers, ResponseMessage>({
+    validateEvent: {
+        'pass-response': (controllers, source, { cards }) => {
             /*
              * console.log(cards.toString());
              * console.log(controllers.hand.get(source).sort(compare).toString());
@@ -38,12 +36,11 @@ export const eventHandler: EventHandlerInterface<Controllers, ResponseMessage> =
             }
 
             return new PassResponseMessage(controllers.hand.get(source).slice(0, controllers.params.get().numToPass));
-        }
-        case 'turn-response': {
+        },
+        'turn-response': (controllers, source, { card }) => {
             if(source !== controllers.turn.get()) {
                 return undefined;
             }
-            const { card } = event;
             /*
              * console.log(card.toString());
              * console.log(controllers.hand.get(source).toString());
@@ -77,22 +74,16 @@ export const eventHandler: EventHandlerInterface<Controllers, ResponseMessage> =
             const fallbackCard = controllers.hand.get(source).filter(card => card.suit === controllers.trick.currentTrick[0]?.suit)[0] || controllers.hand.get(source).filter(card => card.suit !== Suit.HEARTS)[0] || controllers.hand.get(source)[0];
             return new PlayCardResponseMessage(fallbackCard);
         }
-        }
     },
 
-    
-    merge(controllers: Controllers, sourceHandler: number, incomingEvent: ResponseMessage): void {
-        switch (incomingEvent.type) {
-        case 'pass-response': {
+    merge: {
+        'pass-response': (controllers, sourceHandler, incomingEvent) => {
             controllers.passing.setPassedFor(sourceHandler, incomingEvent.cards);
             controllers.waiting.removePosition(sourceHandler);
-            return;
-        }
-        case 'turn-response': {
+        },
+        'turn-response': (controllers, sourceHandler, incomingEvent) => {
             controllers.trick.setPlayedCard(incomingEvent.card);
             controllers.waiting.removePosition(sourceHandler);
-            return;
-        }
-        }
+        },
     },
-};
+});

@@ -1,13 +1,11 @@
 import { Controllers } from './controllers/controllers.js';
 import { WantCardResponseMessage, PlayResponseMessage, GoDownResponseMessage } from './messages/response/index.js';
 import { ResponseMessage } from './messages/response-message.js';
-import { Card, InvalidError, EventHandlerInterface, distinct, DiscardResponseMessage } from '@cards-ts/core';
+import { Card, InvalidError, distinct, DiscardResponseMessage, wrapEventHandler } from '@cards-ts/core';
 
-export const eventHandler: EventHandlerInterface<Controllers, ResponseMessage> = {
-    validateEvent(controllers: Controllers, source: number, event: ResponseMessage): ResponseMessage | undefined {
-        // console.log(Object.fromEntries(Object.entries(event).map(([key, value]) => [key, value?.toString()])));
-        switch (event.type) {
-        case 'discard-response': {
+export const eventHandler = wrapEventHandler<Controllers, ResponseMessage>({
+    validateEvent: {
+        'discard-response': (controllers, source, event) => {
             if(source !== controllers.turn.get()) {
                 return undefined;
             }
@@ -40,8 +38,8 @@ export const eventHandler: EventHandlerInterface<Controllers, ResponseMessage> =
             }
 
             return new DiscardResponseMessage(possibleDiscard);
-        }
-        case 'play-response': {
+        },
+        'play-response': (controllers, source, event) => {
             if(source !== controllers.turn.get()) {
                 return undefined;
             }
@@ -73,8 +71,8 @@ export const eventHandler: EventHandlerInterface<Controllers, ResponseMessage> =
                 console.error(e);
             }
             return undefined;
-        }
-        case 'go-down-response': {
+        },
+        'go-down-response': (controllers, source, event) => {
             if(source !== controllers.turn.get()) {
                 return undefined;
             }
@@ -91,34 +89,30 @@ export const eventHandler: EventHandlerInterface<Controllers, ResponseMessage> =
                 console.error(e);
             }
             return undefined;
-        }
-        case 'want-card-response': {
+        },
+        'want-card-response': (controllers, source, event) => {
             if(source !== controllers.ask.get()) {
                 // TODO allow people to say they want card ahead of time
                 return undefined;
             }
             return new WantCardResponseMessage(event.wantCard);
         }
-        }
     },
 
-    merge(controllers: Controllers, source: number, incomingEvent: ResponseMessage) {
-        switch (incomingEvent.type) {
-        case 'want-card-response': {
+    merge: {
+        'want-card-response': (controllers, source, incomingEvent) => {
             controllers.canIHaveThat.wantCard = incomingEvent.wantCard;
             controllers.waiting.removePosition(source);
-            return;
-        }
-        case 'discard-response': {
+        },
+        'discard-response': (controllers, source, incomingEvent) => {
             if(!controllers.hand.hasCard(incomingEvent.toDiscard, controllers.turn.get())) {
                 throw new Error('Player did not have card ' + incomingEvent.toDiscard);
             }
             controllers.hand.removeCards(controllers.turn.get(), [ incomingEvent.toDiscard ]);
             controllers.deck.toDiscard = incomingEvent.toDiscard;
             controllers.waiting.removePosition(source);
-            return;
-        }
-        case 'go-down-response': {
+        },
+        'go-down-response': (controllers, source, incomingEvent) => {
             /*
              * TODO full logic
              * TODO what lives here vs in the handleTurn function?
@@ -133,9 +127,8 @@ export const eventHandler: EventHandlerInterface<Controllers, ResponseMessage> =
             controllers.melds.play(incomingEvent.toPlay);
                 
             controllers.waiting.removePosition(source);
-            return;
-        }
-        case 'play-response': {
+        },
+        'play-response': (controllers, source, incomingEvent) => {
             const toPlay = incomingEvent.toPlay.filter(distinct);
             const oldMeld = incomingEvent.playOn;
             const newMeld = incomingEvent.newMeld;
@@ -167,8 +160,6 @@ export const eventHandler: EventHandlerInterface<Controllers, ResponseMessage> =
             // TODO roll all of this into controller and add verification
 
             controllers.waiting.removePosition(source);
-            return;
-        }
         }
     },
-};
+});

@@ -1,7 +1,7 @@
 import { isDefined } from '../util/is-defined.js';
 import { Message } from '../messages/message.js';
 import { range } from '../util/range.js';
-import { HandlerChain, WithData } from '../handlers/handler.js';
+import { HandlerChain } from '../handlers/handler.js';
 import { SystemHandlerParams } from '../handlers/system-handler.js';
 import { AbstractController, ControllerHandlerState, GenericControllerProvider } from '../controllers/controller.js';
 import { WaitingController } from '../controllers/waiting-controller.js';
@@ -24,7 +24,7 @@ export class GenericHandlerProxy<ResponseMessage extends Message, Handlers exten
 
     private readonly outgoingData: Promise<void>[] = [];
 
-    private readonly incomingData = new ResponseQueue<WithData<ResponseMessage>>();
+    private readonly incomingData = new ResponseQueue<ResponseMessage>();
 
     /*
      * getNames() {
