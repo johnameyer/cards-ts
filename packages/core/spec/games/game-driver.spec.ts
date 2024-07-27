@@ -1,11 +1,11 @@
 import 'mocha';
 import { expect } from 'chai';
-import { ControllerState, ControllersProviders, DefaultControllers, EventHandlerInterface, GameDriver, GenericGameState, GenericGameStateTransitions, STANDARD_STATES, SystemHandlerParams } from '../../src/index.js';
-import { buildDefaultProviders } from '../../src/games/default-controllers.js';
-import { GenericHandlerProxy } from '../../src/games/generic-handler-controller.js';
+import { ControllerState, ControllersProviders, DefaultControllers, EventHandler, EventHandlerInterface, GameDriver, GenericGameState, GenericGameStateTransitions, STANDARD_STATES, SystemHandlerParams, buildEventHandler } from '../../src/browser-index.js';
 import { MockHandler, MockResponseMessage, MockHandlerParams } from '../handlers/mock-handler.js';
 import { MockController, MockControllerProvider } from '../controllers/mock-controller.js';
 import { MockAsyncHandler } from '../handlers/mock-async-handler.js';
+import { buildDefaultProviders } from '../../src/games/default-controllers.js';
+import { GenericHandlerProxy } from '../../src/games/generic-handler-controller.js';
 import { mockHandlerProxy } from './mock-handler-proxy.js';
 
 
@@ -60,21 +60,20 @@ function buildMockGameDriver(handlerProxy: GenericHandlerProxy<MockResponseMessa
     return new GameDriver(handlerProxy, gameState, transitions, eventHandler);
 }
 
-const eventHandler: EventHandlerInterface<Controllers, ResponseMessage> = {
-    validateEvent: (controllers, sourceHandler, event) => {
-        if(!controllers.waiting.isWaitingOnPlayerSubset([ sourceHandler ])) {
-            return undefined;
-        }
-        if(event.value < 0) {
-            return undefined;
-        }
-        return new MockResponseMessage(event.value);
+const eventHandler = buildEventHandler<Controllers, MockResponseMessage>({
+    canRespond: {
+        'mock-response': [ EventHandler.isWaiting('waiting'), (controller, sourceHandler, incomingEvent) => incomingEvent.value > 0 ],
     },
-    merge: (controllers, sourceHandler, incomingEvent) => {
-        controllers.mock.add(incomingEvent.value);
-        controllers.waiting.set((controllers.waiting.get().waiting as number) - 1);
+    validateEvent: {
+        'mock-response': (controller, sourceHandler, incomingEvent) => new MockResponseMessage(incomingEvent.value),
     },
-};
+    merge: {
+        'mock-response': (controllers, sourceHandler, incomingEvent) => {
+            controllers.mock.add(incomingEvent.value);
+            controllers.waiting.set((controllers.waiting.get().waiting as number) - 1);
+        },
+    },
+});
 
 describe('GameDriver', () => {
     describe('#isWaitingOnPlayer', () => {
@@ -106,7 +105,7 @@ describe('GameDriver', () => {
 
             expect(gameDriver.getState().mock).to.equal(0);
 
-            gameDriver.handleEvent(0, new MockResponseMessage(-1));
+            gameDriver.handleEvent(0, new MockResponseMessage(-1), undefined);
 
             expect(gameDriver.getState().mock).to.equal(0);
         });
@@ -118,7 +117,7 @@ describe('GameDriver', () => {
 
             expect(gameDriver.getState().mock).to.equal(0);
 
-            gameDriver.handleEvent(0, new MockResponseMessage(5));
+            gameDriver.handleEvent(0, new MockResponseMessage(5), undefined);
 
             expect(gameDriver.getState().mock).to.equal(5);
         });

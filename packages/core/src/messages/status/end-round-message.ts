@@ -14,6 +14,8 @@ function generateMessage(players: readonly string[], scores: readonly number[]):
  * @category Message
  */
 export class EndRoundMessage extends Message {
+    public readonly type = 'end-round-message';
+
     /**
      * @param players the players' names
      * @param scores the cummulative scores

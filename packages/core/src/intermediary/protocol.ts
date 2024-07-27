@@ -1,5 +1,5 @@
-import { Observable } from 'rxjs';
 import { Serializable } from './serializable.js';
+import { Observable } from 'rxjs';
 
 /**
  * Generic interface for a medium that can have messages sent over channels

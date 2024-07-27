@@ -2,102 +2,67 @@ import { Controllers } from './controllers/controllers.js';
 import { DealerDiscardResponseMessage, GoingAloneResponseMessage, OrderUpResponseMessage, NameTrumpResponseMessage } from './messages/response/index.js';
 import { ResponseMessage } from './messages/response-message.js';
 import { followsTrick } from './util/follows-trick.js';
-import { PlayCardResponseMessage, wrapEventHandler } from '@cards-ts/core';
+import { PlayCardResponseMessage, EventHandler, buildEventHandler } from '@cards-ts/core';
 
-export const eventHandler = wrapEventHandler<Controllers, ResponseMessage>({
+export const eventHandler = buildEventHandler<Controllers, ResponseMessage>({
+    canRespond: {
+        /*
+         * TODO key off waiting?
+         * TODO make even shorter hand?
+         */
+        'order-up-response': EventHandler.isTurn('turn'),
+        'name-trump-response': EventHandler.isTurn('turn'),
+        'dealer-discard-response': EventHandler.isTurn('turn'),
+        'turn-response': EventHandler.isTurn('turn'),
+    },
     validateEvent: {
         // TODO shore up the logic of what events we are expecting (not just the static handler logic)
         'order-up-response': (controllers, source, { selectingTrump }) => {
-            if(source !== controllers.turn.get()) {
-                return undefined;
-            }
             return new OrderUpResponseMessage(selectingTrump);
         },
-        'name-trump-response': (controllers, source, { trump }) => {
-            if(source !== controllers.turn.get()) {
-                return undefined;
-            }
-            try {
-                if(controllers.euchre.currentTrump === trump) {
-                    throw new Error('Can\'t select the current trump suit as the trump');
-                }
-                return new NameTrumpResponseMessage(trump);
-            } catch (e) {
-                console.error('Invalid suit');
-            }
-            return new NameTrumpResponseMessage(undefined);
+        'name-trump-response': {
+            validators: EventHandler.validate('Can\'t select the current trump suit as the trump', (controllers, _source, { trump }) => controllers.euchre.currentTrump === trump),
+            fallback: () => new NameTrumpResponseMessage(undefined),
         },
+        // TODO wrap response if somehow not proper object?
         'going-alone-response': (_controllers, _source, _incomingEvent) => {
             return new GoingAloneResponseMessage();
         },
-        'dealer-discard-response': (controllers, source, { selected }) => {
-            if(source !== controllers.turn.get()) {
-                return undefined;
-            }
-            try {
-                if(!selected) {
-                    throw new Error('No card provided');
-                }
-
-                if(!controllers.hand.hasCard(selected, source)) {
-                    throw new Error('Cannot play card that is not in hand');
-                }
-
-                return new DealerDiscardResponseMessage(selected);
-            } catch (e) {
-                console.error('Invalid dealer discard', e);
-            }
-                
-            return new DealerDiscardResponseMessage(controllers.hand.get(source)[0]);
+        'dealer-discard-response': {
+            validators: [
+                EventHandler.validate('No card provided', (_controllers, _source, { selected }) => !selected),
+                EventHandler.validate('Cannot play card that is not in hand', (controllers, source, { selected }) => !controllers.hand.hasCard(selected, source)),
+            ],
+            fallback: (controllers, source) => new DealerDiscardResponseMessage(controllers.hand.get(source)[0]),
         },
-        'turn-response': (controllers, source, { card }) => {
-            if(source !== controllers.turn.get()) {
-                return undefined;
-            }
-            /*
-             * console.log(card.toString());
-             * console.log(gameState.hands[source].sort(compare).toString());
-             */
-            try {
-                if(!card) {
-                    throw new Error('No card provided');
-                }
-
-                if(!controllers.hand.hasCard(card, source)) {
-                    throw new Error('Cannot play card that is not in hand');
-                }
-                
-                if(controllers.trick.currentTrick.some(card => card) && !followsTrick(controllers.trick.currentTrick, controllers.euchre.currentTrump, card) && controllers.hand.get(source).some(card => followsTrick(controllers.trick.currentTrick, controllers.euchre.currentTrump, card))) {
-                    throw new Error('Must follow suit if possible');
-                }
-
-                return new PlayCardResponseMessage(card);
-            } catch (e) {
-                console.error('Invalid turn', e);
-            }
-
-            return new PlayCardResponseMessage(controllers.hand.get(source).filter(card => followsTrick(controllers.trick.currentTrick, controllers.euchre.currentTrump, card))[0] || controllers.hand.get(source)[0]);
-        }
+        'turn-response': {
+            validators: [
+                EventHandler.validate('No card provided', (controllers, source, { card }) => !card),
+                EventHandler.validate('Cannot play card that is not in hand', (controllers, source, { card }) => !controllers.hand.hasCard(card, source)),
+                EventHandler.validate('Must follow suit if possible', (controllers, source, { card }) => controllers.trick.currentTrick.some(card => card) && !followsTrick(controllers.trick.currentTrick, controllers.euchre.currentTrump, card) && controllers.hand.get(source).some(card => followsTrick(controllers.trick.currentTrick, controllers.euchre.currentTrump, card))),
+            ],
+            fallback: (controllers, source) => new PlayCardResponseMessage(controllers.hand.get(source).filter(card => followsTrick(controllers.trick.currentTrick, controllers.euchre.currentTrump, card))[0] || controllers.hand.get(source)[0]),
+        },
     },
     merge: {
-        'order-up-response': (controllers, sourceHandler, incomingEvent) => {
-            controllers.euchre.setBidder(incomingEvent.selectingTrump ? sourceHandler : undefined);
-            controllers.waiting.removePosition(sourceHandler);
-        },
-        'name-trump-response': (controllers, sourceHandler, incomingEvent) => {
-            controllers.euchre.setBidder(incomingEvent.trump ? sourceHandler : undefined, incomingEvent.trump || controllers.euchre.currentTrump);
-            controllers.waiting.removePosition(sourceHandler);
-        },
+        'order-up-response': [
+            EventHandler.removeWaiting('waiting'),
+            (controllers, sourceHandler, incomingEvent) => controllers.euchre.setBidder(incomingEvent.selectingTrump ? sourceHandler : undefined),
+        ],
+        'name-trump-response': [
+            EventHandler.removeWaiting('waiting'),
+            (controllers, sourceHandler, incomingEvent) => controllers.euchre.setBidder(incomingEvent.trump ? sourceHandler : undefined, incomingEvent.trump || controllers.euchre.currentTrump),
+        ],
         'going-alone-response': (controllers, sourceHandler, incomingEvent) => {
             controllers.euchre.setGoingAlone(sourceHandler);
         },
-        'dealer-discard-response': (controllers, sourceHandler, incomingEvent) => {
-            controllers.hand.removeCards(sourceHandler, [ incomingEvent.selected ]);
-            controllers.waiting.removePosition(sourceHandler);
-        },
-        'turn-response': (controllers, sourceHandler, incomingEvent) => {
-            controllers.trick.setPlayedCard(incomingEvent.card);
-            controllers.waiting.removePosition(sourceHandler);
-        }
+        'dealer-discard-response': [
+            EventHandler.removeWaiting('waiting'), 
+            (controllers, sourceHandler, incomingEvent) => controllers.hand.removeCards(sourceHandler, [ incomingEvent.selected ]),
+        ],
+        'turn-response': [
+            EventHandler.removeWaiting('waiting'), 
+            (controllers, sourceHandler, incomingEvent) => controllers.trick.setPlayedCard(incomingEvent.card),
+        ],
     },
 });

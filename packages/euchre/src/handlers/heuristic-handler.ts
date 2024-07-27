@@ -112,17 +112,17 @@ export class HeuristicHandler implements Handler<GameHandlerParams & MessageHand
             const wouldWin = playable.filter(card => winningPlay([ ...currentTrick, card ], currentTrump) === currentTrick.length);
             if(!wouldWin) {
                 const throwaway = playable.slice().sort(Card.compare)[0];
-                responsesQueue.push([new PlayCardResponseMessage(throwaway), data]);
+                responsesQueue.push(new PlayCardResponseMessage(throwaway), data);
             } else {
                 const winner = wouldWin.slice().sort(Card.compare)[0];
-                responsesQueue.push([new PlayCardResponseMessage(winner), data]);
+                responsesQueue.push(new PlayCardResponseMessage(winner), data);
             }
             // console.error(e);
         }
         // Logic failed
         const fallbackCard = hand.filter(card => followsTrick(currentTrick, currentTrump, card))[0] || hand[0];
         // console.log(fallbackCard.toString());
-        responsesQueue.push([new PlayCardResponseMessage(fallbackCard), data]);
+        responsesQueue.push(new PlayCardResponseMessage(fallbackCard), data);
     };
 
     handleMessage = (gameState: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>, message: Message): void => {
@@ -136,7 +136,7 @@ export class HeuristicHandler implements Handler<GameHandlerParams & MessageHand
             if(followSuit && message.card.suit !== followSuit) {
                 data.playerOutOfSuit[message.player] = [ ...(data.playerOutOfSuit[message.player] || []) as Suit[], followSuit ].filter((val, index, arr) => arr.indexOf(val) === index);
             }
-            responsesQueue.push([undefined, data]);
+            responsesQueue.push(undefined, data);
         }
     };
 }

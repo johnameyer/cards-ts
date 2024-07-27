@@ -2,12 +2,12 @@ import { Message } from '../messages/message.js';
 import { SystemHandlerParams } from '../handlers/system-handler.js';
 import { CompletedController, GameStateController, WaitingController } from '../controllers/index.js';
 import { IndexedControllers } from '../controllers/controller.js';
+import { Serializable } from '../intermediary/serializable.js';
 import { GenericGameStateTransitions } from './generic-game-state-transitions.js';
 import { EventHandlerInterface } from './event-handler-interface.js';
 import { GenericGameState } from './generic-game-state.js';
 import { GenericHandlerProxy } from './generic-handler-controller.js';
 import { STANDARD_STATES } from './game-states.js';
-import { Serializable } from '../browser-index.js';
 
 /**
  * Class that steps though the game using the game state transitions
@@ -38,9 +38,9 @@ export class GameDriver<Handlers extends {[key: string]: unknown[]} & SystemHand
      * @param message the message to handle
      * @returns if the message was merged
      */
-    public handleEvent(position: number, message: ResponseMessage, data: Record<string, Serializable> | undefined) {
-        // TODO clean up events with only data
-        if(message != undefined) {
+    public handleEvent(position: number, message: ResponseMessage | undefined, data: Record<string, Serializable> | undefined) {
+        // TODO move only data elsewhere
+        if(message !== undefined) {
             const updatedMessage = this.eventHandler.validateEvent(this.gameState.controllers, position, message);
 
             if(updatedMessage) {
@@ -48,11 +48,11 @@ export class GameDriver<Handlers extends {[key: string]: unknown[]} & SystemHand
             }
 
             return !!updatedMessage;
-        } else {
-            this.eventHandler.merge(this.gameState.controllers, position, undefined, data);
+        } 
+        this.eventHandler.merge(this.gameState.controllers, position, undefined, data);
 
-            return false;
-        }
+        return false;
+        
     }
 
     /**
@@ -70,7 +70,7 @@ export class GameDriver<Handlers extends {[key: string]: unknown[]} & SystemHand
             if(message) {
                 let payload, data;
                 if(Array.isArray(message)) {
-                    ([payload, data] = message);
+                    ([ payload, data ] = message);
                 } else {
                     payload = message;
                 }
@@ -127,7 +127,7 @@ export class GameDriver<Handlers extends {[key: string]: unknown[]} & SystemHand
                     if(message) {
                         let payload, data;
                         if(Array.isArray(message)) {
-                            ([payload, data] = message);
+                            ([ payload, data ] = message);
                         } else {
                             payload = message;
                         }

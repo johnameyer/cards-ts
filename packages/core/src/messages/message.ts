@@ -10,7 +10,7 @@ import { isNonnull } from '../util/is-nonnull.js';
 export abstract class Message {
     readonly [key: string]: ReadonlySerializable;
 
-    public readonly type!: string;
+    public abstract readonly type: string;
 
     /**
      * @param components the pieces a message could be made of

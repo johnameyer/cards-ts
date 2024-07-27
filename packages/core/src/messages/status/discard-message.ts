@@ -15,6 +15,8 @@ function generateMessage(card: Card, player?: string): Presentable[] {
  * @category Message
  */
 export class DiscardMessage extends Message {
+    public readonly type = 'discard-message';
+
     // TODO consider how to represent the player better for programmatic handlers' tracking
     /**
      * @param card the card being discarded

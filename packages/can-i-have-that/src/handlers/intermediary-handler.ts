@@ -2,7 +2,7 @@ import { HandlerData } from '../game-handler.js';
 import { WantCardResponseMessage, GoDownResponseMessage, PlayResponseMessage } from '../messages/response/index.js';
 import { roundToString } from '../util/round-to-string.js';
 import { ClientHandler } from './client-handler.js';
-import { Card, Intermediary, ThreeCardSet, FourCardRun, checkFourCardRunPossible, HandlerResponsesQueue, DiscardResponseMessage, Meld } from '@cards-ts/core';
+import { Card, Intermediary, ThreeCardSet, FourCardRun, checkFourCardRunPossible, HandlerResponsesQueue, DiscardResponseMessage, Meld, Serializable } from '@cards-ts/core';
 
 function flatten<T>(reduction: T[], arr: T[]) {
     reduction.push(...arr);
@@ -80,8 +80,8 @@ export class IntermediaryHandler extends ClientHandler {
 
         responsesQueue.push(received.then(([ , orderedHand, want ]) => {
             data.hand = orderedHand;
-            return [new WantCardResponseMessage(want), data];
-        }));
+            return [ new WantCardResponseMessage(want), data ];
+        }) as Promise<[WantCardResponseMessage, {[key: string]: Serializable }]>);
 
         return sent;
     };
@@ -91,13 +91,13 @@ export class IntermediaryHandler extends ClientHandler {
         await this.superTurn(gameState, responsesQueue.map((response) => {
             switch (response.type) {
             case 'discard-response':
-                return [new DiscardResponseMessage(response.toDiscard), gameState.data];
+                return [ new DiscardResponseMessage(response.toDiscard), gameState.data ] as const;
             case 'go-down-response':
-                return [new GoDownResponseMessage(response.toPlay), gameState.data];
+                return [ new GoDownResponseMessage(response.toPlay), gameState.data ] as const;
             case 'play-response':
-                return [new PlayResponseMessage(response.playOn, response.toPlay, response.newMeld), gameState.data];
+                return [ new PlayResponseMessage(response.playOn, response.toPlay, response.newMeld), gameState.data ] as const;
             }
-        }));
+        }) as HandlerResponsesQueue<DiscardResponseMessage | GoDownResponseMessage | PlayResponseMessage>);
     };
 
     async playOnOthers(hand: Card[], played: (ThreeCardSet | FourCardRun)[][], responsesQueue: HandlerResponsesQueue<PlayResponseMessage>, data: unknown) {

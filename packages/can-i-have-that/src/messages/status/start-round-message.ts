@@ -9,6 +9,8 @@ function generateMessage(round: readonly number[]): Presentable[] {
  * A class designating that a new round has started
  */
 export class StartRoundMessage extends Message {
+    public readonly type = 'start-round-message';
+
     /**
      * @param round the new round
      */

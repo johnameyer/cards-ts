@@ -2,12 +2,7 @@ import { Message } from '../messages/message.js';
 import { HandlerResponsesQueue } from '../games/response-queue.js';
 import { Serializable } from '../intermediary/serializable.js';
 
-export type WithData<T> = [
-    payload: T,
-    data?: { [key: string]: Serializable },
-]
-
-export type HandlerAction<HandlerData, ResponseMessage, Vargs extends any[] = any[]> = (this: any, gameState: HandlerData, response: HandlerResponsesQueue<ResponseMessage>, ...args: Vargs) => void | Promise<void>;
+export type HandlerAction<HandlerData, ResponseMessage extends Message, Vargs extends any[] = any[]> = (this: any, gameState: HandlerData, response: HandlerResponsesQueue<ResponseMessage>, ...args: Vargs) => void | Promise<void>;
 
 type HandleKeys<Handlers extends {[key: string]: any[]}, Handler extends keyof Handlers> = Handler extends string ? `handle${Capitalize<Handler>}` : never;
 

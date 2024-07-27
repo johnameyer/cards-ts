@@ -15,6 +15,9 @@ function generateMessage(cards: Card[], meld: Meld, player: string): Presentable
  * @category Message
  */
 export class PlayedMessage extends Message {
+
+    public readonly type = 'played-message';
+    
     /**
      * @param cards the cards that were played
      * @param meld the run the cards were played on
