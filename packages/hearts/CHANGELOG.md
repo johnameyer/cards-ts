@@ -1,4 +1,4 @@
-# @cards-ts/euchre
+# @cards-ts/hearts
 
 ## 0.7.0
 
@@ -10,13 +10,7 @@
 
 ### Patch Changes
 
-- [#111](https://github.com/johnameyer/cards-ts/pull/111) [`6464b83`](https://github.com/johnameyer/cards-ts/commit/6464b83bc5e49028f1cc26adf344419bd4c3ced0) Thanks [@johnameyer](https://github.com/johnameyer)! - Fix max score defaulting to 100 and remove quickEnd
+- [#111](https://github.com/johnameyer/cards-ts/pull/111) [`6464b83`](https://github.com/johnameyer/cards-ts/commit/6464b83bc5e49028f1cc26adf344419bd4c3ced0) Thanks [@johnameyer](https://github.com/johnameyer)! - Fix broken quickEnd setting
 
 - Updated dependencies [[`6464b83`](https://github.com/johnameyer/cards-ts/commit/6464b83bc5e49028f1cc26adf344419bd4c3ced0), [`2510048`](https://github.com/johnameyer/cards-ts/commit/2510048dd8cce64423811aafe507d6bd1cac095f), [`15e700c`](https://github.com/johnameyer/cards-ts/commit/15e700ce546250893b7fd4daf31d3cc88e2d7716), [`4e06947`](https://github.com/johnameyer/cards-ts/commit/4e06947f556c74f7d544aaddd6719e562adce3de), [`15e700c`](https://github.com/johnameyer/cards-ts/commit/15e700ce546250893b7fd4daf31d3cc88e2d7716), [`6464b83`](https://github.com/johnameyer/cards-ts/commit/6464b83bc5e49028f1cc26adf344419bd4c3ced0)]:
   - @cards-ts/core@0.7.0
-
-## 0.6.3
-
-### Patch Changes
-
-- 4a55a3f: Fix bug where bidder was reset when parameter was undefined
