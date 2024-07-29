@@ -1,5 +1,11 @@
 # @cards-ts/core
 
+## 0.8.0
+
+### Minor Changes
+
+- [#128](https://github.com/johnameyer/cards-ts/pull/128) [`ea4fbf1`](https://github.com/johnameyer/cards-ts/commit/ea4fbf141d67720797228ae1322d5d08ef7efb74) Thanks [@johnameyer](https://github.com/johnameyer)! - Change signature of event handler definition for future ease of reusing standard messages and components
+
 ## 0.7.0
 
 ### Minor Changes
