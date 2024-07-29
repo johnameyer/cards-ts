@@ -30,7 +30,7 @@
     "ts-start": "node --loader ts-node/esm src/start.ts",
     "debug": "ts-node-dev --rs=false --inspect --transpileOnly src/start.ts start",
     "test": "mocha --recursive ./spec --extension spec.ts",
-    "prepack": "npm run clean && npm run build"
+    "prepack": "pnpm clean && pnpm build"
   },
   "bugs": {
     "url": "https://github.com/johnameyer/cards-ts/issues"

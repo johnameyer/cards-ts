@@ -29,7 +29,7 @@ jobs:
         run: pnpm madgeall
 
       - name: Build
-        run: pnpm buildall
+        run: pnpm prepackall
 
       - name: Lint
         run: pnpm lintall
