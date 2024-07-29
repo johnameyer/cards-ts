@@ -46,6 +46,15 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Changesets Snapshot
+        if: steps.changesets.outputs.published != 'true'
+        run: |
+          pnpm changeset version --snapshot
+          pnpm changeset publish --tag --no-git-tag
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         
       - name: Documentation
         if: steps.changesets.outputs.published == 'true'

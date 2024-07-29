@@ -25,7 +25,7 @@
     "clean": "rm -rf lib tsconfig.tsbuildinfo",
     "madge": "pnpm dlx madge --circular --extensions ts ./src",
     "test": "pnpm tsc --project tsconfig.spec.json && mocha --recursive ./spec --extension spec.ts",
-    "prepack": "npm run clean && npm run build"
+    "prepack": "pnpm clean && pnpm build"
   },
   "bugs": {
     "url": "https://github.com/johnameyer/cards-ts/issues"
