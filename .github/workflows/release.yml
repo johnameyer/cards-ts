@@ -50,6 +50,7 @@ jobs:
       - name: Changesets Snapshot
         if: steps.changesets.outputs.published != 'true'
         run: |
+          git checkout ${{ github.ref_name }}
           pnpm changeset version --snapshot
           pnpm changeset publish --tag --no-git-tag
         env:
