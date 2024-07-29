@@ -15,7 +15,7 @@ export { GameDriver } from './games/game-driver.js';
 export { STANDARD_STATES } from './games/game-states.js';
 export { GenericGameSetup } from './games/generic-game-setup.js';
 export { GenericGameState } from './games/generic-game-state.js';
-export { EventHandlerInterface } from './games/event-handler-interface.js';
+export { EventHandlerInterface, buildEventHandler, EventHandler } from './games/event-handler-interface.js';
 export { GenericGameStateTransitions } from './games/generic-game-state-transitions.js';
 export { GenericHandlerController } from './games/generic-handler-controller.js';
 export { HandlerResponsesQueue, ResponseQueue } from './games/response-queue.js';
@@ -39,7 +39,7 @@ export { ReadonlySerializable, Serializable, SerializableObject, serialize, dese
 export { Message } from './messages/message.js';
 export { SpacingMessage } from './messages/spacing-message.js';
 export { DealerMessage, DealtOutMessage, DiscardMessage, EndRoundMessage, LeadsMessage, OutOfCardsMessage, PickupMessage, PlayedMessage, ReshuffleMessage, TurnUpMessage } from './messages/status/index.js';
-export { DataResponseMessage, DiscardResponseMessage, PlayCardResponseMessage } from './messages/response/index.js';
+export { DiscardResponseMessage, PlayCardResponseMessage } from './messages/response/index.js';
 
 export { combinations } from './util/combinations.js';
 export { distinct } from './util/distinct.js';

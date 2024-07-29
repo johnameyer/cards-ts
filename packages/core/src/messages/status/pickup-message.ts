@@ -19,6 +19,8 @@ function generateMessage(card: Card, player?: string, extra = false): Presentabl
  * @category Message
  */
 export class PickupMessage extends Message {
+    public readonly type = 'pickup-message';
+
     /**
      * Designates that a card was not picked up
      */

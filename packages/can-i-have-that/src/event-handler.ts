@@ -1,55 +1,47 @@
 import { Controllers } from './controllers/controllers.js';
-import { WantCardResponseMessage, PlayResponseMessage, GoDownResponseMessage } from './messages/response/index.js';
+import { GoDownResponseMessage, PlayResponseMessage, WantCardResponseMessage } from './messages/response/index.js';
 import { ResponseMessage } from './messages/response-message.js';
-import { Card, InvalidError, EventHandlerInterface, distinct, DiscardResponseMessage } from '@cards-ts/core';
+import { Card, distinct, DiscardResponseMessage, buildEventHandler, EventHandler } from '@cards-ts/core';
 
-export const eventHandler: EventHandlerInterface<Controllers, ResponseMessage> = {
-    validateEvent(controllers: Controllers, source: number, event: ResponseMessage): ResponseMessage | undefined {
-        // console.log(Object.fromEntries(Object.entries(event).map(([key, value]) => [key, value?.toString()])));
-        switch (event.type) {
-        case 'discard-response': {
-            if(source !== controllers.turn.get()) {
-                return undefined;
-            }
-            if(controllers.deck.toDiscard) {
-                return undefined;
-            }
-            try {
-                if(!controllers.hand.hasCard(event.toDiscard, controllers.turn.get())) {
-                    throw new Error('Card is not in hand');
+export const eventHandler = buildEventHandler<Controllers, ResponseMessage>({
+    transform: {
+        'discard-response': event => new DiscardResponseMessage(event.toDiscard),
+        'go-down-response': event => new GoDownResponseMessage(event.toPlay),
+        'play-response': event => new PlayResponseMessage(event.playOn, event.toPlay, event.newMeld),
+        'want-card-response': event => new WantCardResponseMessage(event.wantCard),
+    },
+    canRespond: {
+        'discard-response': [
+            EventHandler.isTurn('turn'),
+            (controllers) => !controllers.deck.toDiscard,
+        ],
+        'go-down-response': EventHandler.isTurn('turn'),
+        'play-response': EventHandler.isTurn('turn'),
+        'want-card-response': (controllers, sourceHandler) => controllers.waiting.isWaitingOnPlayerSubset([ sourceHandler ]), // TODO allow people to say they want card ahead of time
+    },
+    validateEvent: {
+        'discard-response': {
+            validators: [
+                EventHandler.validate('Card is not in hand', (controllers, source, event) => !controllers.hand.hasCard(event.toDiscard, controllers.turn.get())),
+                EventHandler.validate('Card is live on run', (controllers, source, event) => controllers.melds.isCardLive(event.toDiscard)),
+                // 'Card ' + event.toDiscard.toString() + ' is live on ' + run.toString()
+            ],
+            fallback: (controllers, source, event) => {
+                const liveForNone = (card: Card) => !controllers.melds.isCardLive(card);
+                const possibleDiscard = controllers.hand.get(source).find(liveForNone);
+
+                if(!possibleDiscard) {
+                    throw new Error('No possible discard?');
+                    // TODO
                 }
 
-                for(const plays of controllers.melds.get()) {
-                    for(const run of plays) {
-                        if(run.isLive(event.toDiscard)) {
-                            throw new InvalidError('Card ' + event.toDiscard.toString() + ' is live on ' + run.toString());
-                        }
-                    }
-                }
-
-                return new DiscardResponseMessage(event.toDiscard, event.data);
-            } catch (e) {
-                console.error(e);
-            }
-            const liveForNone = (card: Card) => !controllers.melds.isCardLive(card);
-            const possibleDiscard = controllers.hand.get(source).find(liveForNone);
-
-            if(!possibleDiscard) {
-                throw new Error('No possible discard?');
-                // TODO
-            }
-
-            return new DiscardResponseMessage(possibleDiscard);
-        }
-        case 'play-response': {
-            if(source !== controllers.turn.get()) {
-                return undefined;
-            }
-            try {
+                return new DiscardResponseMessage(possibleDiscard);
+            },
+        },
+        'play-response': {
+            validators: (controllers, source, event) => {
                 const cardsToPlay = event.toPlay;
-                const validToPlay: Card[] = cardsToPlay;
                 const oldMeld = event.playOn.clone();
-                const newMeld = event.newMeld.clone();
 
                 let found = false;
                 for(let player = 0; player < controllers.players.count; player++) {
@@ -65,65 +57,35 @@ export const eventHandler: EventHandlerInterface<Controllers, ResponseMessage> =
                     }
                 }
                 if(!found) {
-                    throw new Error('Could not find played-on meld');
+                    return new Error('Could not find played-on meld');
                 }
-
-                return new PlayResponseMessage(event.playOn, validToPlay, event.newMeld, event.data);
-            } catch (e) {
-                console.error(e);
-            }
-            return undefined;
-        }
-        case 'go-down-response': {
-            if(source !== controllers.turn.get()) {
-                return undefined;
-            }
-            try {
-                if(controllers.melds.toPlay.length) {
-                    throw new Error('Player has already gone down');
-                }
-                // TODO handle duplicate cards?
-                if(!controllers.hand.hasCards(event.toPlay.flatMap(meld => meld.cards), controllers.turn.get())) {
-                    throw new Error('Player did not have all the cards');
-                }
-                return new GoDownResponseMessage(event.toPlay, event.data);
-            } catch (e) {
-                console.error(e);
-            }
-            return undefined;
-        }
-        case 'want-card-response': {
-            if(source !== controllers.ask.get()) {
-                // TODO allow people to say they want card ahead of time
-                return undefined;
-            }
-            return new WantCardResponseMessage(event.wantCard, event.data);
-        }
-        case 'data-response': {
-            return event;
-        }
-        }
+            },
+        },
+        'go-down-response': {
+            validators: [
+                EventHandler.validate('Player has already gone down', (controllers, source, event) => controllers.melds.toPlay.length > 0),
+                EventHandler.validate('Player did not have all the cards', (controllers, source, event) => !controllers.hand.hasCards(event.toPlay.flatMap(meld => meld.cards), controllers.turn.get())),
+            ],
+        },
+        'want-card-response': (controllers, source, event) => {
+            return new WantCardResponseMessage(event.wantCard);
+        },
     },
 
-    merge(controllers: Controllers, source: number, incomingEvent: ResponseMessage) {
-        switch (incomingEvent.type) {
-        case 'want-card-response': {
+    merge: {
+        'want-card-response': (controllers, source, incomingEvent) => {
             controllers.canIHaveThat.wantCard = incomingEvent.wantCard;
-            controllers.data.setDataFor(source, incomingEvent.data);
             controllers.waiting.removePosition(source);
-            return;
-        }
-        case 'discard-response': {
+        },
+        'discard-response': (controllers, source, incomingEvent) => {
             if(!controllers.hand.hasCard(incomingEvent.toDiscard, controllers.turn.get())) {
                 throw new Error('Player did not have card ' + incomingEvent.toDiscard);
             }
             controllers.hand.removeCards(controllers.turn.get(), [ incomingEvent.toDiscard ]);
             controllers.deck.toDiscard = incomingEvent.toDiscard;
-            controllers.data.setDataFor(source, incomingEvent.data);
             controllers.waiting.removePosition(source);
-            return;
-        }
-        case 'go-down-response': {
+        },
+        'go-down-response': (controllers, source, incomingEvent) => {
             /*
              * TODO full logic
              * TODO what lives here vs in the handleTurn function?
@@ -137,11 +99,9 @@ export const eventHandler: EventHandlerInterface<Controllers, ResponseMessage> =
                 
             controllers.melds.play(incomingEvent.toPlay);
                 
-            controllers.data.setDataFor(source, incomingEvent.data);
             controllers.waiting.removePosition(source);
-            return;
-        }
-        case 'play-response': {
+        },
+        'play-response': (controllers, source, incomingEvent) => {
             const toPlay = incomingEvent.toPlay.filter(distinct);
             const oldMeld = incomingEvent.playOn;
             const newMeld = incomingEvent.newMeld;
@@ -172,14 +132,7 @@ export const eventHandler: EventHandlerInterface<Controllers, ResponseMessage> =
             controllers.melds.get()[player][meld] = newMeld;
             // TODO roll all of this into controller and add verification
 
-            controllers.data.setDataFor(source, incomingEvent.data);
             controllers.waiting.removePosition(source);
-            return;
-        }
-        case 'data-response': {
-            controllers.data.setDataFor(source, incomingEvent.data);
-            return;
-        }
-        }
+        },
     },
-};
+});

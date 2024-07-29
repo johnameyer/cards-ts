@@ -16,7 +16,12 @@ export class LocalMaximumHandler extends GameHandler {
             responsesQueue.push(new WantCardResponseMessage(true));
             return;
         }
+        // / TODO store in data between turns
         const oldFound = find([ ...hand ], currentRound);
+        /*
+         * console.log('Missing', oldFound[0]);
+         * TODO force choose card - otherwise we remain the same
+         */
         const newFound = find([ (deckCard as Card), ...hand ], currentRound);
         const advantage = newFound[0] - oldFound[0];
         if(oldFound[0] === 0 && newFound[0] === 0 && wouldBeTurn && (round !== rounds.length - 1 ? newFound[1] <= oldFound[1] : newFound[3].length <= oldFound[3].length)) {
@@ -60,7 +65,7 @@ export class LocalMaximumHandler extends GameHandler {
         const currentRound = rounds[round];
         if(melds[position].length === 0) {
             const found = find([ ...hand ], currentRound);
-            // console.log(currentRound.toString(), 'Need', found[0], 'Extra', found[3].length, found[2].toString());
+            // console.log(currentRound.toString(), 'Need', found[0], 'Extra', found[3].length);
             const without = (arr: Card[], card: Card) => {
                 const result = arr.slice(); result.splice(arr.indexOf(card), 1); return result; 
             };

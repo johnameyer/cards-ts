@@ -1,4 +1,3 @@
-import { Serializable } from 'child_process';
 import { GameHandlerParams } from '../game-handler-params.js';
 import { HandlerData } from '../game-handler.js';
 import { OrderUpResponseMessage, NameTrumpResponseMessage, DealerDiscardResponseMessage } from '../messages/response/index.js';
@@ -8,13 +7,13 @@ import { followsTrick } from '../util/follows-trick.js';
 import { getTeamFor } from '../util/teams.js';
 import { getComplementarySuit } from '../util/suit-colors.js';
 import { winningPlay } from '../util/winning-play.js';
-import { Rank } from '@cards-ts/core';
+import { Rank, Serializable } from '@cards-ts/core';
 import { Suit } from '@cards-ts/core';
 import { Message } from '@cards-ts/core';
-import { Card, DataResponseMessage, Handler, HandlerResponsesQueue, MessageHandlerParams, PlayCardResponseMessage } from '@cards-ts/core';
+import { Card, Handler, HandlerResponsesQueue, MessageHandlerParams, PlayCardResponseMessage } from '@cards-ts/core';
 
 
-interface HeuristicHandlerData {
+interface HeuristicHandlerData extends Record<string, Serializable> {
     [key: string]: Serializable;
 
     playerOutOfSuit: {[player: string]: Suit[]};
@@ -32,7 +31,6 @@ const emptyCounter = () => {
 };
 
 function wrapData(handlerData: HandlerData) {
-    // @ts-expect-error
     if(!handlerData.data?.playerOutOfSuit) {
         handlerData.data = {
             playerOutOfSuit: {},
@@ -114,17 +112,17 @@ export class HeuristicHandler implements Handler<GameHandlerParams & MessageHand
             const wouldWin = playable.filter(card => winningPlay([ ...currentTrick, card ], currentTrump) === currentTrick.length);
             if(!wouldWin) {
                 const throwaway = playable.slice().sort(Card.compare)[0];
-                responsesQueue.push(new PlayCardResponseMessage(throwaway, data));
+                responsesQueue.push(new PlayCardResponseMessage(throwaway), data);
             } else {
                 const winner = wouldWin.slice().sort(Card.compare)[0];
-                responsesQueue.push(new PlayCardResponseMessage(winner, data));
+                responsesQueue.push(new PlayCardResponseMessage(winner), data);
             }
             // console.error(e);
         }
         // Logic failed
         const fallbackCard = hand.filter(card => followsTrick(currentTrick, currentTrump, card))[0] || hand[0];
         // console.log(fallbackCard.toString());
-        responsesQueue.push(new PlayCardResponseMessage(fallbackCard, data));
+        responsesQueue.push(new PlayCardResponseMessage(fallbackCard), data);
     };
 
     handleMessage = (gameState: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>, message: Message): void => {
@@ -138,7 +136,7 @@ export class HeuristicHandler implements Handler<GameHandlerParams & MessageHand
             if(followSuit && message.card.suit !== followSuit) {
                 data.playerOutOfSuit[message.player] = [ ...(data.playerOutOfSuit[message.player] || []) as Suit[], followSuit ].filter((val, index, arr) => arr.indexOf(val) === index);
             }
-            responsesQueue.push(new DataResponseMessage(data));
+            responsesQueue.push(undefined, data);
         }
     };
 }

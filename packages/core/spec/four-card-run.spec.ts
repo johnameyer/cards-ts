@@ -1,6 +1,6 @@
 import 'mocha';
-import { Card, FourCardRun, Rank, Suit } from '../src/index.js';
 import { expect } from 'chai';
+import { Card, FourCardRun, Rank, Suit } from '../src/index.js';
 
 const get = Card.fromString;
 

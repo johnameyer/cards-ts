@@ -5,6 +5,8 @@ import { Message } from '../message.js';
  * @category Message
  */
 export class OutOfCardsMessage extends Message {
+    public readonly type = 'out-of-cards-message';
+
     constructor(public readonly name: string) {
         super([ name, 'is out of cards' ]);
     }

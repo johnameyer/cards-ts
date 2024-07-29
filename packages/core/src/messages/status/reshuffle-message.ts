@@ -5,6 +5,8 @@ import { Message } from '../message.js';
  * @category Message
  */
 export class ReshuffleMessage extends Message {
+    public readonly type = 'reshuffle-message';
+
     constructor() {
         super([ 'The deck was reshuffled' ]);
     }

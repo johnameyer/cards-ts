@@ -1,6 +1,6 @@
 import 'mocha';
-import { Card, Deck, Rank, Suit } from '../src/index.js';
 import { expect } from 'chai';
+import { Card, Deck, Rank, Suit } from '../src/index.js';
 
 describe('Deck', () => {
     describe('#constructor', () => {

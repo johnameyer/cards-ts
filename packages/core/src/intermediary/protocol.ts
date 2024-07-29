@@ -1,4 +1,4 @@
-import { Serializable } from 'child_process';
+import { Serializable } from './serializable.js';
 import { Observable } from 'rxjs';
 
 /**

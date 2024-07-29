@@ -11,6 +11,8 @@ function generateMessage(cards: Card[]): Presentable[] {
  * @category Message
  */
 export class DealtOutMessage extends Message {
+    public readonly type = 'deal-out-message';
+
     /**
      * @param card the card being received
      * @param extra the extra card that is drawn if applicable

@@ -5,6 +5,8 @@ export type MockHandlerParams = {
 } & SystemHandlerParams;
 
 export class MockResponseMessage extends Message {
+    readonly type = 'mock-response';
+
     constructor(public value: number) {
         super([ value ]);
     }

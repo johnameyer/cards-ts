@@ -14,6 +14,8 @@ function generateMessage(card: Card, extra?: Card): Presentable[] {
  * Class that denotes to a handler that they have been dealt or drawn a card
  */
 export class PickupMessage extends Message {
+    public readonly type = 'pickup-message';
+
     /**
      * @param card the card being received
      * @param extra the extra card that is drawn if applicable

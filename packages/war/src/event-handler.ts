@@ -1,30 +1,12 @@
 import { Controllers } from './controllers/controllers.js';
 import { ResponseMessage } from './messages/response-message.js';
-import { EventHandlerInterface } from '@cards-ts/core';
+import { EventHandler, buildEventHandler } from '@cards-ts/core';
 
-export const eventHandler: EventHandlerInterface<Controllers, ResponseMessage> = {
-    merge(controllers: Controllers, sourceHandler: number, incomingEvent: ResponseMessage): void {
-        switch (incomingEvent.type) {
-        case 'flip-response': {
-            controllers.data.setDataFor(sourceHandler, incomingEvent.data);
-            controllers.waiting.removePosition(sourceHandler);
-            return;
-        }
-        case 'data-response': {
-            controllers.data.setDataFor(sourceHandler, incomingEvent.data);
-            return;
-        }
-        }
+export const eventHandler = buildEventHandler<Controllers, ResponseMessage>({
+    merge: {
+        'flip-response': EventHandler.removeWaiting('waiting'),
     },
-
-    validateEvent(_controllers: Controllers, _sourceHandler: number, event: ResponseMessage): ResponseMessage | undefined {
-        switch (event.type) {
-        case 'flip-response': {
-            return event;
-        }
-        case 'data-response': {
-            return event;
-        }
-        }
+    validateEvent: {
+        'flip-response': (_controllers, _sourceHandler, event) => event,
     },
-};
+});
