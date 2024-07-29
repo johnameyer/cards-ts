@@ -40,29 +40,36 @@ type Validator<Controllers extends IndexedControllers, ResponseMessage extends M
     fallback?: EventHandler<Controllers, ResponseMessage, ResponseMessage>,
 };
 
-type EventHandlers<Controllers extends IndexedControllers, ResponseMessage extends Message> = {
+type TypeHandlers<Controllers extends IndexedControllers, ResponseMessage extends Message> = {
     // TODO build generically across event types
-    transform?: {
-        [Message in ResponseMessage as Message['type']]: (event: Message) => Message
-    },
-    canRespond?: {
-        [Message in ResponseMessage as Message['type']]?: SingularOrArray<EventHandler<Controllers, Message, boolean>>;
-    },
-    validateEvent: {
-        [Message in ResponseMessage as Message['type']]?: Validator<Controllers, Message>;
-    };
-    merge: {
-        [Message in ResponseMessage as Message['type']]?: SingularOrArray<EventHandler<Controllers, Message, void>>;
-    },
+    transform?: (event: ResponseMessage) => ResponseMessage,
+    canRespond?: SingularOrArray<EventHandler<Controllers, ResponseMessage, boolean>>;
+    validateEvent?: Validator<Controllers, ResponseMessage>;
+    merge: SingularOrArray<EventHandler<Controllers, ResponseMessage, void>>;
+};
+
+type EventHandlers<Controllers extends IndexedControllers, ResponseMessage extends Message> = {
+    [Message in ResponseMessage as Message['type']]?: TypeHandlers<Controllers, Message>
+}
+
+type Unarray<T> = T extends Array<infer U> ? U : T;
+
+function asArray<T>(t: T): Array<Unarray<T>> {
+    if(Array.isArray(t)) {
+        return t;
+    } 
+    // @ts-ignore
+    return [ t ];
+    
 }
 
 export const buildEventHandler = <Controllers extends IndexedControllers & {data: DataController}, ResponseMessage extends Message> (handlers: EventHandlers<Controllers, ResponseMessage>): EventHandlerInterface<Controllers, ResponseMessage> => ({
-    // @ts-ignore
     validateEvent: (controllers, sourceHandler, incomingEvent) => {
-        const type = incomingEvent.type as ResponseMessage['type'];
-        if(handlers.canRespond && handlers.canRespond[type]) {
-            const canRespondObj = handlers.canRespond[type];
-            for(const validator of Array.isArray(canRespondObj) ? canRespondObj : [ canRespondObj ]) {
+        // @ts-ignore
+        const typeHandlers = handlers[incomingEvent.type as ResponseMessage['type']] as TypeHandlers<Controllers, ResponseMessage>;
+
+        if(typeHandlers.canRespond) {
+            for(const validator of asArray(typeHandlers.canRespond)) {
                 const result = validator(controllers, sourceHandler, incomingEvent);
                 if(!result) {
                     /*
@@ -74,16 +81,13 @@ export const buildEventHandler = <Controllers extends IndexedControllers & {data
                 }
             }
         }
-        // @ts-ignore
-        const validatorObj = handlers.validateEvent[type] as Validator<Controllers, ResponseMessage>;
-        if(validatorObj === undefined) {
-            // @ts-ignore
-            return (handlers.transform && handlers.transform[type]) ? handlers.transform[type](incomingEvent) : incomingEvent;
-        } else if(typeof validatorObj === 'function') {
-            return validatorObj(controllers, sourceHandler, incomingEvent);
+        if(typeHandlers.validateEvent === undefined) {
+            return (typeHandlers.transform) ? typeHandlers.transform(incomingEvent) : incomingEvent;
+        } else if(typeof typeHandlers.validateEvent === 'function') {
+            return typeHandlers.validateEvent(controllers, sourceHandler, incomingEvent);
         } 
         let passed = true;
-        for(const validator of Array.isArray(validatorObj.validators) ? validatorObj.validators : [ validatorObj.validators ]) {
+        for(const validator of asArray(typeHandlers.validateEvent.validators)) {
             const result = validator(controllers, sourceHandler, incomingEvent);
             if(result) {
                 console.warn('Error:', result.message);
@@ -92,10 +96,9 @@ export const buildEventHandler = <Controllers extends IndexedControllers & {data
             }
         }
         if(passed) {
-            // @ts-ignore
-            return (handlers.transform && handlers.transform[type]) ? handlers.transform[type](incomingEvent) : incomingEvent;
+            return (typeHandlers.transform) ? typeHandlers.transform(incomingEvent) : incomingEvent;
         } 
-        return validatorObj.fallback ? validatorObj.fallback(controllers, sourceHandler, incomingEvent) : undefined;
+        return typeHandlers.validateEvent.fallback ? typeHandlers.validateEvent.fallback(controllers, sourceHandler, incomingEvent) : undefined;
         
     },
     merge: (controllers, sourceHandler, incomingEvent, data) => {
@@ -104,9 +107,9 @@ export const buildEventHandler = <Controllers extends IndexedControllers & {data
             controllers.data.setDataFor(sourceHandler, data);
         }
         if(incomingEvent) { // can be undefined if the event is just data
-            const type = incomingEvent.type as ResponseMessage['type'];
             // @ts-ignore
-            for(const merge of Array.isArray(handlers.merge[type]) ? handlers.merge[type] : [ handlers.merge[type] ]) {
+            const typeHandlers = handlers[incomingEvent.type as ResponseMessage['type']] as TypeHandlers<Controllers, ResponseMessage>;
+            for(const merge of asArray(typeHandlers.merge)) {
                 merge(controllers, sourceHandler, incomingEvent);
             }
         }

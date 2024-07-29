@@ -6,11 +6,8 @@ import { Suit, Card, Rank, distinct, isDefined, PlayCardResponseMessage, buildEv
 const QS = new Card(Suit.SPADES, Rank.QUEEN);
 
 export const eventHandler = buildEventHandler<Controllers, ResponseMessage>({
-    canRespond: {
-        'turn-response': EventHandler.isTurn('turn'),
-    },
-    validateEvent: {
-        'pass-response': {
+    'pass-response': {
+        validateEvent: {
             validators: [
                 EventHandler.validate('Not all are cards', (controllers, source, { cards }) => !cards.every(isDefined)), // TODO better condition using message transformation
                 EventHandler.validate('Wrong number of cards passed', (controllers, source, { cards }) => cards.length !== controllers.params.get().numToPass),
@@ -19,7 +16,14 @@ export const eventHandler = buildEventHandler<Controllers, ResponseMessage>({
             ],
             fallback: (controllers, source) => new PassResponseMessage(controllers.hand.get(source).slice(0, controllers.params.get().numToPass)),
         },
-        'turn-response': {
+        merge: [
+            EventHandler.removeWaiting('waiting'), 
+            (controllers, sourceHandler, incomingEvent) => controllers.passing.setPassedFor(sourceHandler, incomingEvent.cards),
+        ],
+    },
+    'turn-response': {
+        canRespond: EventHandler.isTurn('turn'),
+        validateEvent: {
             validators: [
                 EventHandler.validate('No card provided', (controllers, source, { card }) => !card),
                 EventHandler.validate('Cannot play card that is not in hand', (controllers, source, { card }) => !controllers.hand.hasCard(card, source)),
@@ -32,14 +36,7 @@ export const eventHandler = buildEventHandler<Controllers, ResponseMessage>({
                 return new PlayCardResponseMessage(fallbackCard);
             },
         },
-    },
-
-    merge: {
-        'pass-response': [
-            EventHandler.removeWaiting('waiting'), 
-            (controllers, sourceHandler, incomingEvent) => controllers.passing.setPassedFor(sourceHandler, incomingEvent.cards),
-        ],
-        'turn-response': [
+        merge: [
             EventHandler.removeWaiting('waiting'),
             (controllers, sourceHandler, incomingEvent) => controllers.trick.setPlayedCard(incomingEvent.card),
         ],
