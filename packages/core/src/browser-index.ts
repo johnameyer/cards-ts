@@ -36,7 +36,8 @@ export { Protocol } from './intermediary/protocol.js';
 export { ProtocolIntermediary } from './intermediary/protocol-intermediary.js';
 export { ReadonlySerializable, Serializable, SerializableObject, serialize, deserialize, reconstruct } from './intermediary/serializable.js';
 
-export { Message } from './messages/message.js';
+export { Message, buildMessage } from './messages/message.js';
+export * from './messages/cloners.js';
 export { SpacingMessage } from './messages/spacing-message.js';
 export { DealerMessage, DealtOutMessage, DiscardMessage, EndRoundMessage, LeadsMessage, OutOfCardsMessage, PickupMessage, PlayedMessage, ReshuffleMessage, TurnUpMessage } from './messages/status/index.js';
 export { DiscardResponseMessage, PlayCardResponseMessage } from './messages/response/index.js';

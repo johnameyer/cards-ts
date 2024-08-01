@@ -2,9 +2,13 @@ import { DealOutMessage, EndRoundMessage, PlayedMessage, WonRoundMessage, NameTr
 import { GoingAloneMessage } from './status/going-alone-message.js';
 import { DealerMessage, LeadsMessage, TurnUpMessage } from '@cards-ts/core';
 
+type InstanceType<S> = S extends { new(...t: any[]): infer T} ? T : never;
+
+type X = InstanceType<typeof DealerMessage>;
+
 export type StatusMessage =
     DealOutMessage
-    | DealerMessage
+    | InstanceType<typeof DealerMessage>
     | EndRoundMessage
     | LeadsMessage
     | PlayedMessage

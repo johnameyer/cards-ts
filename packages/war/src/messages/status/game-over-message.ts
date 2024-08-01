@@ -1,20 +1,10 @@
-import { Message, Presentable } from '@cards-ts/core';
-
-function generateMessage(player: string): Presentable[] {
-    return [ player, 'won' ];
-}
+import { buildMessage, cloneString, Message, Presentable } from '@cards-ts/core';
 
 /**
  * Class that denotes that a player won
  */
-export class GameOverMessage extends Message {
-
-    public readonly type = 'game-over-message';
-
-    /**
-     * @param player the hand that won
-     */
-    constructor(public readonly player: string) {
-        super(generateMessage(player));
-    }
-}
+export const GameOverMessage = buildMessage(
+    'game-over-message',
+    cloneString,
+    player =>  [ player, 'won' ],
+);

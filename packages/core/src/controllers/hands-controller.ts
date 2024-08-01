@@ -28,6 +28,7 @@ export abstract class AbstractHandsController<HandlerType extends Serializable> 
     }
 
     public dealOut(shouldMessage = true, shouldAnnounceDealer = false, numCards = -1) {
+        // TODO shouldAnnounceDealer names controller
         const deck = this.controllers.deck.deck;
         deck.shuffle();
         while(deck.cards.length && numCards !== 0) {
