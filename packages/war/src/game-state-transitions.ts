@@ -48,7 +48,7 @@ export const gameStateTransitions: GenericGameStateTransitions<typeof GameStates
     [GameStates.END_BATTLE](controllers: Controllers) {
         const flipped = controllers.war.getLastFlipped();
         for(let i = 0; i < flipped.length; i++) {
-            controllers.players.messageAll(new FlippedMessage(controllers.names.get(i), flipped[i]));
+            controllers.players.messageAll(new FlippedMessage({player: controllers.names.get(i), card: flipped[i]}));
             // TODO move these kinds of messages into controllers
         }
         
@@ -77,7 +77,7 @@ export const gameStateTransitions: GenericGameStateTransitions<typeof GameStates
     [GameStates.END_WAR](controllers: Controllers) {
         const flipped = controllers.war.getLastFlipped();
         for(let i = 0; i < flipped.length; i++) {
-            controllers.players.messageAll(new FlippedMessage(controllers.names.get(i), flipped[i]));
+            controllers.players.messageAll(new FlippedMessage({player: controllers.names.get(i), card: flipped[i]}));
         }
 
         const max = controllers.war.battleWinner();
