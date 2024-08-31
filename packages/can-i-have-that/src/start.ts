@@ -4,7 +4,7 @@ import { HandlerData } from './game-handler.js';
 import { GameHandlerParams } from './game-handler-params.js';
 import { ResponseMessage } from './messages/response-message.js';
 import { GameSetup } from './game-setup.js';
-import { GameFactory } from './game-factory.js';
+import { gameFactory } from './game-factory.js';
 import { HandlerChain, IncrementalIntermediary, InquirerPresenter, SystemHandlerParams } from '@cards-ts/core';
 import { hideBin } from 'yargs/helpers';
 import yargs from 'yargs/yargs';
@@ -33,8 +33,6 @@ if(!argv.name) {
 }
 names.push(name);
 names.push('Greg', 'Hugh', 'Leah');
-
-const gameFactory = new GameFactory();
 
 const players: HandlerChain<SystemHandlerParams & GameHandlerParams, HandlerData, ResponseMessage>[] = Array(argv.players as number + 1);
 players[0] = gameFactory.getIntermediaryHandlerChain(mainPlayerIntermediary);

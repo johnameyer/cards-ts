@@ -14,9 +14,7 @@ async function run(libraryName) {
         const start = performance.now();
 
         const library = import('@cards-ts/' + libraryName);
-        const { GameFactory, IntermediaryHandler } = await library;
-
-        const gameFactory = new GameFactory();
+        const { gameFactory, IntermediaryHandler } = await library;
 
         const postImport = performance.now();
         console.log(libraryName + ': import took ' + (postImport - start) + ' ms');

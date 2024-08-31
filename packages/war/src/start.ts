@@ -3,7 +3,7 @@
 import { GameHandlerParams } from './game-handler-params.js';
 import { ResponseMessage } from './messages/response-message.js';
 import { GameSetup } from './game-setup.js';
-import { GameFactory } from './game-factory.js';
+import { gameFactory } from './game-factory.js';
 import { Controllers } from './controllers/controllers.js';
 import { ControllerHandlerState, HandlerChain, IncrementalIntermediary, InquirerPresenter, SystemHandlerParams } from '@cards-ts/core';
 import { hideBin } from 'yargs/helpers';
@@ -33,8 +33,6 @@ if(!argv.name) {
 }
 names.push(name);
 names.push('Greg');
-
-const gameFactory = new GameFactory();
 
 type HandlerData = ControllerHandlerState<Controllers>;
 
