@@ -6,6 +6,8 @@
     "buildall": "pnpm run -r build",
     "prepackall": "pnpm run -r prepack",
     "lintall": "pnpm run -r lint",
+    "prettierall": "prettier --config .prettierrc.json .",
+    "formatall": "pnpm prettierall --write",
     "madgeall": "pnpm run -r madge",
     "testall": "pnpm run -r test",
     "doc": "typedoc"

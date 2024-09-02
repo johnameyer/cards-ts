@@ -30,6 +30,9 @@ jobs:
       - name: Build
         run: pnpm prepackall
 
+      - name: Format
+        run: pnpm prettierall --check
+
       - name: Lint
         run: pnpm lintall
 
