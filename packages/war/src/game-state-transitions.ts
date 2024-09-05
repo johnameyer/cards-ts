@@ -18,7 +18,7 @@ export const gameStateTransitions: GenericGameStateTransitions<typeof GameStates
 
         controllers.war.incrementBattleCount();
         
-        if(controllers.war.battleCount > controllers.params.get().maxBattles) {
+        if(controllers.war.battleCount >= controllers.params.get().maxBattles) {
             controllers.state.set(GameStates.END_GAME);
         }
     },
