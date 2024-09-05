@@ -2,16 +2,17 @@ import { expect } from 'chai';
 import { IntermediaryHandler } from '../src/index.js';
 import { eventHandler } from '../src/event-handler.js';
 import { GameSetup } from '../src/game-setup.js';
-import { gameStateTransitions } from '../src/game-state-transitions.js';
 import { GameHandler } from '../src/game-handler.js';
 import { GameParams } from '../src/game-params.js';
 import { buildProviders } from '../src/controllers/controllers.js';
-import { ArrayMessageHandler, buildGameFactory, Card, DeckControllerProvider, DiscardMessage, HandlerChain, Message } from '@cards-ts/core';
 import { LocalMaximumHandler } from '../src/handlers/local-maximum-handler.js';
 import { StartRoundMessage } from '../src/messages/status/start-round-message.js';
 import { PickupMessage } from '../src/messages/status/pickup-message.js';
-import { PickupMessage as PublicPickupMessage } from '@cards-ts/core';
 import { StatusMessage } from '../src/messages/status-message.js';
+import { stateMachine } from '../src/state-machine.js';
+import { PickupMessage as PublicPickupMessage } from '@cards-ts/core';
+import { adapt } from '@cards-ts/state-machine';
+import { ArrayMessageHandler, buildGameFactory, Card, DeckControllerProvider, DiscardMessage, HandlerChain } from '@cards-ts/core';
 
 describe('game', () => {
     // TODO can we build this more simply i.e. deterministic deck controller?
@@ -21,7 +22,7 @@ describe('game', () => {
     });
 
     const factory = buildGameFactory(
-        gameStateTransitions,
+        adapt(stateMachine),
         eventHandler,
         // TODO can we avoid specifying the setup and intermediary since they are not critical to the driver construction?
         new GameSetup(),
@@ -32,11 +33,11 @@ describe('game', () => {
 
     const params: GameParams = {
         ...new GameSetup().getDefaultParams(),
-        rounds: [[3, 3], [3, 4], [4, 4]],
+        rounds: [[ 3, 3 ], [ 3, 4 ], [ 4, 4 ]],
     };
 
     it('works as expected', async () => {
-        const messageHandlers = Array.from({length: 4}, () => new ArrayMessageHandler<StatusMessage>());
+        const messageHandlers = Array.from({ length: 4 }, () => new ArrayMessageHandler<StatusMessage>());
 
         const gameHandler: () => GameHandler = () => new LocalMaximumHandler();
 
@@ -50,7 +51,7 @@ describe('game', () => {
         driver.resume();
 
         for(const messageHandler of messageHandlers) {
-            expect(messageHandler.arr[0]).to.deep.equal(new StartRoundMessage([3, 3]));
+            expect(messageHandler.arr[0]).to.deep.equal(new StartRoundMessage([ 3, 3 ]));
             expect(messageHandler.arr[1].type).to.equal('dealt-out-message');
             expect(messageHandler.arr[2]).to.deep.equal(new DiscardMessage(Card.fromString('4H', 0)));
 

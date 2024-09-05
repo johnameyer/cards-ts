@@ -1,6 +1,6 @@
+import { bifilter } from './bifilter.js';
 import { Card } from '@cards-ts/core';
 import { Rank } from '@cards-ts/core';
-import { bifilter } from './bifilter.js';
 
 /**
  * Function that tries to find an optimal utilization of the current cards to achieve the goals of the round
