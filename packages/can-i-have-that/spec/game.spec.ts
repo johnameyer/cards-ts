@@ -2,7 +2,6 @@ import { expect } from 'chai';
 import { IntermediaryHandler } from '../src/index.js';
 import { eventHandler } from '../src/event-handler.js';
 import { GameSetup } from '../src/game-setup.js';
-import { gameStateTransitions } from '../src/game-state-transitions.js';
 import { GameHandler } from '../src/game-handler.js';
 import { GameParams } from '../src/game-params.js';
 import { buildProviders } from '../src/controllers/controllers.js';
@@ -11,6 +10,8 @@ import { StartRoundMessage } from '../src/messages/status/start-round-message.js
 import { PickupMessage } from '../src/messages/status/pickup-message.js';
 import { StatusMessage } from '../src/messages/status-message.js';
 import { PickupMessage as PublicPickupMessage } from '@cards-ts/core';
+import { stateMachine } from '../src/state-machine.js';
+import { adapt } from '@cards-ts/state-machine';
 import { ArrayMessageHandler, buildGameFactory, Card, DeckControllerProvider, DiscardMessage, HandlerChain } from '@cards-ts/core';
 
 describe('game', () => {
@@ -21,7 +22,7 @@ describe('game', () => {
     });
 
     const factory = buildGameFactory(
-        gameStateTransitions,
+        adapt(stateMachine),
         eventHandler,
         // TODO can we avoid specifying the setup and intermediary since they are not critical to the driver construction?
         new GameSetup(),

@@ -2,14 +2,15 @@ import { expect } from 'chai';
 import { IntermediaryHandler } from '../src/index.js';
 import { eventHandler } from '../src/event-handler.js';
 import { GameSetup } from '../src/game-setup.js';
-import { gameStateTransitions } from '../src/game-state-transitions.js';
 import { DefaultBotHandler } from '../src/handlers/default-bot-handler.js';
 import { GameHandler } from '../src/game-handler.js';
 import { GameParams } from '../src/game-params.js';
 import { buildProviders } from '../src/controllers/controllers.js';
 import { FlippedMessage, StalemateMessage, WonBattleMessage } from '../src/messages/status/index.js';
 import { FlipResponseMessage } from '../src/messages/response/flip-response-message.js';
-import { StatusMessage } from '../../can-i-have-that/src/messages/status-message.js';
+import { StatusMessage } from '../src/messages/status-message.js';
+import { stateMachine } from '../src/state-machine.js';
+import { adapt } from '@cards-ts/state-machine';
 import { ArrayMessageHandler, buildGameFactory, Card, DeckControllerProvider, HandlerChain } from '@cards-ts/core';
 
 describe('game', () => {
@@ -20,7 +21,7 @@ describe('game', () => {
     });
 
     const factory = buildGameFactory(
-        gameStateTransitions,
+        adapt(stateMachine),
         eventHandler,
         // TODO can we avoid specifying the setup and intermediary since they are not critical to the driver construction?
         new GameSetup(),
