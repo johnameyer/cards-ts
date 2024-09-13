@@ -1,5 +1,13 @@
 # @cards-ts/core
 
+## 0.8.0
+
+### Minor Changes
+
+- [`630015b`](https://github.com/johnameyer/cards-ts/commit/630015b0827f93a95ebe7d15c14be5be82426955) Thanks [@johnameyer](https://github.com/johnameyer)! - Change signature of event handler definition for future ease of reusing standard messages and components
+
+- [#131](https://github.com/johnameyer/cards-ts/pull/131) [`f40b9ce`](https://github.com/johnameyer/cards-ts/commit/f40b9ce5f98918311e8a8fb508b6e01fc0b77925) Thanks [@johnameyer](https://github.com/johnameyer)! - Export `buildGameFactory` method to reduce generic hell from typing the old `AbstractGameFactory`
+
 ## 0.7.0
 
 ### Minor Changes
