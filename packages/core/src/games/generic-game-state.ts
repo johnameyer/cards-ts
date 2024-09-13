@@ -8,13 +8,13 @@ import { reconstruct } from '../intermediary/serializable.js';
 export class GenericGameState<Controllers extends IndexedControllers> {
     // TODO reconsider how to use 'exposed' in contravariant position
     private allControllers!: Controllers;
-    
+
     constructor(private readonly providers: ControllersProviders<Controllers>, state?: ControllerState<Controllers>) {
         validate(providers);
-        state = state || {} as ControllerState<Controllers>;
+        state = state || ({} as ControllerState<Controllers>);
         this.allControllers = initializeControllers(providers, state);
     }
-    
+
     public get controllers(): Controllers {
         return this.allControllers;
     }
@@ -24,17 +24,14 @@ export class GenericGameState<Controllers extends IndexedControllers> {
          * TODO nicer way of cloning state, but without reverting to doing it at the controller level
          * (cloning needed so that mutating in handler does not mutate upstream)
          */
-        return Object.fromEntries(Object.entries(this.allControllers).map(([ key, value ]) => [ key, reconstruct(value.getFor(position)) ])) as any;
+        return Object.fromEntries(Object.entries(this.allControllers).map(([key, value]) => [key, reconstruct(value.getFor(position))])) as any;
     }
 
     public clone(): GenericGameState<Controllers> {
-        return new GenericGameState(
-            this.providers,
-            this.state,
-        );
+        return new GenericGameState(this.providers, this.state);
     }
 
     get state() {
-        return Object.fromEntries(Object.entries(this.allControllers).map(([ key, value ]) => [ key, reconstruct((value as any).state) ])) as ControllerState<Controllers>;
+        return Object.fromEntries(Object.entries(this.allControllers).map(([key, value]) => [key, reconstruct((value as any).state)])) as ControllerState<Controllers>;
     }
 }

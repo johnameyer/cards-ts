@@ -3,7 +3,7 @@ import { Message } from '../message.js';
 
 function generateMessage(players: readonly string[], scores: readonly number[]): Presentable[] {
     const arr: string[] = [];
-    for(let i = 0; i < players.length; i++) {
+    for (let i = 0; i < players.length; i++) {
         arr[i] = players[i] + ': ' + scores[i];
     }
     return arr;

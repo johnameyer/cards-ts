@@ -8,7 +8,7 @@ export class IntermediarySystemHandler<HandlerData extends Serializable, Respons
     constructor(private intermediary: Intermediary) {
         super();
     }
-    
+
     handleMessage = async (_handlerData: HandlerData, _: HandlerResponsesQueue<ResponseMessage>, message: Message) => {
         await this.intermediary.print(...message.components)[0];
     };

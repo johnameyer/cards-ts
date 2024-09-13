@@ -6,6 +6,6 @@ import { MockHandlerParams, MockResponseMessage } from '../handlers/mock-handler
 export function mockHandlerProxy(players: Handler<MockHandlerParams, Serializable, MockResponseMessage>[]) {
     const handlerChains = players.map(handler => new HandlerChain().append(handler));
     const handlerData = new Provider<(position: number) => any>();
-    handlerData.set((_) => undefined);
+    handlerData.set(_ => undefined);
     return new GenericHandlerProxy(handlerChains, handlerData);
 }

@@ -8,19 +8,18 @@ export function followsTrick(trick: readonly (Card | undefined)[], trumpSuit: Su
 }
 
 function followsSuit(suit: Suit | undefined, trumpSuit: Suit, card: Card) {
-    if(!suit) {
+    if (!suit) {
         return true;
     }
-    if(card.rank === Rank.JACK) {
-        if(suit === trumpSuit) {
+    if (card.rank === Rank.JACK) {
+        if (suit === trumpSuit) {
             return card.suit === suit || card.suit === getComplementarySuit(suit);
-        } 
+        }
         return card.suit === suit && card.suit !== getComplementarySuit(trumpSuit);
-        
-    } 
-    if(card.suit === suit) {
+    }
+    if (card.suit === suit) {
         return true;
     }
-    
+
     return false;
 }

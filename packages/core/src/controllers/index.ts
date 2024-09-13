@@ -1,5 +1,18 @@
-
-export { AbstractController, GenericControllerProvider, ControllerHandlerState, ControllerState, GlobalController, UnwrapProviders, IndexedProviders, IndexedControllers, StatelessController, ValidatedProviders, initializeControllers, validate, ControllersProviders } from './controller.js';
+export {
+    AbstractController,
+    GenericControllerProvider,
+    ControllerHandlerState,
+    ControllerState,
+    GlobalController,
+    UnwrapProviders,
+    IndexedProviders,
+    IndexedControllers,
+    StatelessController,
+    ValidatedProviders,
+    initializeControllers,
+    validate,
+    ControllersProviders,
+} from './controller.js';
 export { BetsController, BetsControllerProvider } from './bets-controller.js';
 export { CompletedController, CompletedControllerProvider } from './completed-controller.js';
 export { DataController, DataControllerProvider } from './data-controller.js';

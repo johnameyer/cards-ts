@@ -2,7 +2,7 @@ import { Message, Presentable } from '@cards-ts/core';
 
 function generateMessage(players: readonly string[], scores: readonly number[]): Presentable[] {
     const arr: string[] = [];
-    for(let i = 0; i < players.length; i++) {
+    for (let i = 0; i < players.length; i++) {
         arr[i] = players[i] + ': ' + scores[i];
     }
     return arr;
@@ -12,7 +12,6 @@ function generateMessage(players: readonly string[], scores: readonly number[]):
  * Class denoting to handlers that the round has ended
  */
 export class EndRoundMessage extends Message {
-
     public readonly type = 'end-round-message';
 
     /**

@@ -4,6 +4,6 @@
  * @param index the index of the current value
  * @param arr the array
  */
-export function distinct<T extends {equals:(t: T) => boolean}>(value: T, index: number, arr: T[]): boolean {
+export function distinct<T extends { equals: (t: T) => boolean }>(value: T, index: number, arr: T[]): boolean {
     return arr.findIndex(other => value.equals(other)) === index;
 }

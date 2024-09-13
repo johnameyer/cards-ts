@@ -3,7 +3,7 @@ import { GoingAloneMessage } from './status/going-alone-message.js';
 import { DealerMessage, LeadsMessage, TurnUpMessage } from '@cards-ts/core';
 
 export type StatusMessage =
-    DealOutMessage
+    | DealOutMessage
     | DealerMessage
     | EndRoundMessage
     | LeadsMessage

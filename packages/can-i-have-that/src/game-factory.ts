@@ -12,5 +12,5 @@ export const gameFactory = buildGameFactory(
     new GameSetup(),
     intermediary => new IntermediaryHandler(intermediary),
     () => new LocalMaximumHandler(),
-    buildProviders
+    buildProviders,
 );

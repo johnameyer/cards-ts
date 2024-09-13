@@ -11,10 +11,10 @@ type MeldState = {
      * This is where the three of a kind, four card runs are played for each of the hands
      */
     melds: Meld[][];
-    
+
     toPlay: Meld[];
     toPlayOnOthers: Card[][][];
-}
+};
 
 type MeldDependencies = {
     deck: DeckController;
@@ -32,8 +32,7 @@ export class MeldControllerProvider implements GenericControllerProvider<MeldSta
 
     initialState(controllers: MeldDependencies) {
         return {
-            melds: new Array(controllers.players.count).fill(0)
-                .map(() => []),
+            melds: new Array(controllers.players.count).fill(0).map(() => []),
             toPlay: [],
             toPlayOnOthers: [],
         };
@@ -58,7 +57,7 @@ export class MeldController extends GlobalController<MeldState, MeldDependencies
     }
 
     isCardLive(card: Card) {
-        return this.state.melds.some((runs) => runs.some((play) => play.isLive(card)));
+        return this.state.melds.some(runs => runs.some(play => play.isLive(card)));
     }
 
     get toPlay() {
@@ -81,7 +80,7 @@ export class MeldController extends GlobalController<MeldState, MeldDependencies
     reset() {
         this.state = new MeldControllerProvider().initialState(this.controllers);
     }
-    
+
     getFor() {
         return super.getFor();
     }

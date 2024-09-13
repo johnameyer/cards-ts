@@ -8,7 +8,48 @@ export { Suit } from './cards/suit.js';
 export { ThreeCardSet } from './cards/three-card-set.js';
 export { ValueError } from './cards/value-error.js';
 
-export { AbstractController, AbstractHandsController, BetsController, CompletedController, HiddenHandsControllerProvider, ControllersProviders, UnwrapProviders, ControllerHandlerState, HandsControllerProvider, ControllerState, DataController, DeckController, GameStateController, GlobalController, HandsController, HiddenHandsController, IndexedControllers, NamesController, ParamsController, PointsController, TricksController, ValidatedProviders, WaitingController, MeldController, TurnController, GenericControllerProvider, BetsControllerProvider, CompletedControllerProvider, DataControllerProvider, DeckControllerProvider, GameStateControllerProvider, IndexedProviders, MeldControllerProvider, NamesControllerProvider, ParamsControllerProvider, PointsControllerProvider, StatelessController, TricksControllerProvider, TurnControllerProvider, WaitingControllerProvider } from './controllers/index.js';
+export {
+    AbstractController,
+    AbstractHandsController,
+    BetsController,
+    CompletedController,
+    HiddenHandsControllerProvider,
+    ControllersProviders,
+    UnwrapProviders,
+    ControllerHandlerState,
+    HandsControllerProvider,
+    ControllerState,
+    DataController,
+    DeckController,
+    GameStateController,
+    GlobalController,
+    HandsController,
+    HiddenHandsController,
+    IndexedControllers,
+    NamesController,
+    ParamsController,
+    PointsController,
+    TricksController,
+    ValidatedProviders,
+    WaitingController,
+    MeldController,
+    TurnController,
+    GenericControllerProvider,
+    BetsControllerProvider,
+    CompletedControllerProvider,
+    DataControllerProvider,
+    DeckControllerProvider,
+    GameStateControllerProvider,
+    IndexedProviders,
+    MeldControllerProvider,
+    NamesControllerProvider,
+    ParamsControllerProvider,
+    PointsControllerProvider,
+    StatelessController,
+    TricksControllerProvider,
+    TurnControllerProvider,
+    WaitingControllerProvider,
+} from './controllers/index.js';
 
 export { buildGameFactory } from './games/abstract-game-factory.js';
 export { GameDriver } from './games/game-driver.js';
@@ -38,7 +79,18 @@ export { ReadonlySerializable, Serializable, SerializableObject, serialize, dese
 
 export { Message } from './messages/message.js';
 export { SpacingMessage } from './messages/spacing-message.js';
-export { DealerMessage, DealtOutMessage, DiscardMessage, EndRoundMessage, LeadsMessage, OutOfCardsMessage, PickupMessage, PlayedMessage, ReshuffleMessage, TurnUpMessage } from './messages/status/index.js';
+export {
+    DealerMessage,
+    DealtOutMessage,
+    DiscardMessage,
+    EndRoundMessage,
+    LeadsMessage,
+    OutOfCardsMessage,
+    PickupMessage,
+    PlayedMessage,
+    ReshuffleMessage,
+    TurnUpMessage,
+} from './messages/status/index.js';
 export { DiscardResponseMessage, PlayCardResponseMessage } from './messages/response/index.js';
 
 export { combinations } from './util/combinations.js';

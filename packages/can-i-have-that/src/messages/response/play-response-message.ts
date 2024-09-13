@@ -5,6 +5,6 @@ export class PlayResponseMessage extends Message {
 
     // TODO need whose run?
     constructor(public readonly playOn: Meld, public readonly toPlay: Card[], public readonly newMeld: Meld) {
-        super([ 'Played', toPlay, ' on ', playOn as (ThreeCardSet | FourCardRun) ]);
+        super(['Played', toPlay, ' on ', playOn as ThreeCardSet | FourCardRun]);
     }
 }

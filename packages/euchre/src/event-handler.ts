@@ -23,12 +23,13 @@ export const eventHandler = buildEventHandler<Controllers, ResponseMessage>({
     'name-trump-response': {
         canRespond: EventHandler.isTurn('turn'),
         validateEvent: {
-            validators: EventHandler.validate('Can\'t select the current trump suit as the trump', (controllers, _source, { trump }) => controllers.euchre.currentTrump === trump),
+            validators: EventHandler.validate("Can't select the current trump suit as the trump", (controllers, _source, { trump }) => controllers.euchre.currentTrump === trump),
             fallback: () => new NameTrumpResponseMessage(undefined),
         },
         merge: [
             EventHandler.removeWaiting('waiting'),
-            (controllers, sourceHandler, incomingEvent) => controllers.euchre.setBidder(incomingEvent.trump ? sourceHandler : undefined, incomingEvent.trump || controllers.euchre.currentTrump),
+            (controllers, sourceHandler, incomingEvent) =>
+                controllers.euchre.setBidder(incomingEvent.trump ? sourceHandler : undefined, incomingEvent.trump || controllers.euchre.currentTrump),
         ],
     },
     'going-alone-response': {
@@ -46,10 +47,7 @@ export const eventHandler = buildEventHandler<Controllers, ResponseMessage>({
             ],
             fallback: (controllers, source) => new DealerDiscardResponseMessage(controllers.hand.get(source)[0]),
         },
-        merge: [
-            EventHandler.removeWaiting('waiting'), 
-            (controllers, sourceHandler, incomingEvent) => controllers.hand.removeCards(sourceHandler, [ incomingEvent.selected ]),
-        ],
+        merge: [EventHandler.removeWaiting('waiting'), (controllers, sourceHandler, incomingEvent) => controllers.hand.removeCards(sourceHandler, [incomingEvent.selected])],
     },
     'turn-response': {
         canRespond: EventHandler.isTurn('turn'),
@@ -57,13 +55,20 @@ export const eventHandler = buildEventHandler<Controllers, ResponseMessage>({
             validators: [
                 EventHandler.validate('No card provided', (controllers, source, { card }) => !card),
                 EventHandler.validate('Cannot play card that is not in hand', (controllers, source, { card }) => !controllers.hand.hasCard(card, source)),
-                EventHandler.validate('Must follow suit if possible', (controllers, source, { card }) => controllers.trick.currentTrick.some(card => card) && !followsTrick(controllers.trick.currentTrick, controllers.euchre.currentTrump, card) && controllers.hand.get(source).some(card => followsTrick(controllers.trick.currentTrick, controllers.euchre.currentTrump, card))),
+                EventHandler.validate(
+                    'Must follow suit if possible',
+                    (controllers, source, { card }) =>
+                        controllers.trick.currentTrick.some(card => card) &&
+                        !followsTrick(controllers.trick.currentTrick, controllers.euchre.currentTrump, card) &&
+                        controllers.hand.get(source).some(card => followsTrick(controllers.trick.currentTrick, controllers.euchre.currentTrump, card)),
+                ),
             ],
-            fallback: (controllers, source) => new PlayCardResponseMessage(controllers.hand.get(source).filter(card => followsTrick(controllers.trick.currentTrick, controllers.euchre.currentTrump, card))[0] || controllers.hand.get(source)[0]),
+            fallback: (controllers, source) =>
+                new PlayCardResponseMessage(
+                    controllers.hand.get(source).filter(card => followsTrick(controllers.trick.currentTrick, controllers.euchre.currentTrump, card))[0] ||
+                        controllers.hand.get(source)[0],
+                ),
         },
-        merge: [
-            EventHandler.removeWaiting('waiting'), 
-            (controllers, sourceHandler, incomingEvent) => controllers.trick.setPlayedCard(incomingEvent.card),
-        ],
+        merge: [EventHandler.removeWaiting('waiting'), (controllers, sourceHandler, incomingEvent) => controllers.trick.setPlayedCard(incomingEvent.card)],
     },
 });

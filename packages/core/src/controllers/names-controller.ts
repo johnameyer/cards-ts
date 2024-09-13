@@ -9,8 +9,7 @@ type NamesState = string[];
  * @category Controller Provider
  */
 export class NamesControllerProvider implements GenericControllerProvider<NamesState, {}, NamesController> {
-    constructor(private readonly initialNames: string[]) {
-    }
+    constructor(private readonly initialNames: string[]) {}
 
     controller(state: NamesState, controllers: {}): NamesController {
         return new NamesController(state, controllers);
@@ -40,7 +39,7 @@ export class NamesController extends GlobalController<NamesState, {}> {
     // TODO indexed global controller
 
     override validate() {
-        if(!Array.isArray(this.state)) {
+        if (!Array.isArray(this.state)) {
             throw new Error('Names is not an array');
         }
     }

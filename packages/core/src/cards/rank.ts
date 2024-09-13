@@ -6,45 +6,45 @@ let count = 0;
 export class Rank {
     public readonly type = 'rank';
 
-    public static readonly JOKER: Rank	= new Rank('*', 50);
+    public static readonly JOKER: Rank = new Rank('*', 50);
 
-    public static readonly TWO: Rank	= new Rank('2', 20);
+    public static readonly TWO: Rank = new Rank('2', 20);
 
-    public static readonly THREE: Rank	= new Rank('3', 5);
+    public static readonly THREE: Rank = new Rank('3', 5);
 
-    public static readonly FOUR: Rank	= new Rank('4', 5);
+    public static readonly FOUR: Rank = new Rank('4', 5);
 
-    public static readonly FIVE: Rank	= new Rank('5', 5);
+    public static readonly FIVE: Rank = new Rank('5', 5);
 
-    public static readonly SIX: Rank	= new Rank('6', 5);
+    public static readonly SIX: Rank = new Rank('6', 5);
 
-    public static readonly SEVEN: Rank	= new Rank('7', 5);
+    public static readonly SEVEN: Rank = new Rank('7', 5);
 
-    public static readonly EIGHT: Rank	= new Rank('8', 5);
+    public static readonly EIGHT: Rank = new Rank('8', 5);
 
-    public static readonly NINE: Rank	= new Rank('9', 5);
+    public static readonly NINE: Rank = new Rank('9', 5);
 
-    public static readonly TEN: Rank	= new Rank('10', 10);
+    public static readonly TEN: Rank = new Rank('10', 10);
 
-    public static readonly JACK: Rank	= new Rank('J', 10);
+    public static readonly JACK: Rank = new Rank('J', 10);
 
-    public static readonly QUEEN: Rank	= new Rank('Q', 10);
+    public static readonly QUEEN: Rank = new Rank('Q', 10);
 
-    public static readonly KING: Rank	= new Rank('K', 10);
+    public static readonly KING: Rank = new Rank('K', 10);
 
-    public static readonly ACE: Rank	= new Rank('A', 15);
+    public static readonly ACE: Rank = new Rank('A', 15);
 
     /**
      * All of the ranks that are possible for cards
      */
-    public static readonly ranks: Rank[] = Object.values(Rank).filter((item) => item instanceof Rank);
+    public static readonly ranks: Rank[] = Object.values(Rank).filter(item => item instanceof Rank);
 
     /**
      * Returns the ranks that are wild
      * @returns an array of the wild ranks
      */
     public static wildcards(): Rank[] {
-        return [ Rank.JOKER, Rank.TWO ];
+        return [Rank.JOKER, Rank.TWO];
     }
 
     /**
@@ -91,7 +91,7 @@ export class Rank {
      * @returns the corresponding rank
      */
     public static fromString(str: string): Rank {
-        const map: {[char: string]: Rank} = {
+        const map: { [char: string]: Rank } = {
             '*': Rank.JOKER,
             2: Rank.TWO,
             3: Rank.THREE,
@@ -147,7 +147,6 @@ export class Rank {
         return Math.abs(one.order - this.order) === 1;
     }
 
-
     /**
      * Tells how far apart two ranks are based on the inner value of the ranks
      * Note that jokers and twos are accepted by the function but the result is not defined
@@ -164,7 +163,7 @@ export class Rank {
 
     /**
      * Tells how far apart two ranks are based on the inner values
-     * 
+     *
      * Note that jokers and twos are accepted by the function but the result is not defined
      * @see Rank.distance
      * @param other the other rank

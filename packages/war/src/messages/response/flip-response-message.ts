@@ -4,6 +4,6 @@ export class FlipResponseMessage extends Message {
     readonly type = 'flip-response';
 
     constructor() {
-        super([ 'Flipped a card' ]);
+        super(['Flipped a card']);
     }
 }

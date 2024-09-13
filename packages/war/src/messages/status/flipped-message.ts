@@ -1,14 +1,13 @@
 import { Card, Message, Presentable } from '@cards-ts/core';
 
 function generateMessage(player: string, card: Card): Presentable[] {
-    return [ player, 'flipped', card ];
+    return [player, 'flipped', card];
 }
 
 /**
  * Class that denotes that a card has been flipped
  */
 export class FlippedMessage extends Message {
-
     public readonly type = 'flipped-message';
 
     /**

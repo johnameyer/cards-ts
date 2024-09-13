@@ -9,6 +9,6 @@ export class PlayCardResponseMessage extends Message {
     readonly type = 'turn-response';
 
     constructor(public readonly card: Card) {
-        super([ 'Played', card ]);
+        super(['Played', card]);
     }
 }

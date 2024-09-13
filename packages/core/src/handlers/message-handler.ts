@@ -3,15 +3,15 @@ import { Message } from '../messages/message.js';
 import { Handler, HandlerAction } from './handler.js';
 
 export type MessageHandlerParams = {
-   message: [Message]
-}
+    message: [Message];
+};
 
 /**
  * Interface to listen for message events
  */
 export abstract class MessageHandler<HandlerData extends Serializable, ResponseMessage extends Message> implements Handler<MessageHandlerParams, HandlerData, ResponseMessage> {
-   /**
-    * Sends a message to the handler
-    */
-   abstract handleMessage: HandlerAction<HandlerData, ResponseMessage, [Message]>;
+    /**
+     * Sends a message to the handler
+     */
+    abstract handleMessage: HandlerAction<HandlerData, ResponseMessage, [Message]>;
 }

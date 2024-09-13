@@ -2,7 +2,7 @@ import { Presentable } from '../../intermediary/presentable.js';
 import { Message } from '../message.js';
 
 function generateMessage(leader: string): Presentable[] {
-    return [ leader, 'leads next trick' ];
+    return [leader, 'leads next trick'];
 }
 
 /**
@@ -10,7 +10,6 @@ function generateMessage(leader: string): Presentable[] {
  * @category Message
  */
 export class LeadsMessage extends Message {
-
     public readonly type = 'leads-message';
 
     /**

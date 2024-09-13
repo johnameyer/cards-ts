@@ -1,4 +1,3 @@
-
 /**
  * Standard states for the state machine with special purposes
  */

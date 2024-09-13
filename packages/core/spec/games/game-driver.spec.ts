@@ -1,13 +1,24 @@
 import 'mocha';
 import { expect } from 'chai';
-import { ControllerState, ControllersProviders, DefaultControllers, EventHandler, EventHandlerInterface, GameDriver, GenericGameState, GenericGameStateTransitions, STANDARD_STATES, SystemHandlerParams, buildEventHandler } from '../../src/browser-index.js';
+import {
+    ControllerState,
+    ControllersProviders,
+    DefaultControllers,
+    EventHandler,
+    EventHandlerInterface,
+    GameDriver,
+    GenericGameState,
+    GenericGameStateTransitions,
+    STANDARD_STATES,
+    SystemHandlerParams,
+    buildEventHandler,
+} from '../../src/browser-index.js';
 import { MockHandler, MockResponseMessage, MockHandlerParams } from '../handlers/mock-handler.js';
 import { MockController, MockControllerProvider } from '../controllers/mock-controller.js';
 import { MockAsyncHandler } from '../handlers/mock-async-handler.js';
 import { buildDefaultProviders } from '../../src/games/default-controllers.js';
 import { GenericHandlerProxy } from '../../src/games/generic-handler-controller.js';
 import { mockHandlerProxy } from './mock-handler-proxy.js';
-
 
 type GameParams = {};
 
@@ -21,12 +32,10 @@ type State = typeof states;
 
 type ResponseMessage = MockResponseMessage;
 
-type Handles = {
-
-} & SystemHandlerParams;
+type Handles = {} & SystemHandlerParams;
 
 type Controllers = {
-    mock: MockController,
+    mock: MockController;
 } & DefaultControllers<{}, State, ResponseMessage, MockHandlerParams>;
 
 const transitions: GenericGameStateTransitions<typeof states, Controllers> = {
@@ -43,18 +52,24 @@ const transitions: GenericGameStateTransitions<typeof states, Controllers> = {
 };
 
 function buildMockProviders(proxy?: GenericHandlerProxy<MockResponseMessage, MockHandlerParams>) {
-    if(!proxy) {
+    if (!proxy) {
         proxy = mockHandlerProxy([]) as any;
     }
-    return { mock: new MockControllerProvider(), ...buildDefaultProviders({}, [], proxy as any) } as any as ControllersProviders<Controllers & DefaultControllers<GameParams, typeof states, ResponseMessage, Handles & SystemHandlerParams>>;
+    return { mock: new MockControllerProvider(), ...buildDefaultProviders({}, [], proxy as any) } as any as ControllersProviders<
+        Controllers & DefaultControllers<GameParams, typeof states, ResponseMessage, Handles & SystemHandlerParams>
+    >;
 }
-
 
 function buildDefaultState(proxy?: GenericHandlerProxy<MockResponseMessage, MockHandlerParams>) {
     return new GenericGameState(buildMockProviders(proxy));
 }
 
-function buildMockGameDriver(handlerProxy: GenericHandlerProxy<MockResponseMessage, MockHandlerParams>, transitions: GenericGameStateTransitions<any, Controllers>, eventHandler: EventHandlerInterface<Controllers, MockResponseMessage>, state: ControllerState<Controllers>) {
+function buildMockGameDriver(
+    handlerProxy: GenericHandlerProxy<MockResponseMessage, MockHandlerParams>,
+    transitions: GenericGameStateTransitions<any, Controllers>,
+    eventHandler: EventHandlerInterface<Controllers, MockResponseMessage>,
+    state: ControllerState<Controllers>,
+) {
     const gameState = new GenericGameState(buildMockProviders(handlerProxy), state);
 
     return new GameDriver(handlerProxy, gameState, transitions, eventHandler);
@@ -62,7 +77,7 @@ function buildMockGameDriver(handlerProxy: GenericHandlerProxy<MockResponseMessa
 
 const eventHandler = buildEventHandler<Controllers, MockResponseMessage>({
     'mock-response': {
-        canRespond: [ EventHandler.isWaiting('waiting'), (controller, sourceHandler, incomingEvent) => incomingEvent.value > 0 ],
+        canRespond: [EventHandler.isWaiting('waiting'), (controller, sourceHandler, incomingEvent) => incomingEvent.value > 0],
         validateEvent: (controller, sourceHandler, incomingEvent) => new MockResponseMessage(incomingEvent.value),
         merge: (controllers, sourceHandler, incomingEvent) => {
             controllers.mock.add(incomingEvent.value);
@@ -73,7 +88,7 @@ const eventHandler = buildEventHandler<Controllers, MockResponseMessage>({
 
 describe('GameDriver', () => {
     describe('#isWaitingOnPlayer', () => {
-        const handlerProxy = mockHandlerProxy([ new MockHandler() ]) as any;
+        const handlerProxy = mockHandlerProxy([new MockHandler()]) as any;
 
         it('with no players waiting', () => {
             const state = buildDefaultState();
@@ -85,15 +100,15 @@ describe('GameDriver', () => {
 
         it('with players waiting', () => {
             const state = buildDefaultState();
-            state.controllers.waiting.set([ 0 ]);
+            state.controllers.waiting.set([0]);
             const gameDriver = buildMockGameDriver(handlerProxy, transitions, eventHandler, state.state);
 
             expect(gameDriver.isWaitingOnPlayer()).to.be.true;
         });
     });
-    
+
     describe('#handleEvent', () => {
-        const handlerProxy = mockHandlerProxy([ new MockHandler() ]) as any;
+        const handlerProxy = mockHandlerProxy([new MockHandler()]) as any;
 
         it('should reject events if not valid', () => {
             const state = buildDefaultState();
@@ -108,7 +123,7 @@ describe('GameDriver', () => {
 
         it('should merge valid events', () => {
             const state = buildDefaultState();
-            state.controllers.waiting.set([ 0 ]);
+            state.controllers.waiting.set([0]);
             const gameDriver = buildMockGameDriver(handlerProxy, transitions, eventHandler, state.state);
 
             expect(gameDriver.getState().mock).to.equal(0);
@@ -122,7 +137,7 @@ describe('GameDriver', () => {
     describe('#resume', () => {
         it('should pause when waiting for player response', () => {
             const handler = new MockAsyncHandler();
-            const handlerProxy = mockHandlerProxy([ handler ]) as any;
+            const handlerProxy = mockHandlerProxy([handler]) as any;
             const state = buildDefaultState(handlerProxy);
             const gameDriver = buildMockGameDriver(handlerProxy, transitions, eventHandler, state.state);
 
@@ -134,10 +149,10 @@ describe('GameDriver', () => {
         });
     });
 
-    describe('#start', () => {        
+    describe('#start', () => {
         it('should play through with synchronous handlers', async () => {
             const handler = new MockHandler();
-            const handlerProxy = mockHandlerProxy([ handler ]) as any;
+            const handlerProxy = mockHandlerProxy([handler]) as any;
             const state = buildDefaultState(handlerProxy);
             const gameDriver = buildMockGameDriver(handlerProxy, transitions, eventHandler, state.state);
 
@@ -152,7 +167,7 @@ describe('GameDriver', () => {
 
         it('should play through with asynchronous handlers', async () => {
             const handler = new MockAsyncHandler();
-            const handlerProxy = mockHandlerProxy([ handler ]) as any;
+            const handlerProxy = mockHandlerProxy([handler]) as any;
             const state = buildDefaultState(handlerProxy);
             const gameDriver = buildMockGameDriver(handlerProxy, transitions, eventHandler, state.state);
 
@@ -161,9 +176,11 @@ describe('GameDriver', () => {
             expect(gameDriver.getState().completed).to.be.false;
             expect(gameDriver.getState().mock).to.equal(0);
 
-            handler.respond((async () => {
-                return new MockResponseMessage(5);
-            })()); // TODO nicer
+            handler.respond(
+                (async () => {
+                    return new MockResponseMessage(5);
+                })(),
+            ); // TODO nicer
 
             await gameComplete;
 
@@ -175,7 +192,7 @@ describe('GameDriver', () => {
         it('should accept first response first', async () => {
             const playerOne = new MockAsyncHandler();
             const playerTwo = new MockAsyncHandler();
-            const handlerProxy = mockHandlerProxy([ playerOne, playerTwo ]) as any;
+            const handlerProxy = mockHandlerProxy([playerOne, playerTwo]) as any;
             const state = buildDefaultState(handlerProxy);
             const gameDriver = buildMockGameDriver(handlerProxy, transitions, eventHandler, state.state);
 
@@ -184,16 +201,19 @@ describe('GameDriver', () => {
             expect(gameDriver.getState().completed).to.be.false;
             expect(gameDriver.getState().mock).to.equal(0);
 
+            playerOne.respond(
+                (async () => {
+                    await new Promise(resolve => setTimeout(resolve, 20));
+                    return new MockResponseMessage(1);
+                })(),
+            );
 
-            playerOne.respond((async () => {
-                await new Promise(resolve => setTimeout(resolve, 20));
-                return new MockResponseMessage(1);
-            })());
-
-            playerTwo.respond((async () => {
-                await new Promise(resolve => setTimeout(resolve, 10));
-                return new MockResponseMessage(2);
-            })());
+            playerTwo.respond(
+                (async () => {
+                    await new Promise(resolve => setTimeout(resolve, 10));
+                    return new MockResponseMessage(2);
+                })(),
+            );
 
             await gameComplete;
 

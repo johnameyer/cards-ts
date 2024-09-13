@@ -11,11 +11,11 @@ export type ParamsState<GameParams extends Serializable> = GameParams;
  */
 export class ParamsControllerProvider<GameParams extends Serializable> implements GenericControllerProvider<ParamsState<GameParams>, {}, ParamsController<GameParams>> {
     private params: GameParams;
-    
+
     constructor(gameParams: GameParams) {
         this.params = gameParams;
     }
-    
+
     controller(state: ParamsState<GameParams>, controllers: {}): ParamsController<GameParams> {
         return new ParamsController(state, controllers);
     }

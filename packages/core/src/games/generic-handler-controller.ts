@@ -12,15 +12,15 @@ type PlayerHandlerState = {
     count: number;
 
     position: number;
-}
+};
 
 /**
  * Class that allows calls to the handlers
  * @typeParam Handlers the custom event handlers that this game has
  * @typeParam ResponseMessage the response messages this game expects
  */
-export class GenericHandlerProxy<ResponseMessage extends Message, Handlers extends {[key: string]: any[]} & SystemHandlerParams> {
-    constructor(protected players: HandlerChain<Handlers, ControllerHandlerState<any>, ResponseMessage>[], private readonly handlerData: Provider<(position: number) => any>) { }
+export class GenericHandlerProxy<ResponseMessage extends Message, Handlers extends { [key: string]: any[] } & SystemHandlerParams> {
+    constructor(protected players: HandlerChain<Handlers, ControllerHandlerState<any>, ResponseMessage>[], private readonly handlerData: Provider<(position: number) => any>) {}
 
     private readonly outgoingData: Promise<void>[] = [];
 
@@ -41,49 +41,51 @@ export class GenericHandlerProxy<ResponseMessage extends Message, Handlers exten
     }
 
     messageAll(message: Message) {
-        this.outgoingData.push(...this.players
-            .map((player, position) => Promise.resolve(player.call('message', this.handlerData.get()(position), this.incomingData.for(position), message)))
-            .filter(isDefined),
+        this.outgoingData.push(
+            ...this.players
+                .map((player, position) => Promise.resolve(player.call('message', this.handlerData.get()(position), this.incomingData.for(position), message)))
+                .filter(isDefined),
         );
     }
 
     messageOthers(excludedPosition: number, message: Message) {
-        this.outgoingData.push(...this.players
-            .filter((_, position) => position !== excludedPosition)
-            .map((player, position) => Promise.resolve(player.call('message', this.handlerData.get()(position), this.incomingData.for(position), message)),
-            )
-            .filter(isDefined),
+        this.outgoingData.push(
+            ...this.players
+                .filter((_, position) => position !== excludedPosition)
+                .map((player, position) => Promise.resolve(player.call('message', this.handlerData.get()(position), this.incomingData.for(position), message)))
+                .filter(isDefined),
         );
     }
 
     waitingOthers(waitingOn?: number[]) {
-        this.outgoingData.push(...this.players
-            .filter((_player, index) => !waitingOn?.includes(index))
-            .map((player, position) => Promise.resolve(player.call('waitingFor', this.handlerData.get()(position), this.incomingData.for(position), waitingOn)),
-            )
-            .filter(isDefined),
+        this.outgoingData.push(
+            ...this.players
+                .filter((_player, index) => !waitingOn?.includes(index))
+                .map((player, position) => Promise.resolve(player.call('waitingFor', this.handlerData.get()(position), this.incomingData.for(position), waitingOn)))
+                .filter(isDefined),
         );
     }
 
     handlerCall<Method extends keyof Handlers>(position: number, method: Method, ...args: Handlers[Method]): void {
         const send = this.players[position].call(method, this.handlerData.get()(position), this.incomingData.for(position), ...args);
 
-        if(send) {
+        if (send) {
             this.outgoingData.push(send);
         }
     }
 
     handlerCallAll<Method extends keyof Handlers>(method: Method, ...args: Handlers[Method]): void {
-        this.outgoingData.push(...this.players
-            .map((player, position) => {
-                try {
-                    return player.call(method, this.handlerData.get()(position), this.incomingData.for(position), ...args);
-                } catch (e) {
-                    console.error(e);
-                }
-                return;
-            })
-            .filter(isDefined),
+        this.outgoingData.push(
+            ...this.players
+                .map((player, position) => {
+                    try {
+                        return player.call(method, this.handlerData.get()(position), this.incomingData.for(position), ...args);
+                    } catch (e) {
+                        console.error(e);
+                    }
+                    return;
+                })
+                .filter(isDefined),
         );
     }
 
@@ -118,13 +120,15 @@ type HandlerControllerDependencies = {
  * @typeParam Handlers the custom event handlers that this game has
  * @typeParam ResponseMessage the response messages this game expects
  */
-export class GenericHandlerControllerProvider<ResponseMessage extends Message, Handlers extends {[key: string]: any[]} & SystemHandlerParams> implements GenericControllerProvider<undefined, HandlerControllerDependencies, GenericHandlerController<ResponseMessage, Handlers>> {
-    constructor(private readonly handlerProxy: GenericHandlerProxy<ResponseMessage, Handlers>) { }
-    
+export class GenericHandlerControllerProvider<ResponseMessage extends Message, Handlers extends { [key: string]: any[] } & SystemHandlerParams>
+    implements GenericControllerProvider<undefined, HandlerControllerDependencies, GenericHandlerController<ResponseMessage, Handlers>>
+{
+    constructor(private readonly handlerProxy: GenericHandlerProxy<ResponseMessage, Handlers>) {}
+
     controller(_state: undefined, controllers: HandlerControllerDependencies): GenericHandlerController<ResponseMessage, Handlers> {
         return new GenericHandlerController(this.handlerProxy, controllers);
     }
-    
+
     initialState(): undefined {
         return undefined;
     }
@@ -140,7 +144,11 @@ export class GenericHandlerControllerProvider<ResponseMessage extends Message, H
  * @typeParam Handlers the custom event handlers that this game has
  * @typeParam ResponseMessage the response messages this game expects
  */
-export class GenericHandlerController<ResponseMessage extends Message, Handlers extends {[key: string]: any[]} & SystemHandlerParams> extends AbstractController<undefined, HandlerControllerDependencies, PlayerHandlerState> {
+export class GenericHandlerController<ResponseMessage extends Message, Handlers extends { [key: string]: any[] } & SystemHandlerParams> extends AbstractController<
+    undefined,
+    HandlerControllerDependencies,
+    PlayerHandlerState
+> {
     constructor(private readonly handlerProxy: GenericHandlerProxy<ResponseMessage, Handlers>, controllers: HandlerControllerDependencies) {
         super(undefined, controllers);
     }
@@ -186,7 +194,7 @@ export class GenericHandlerController<ResponseMessage extends Message, Handlers 
      * @param args the args to call with
      */
     handlerCall<Method extends keyof Handlers>(position: number, method: Method, ...args: Handlers[Method]): void {
-        this.controllers.waiting.set([ position ]);
+        this.controllers.waiting.set([position]);
         this.handlerProxy.handlerCall(position, method, ...args);
     }
 
@@ -208,7 +216,7 @@ export class GenericHandlerController<ResponseMessage extends Message, Handlers 
      * @param method the event type to call
      * @param args the args to call with
      */
-    handlerCallAll<Method extends keyof Handlers>(method: Method, waitFor: number[] = range(this.count), ...args: Handlers[Method]): void { 
+    handlerCallAll<Method extends keyof Handlers>(method: Method, waitFor: number[] = range(this.count), ...args: Handlers[Method]): void {
         this.controllers.waiting.set(waitFor);
         this.handlerProxy.handlerCallAll(method, ...args);
     }

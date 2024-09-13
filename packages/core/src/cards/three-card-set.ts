@@ -12,18 +12,19 @@ import { ValueError } from './value-error.js';
  * @throws if the set is invalid
  */
 function check(set: ThreeCardSet) {
-    if(set.cards.length < 2 * set.wilds.length) { // 2 < count {
+    if (set.cards.length < 2 * set.wilds.length) {
+        // 2 < count {
         throw new InvalidError('Too many wilds');
     }
-    if(set.cards.length < 3) {
+    if (set.cards.length < 3) {
         throw new InvalidError('Not enough cards');
     }
 
-    for(const card of set.cards) {
-        if(card.isWild()) {
+    for (const card of set.cards) {
+        if (card.isWild()) {
             continue;
         }
-        if(card.rank !== set.rank) {
+        if (card.rank !== set.rank) {
             throw new InvalidError('Card not of the right rank');
         }
     }
@@ -67,14 +68,14 @@ export class ThreeCardSet extends Meld {
      */
     constructor(cards: Card[]) {
         super();
-        if(!cards) {
+        if (!cards) {
             throw new InvalidError('No cards entered');
         }
         this.cards = cards.sort(Card.compare);
-        this.wilds = this.cards.filter((card) => card.isWild());
-        const nonWild: Card | undefined = this.cards.find((card) => !card.isWild());
-        if(!nonWild) {
-            throw new InvalidError('No non-wilds'); 
+        this.wilds = this.cards.filter(card => card.isWild());
+        const nonWild: Card | undefined = this.cards.find(card => !card.isWild());
+        if (!nonWild) {
+            throw new InvalidError('No non-wilds');
         }
         this.rank = nonWild.rank;
         this.check();
@@ -85,7 +86,7 @@ export class ThreeCardSet extends Meld {
      * @param card the card to check against this set
      */
     public isLive(card: Card) {
-        if(card.isWild()) {
+        if (card.isWild()) {
             return 2 * this.wilds.length < this.cards.length;
         }
         return card.rank === this.rank;
@@ -97,7 +98,7 @@ export class ThreeCardSet extends Meld {
      */
     public liveCards(): Card[] {
         let live: Card[] = [];
-        if(2 * this.wilds.length <= this.cards.length) {
+        if (2 * this.wilds.length <= this.cards.length) {
             live = potentialWilds.slice();
         }
         Suit.suits.forEach((suit: Suit) => live.push(new Card(suit, this.rank)));
@@ -109,11 +110,11 @@ export class ThreeCardSet extends Meld {
      * @param cards the cards to add
      */
     public add(...cards: Card[]) {
-        for(const card of cards) {
-            if(!this.isLive(card)) {
+        for (const card of cards) {
+            if (!this.isLive(card)) {
                 throw new ValueError(card.toString() + ' was not a valid card on ' + this.toString());
             }
-            if(card.isWild()) {
+            if (card.isWild()) {
                 this.wilds.push(card);
                 this.wilds.sort(Card.compare);
             }
@@ -127,7 +128,7 @@ export class ThreeCardSet extends Meld {
      * @returns the clone
      */
     public clone(): ThreeCardSet {
-        return new ThreeCardSet([ ...this.cards ]);
+        return new ThreeCardSet([...this.cards]);
     }
 
     /**
@@ -135,27 +136,27 @@ export class ThreeCardSet extends Meld {
      * @returns the string representation
      */
     public toString(): string {
-        return 'Set of ' + this.rank.toString() + ' <' + this.cards.map((card) => card.toString()).join(', ') + '>';
+        return 'Set of ' + this.rank.toString() + ' <' + this.cards.map(card => card.toString()).join(', ') + '>';
     }
 
     public equals(other?: any): boolean {
-        if(!other) {
+        if (!other) {
             return false;
         }
-        if(!(other instanceof ThreeCardSet)) {
+        if (!(other instanceof ThreeCardSet)) {
             return false;
         }
-        if(this.rank !== other.rank) {
+        if (this.rank !== other.rank) {
             return false;
         }
-        if(this.cards.length !== other.cards.length) {
+        if (this.cards.length !== other.cards.length) {
             return false;
         }
-        if(this.wilds.length !== other.wilds.length) {
+        if (this.wilds.length !== other.wilds.length) {
             return false;
         }
-        const whereInequal = ([ first, second ]: [Card, Card]) => !first.equals(second);
-        if(zip(this.cards.slice().sort(Card.compare), other.cards.slice().sort(Card.compare)).findIndex(whereInequal) >= 0) {
+        const whereInequal = ([first, second]: [Card, Card]) => !first.equals(second);
+        if (zip(this.cards.slice().sort(Card.compare), other.cards.slice().sort(Card.compare)).findIndex(whereInequal) >= 0) {
             return false;
         }
         return true;

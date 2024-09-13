@@ -3,8 +3,8 @@ import { Presenter } from './presenter.js';
 import { Serializable, deserialize } from './serializable.js';
 
 export type IntermediaryMapping<T extends Array<DisplayElement<keyof Presenter>>> = {
-    [I in keyof T]: T[I] extends DisplayElement<infer Key> ? DisplayElementCallReturn<Key> : never
-}
+    [I in keyof T]: T[I] extends DisplayElement<infer Key> ? DisplayElementCallReturn<Key> : never;
+};
 
 /**
  * Class that handles how material is presented to the end user
@@ -12,7 +12,7 @@ export type IntermediaryMapping<T extends Array<DisplayElement<keyof Presenter>>
 export interface Intermediary {
     print(...printables: Serializable[]): [sent?: Promise<void>];
 
-    form<T extends (DisplayElement<keyof Presenter>)[]>(...components: T): [sent: undefined | Promise<void>, received: Promise<IntermediaryMapping<T>>];
+    form<T extends DisplayElement<keyof Presenter>[]>(...components: T): [sent: undefined | Promise<void>, received: Promise<IntermediaryMapping<T>>];
 }
 
 // consider using the indexes of things instead of actual value, and then use outer wrapper to transform into value (so data isn't serialized both ways)
@@ -35,7 +35,7 @@ export namespace Intermediary {
             // @ts-expect-error
             choices: component.choices ? component.choices.map(({ name, value }) => ({ name, value: deserialize(value) })) : undefined,
             validate: component.validate ? new Function('return ' + component.validate)() : undefined,
-            validateParam: component.validateParam ? Object.fromEntries(Object.entries<any>(component.validateParam).map(([ key, value ]) => [ key, deserialize(value) ])) : undefined,
+            validateParam: component.validateParam ? Object.fromEntries(Object.entries<any>(component.validateParam).map(([key, value]) => [key, deserialize(value)])) : undefined,
         }));
     }
 }

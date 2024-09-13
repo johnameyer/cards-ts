@@ -8,6 +8,6 @@ export class OutOfCardsMessage extends Message {
     public readonly type = 'out-of-cards-message';
 
     constructor(public readonly name: string) {
-        super([ name, 'is out of cards' ]);
+        super([name, 'is out of cards']);
     }
 }

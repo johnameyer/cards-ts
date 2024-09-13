@@ -11,9 +11,9 @@ type DeckState = {
     deck: Deck;
 
     dealer: number;
-    
+
     toDiscard?: Card | null;
-}
+};
 
 type DeckDependencies = { players: GenericHandlerController<any, SystemHandlerParams> };
 
@@ -30,7 +30,7 @@ export class DeckControllerProvider implements GenericControllerProvider<DeckSta
     controller(state: DeckState, controllers: DeckDependencies): DeckController {
         return new DeckController(state, controllers, this.params);
     }
-    
+
     dependencies() {
         return { players: true } as const;
     }
@@ -51,7 +51,7 @@ export class DeckController extends AbstractController<DeckState, DeckDependenci
     constructor(state: DeckState, controllers: DeckDependencies, private readonly params: ConstructorParameters<typeof Deck>) {
         super(state, controllers);
     }
-    
+
     get deck() {
         return this.state.deck;
     }
@@ -88,10 +88,10 @@ export class DeckController extends AbstractController<DeckState, DeckDependenci
     }
 
     validate() {
-        if(!Number.isInteger(this.state.dealer)) {
+        if (!Number.isInteger(this.state.dealer)) {
             throw new Error('Expected integer dealer');
         }
-        if(this.state.toDiscard !== undefined && !Card.fromObj(this.state.toDiscard)) {
+        if (this.state.toDiscard !== undefined && !Card.fromObj(this.state.toDiscard)) {
             throw new Error('Expected card or undefined toDiscard');
         }
         Deck.fromObj(this.state.deck);

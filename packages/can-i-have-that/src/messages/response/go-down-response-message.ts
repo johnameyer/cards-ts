@@ -5,6 +5,6 @@ export class GoDownResponseMessage extends Message {
 
     constructor(public readonly toPlay: Meld[]) {
         // @ts-expect-error
-        super([ 'Played', toPlay as (ThreeCardSet | FourCardRun) ]);
+        super(['Played', toPlay as ThreeCardSet | FourCardRun]);
     }
 }

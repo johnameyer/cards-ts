@@ -11,7 +11,7 @@ import { STANDARD_STATES } from './game-states.js';
 
 /**
  * Class that steps though the game using the game state transitions
- * 
+ *
  * Shouldn't be manually constructed - game factory should handle
  * @typeParam Handlers the custom event handlers that this game has
  * @typeParam State the state enum for this game
@@ -19,8 +19,13 @@ import { STANDARD_STATES } from './game-states.js';
  * @typeParam ResponseMessage the response messages this game expects
  * @typeParam EventHandler the event handler for this game
  */
-export class GameDriver<Handlers extends {[key: string]: unknown[]} & SystemHandlerParams, State extends typeof STANDARD_STATES, Controllers extends IndexedControllers & { waiting: WaitingController, completed: CompletedController, state: GameStateController<State> }, ResponseMessage extends Message, EventHandler extends EventHandlerInterface<Controllers, ResponseMessage>> {
-
+export class GameDriver<
+    Handlers extends { [key: string]: unknown[] } & SystemHandlerParams,
+    State extends typeof STANDARD_STATES,
+    Controllers extends IndexedControllers & { waiting: WaitingController; completed: CompletedController; state: GameStateController<State> },
+    ResponseMessage extends Message,
+    EventHandler extends EventHandlerInterface<Controllers, ResponseMessage>,
+> {
     /**
      * Create the game driver
      * @param handlerProxy the wrapper for the handlers
@@ -28,7 +33,12 @@ export class GameDriver<Handlers extends {[key: string]: unknown[]} & SystemHand
      * @param transitions the transitions for the game
      * @param eventHandler the event handler for the game
      */
-    constructor(private handlerProxy: GenericHandlerProxy<ResponseMessage, Handlers>, private gameState: GenericGameState<Controllers>, private transitions: GenericGameStateTransitions<State, Controllers>, private eventHandler: EventHandler) {
+    constructor(
+        private handlerProxy: GenericHandlerProxy<ResponseMessage, Handlers>,
+        private gameState: GenericGameState<Controllers>,
+        private transitions: GenericGameStateTransitions<State, Controllers>,
+        private eventHandler: EventHandler,
+    ) {
         // this.gameState.names = handlerProxy.getNames();
     }
 
@@ -40,19 +50,18 @@ export class GameDriver<Handlers extends {[key: string]: unknown[]} & SystemHand
      */
     public handleEvent(position: number, message: ResponseMessage | undefined, data: Record<string, Serializable> | undefined) {
         // TODO move only data elsewhere
-        if(message !== undefined) {
+        if (message !== undefined) {
             const updatedMessage = this.eventHandler.validateEvent(this.gameState.controllers, position, message);
 
-            if(updatedMessage) {
+            if (updatedMessage) {
                 this.eventHandler.merge(this.gameState.controllers, position, updatedMessage, data);
             }
 
             return !!updatedMessage;
-        } 
+        }
         this.eventHandler.merge(this.gameState.controllers, position, undefined, data);
 
         return false;
-        
     }
 
     /**
@@ -66,11 +75,11 @@ export class GameDriver<Handlers extends {[key: string]: unknown[]} & SystemHand
      * Handles events coming in from local handlers
      */
     public handleSyncResponses() {
-        for(const [ position, message ] of this.handlerProxy.receiveSyncResponses()) {
-            if(message) {
+        for (const [position, message] of this.handlerProxy.receiveSyncResponses()) {
+            if (message) {
                 let payload, data;
-                if(Array.isArray(message)) {
-                    ([ payload, data ] = message);
+                if (Array.isArray(message)) {
+                    [payload, data] = message;
                 } else {
                     payload = message;
                 }
@@ -100,7 +109,6 @@ export class GameDriver<Handlers extends {[key: string]: unknown[]} & SystemHand
         return this.gameState.controllers.waiting.isWaitingOnPlayer();
     }
 
-    
     /**
      * Tells if the game is waiting on any of the following players
      * @param subset the subset to check against
@@ -113,28 +121,27 @@ export class GameDriver<Handlers extends {[key: string]: unknown[]} & SystemHand
      * Runs the game through to the end asynchronously
      */
     public async start(): Promise<void> {
-        while(!this.gameState.controllers.completed.get()) {
+        while (!this.gameState.controllers.completed.get()) {
             this.transitions[this.gameState.controllers.state.get()].call(undefined, this.gameState.controllers);
 
             // TODO consider this ordering
             await this.handlerProxy.handleOutgoing();
             this.handleSyncResponses();
 
-            while(!this.gameState.controllers.completed.get() && this.isWaitingOnPlayer()) {
-
+            while (!this.gameState.controllers.completed.get() && this.isWaitingOnPlayer()) {
                 await this.handlerProxy.asyncResponseAvailable();
-                for await (const [ position, message ] of this.handlerProxy.receiveAsyncResponses()) {
-                    if(message) {
+                for await (const [position, message] of this.handlerProxy.receiveAsyncResponses()) {
+                    if (message) {
                         let payload, data;
-                        if(Array.isArray(message)) {
-                            ([ payload, data ] = message);
+                        if (Array.isArray(message)) {
+                            [payload, data] = message;
                         } else {
                             payload = message;
                         }
                         this.handleEvent(position, payload, data);
                     }
                 }
-                
+
                 // TODO consider this ordering
                 await this.handlerProxy.handleOutgoing();
                 this.handleSyncResponses();
@@ -146,7 +153,7 @@ export class GameDriver<Handlers extends {[key: string]: unknown[]} & SystemHand
      * Runs the game until the next time it would have to wait
      */
     public resume() {
-        while(!this.gameState.controllers.completed.get() && !this.isWaitingOnPlayer()) {
+        while (!this.gameState.controllers.completed.get() && !this.isWaitingOnPlayer()) {
             this.transitions[this.gameState.controllers.state.get()].call(undefined, this.gameState.controllers);
         }
     }

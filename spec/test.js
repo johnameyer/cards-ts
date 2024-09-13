@@ -4,7 +4,7 @@
 
 import { IncrementalIntermediary, InquirerPresenter } from '@cards-ts/core';
 
-if(!performance) {
+if (!performance) {
     // eslint-disable-next-line no-var, @typescript-eslint/no-var-requires
     var { performance } = await import('perf_hooks');
 }
@@ -23,10 +23,10 @@ async function run(libraryName) {
 
         const numPlayers = libraryName === 'war' ? 2 : 4;
 
-        const names = [ 'Jerome', 'Leah', 'Greg', 'Bart' ].slice(0, numPlayers);
+        const names = ['Jerome', 'Leah', 'Greg', 'Bart'].slice(0, numPlayers);
 
         const handlers = Array(numPlayers);
-        for(let i = 0; i < handlers.length; i++) {
+        for (let i = 0; i < handlers.length; i++) {
             handlers[i] = gameFactory.getDefaultBotHandlerChain();
         }
 
@@ -40,23 +40,24 @@ async function run(libraryName) {
 
         const end = performance.now();
         console.log(libraryName + ': running took ' + (end - postSetup) + ' ms');
-        
-        if(!gameDriver.gameState.controllers.completed.get()) {
+
+        if (!gameDriver.gameState.controllers.completed.get()) {
             throw new Error('Game did not set completed flag');
         }
 
         return libraryName;
     } catch (e) {
-        throw [ libraryName, e ];
+        throw [libraryName, e];
     }
 }
 
-run(process.argv[2]).then(libraryName => {
-    console.log(libraryName + ': completed');
-})
-    .catch(([ libraryName, e ]) => {
+run(process.argv[2])
+    .then(libraryName => {
+        console.log(libraryName + ': completed');
+    })
+    .catch(([libraryName, e]) => {
         console.log(libraryName + ': threw');
         console.log(e);
-    
+
         console.log(libraryName + ': errored');
     });

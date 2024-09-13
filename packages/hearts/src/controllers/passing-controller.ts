@@ -10,7 +10,7 @@ export interface PassingState {
     passed: Card[][];
 }
 
-type PassingDependencies = { hand: AbstractHandsController<any>, players: GenericHandlerController<ResponseMessage, GameHandlerParams & SystemHandlerParams> };
+type PassingDependencies = { hand: AbstractHandsController<any>; players: GenericHandlerController<ResponseMessage, GameHandlerParams & SystemHandlerParams> };
 
 export class PassingControllerProvider implements GenericControllerProvider<PassingState, PassingDependencies, PassingController> {
     controller(state: PassingState, controllers: PassingDependencies): PassingController {
@@ -30,10 +30,8 @@ export class PassingControllerProvider implements GenericControllerProvider<Pass
 }
 
 export class PassingController extends GlobalController<PassingState, PassingDependencies> {
-    
-
     validate() {
-        if(!Array.isArray(this.state.passed)) {
+        if (!Array.isArray(this.state.passed)) {
             throw new Error('Shape of passing is wrong');
         }
     }
@@ -51,15 +49,19 @@ export class PassingController extends GlobalController<PassingState, PassingDep
     }
 
     nextPass() {
-        if(this.state.pass === this.controllers.players.count / 2) { // handles even number going from across to keep
+        if (this.state.pass === this.controllers.players.count / 2) {
+            // handles even number going from across to keep
             this.state.pass = 0;
-        } else if(this.state.pass > 0) { // 1 to the right goes to 1 to the left
+        } else if (this.state.pass > 0) {
+            // 1 to the right goes to 1 to the left
             this.state.pass = -this.state.pass;
-        } else { // 1 to the left goes to 2 to the right
+        } else {
+            // 1 to the left goes to 2 to the right
             this.state.pass = -this.state.pass + 1;
         }
 
-        if(this.state.pass > this.controllers.players.count / 2) { // 2 to the left in 5 person game goes to keep
+        if (this.state.pass > this.controllers.players.count / 2) {
+            // 2 to the left in 5 person game goes to keep
             this.state.pass = 0;
         }
     }

@@ -3,7 +3,7 @@ import { Presentable } from '../../intermediary/presentable.js';
 import { Message } from '../message.js';
 
 function generateMessage(card: Card): Presentable[] {
-    return [ card, 'was turned over' ];
+    return [card, 'was turned over'];
 }
 
 /**
@@ -11,7 +11,6 @@ function generateMessage(card: Card): Presentable[] {
  * @category Message
  */
 export class TurnUpMessage extends Message {
-
     public readonly type = 'turn-up-message';
 
     /**

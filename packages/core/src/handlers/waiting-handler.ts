@@ -3,8 +3,8 @@ import { Message } from '../messages/message.js';
 import { Handler, HandlerAction } from './handler.js';
 
 export type WaitingHandlerParams = {
-   waitingFor: [number[] | number | undefined]
-}
+    waitingFor: [number[] | number | undefined];
+};
 
 /**
  * Interface to listen for waiting events

@@ -1,4 +1,17 @@
-import { CompletedController, CompletedControllerProvider, DataController, DataControllerProvider, GameStateController, GameStateControllerProvider, NamesController, NamesControllerProvider, ParamsController, ParamsControllerProvider, WaitingController, WaitingControllerProvider } from '../controllers/index.js';
+import {
+    CompletedController,
+    CompletedControllerProvider,
+    DataController,
+    DataControllerProvider,
+    GameStateController,
+    GameStateControllerProvider,
+    NamesController,
+    NamesControllerProvider,
+    ParamsController,
+    ParamsControllerProvider,
+    WaitingController,
+    WaitingControllerProvider,
+} from '../controllers/index.js';
 import { ValidatedProviders } from '../controllers/controller.js';
 import { SystemHandlerParams } from '../handlers/system-handler.js';
 import { Serializable } from '../intermediary/serializable.js';
@@ -13,7 +26,16 @@ import { GenericHandlerController, GenericHandlerControllerProvider, GenericHand
  * @param proxy the proxy wrapping the handlers
  * @returns the default controllers providers
  */
-export const buildDefaultProviders = <GameParams extends Serializable, State extends typeof STANDARD_STATES, ResponseMessage extends Message, Handlers extends {[key: string]: any[]} & SystemHandlerParams>(params: GameParams, names: string[], proxy: GenericHandlerProxy<ResponseMessage, Handlers>) => {
+export const buildDefaultProviders = <
+    GameParams extends Serializable,
+    State extends typeof STANDARD_STATES,
+    ResponseMessage extends Message,
+    Handlers extends { [key: string]: any[] } & SystemHandlerParams,
+>(
+    params: GameParams,
+    names: string[],
+    proxy: GenericHandlerProxy<ResponseMessage, Handlers>,
+) => {
     const controllers = {
         names: new NamesControllerProvider(names),
         data: new DataControllerProvider(),
@@ -34,7 +56,12 @@ export const buildDefaultProviders = <GameParams extends Serializable, State ext
  * @typeParam ResponseMessage the response messages this game expects
  * @link buildDefaultProviders
  */
-export type DefaultControllers<GameParams extends Serializable, State extends typeof STANDARD_STATES, ResponseMessage extends Message, Handlers extends {[key: string]: any[]} & SystemHandlerParams> = {
+export type DefaultControllers<
+    GameParams extends Serializable,
+    State extends typeof STANDARD_STATES,
+    ResponseMessage extends Message,
+    Handlers extends { [key: string]: any[] } & SystemHandlerParams,
+> = {
     params: ParamsController<GameParams>;
     data: DataController;
     state: GameStateController<State>;
