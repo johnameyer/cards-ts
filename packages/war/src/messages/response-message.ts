@@ -1,3 +1,3 @@
 import { FlipResponseMessage } from './response/index.js';
 
-export type ResponseMessage = FlipResponseMessage;
+export type ResponseMessage = InstanceType<typeof FlipResponseMessage>;

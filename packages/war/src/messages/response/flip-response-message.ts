@@ -1,9 +1,6 @@
-import { Message } from '@cards-ts/core';
+import { buildEmptyMessage } from '@cards-ts/core/lib/messages/message.js';
 
-export class FlipResponseMessage extends Message {
-    readonly type = 'flip-response';
-
-    constructor() {
-        super([ 'Flipped a card' ]);
-    }
-}
+export const FlipResponseMessage = buildEmptyMessage(
+    'flip-response',
+    () => [ 'Flipped a card' ],
+)
