@@ -1,0 +1,7 @@
+pnpm-lock.yaml
+*.md
+
+# TODO remove to get consistency across all packages
+*.json
+*.yaml
+*.yml

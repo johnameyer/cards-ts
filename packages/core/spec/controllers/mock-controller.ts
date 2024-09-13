@@ -12,7 +12,7 @@ export class MockControllerProvider implements GenericControllerProvider<MockSta
     }
 
     dependencies() {
-        return { } as const;
+        return {} as const;
     }
 }
 

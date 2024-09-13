@@ -7,6 +7,6 @@ export class NameTrumpResponseMessage extends Message {
     readonly type = 'name-trump-response';
 
     constructor(public readonly trump: Suit | undefined) {
-        super(trump ? [ 'Picked', trump ] : [ 'Passed' ]);
+        super(trump ? ['Picked', trump] : ['Passed']);
     }
 }

@@ -9,9 +9,9 @@ import { FourCardRun, checkFourCardRun } from './four-card-run.js';
  * @todo can this be reconsolidated into the runs directly
  */
 export function checkRun(t: Meld): void {
-    if(t.runType === 3) {
+    if (t.runType === 3) {
         checkThreeCardSet(t as ThreeCardSet);
-    } else if(t.runType === 4) {
+    } else if (t.runType === 4) {
         checkFourCardRun(t as FourCardRun);
     }
 }

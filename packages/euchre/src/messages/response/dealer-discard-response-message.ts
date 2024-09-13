@@ -7,6 +7,6 @@ export class DealerDiscardResponseMessage extends Message {
     readonly type = 'dealer-discard-response';
 
     constructor(public readonly selected: Card) {
-        super([ 'Discarded', selected ]);
+        super(['Discarded', selected]);
     }
 }

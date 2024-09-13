@@ -7,7 +7,7 @@ export class GoingAloneResponseMessage extends Message {
     readonly type = 'going-alone-response';
 
     constructor() {
-        super([ 'Is going alone' ]);
+        super(['Is going alone']);
     }
 }
 // TODO refactor logic into the bid and trump choice to allow for validation

@@ -5,10 +5,7 @@ import { Card, distinct, DiscardResponseMessage, buildEventHandler, EventHandler
 
 export const eventHandler = buildEventHandler<Controllers, ResponseMessage>({
     'discard-response': {
-        canRespond: [
-            EventHandler.isTurn('turn'),
-            (controllers) => !controllers.deck.toDiscard,
-        ],
+        canRespond: [EventHandler.isTurn('turn'), controllers => !controllers.deck.toDiscard],
         validateEvent: {
             validators: [
                 EventHandler.validate('Card is not in hand', (controllers, source, event) => !controllers.hand.hasCard(event.toDiscard, controllers.turn.get())),
@@ -18,20 +15,20 @@ export const eventHandler = buildEventHandler<Controllers, ResponseMessage>({
             fallback: (controllers, source, event) => {
                 const liveForNone = (card: Card) => !controllers.melds.isCardLive(card);
                 const possibleDiscard = controllers.hand.get(source).find(liveForNone);
-                
-                if(!possibleDiscard) {
+
+                if (!possibleDiscard) {
                     throw new Error('No possible discard?');
                     // TODO
                 }
-                
+
                 return new DiscardResponseMessage(possibleDiscard);
             },
         },
         merge: (controllers, source, incomingEvent) => {
-            if(!controllers.hand.hasCard(incomingEvent.toDiscard, controllers.turn.get())) {
+            if (!controllers.hand.hasCard(incomingEvent.toDiscard, controllers.turn.get())) {
                 throw new Error('Player did not have card ' + incomingEvent.toDiscard);
             }
-            controllers.hand.removeCards(controllers.turn.get(), [ incomingEvent.toDiscard ]);
+            controllers.hand.removeCards(controllers.turn.get(), [incomingEvent.toDiscard]);
             controllers.deck.toDiscard = incomingEvent.toDiscard;
             controllers.waiting.removePosition(source);
         },
@@ -43,21 +40,24 @@ export const eventHandler = buildEventHandler<Controllers, ResponseMessage>({
             validators: (controllers, source, event) => {
                 const cardsToPlay = event.toPlay;
                 const oldMeld = event.playOn.clone();
-                
+
                 let found = false;
-                for(let player = 0; player < controllers.players.count; player++) {
-                    for(let meld = 0; meld < controllers.melds.get()[player].length; meld++) {
+                for (let player = 0; player < controllers.players.count; player++) {
+                    for (let meld = 0; meld < controllers.melds.get()[player].length; meld++) {
                         // TODO could there be multiple equivalent?
-                        if(controllers.melds.get()[player][meld] && oldMeld.cards.every(card => controllers.melds.get()[player][meld].cards.find(card.equals.bind(card)) !== undefined)) {
+                        if (
+                            controllers.melds.get()[player][meld] &&
+                            oldMeld.cards.every(card => controllers.melds.get()[player][meld].cards.find(card.equals.bind(card)) !== undefined)
+                        ) {
                             found = true;
                             break;
                         }
                     }
-                    if(found) {
+                    if (found) {
                         break;
                     }
                 }
-                if(!found) {
+                if (!found) {
                     return new Error('Could not find played-on meld');
                 }
             },
@@ -66,33 +66,36 @@ export const eventHandler = buildEventHandler<Controllers, ResponseMessage>({
             const toPlay = incomingEvent.toPlay.filter(distinct);
             const oldMeld = incomingEvent.playOn;
             const newMeld = incomingEvent.newMeld;
-            
+
             controllers.hand.removeCards(controllers.turn.get(), toPlay);
-            
+
             let player = 0;
             let meld = 0;
             let found = false;
-            for(; player < controllers.players.count; player++) {
-                for(meld = 0; meld < controllers.melds.get()[player].length; meld++) {
+            for (; player < controllers.players.count; player++) {
+                for (meld = 0; meld < controllers.melds.get()[player].length; meld++) {
                     // TODO could there be multiple equivalent?
-                    if(controllers.melds.get()[player][meld] && oldMeld.cards.every(card => controllers.melds.get()[player][meld].cards.find(card.equals.bind(card)) !== undefined)) {
+                    if (
+                        controllers.melds.get()[player][meld] &&
+                        oldMeld.cards.every(card => controllers.melds.get()[player][meld].cards.find(card.equals.bind(card)) !== undefined)
+                    ) {
                         found = true;
                         break;
                     }
                 }
-                if(found) {
+                if (found) {
                     break;
                 }
             }
-            if(!found) {
+            if (!found) {
                 throw new Error('Could not find played-on meld');
             }
-            
+
             controllers.melds.toPlayOnOthers[player] = controllers.melds.toPlayOnOthers[player] || [];
             controllers.melds.toPlayOnOthers[player][meld] = controllers.melds.toPlayOnOthers[player][meld] || [];
             controllers.melds.get()[player][meld] = newMeld;
             // TODO roll all of this into controller and add verification
-            
+
             controllers.waiting.removePosition(source);
         },
         transform: event => new PlayResponseMessage(event.playOn, event.toPlay, event.newMeld),
@@ -102,7 +105,14 @@ export const eventHandler = buildEventHandler<Controllers, ResponseMessage>({
         validateEvent: {
             validators: [
                 EventHandler.validate('Player has already gone down', (controllers, source, event) => controllers.melds.toPlay.length > 0),
-                EventHandler.validate('Player did not have all the cards', (controllers, source, event) => !controllers.hand.hasCards(event.toPlay.flatMap(meld => meld.cards), controllers.turn.get())),
+                EventHandler.validate(
+                    'Player did not have all the cards',
+                    (controllers, source, event) =>
+                        !controllers.hand.hasCards(
+                            event.toPlay.flatMap(meld => meld.cards),
+                            controllers.turn.get(),
+                        ),
+                ),
             ],
         },
         merge: (controllers, source, incomingEvent) => {
@@ -111,14 +121,14 @@ export const eventHandler = buildEventHandler<Controllers, ResponseMessage>({
              * TODO what lives here vs in the handleTurn function?
              */
             const toPlay = incomingEvent.toPlay.flatMap(meld => meld.cards).filter(distinct);
-            
-            if(!controllers.hand.hasCards(toPlay, controllers.turn.get())) {
+
+            if (!controllers.hand.hasCards(toPlay, controllers.turn.get())) {
                 throw new Error('Player did not have all the cards');
             }
             controllers.hand.removeCards(controllers.turn.get(), toPlay);
-            
+
             controllers.melds.play(incomingEvent.toPlay);
-            
+
             controllers.waiting.removePosition(source);
         },
         transform: event => new GoDownResponseMessage(event.toPlay),

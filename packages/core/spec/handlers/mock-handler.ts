@@ -1,14 +1,14 @@
 import { Handler, HandlerResponsesQueue, SystemHandlerParams, Message } from '../../src/index.js';
 
 export type MockHandlerParams = {
-    choice: [],
+    choice: [];
 } & SystemHandlerParams;
 
 export class MockResponseMessage extends Message {
     readonly type = 'mock-response';
 
     constructor(public value: number) {
-        super([ value ]);
+        super([value]);
     }
 }
 
@@ -19,7 +19,7 @@ export class MockHandler implements Handler<MockHandlerParams, undefined, MockRe
 
     handleChoice(_: any, response: HandlerResponsesQueue<MockResponseMessage>): void {
         this.timesCalled += 1;
-        if(!this.message) {
+        if (!this.message) {
             throw new Error('Expected a response to be provided ahead of time');
         }
         response.push(this.message);

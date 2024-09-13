@@ -1,11 +1,10 @@
 import { Card, Presentable, Message } from '@cards-ts/core';
 
 function generateMessage(card: Card, extra?: Card): Presentable[] {
-    if(extra) {
-        return [ 'Picked up', card, 'and', extra ];
-    } 
-    return [ 'Picked up', card ];
-    
+    if (extra) {
+        return ['Picked up', card, 'and', extra];
+    }
+    return ['Picked up', card];
 }
 
 // TODO rework

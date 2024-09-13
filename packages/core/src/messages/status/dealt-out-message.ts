@@ -3,7 +3,7 @@ import { Presentable } from '../../intermediary/presentable.js';
 import { Message } from '../message.js';
 
 function generateMessage(cards: Card[]): Presentable[] {
-    return [ 'Received', cards ];
+    return ['Received', cards];
 }
 
 /**

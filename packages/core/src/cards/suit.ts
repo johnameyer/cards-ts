@@ -27,7 +27,7 @@ export class Suit {
     /**
      * The normal suits that appear in the deck
      */
-    public static readonly suits: Suit[] = [ Suit.DIAMONDS, Suit.CLUBS, Suit.HEARTS, Suit.SPADES ];
+    public static readonly suits: Suit[] = [Suit.DIAMONDS, Suit.CLUBS, Suit.HEARTS, Suit.SPADES];
 
     /**
      * Look up the suit from the letter
@@ -38,7 +38,7 @@ export class Suit {
      * > Suit.DIAMONDS
      */
     public static fromString(str: string): Suit {
-        const map: {[char: string]: Suit} = {
+        const map: { [char: string]: Suit } = {
             D: Suit.DIAMONDS,
             C: Suit.CLUBS,
             H: Suit.HEARTS,
@@ -54,7 +54,7 @@ export class Suit {
      * @returns the corresponding suit
      */
     public static fromObj(obj: any) {
-        if(obj.letter === '-') {
+        if (obj.letter === '-') {
             return Suit.NONE;
         }
         return Suit.suits[obj.order];
@@ -83,11 +83,10 @@ export class Suit {
      * Returns the string representation of this
      */
     public toString(): string {
-        if(Suit.symbolic) {
+        if (Suit.symbolic) {
             return this.symbol;
-        } 
+        }
         return this.name;
-        
     }
 
     get letter() {

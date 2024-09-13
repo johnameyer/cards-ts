@@ -17,7 +17,7 @@ const argv = yargs(hideBin(process.argv))
     })
     .option('name', {
         type: 'string',
-        description: 'Player\'s name',
+        description: "Player's name",
     })
     .options(new GameSetup().getYargs())
     .strict()
@@ -28,16 +28,16 @@ const argv = yargs(hideBin(process.argv))
 const mainPlayerIntermediary = new IncrementalIntermediary(new InquirerPresenter());
 const names: string[] = [];
 let name: string = argv.name as string;
-if(!argv.name) {        
+if (!argv.name) {
     // await mainPlayer.askForName();
     name = 'Player';
 }
 names.push(name);
 names.push('Greg', 'Hugh', 'Leah');
 
-const players: HandlerChain<SystemHandlerParams & GameHandlerParams, HandlerData, ResponseMessage>[] = Array(argv.players as number + 1);
+const players: HandlerChain<SystemHandlerParams & GameHandlerParams, HandlerData, ResponseMessage>[] = Array((argv.players as number) + 1);
 players[0] = gameFactory.getIntermediaryHandlerChain(mainPlayerIntermediary);
-for(let i = 1; i < players.length; i++) {
+for (let i = 1; i < players.length; i++) {
     players[i] = gameFactory.getDefaultBotHandlerChain();
 }
 
@@ -47,8 +47,8 @@ const params = gameSetup.setupForYargs(argv);
 
 const errors = gameSetup.verifyParams(params);
 
-if(Object.keys(errors).length) {
-    for(const error of Object.entries(errors)) {
+if (Object.keys(errors).length) {
+    for (const error of Object.entries(errors)) {
         console.log(error[1]);
     }
     process.exitCode = 1;

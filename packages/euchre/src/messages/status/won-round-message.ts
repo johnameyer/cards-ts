@@ -1,14 +1,13 @@
 import { Message, Presentable } from '@cards-ts/core';
 
 function generateMessage(players: string[], points: number): Presentable[] {
-    return [ players, 'won', points, 'points' ];
+    return [players, 'won', points, 'points'];
 }
 
 /**
  * Class that denotes to a handler that a team won the round
  */
 export class WonRoundMessage extends Message {
-
     public readonly type = 'won-round-message';
 
     /**

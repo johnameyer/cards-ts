@@ -8,7 +8,7 @@ export interface WarState {
     battleCount: number;
 }
 
-type WarDependencies = { hand: AbstractHandsController<any>, players: GenericHandlerController<any, any> };
+type WarDependencies = { hand: AbstractHandsController<any>; players: GenericHandlerController<any, any> };
 
 export class WarControllerProvider implements GenericControllerProvider<WarState, WarDependencies, WarController> {
     controller(state: WarState, controllers: WarDependencies): WarController {
@@ -17,8 +17,7 @@ export class WarControllerProvider implements GenericControllerProvider<WarState
 
     initialState(controllers: WarDependencies): WarState {
         return {
-            playedCards: new Array(controllers.players.count).fill(undefined)
-                .map(() => []),
+            playedCards: new Array(controllers.players.count).fill(undefined).map(() => []),
             battleCount: 0,
         };
     }
@@ -30,7 +29,7 @@ export class WarControllerProvider implements GenericControllerProvider<WarState
 
 export class WarController extends GlobalController<WarState, WarDependencies> {
     validate() {
-        if(!Array.isArray(this.state.playedCards)) {
+        if (!Array.isArray(this.state.playedCards)) {
             throw new Error('Shape of object is wrong');
         }
     }
@@ -39,8 +38,8 @@ export class WarController extends GlobalController<WarState, WarDependencies> {
         const compared = this.state.playedCards.map(cards => cards[cards.length - 1].rank);
 
         let max = 0;
-        for(let i = 1; i < compared.length; i++) {
-            if(compared[i].difference(compared[max]) <= 0) {
+        for (let i = 1; i < compared.length; i++) {
+            if (compared[i].difference(compared[max]) <= 0) {
                 max = i;
             }
         }
@@ -52,8 +51,7 @@ export class WarController extends GlobalController<WarState, WarDependencies> {
     }
 
     public resetPlayed() {
-        this.state.playedCards = new Array(this.controllers.players.count).fill(undefined)
-            .map(() => []);
+        this.state.playedCards = new Array(this.controllers.players.count).fill(undefined).map(() => []);
     }
 
     public get battleCountAndOne() {
@@ -65,9 +63,9 @@ export class WarController extends GlobalController<WarState, WarDependencies> {
     }
 
     public flipCards() {
-        for(let i = 0; i < this.state.playedCards.length; i++) {
+        for (let i = 0; i < this.state.playedCards.length; i++) {
             const flipped = this.controllers.hand.shift(i);
-            if(flipped) {
+            if (flipped) {
                 this.state.playedCards[i].push(flipped);
             }
         }
@@ -75,7 +73,7 @@ export class WarController extends GlobalController<WarState, WarDependencies> {
 
     public getLastFlipped() {
         const flipped = [];
-        for(let i = 0; i < this.state.playedCards.length; i++) {
+        for (let i = 0; i < this.state.playedCards.length; i++) {
             flipped.push(this.state.playedCards[i][this.state.playedCards[i].length - 1]);
         }
         return flipped;

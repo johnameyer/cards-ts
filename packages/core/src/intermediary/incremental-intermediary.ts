@@ -25,16 +25,16 @@ export class IncrementalIntermediary implements Intermediary {
     /**
      * Show the form elements one at a time
      */
-    form<T extends(DisplayElement<keyof Presenter>)[]>(...components: T): [sent: undefined | Promise<void>, received: Promise<IntermediaryMapping<T>>] {
+    form<T extends DisplayElement<keyof Presenter>[]>(...components: T): [sent: undefined | Promise<void>, received: Promise<IntermediaryMapping<T>>] {
         const results = new Promise<IntermediaryMapping<T>>(resolver => {
             const results: any[] = [];
-            for(const component of components) {
+            for (const component of components) {
                 const func = this.presenter[component.type];
                 // @ts-expect-error
                 results.push(func(component)());
             }
             resolver(Promise.all(results) as any as IntermediaryMapping<T>);
         });
-        return [ undefined, results ];
+        return [undefined, results];
     }
 }

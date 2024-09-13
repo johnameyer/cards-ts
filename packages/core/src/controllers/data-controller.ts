@@ -40,7 +40,7 @@ export class DataController extends AbstractController<DataState, Record<string,
     }
 
     override validate() {
-        if(!Array.isArray(this.state)) {
+        if (!Array.isArray(this.state)) {
             throw new Error('Data state is not an array');
         }
         // TODO maybe add size check? Or is that a handler type problem

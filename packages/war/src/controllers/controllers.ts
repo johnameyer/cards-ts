@@ -3,7 +3,16 @@ import { GameParams } from '../game-params.js';
 import { GameHandlerParams } from '../game-handler-params.js';
 import { ResponseMessage } from '../messages/response-message.js';
 import { WarControllerProvider } from './war-controller.js';
-import { HiddenHandsControllerProvider, DefaultControllerKeys, DefaultControllers, SystemHandlerParams, DeckControllerProvider, ControllersProviders, UnwrapProviders, ValidatedProviders } from '@cards-ts/core';
+import {
+    HiddenHandsControllerProvider,
+    DefaultControllerKeys,
+    DefaultControllers,
+    SystemHandlerParams,
+    DeckControllerProvider,
+    ControllersProviders,
+    UnwrapProviders,
+    ValidatedProviders,
+} from '@cards-ts/core';
 
 type TypedDefaultControllers = DefaultControllers<GameParams, typeof GameStates, ResponseMessage, GameHandlerParams & SystemHandlerParams>;
 

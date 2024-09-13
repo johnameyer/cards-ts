@@ -2,7 +2,7 @@ import { DealOutMessage, EndRoundMessage, NoPassingMessage, PassedMessage, Passi
 import { LeadsMessage } from '@cards-ts/core';
 
 export type StatusMessage =
-    DealOutMessage
+    | DealOutMessage
     | EndRoundMessage
     | LeadsMessage
     | NoPassingMessage

@@ -27,7 +27,7 @@ type TricksState = {
      * The number of tricks so far
      */
     tricks: number;
-}
+};
 
 type TricksDependencies = {
     deck: DeckController;
@@ -53,7 +53,6 @@ export class TricksControllerProvider implements GenericControllerProvider<Trick
         };
     }
 
-
     dependencies() {
         return { deck: true, players: true, hand: true, turn: true } as const;
     }
@@ -65,7 +64,7 @@ export class TricksControllerProvider implements GenericControllerProvider<Trick
  */
 export class TricksController extends GlobalController<TricksState, TricksDependencies> {
     override validate() {
-        if(this.state.currentTrick && !Array.isArray(this.state.currentTrick)) {
+        if (this.state.currentTrick && !Array.isArray(this.state.currentTrick)) {
             throw new Error('Shape of tricks is wrong');
         }
     }
@@ -110,7 +109,7 @@ export class TricksController extends GlobalController<TricksState, TricksDepend
         const playedCard = this.state.playedCard;
         this.state.playedCard = undefined as any as Card;
         this.addCard(playedCard);
-        this.controllers.hand.removeCards(this.controllers.turn.get(), [ playedCard ]);
+        this.controllers.hand.removeCards(this.controllers.turn.get(), [playedCard]);
         return playedCard;
     }
 
@@ -127,11 +126,11 @@ export class TricksController extends GlobalController<TricksState, TricksDepend
         const first = this.state.currentTrick.findIndex(isDefined);
         let winningPlayer = first;
         const leadingSuit = (this.state.currentTrick[first] as Card).suit;
-        for(let i = first + 1; i < this.controllers.players.count; i++) {
+        for (let i = first + 1; i < this.controllers.players.count; i++) {
             const card = this.state.currentTrick[i];
-            if(card) {
-                if(!followsSuit || card.suit === leadingSuit) {
-                    if(comparator(card, this.state.currentTrick[winningPlayer] as Card)) {
+            if (card) {
+                if (!followsSuit || card.suit === leadingSuit) {
+                    if (comparator(card, this.state.currentTrick[winningPlayer] as Card)) {
                         winningPlayer = i;
                     }
                 }

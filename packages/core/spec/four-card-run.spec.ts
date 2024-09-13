@@ -21,43 +21,43 @@ describe('FourCardRun', () => {
 
     describe('#constructor', () => {
         it('should allow construction with valid cards', () => {
-            let run: FourCardRun = new FourCardRun([ JH, QH, KH, AH ]);
+            let run: FourCardRun = new FourCardRun([JH, QH, KH, AH]);
             expect(run).to.be.ok;
 
-            run = new FourCardRun([ JH, QH, KH, J ]);
+            run = new FourCardRun([JH, QH, KH, J]);
             expect(run).to.be.ok;
         });
 
         it('should not allow construction for unordered', () => {
-            expect(() => new FourCardRun([ QH, KH, AH, J ])).to.throw(Error);
+            expect(() => new FourCardRun([QH, KH, AH, J])).to.throw(Error);
 
-            expect(() => new FourCardRun([ JH, QH, KH, AH ].reverse())).to.throw(Error);
+            expect(() => new FourCardRun([JH, QH, KH, AH].reverse())).to.throw(Error);
         });
 
         it('should not allow construction with invalid', () => {
-            expect(() => new FourCardRun([ QH, KH, AH ])).to.throw(Error);
+            expect(() => new FourCardRun([QH, KH, AH])).to.throw(Error);
 
-            expect(() => new FourCardRun([ J, J, AH ])).to.throw(Error);
+            expect(() => new FourCardRun([J, J, AH])).to.throw(Error);
 
-            expect(() => new FourCardRun([ JC, QH, KH, AH ])).to.throw(Error);
+            expect(() => new FourCardRun([JC, QH, KH, AH])).to.throw(Error);
 
-            expect(() => new FourCardRun([ QH, KH, AH, J ])).to.throw(Error);
+            expect(() => new FourCardRun([QH, KH, AH, J])).to.throw(Error);
         });
     });
 
     describe('#range', () => {
         it('should give the range of the cards', () => {
-            let run: FourCardRun = new FourCardRun([ JH, QH, KH, AH ]);
+            let run: FourCardRun = new FourCardRun([JH, QH, KH, AH]);
             let range: [Rank, Rank] = run.range();
             expect(range[0]).to.equal(Rank.JACK);
             expect(range[1]).to.equal(Rank.ACE);
 
-            run = new FourCardRun([ J, QH, KH, J ]);
+            run = new FourCardRun([J, QH, KH, J]);
             range = run.range();
             expect(range[0]).to.equal(Rank.JACK);
             expect(range[1]).to.equal(Rank.ACE);
-            
-            run = new FourCardRun([ THREE, J, FIVE, J ]);
+
+            run = new FourCardRun([THREE, J, FIVE, J]);
             range = run.range();
             expect(range[0]).to.equal(Rank.THREE);
             expect(range[1]).to.equal(Rank.SIX);
@@ -66,15 +66,15 @@ describe('FourCardRun', () => {
 
     describe('#findSpots', () => {
         it('should find open spots', () => {
-            let run: FourCardRun = new FourCardRun([ JH, QH, KH, AH ]);
-            let spots: Rank[] = [ ...run.findSpots() ];
+            let run: FourCardRun = new FourCardRun([JH, QH, KH, AH]);
+            let spots: Rank[] = [...run.findSpots()];
             expect(spots).to.have.length(3);
             expect(spots).to.contain(Rank.TEN);
 
-            run = new FourCardRun([ J, JH, QH, J, AH ]);
-            spots = [ ...run.findSpots() ];
+            run = new FourCardRun([J, JH, QH, J, AH]);
+            spots = [...run.findSpots()];
             expect(spots).to.have.length(5);
-            [ Rank.NINE, Rank.TEN, Rank.KING ].forEach((rank) => {
+            [Rank.NINE, Rank.TEN, Rank.KING].forEach(rank => {
                 expect(spots).to.contain(rank);
             });
         });
@@ -82,13 +82,13 @@ describe('FourCardRun', () => {
 
     describe('#findSpotFor', () => {
         it('should check for an open spot', () => {
-            let run: FourCardRun = new FourCardRun([ JH, QH, KH, AH ]);
+            let run: FourCardRun = new FourCardRun([JH, QH, KH, AH]);
             let spot: number = run.findSpotFor(J);
             expect(spot).to.equal(0);
             spot = run.findSpotFor(Rank.TEN);
             expect(spot).to.equal(0);
 
-            run = new FourCardRun([ J, JH, QH, J, AH ]);
+            run = new FourCardRun([J, JH, QH, J, AH]);
             spot = run.findSpotFor(Rank.NINE);
             expect(spot).to.equal(0);
 
@@ -102,31 +102,31 @@ describe('FourCardRun', () => {
 
     describe('#add', () => {
         it('should add a card', () => {
-            let run: FourCardRun = new FourCardRun([ J, JH, QH, KH ]);
+            let run: FourCardRun = new FourCardRun([J, JH, QH, KH]);
             let card: Card = new Card(Suit.HEARTS, Rank.TEN, 1);
             run.add(card);
-            expect(run.cards.findIndex((find) => find.deck === card.deck)).to.equal(0);
+            expect(run.cards.findIndex(find => find.deck === card.deck)).to.equal(0);
 
             card = new Card(Suit.HEARTS, Rank.JOKER, 2);
             run.add(card, false);
-            expect(run.cards.findIndex((find) => find.deck === card.deck)).to.equal(0);
+            expect(run.cards.findIndex(find => find.deck === card.deck)).to.equal(0);
 
             card = new Card(Suit.HEARTS, Rank.JOKER, 3);
             run.add(card);
-            expect(run.cards.findIndex((find) => find.deck === card.deck)).to.equal(0);
-            
-            run = new FourCardRun([ JH, J, KH, AH ]);
+            expect(run.cards.findIndex(find => find.deck === card.deck)).to.equal(0);
+
+            run = new FourCardRun([JH, J, KH, AH]);
             card = new Card(Suit.HEARTS, Rank.TEN, 4);
             run.add(card);
-            expect(run.cards.findIndex((find) => find.deck === card.deck)).to.equal(0);
+            expect(run.cards.findIndex(find => find.deck === card.deck)).to.equal(0);
 
             card = new Card(Suit.HEARTS, Rank.QUEEN, 5);
             run.add(card);
-            expect(run.cards.findIndex((find) => find.deck === card.deck)).to.equal(3);
+            expect(run.cards.findIndex(find => find.deck === card.deck)).to.equal(3);
         });
 
         it('should error for invalid add', () => {
-            const run: FourCardRun = new FourCardRun([ J, J, QH, KH ]);
+            const run: FourCardRun = new FourCardRun([J, J, QH, KH]);
             let card: Card = new Card(Suit.SPADES, Rank.TEN, 1);
             expect(() => run.add(card)).to.throw(Error);
 
@@ -137,7 +137,7 @@ describe('FourCardRun', () => {
 
     describe('#isLive', () => {
         it('should check if live', () => {
-            const run: FourCardRun = new FourCardRun([ TWO, J, JH, QH, KH ]);
+            const run: FourCardRun = new FourCardRun([TWO, J, JH, QH, KH]);
             let card: Card = new Card(Suit.HEARTS, Rank.TEN, 1);
             let live: boolean = run.isLive(card);
             expect(live).to.be.true;
@@ -150,32 +150,32 @@ describe('FourCardRun', () => {
 
     describe('#liveCards', () => {
         it('should contain live cards', () => {
-            let run: FourCardRun = new FourCardRun([ JH, QH, KH, AH ]);
-            let liveCards: Card[] = [ ...run.liveCards() ];
-            [ TWO, J, get('10H') ].forEach((card) => {
-                expect(liveCards.find((x) => x.equals(card))).to.not.be.undefined;
+            let run: FourCardRun = new FourCardRun([JH, QH, KH, AH]);
+            let liveCards: Card[] = [...run.liveCards()];
+            [TWO, J, get('10H')].forEach(card => {
+                expect(liveCards.find(x => x.equals(card))).to.not.be.undefined;
             });
-            [ get('10S'), get('AS') ].forEach((card) => {
-                expect(liveCards.find((x) => x.equals(card))).to.be.undefined;
+            [get('10S'), get('AS')].forEach(card => {
+                expect(liveCards.find(x => x.equals(card))).to.be.undefined;
             });
             // use member?
 
-            run = new FourCardRun([ J, TWO, KH, AH ]);
-            liveCards = [ ...run.liveCards() ];
-            [ get('10H'), JH ].forEach((card) => {
-                expect(liveCards.find((x) => x.equals(card))).to.not.be.undefined;
+            run = new FourCardRun([J, TWO, KH, AH]);
+            liveCards = [...run.liveCards()];
+            [get('10H'), JH].forEach(card => {
+                expect(liveCards.find(x => x.equals(card))).to.not.be.undefined;
             });
-            [ TWO, J, get('10S'), get('AS') ].forEach((card) => {
-                expect(liveCards.find((x) => x.equals(card))).to.be.undefined;
+            [TWO, J, get('10S'), get('AS')].forEach(card => {
+                expect(liveCards.find(x => x.equals(card))).to.be.undefined;
             });
 
-            run = new FourCardRun([ JH, QH, KH, J ]);
-            liveCards = [ ...run.liveCards() ];
-            [ TWO, J, get('10H'), AH ].forEach((card) => {
-                expect(liveCards.find((x) => x.equals(card))).to.not.be.undefined;
+            run = new FourCardRun([JH, QH, KH, J]);
+            liveCards = [...run.liveCards()];
+            [TWO, J, get('10H'), AH].forEach(card => {
+                expect(liveCards.find(x => x.equals(card))).to.not.be.undefined;
             });
-            [ get('10S'), get('AS') ].forEach((card) => {
-                expect(liveCards.find((x) => x.equals(card))).to.be.undefined;
+            [get('10S'), get('AS')].forEach(card => {
+                expect(liveCards.find(x => x.equals(card))).to.be.undefined;
             });
         });
     });

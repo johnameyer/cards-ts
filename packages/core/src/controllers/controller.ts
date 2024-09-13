@@ -22,7 +22,11 @@ export abstract class AbstractController<State extends Serializable, WrappedCont
  * Provides a controller
  * @category Controller Provider
  */
-export interface GenericControllerProvider<State extends Serializable, WrappedControllers extends IndexedControllers, Controller extends AbstractController<State, WrappedControllers, any>> {
+export interface GenericControllerProvider<
+    State extends Serializable,
+    WrappedControllers extends IndexedControllers,
+    Controller extends AbstractController<State, WrappedControllers, any>,
+> {
     /**
      * Return the initial state for the controller
      */
@@ -66,7 +70,7 @@ export abstract class StatelessController<WrappedControllers extends IndexedCont
  * @category Controller
  */
 export interface IndexedControllers {
-    [key: string]: AbstractController<any, any, any>
+    [key: string]: AbstractController<any, any, any>;
 }
 
 /**
@@ -74,7 +78,7 @@ export interface IndexedControllers {
  * @category Controller Provider
  */
 export interface IndexedProviders {
-    [key: string]: GenericControllerProvider<any, any, AbstractController<any, any, any>>
+    [key: string]: GenericControllerProvider<any, any, AbstractController<any, any, any>>;
 }
 
 /**
@@ -82,37 +86,37 @@ export interface IndexedProviders {
  * @category Controller
  */
 export type UnwrapProviders<T extends IndexedProviders> = {
-    [key in keyof T]: T[key] extends GenericControllerProvider<any, any, any> ? ReturnType<T[key]['controller']> : never
-}
+    [key in keyof T]: T[key] extends GenericControllerProvider<any, any, any> ? ReturnType<T[key]['controller']> : never;
+};
 
 /**
  * Gets the providers that would produce controllers
  * @category Controller
  */
 export type ControllersProviders<T extends IndexedControllers> = {
-    [key in keyof T]: GenericControllerProvider<any, any, T[key]>
-}
+    [key in keyof T]: GenericControllerProvider<any, any, T[key]>;
+};
 
 /**
  * The providers that will exist once the dependency tree is run (assuming no loops) by removing items whose dependencies cannot be fulfilled
  * @category Controller
  */
 export type ValidatedProviders<T extends IndexedProviders> = {
-    [key in keyof T]: T[key] extends GenericControllerProvider<any, infer U, any> ? (UnwrapProviders<T> extends U ? T[key] : never) : never
-}
+    [key in keyof T]: T[key] extends GenericControllerProvider<any, infer U, any> ? (UnwrapProviders<T> extends U ? T[key] : never) : never;
+};
 
 function getTopologicalOrdering<T extends IndexedProviders>(controllers: T): (string & keyof T)[] {
     const sortedKeys = [];
     const children = new Set();
     const edgesByDestination = new Map<string, Set<string>>();
 
-    for(const [ key, controller ] of Object.entries(controllers as IndexedProviders)) {
-        if(Object.keys(controller.dependencies()).length === 0) {
+    for (const [key, controller] of Object.entries(controllers as IndexedProviders)) {
+        if (Object.keys(controller.dependencies()).length === 0) {
             children.add(key);
         } else {
-            if(!Object.keys(controller.dependencies()).some(dependency => !controllers[dependency as string])) {
+            if (!Object.keys(controller.dependencies()).some(dependency => !controllers[dependency as string])) {
                 // exclude from the final graph if dependencies do not exist
-                for(const dependency of Object.keys(controller.dependencies()) as string[]) {
+                for (const dependency of Object.keys(controller.dependencies()) as string[]) {
                     const set = edgesByDestination.get(dependency) || new Set();
                     set.add(key);
                     edgesByDestination.set(dependency, set);
@@ -120,23 +124,22 @@ function getTopologicalOrdering<T extends IndexedProviders>(controllers: T): (st
             }
         }
     }
-    
-    while(children.size) {
+
+    while (children.size) {
         const node = children.keys().next().value as string;
         children.delete(node);
         sortedKeys.push(node);
         const edgesForNode = (edgesByDestination.get(node) as Set<string>)?.keys() || [];
         edgesByDestination.delete(node);
-        for(const parent of edgesForNode) {
-            const nowChildless = Object.keys(controllers[parent].dependencies())
-                .every(child => controllers[child as string] && !edgesByDestination.get(child as string));
-            if(nowChildless) {
+        for (const parent of edgesForNode) {
+            const nowChildless = Object.keys(controllers[parent].dependencies()).every(child => controllers[child as string] && !edgesByDestination.get(child as string));
+            if (nowChildless) {
                 children.add(parent);
             }
         }
     }
 
-    if(edgesByDestination.size) {
+    if (edgesByDestination.size) {
         throw new Error('Graph has loops');
     }
     return sortedKeys;
@@ -145,16 +148,16 @@ function getTopologicalOrdering<T extends IndexedProviders>(controllers: T): (st
 export function validate<T extends IndexedProviders>(controllers: T): ValidatedProviders<T> {
     const keysToInclude = new Set(getTopologicalOrdering(controllers));
 
-    return Object.fromEntries(Object.entries(controllers).filter(([ key, _value ]) => keysToInclude.has(key))) as ValidatedProviders<T>;
+    return Object.fromEntries(Object.entries(controllers).filter(([key, _value]) => keysToInclude.has(key))) as ValidatedProviders<T>;
 }
 
 export function initializeControllers<T extends IndexedControllers>(providers: ControllersProviders<T>, state: ControllerState<T>) {
     const retained: T = {} as T;
 
-    for(const name of getTopologicalOrdering(validate(providers)) as (keyof T)[]) {
+    for (const name of getTopologicalOrdering(validate(providers)) as (keyof T)[]) {
         const dependencyKeys = Object.keys(providers[name].dependencies());
-        const dependencyControllers = Object.fromEntries(Object.entries(retained).filter(([ key, _val ]) => dependencyKeys.includes(key)));
-        if(!state[name]) {
+        const dependencyControllers = Object.fromEntries(Object.entries(retained).filter(([key, _val]) => dependencyKeys.includes(key)));
+        if (!state[name]) {
             state[name] = providers[name].initialState(dependencyControllers) as any;
         }
         retained[name] = providers[name].controller(state[name], dependencyControllers);
@@ -164,13 +167,13 @@ export function initializeControllers<T extends IndexedControllers>(providers: C
 }
 
 export type ControllerState<T> = {
-    [key in keyof T]: T[key] extends AbstractController<infer State, any> ? State : never
-}
+    [key in keyof T]: T[key] extends AbstractController<infer State, any> ? State : never;
+};
 
 /**
  * Gets the handler state of controllers
  * @category Controller
  */
 export type ControllerHandlerState<T> = {
-    [key in keyof T]: T[key] extends AbstractController<any, any> ? ReturnType<T[key]['getFor']> : never
-}
+    [key in keyof T]: T[key] extends AbstractController<any, any> ? ReturnType<T[key]['getFor']> : never;
+};

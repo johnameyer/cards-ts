@@ -1,14 +1,13 @@
 import { Message, Presentable } from '@cards-ts/core';
 
 function generateMessage(player: string): Presentable[] {
-    return [ player, 'won' ];
+    return [player, 'won'];
 }
 
 /**
  * Class that denotes that a player won
  */
 export class GameOverMessage extends Message {
-
     public readonly type = 'game-over-message';
 
     /**

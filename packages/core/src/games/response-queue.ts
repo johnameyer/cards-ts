@@ -28,7 +28,7 @@ export class ResponseQueue<Item extends Message> {
 
     private syncQueue: [number, [Item | undefined, HandlerCustomData | undefined]][] = [];
 
-    private asyncQueuePromise: Promise<void> = new Promise(resolver => this.asyncQueueResolver = resolver);
+    private asyncQueuePromise: Promise<void> = new Promise(resolver => (this.asyncQueueResolver = resolver));
 
     private asyncQueueResolver!: () => void;
 
@@ -36,11 +36,11 @@ export class ResponseQueue<Item extends Message> {
         const { asyncQueue, syncQueue, asyncQueueResolver } = this;
         return {
             push(item, data?: HandlerCustomData | undefined) {
-                if(isPromise(item)) {
-                    asyncQueue.push(item.then(item => Array.isArray(item) ? [ handler, item ] : [ handler, [ item, undefined ]]));
+                if (isPromise(item)) {
+                    asyncQueue.push(item.then(item => (Array.isArray(item) ? [handler, item] : [handler, [item, undefined]])));
                     asyncQueueResolver();
                 } else {
-                    syncQueue.push([ handler, [ item, data ]]);
+                    syncQueue.push([handler, [item, data]]);
                 }
             },
             map<Mapped extends Message>(mapping: (item: Mapped) => WithOrWithoutData<Item>) {
@@ -48,12 +48,12 @@ export class ResponseQueue<Item extends Message> {
                 const wrapped = this;
                 return {
                     push: (item: Mapped | Promise<Mapped>) => {
-                        if(isPromise(item)) {
+                        if (isPromise(item)) {
                             const t = item.then(mapping);
                             wrapped.push(t);
                         } else {
                             const t = mapping(item);
-                            if(Array.isArray(t)) {
+                            if (Array.isArray(t)) {
                                 wrapped.push(t[0], t[1]);
                             } else {
                                 wrapped.push(t);
@@ -65,22 +65,21 @@ export class ResponseQueue<Item extends Message> {
         };
     }
 
-
-    * [Symbol.iterator]() {
+    *[Symbol.iterator]() {
         let popped: undefined | [number, [undefined | Item, HandlerCustomData | undefined]];
         // eslint-disable-next-line no-cond-assign
-        while(popped = this.syncQueue.shift()) {
+        while ((popped = this.syncQueue.shift())) {
             yield popped;
         }
     }
 
-    async * [Symbol.asyncIterator]() {
-        while(this.asyncQueue.length > 0) {
-            const [ promise ] = await Promise.race(this.asyncQueue.map(promise => promise.then(() => [ promise ])));
+    async *[Symbol.asyncIterator]() {
+        while (this.asyncQueue.length > 0) {
+            const [promise] = await Promise.race(this.asyncQueue.map(promise => promise.then(() => [promise])));
             this.asyncQueue.splice(this.asyncQueue.indexOf(promise), 1);
             yield await promise;
         }
-        this.asyncQueuePromise = new Promise(resolver => this.asyncQueueResolver = resolver);
+        this.asyncQueuePromise = new Promise(resolver => (this.asyncQueueResolver = resolver));
     }
 
     asyncResponsesQueued() {
@@ -88,7 +87,7 @@ export class ResponseQueue<Item extends Message> {
     }
 
     asyncResponsesAvailable() {
-        if(this.asyncQueue.length > 0) {
+        if (this.asyncQueue.length > 0) {
             return;
         }
         return this.asyncQueuePromise;

@@ -18,7 +18,7 @@ export class RoundControllerProvider implements GenericControllerProvider<RoundS
 
 export class RoundController extends GlobalController<RoundState, {}> {
     validate(): void {
-        if(!Number.isInteger(this.state)) { 
+        if (!Number.isInteger(this.state)) {
             throw new Error('Expected number');
         }
     }

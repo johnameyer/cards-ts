@@ -22,7 +22,7 @@ type HandDependencies = {
  */
 export abstract class AbstractHandsController<HandlerType extends Serializable> extends AbstractController<HandsState, HandDependencies, HandlerType> {
     override validate() {
-        if(!Array.isArray(this.state)) {
+        if (!Array.isArray(this.state)) {
             throw new Error('Hands is not an array');
         }
     }
@@ -30,24 +30,24 @@ export abstract class AbstractHandsController<HandlerType extends Serializable> 
     public dealOut(shouldMessage = true, shouldAnnounceDealer = false, numCards = -1) {
         const deck = this.controllers.deck.deck;
         deck.shuffle();
-        while(deck.cards.length && numCards !== 0) {
-            for(let j = 0; j < this.controllers.players.count; j++) {
+        while (deck.cards.length && numCards !== 0) {
+            for (let j = 0; j < this.controllers.players.count; j++) {
                 const player = (j + this.controllers.deck.dealer) % this.controllers.players.count;
-                this.giveCards(player, [ deck.draw() ]);
+                this.giveCards(player, [deck.draw()]);
             }
             numCards--;
         }
-        if(shouldMessage) {
-            for(let player = 0; player < this.controllers.players.count; player++) {
+        if (shouldMessage) {
+            for (let player = 0; player < this.controllers.players.count; player++) {
                 this.controllers.players.message(player, new DealtOutMessage(this.get(player)));
             }
         }
     }
 
     public removeCards(position: number, cards: Card[]) {
-        for(const card of cards) {
+        for (const card of cards) {
             const index = this.state[position].findIndex(card.equals.bind(card));
-            if(index < 0) {
+            if (index < 0) {
                 throw new Error('Cannot find card');
             }
             this.state[position].splice(index, 1);
@@ -63,7 +63,7 @@ export abstract class AbstractHandsController<HandlerType extends Serializable> 
     }
 
     public handWithMostCards() {
-        return this.state.reduce<[number, number]>(([ index, count ], cards, newIndex) => cards.length > count ? [ newIndex, cards.length ] : [ index, count ], [ 0, 0 ])[0];
+        return this.state.reduce<[number, number]>(([index, count], cards, newIndex) => (cards.length > count ? [newIndex, cards.length] : [index, count]), [0, 0])[0];
     }
 
     public shift(position: number) {
@@ -77,21 +77,21 @@ export abstract class AbstractHandsController<HandlerType extends Serializable> 
     get(position?: number): Card[] | Card[][] {
         return position !== undefined ? this.state[position] : this.state;
     }
-    
+
     hasCard(card: Card): number;
 
     hasCard(card: Card, position: number): boolean;
 
     hasCard(card: Card, position?: number): number | boolean {
-        if(position !== undefined) {
+        if (position !== undefined) {
             return this.state[position].findIndex(card.equals.bind(card)) >= 0;
         }
         return this.state.findIndex(hand => hand.find(card.equals.bind(card)) !== undefined);
     }
 
     hasCards(cards: readonly Card[], position: number) {
-        for(const card of cards) {
-            if(!this.hasCard(card, position)) {
+        for (const card of cards) {
+            if (!this.hasCard(card, position)) {
                 return false;
             }
         }
@@ -99,20 +99,20 @@ export abstract class AbstractHandsController<HandlerType extends Serializable> 
     }
 
     reset() {
-        this.state = new Array(this.controllers.players.count).fill(undefined)
-            .map(() => []);
+        this.state = new Array(this.controllers.players.count).fill(undefined).map(() => []);
     }
 }
 
 /**
  * @category Controller Provider
  */
-abstract class AbstractHandsControllerProvider<HandsController extends AbstractHandsController<any>> implements GenericControllerProvider<HandsState, HandDependencies, HandsController> {
+abstract class AbstractHandsControllerProvider<HandsController extends AbstractHandsController<any>>
+    implements GenericControllerProvider<HandsState, HandDependencies, HandsController>
+{
     abstract controller(state: HandsState, controllers: HandDependencies): HandsController;
 
     initialState(controllers: HandDependencies): HandsState {
-        return new Array(controllers.players.count).fill(undefined)
-            .map(() => []);
+        return new Array(controllers.players.count).fill(undefined).map(() => []);
     }
 
     dependencies() {

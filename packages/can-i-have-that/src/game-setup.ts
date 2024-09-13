@@ -1,8 +1,20 @@
 import { GameParams } from './game-params.js';
 import { GenericGameSetup, Intermediary } from '@cards-ts/core';
 
-const FULL_GAME: (3 | 4)[][] = [[ 3, 3 ], [ 3, 4 ], [ 4, 4 ], [ 3, 3, 3 ], [ 3, 3, 4 ], [ 3, 4, 4 ], [ 4, 4, 4 ]];
-const SHORT_GAME: (3 | 4)[][] = [[ 3, 3 ], [ 3, 4 ], [ 4, 4 ]];
+const FULL_GAME: (3 | 4)[][] = [
+    [3, 3],
+    [3, 4],
+    [4, 4],
+    [3, 3, 3],
+    [3, 3, 4],
+    [3, 4, 4],
+    [4, 4, 4],
+];
+const SHORT_GAME: (3 | 4)[][] = [
+    [3, 3],
+    [3, 4],
+    [4, 4],
+];
 
 export class GameSetup implements GenericGameSetup<GameParams> {
     getDefaultParams(): GameParams {
@@ -13,8 +25,15 @@ export class GameSetup implements GenericGameSetup<GameParams> {
     }
 
     async setupForIntermediary(host: Intermediary): Promise<GameParams> {
-        const [ _, resultsPromise ] = host.form(
-            { type: 'list', message: [ 'How long of a game?' ], choices: [{ name: 'Shortened game (3 rounds)', value: SHORT_GAME }, { name: 'Full game (7 rounds)', value: FULL_GAME }] },
+        const [_, resultsPromise] = host.form(
+            {
+                type: 'list',
+                message: ['How long of a game?'],
+                choices: [
+                    { name: 'Shortened game (3 rounds)', value: SHORT_GAME },
+                    { name: 'Full game (7 rounds)', value: FULL_GAME },
+                ],
+            },
             // {type: 'confirm', message: ['No discards on last round?']}
         );
 
@@ -30,9 +49,9 @@ export class GameSetup implements GenericGameSetup<GameParams> {
     }
 
     verifyParams(params: GameParams) {
-        const errors: { rounds?: string | undefined; } = {};
+        const errors: { rounds?: string | undefined } = {};
         try {
-            if(!params.rounds.every(arr => arr.every(item => item === 3 || item === 4))) {
+            if (!params.rounds.every(arr => arr.every(item => item === 3 || item === 4))) {
                 throw new Error();
             }
         } catch (e) {
@@ -44,7 +63,7 @@ export class GameSetup implements GenericGameSetup<GameParams> {
     getYargs() {
         return {
             shortGame: { description: 'Play a shortened game', type: 'boolean', default: false },
-        } satisfies {[key: string]: import('yargs').Options};
+        } satisfies { [key: string]: import('yargs').Options };
     }
 
     setupForYargs(params: any): GameParams {

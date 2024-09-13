@@ -36,7 +36,7 @@ export class CompletedController extends GlobalController<CompletedState, {}> {
     }
 
     override validate() {
-        if(this.state !== true && this.state !== false) {
+        if (this.state !== true && this.state !== false) {
             throw new Error('Expected boolean');
         }
     }

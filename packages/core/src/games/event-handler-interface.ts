@@ -29,49 +29,56 @@ export interface EventHandlerInterface<Controllers extends IndexedControllers, R
     merge(this: void, controllers: Controllers, sourceHandler: number, incomingEvent: ResponseMessage | undefined, data: Record<string, Serializable> | undefined): void;
 }
 
-type EventHandler<Controllers extends IndexedControllers, ResponseMessage extends Message, Result> =
-    (this: void, controllers: Controllers, sourceHandler: number, event: ResponseMessage) => Result;
+type EventHandler<Controllers extends IndexedControllers, ResponseMessage extends Message, Result> = (
+    this: void,
+    controllers: Controllers,
+    sourceHandler: number,
+    event: ResponseMessage,
+) => Result;
 
 type SingularOrArray<T> = T | T[];
 
 // TODO naming
-type Validator<Controllers extends IndexedControllers, ResponseMessage extends Message> = EventHandler<Controllers, ResponseMessage, ResponseMessage> | {
-    validators: SingularOrArray<EventHandler<Controllers, ResponseMessage, Error | undefined>>,
-    fallback?: EventHandler<Controllers, ResponseMessage, ResponseMessage>,
-};
+type Validator<Controllers extends IndexedControllers, ResponseMessage extends Message> =
+    | EventHandler<Controllers, ResponseMessage, ResponseMessage>
+    | {
+          validators: SingularOrArray<EventHandler<Controllers, ResponseMessage, Error | undefined>>;
+          fallback?: EventHandler<Controllers, ResponseMessage, ResponseMessage>;
+      };
 
 type TypeHandlers<Controllers extends IndexedControllers, ResponseMessage extends Message> = {
     // TODO build generically across event types
-    transform?: (event: ResponseMessage) => ResponseMessage,
+    transform?: (event: ResponseMessage) => ResponseMessage;
     canRespond?: SingularOrArray<EventHandler<Controllers, ResponseMessage, boolean>>;
     validateEvent?: Validator<Controllers, ResponseMessage>;
     merge: SingularOrArray<EventHandler<Controllers, ResponseMessage, void>>;
 };
 
 type EventHandlers<Controllers extends IndexedControllers, ResponseMessage extends Message> = {
-    [Message in ResponseMessage as Message['type']]?: TypeHandlers<Controllers, Message>
-}
+    [Message in ResponseMessage as Message['type']]?: TypeHandlers<Controllers, Message>;
+};
 
 type Unarray<T> = T extends Array<infer U> ? U : T;
 
 function asArray<T>(t: T): Array<Unarray<T>> {
-    if(Array.isArray(t)) {
+    if (Array.isArray(t)) {
         return t;
-    } 
+    }
     // @ts-ignore
-    return [ t ];
-    
+    return [t];
 }
 
-export const buildEventHandler = <Controllers extends IndexedControllers & {data: DataController}, ResponseMessage extends Message> (handlers: EventHandlers<Controllers, ResponseMessage>): EventHandlerInterface<Controllers, ResponseMessage> => ({
+export const buildEventHandler = <Controllers extends IndexedControllers & { data: DataController }, ResponseMessage extends Message>(
+    handlers: EventHandlers<Controllers, ResponseMessage>,
+): EventHandlerInterface<Controllers, ResponseMessage> => ({
     validateEvent: (controllers, sourceHandler, incomingEvent) => {
         // @ts-ignore
         const typeHandlers = handlers[incomingEvent.type as ResponseMessage['type']] as TypeHandlers<Controllers, ResponseMessage>;
 
-        if(typeHandlers.canRespond) {
-            for(const validator of asArray(typeHandlers.canRespond)) {
+        if (typeHandlers.canRespond) {
+            for (const validator of asArray(typeHandlers.canRespond)) {
                 const result = validator(controllers, sourceHandler, incomingEvent);
-                if(!result) {
+                if (!result) {
                     /*
                      * @ts-ignore
                      * console.warn('Error!');
@@ -81,35 +88,35 @@ export const buildEventHandler = <Controllers extends IndexedControllers & {data
                 }
             }
         }
-        if(typeHandlers.validateEvent === undefined) {
-            return (typeHandlers.transform) ? typeHandlers.transform(incomingEvent) : incomingEvent;
-        } else if(typeof typeHandlers.validateEvent === 'function') {
+        if (typeHandlers.validateEvent === undefined) {
+            return typeHandlers.transform ? typeHandlers.transform(incomingEvent) : incomingEvent;
+        } else if (typeof typeHandlers.validateEvent === 'function') {
             return typeHandlers.validateEvent(controllers, sourceHandler, incomingEvent);
-        } 
+        }
         let passed = true;
-        for(const validator of asArray(typeHandlers.validateEvent.validators)) {
+        for (const validator of asArray(typeHandlers.validateEvent.validators)) {
             const result = validator(controllers, sourceHandler, incomingEvent);
-            if(result) {
+            if (result) {
                 console.warn('Error:', result.message);
                 passed = false;
                 break;
             }
         }
-        if(passed) {
-            return (typeHandlers.transform) ? typeHandlers.transform(incomingEvent) : incomingEvent;
-        } 
+        if (passed) {
+            return typeHandlers.transform ? typeHandlers.transform(incomingEvent) : incomingEvent;
+        }
         return typeHandlers.validateEvent.fallback ? typeHandlers.validateEvent.fallback(controllers, sourceHandler, incomingEvent) : undefined;
-        
     },
     merge: (controllers, sourceHandler, incomingEvent, data) => {
         // TODO move upstream?
-        if(data) {
+        if (data) {
             controllers.data.setDataFor(sourceHandler, data);
         }
-        if(incomingEvent) { // can be undefined if the event is just data
+        if (incomingEvent) {
+            // can be undefined if the event is just data
             // @ts-ignore
             const typeHandlers = handlers[incomingEvent.type as ResponseMessage['type']] as TypeHandlers<Controllers, ResponseMessage>;
-            for(const merge of asArray(typeHandlers.merge)) {
+            for (const merge of asArray(typeHandlers.merge)) {
                 merge(controllers, sourceHandler, incomingEvent);
             }
         }
@@ -121,17 +128,29 @@ type KeysOfType<T, V> = {
 }[keyof T];
 
 export namespace EventHandler {
-    export const isTurn = <Controllers extends IndexedControllers, ResponseMessage extends Message> (key: KeysOfType<Controllers, TurnController>): EventHandler<Controllers, ResponseMessage, boolean> => {
+    export const isTurn = <Controllers extends IndexedControllers, ResponseMessage extends Message>(
+        key: KeysOfType<Controllers, TurnController>,
+    ): EventHandler<Controllers, ResponseMessage, boolean> => {
         return (controllers, source, _incomingEvent) => source === (controllers[key] as unknown as TurnController).get();
     };
 
-    export const isWaiting = <Controllers extends IndexedControllers, ResponseMessage extends Message> (key: KeysOfType<Controllers, WaitingController>): EventHandler<Controllers, ResponseMessage, boolean> => {
-        return (controllers, source, _incomingEvent) => (controllers[key] as unknown as WaitingController).isWaitingOnPlayerSubset([ source ]);
+    export const isWaiting = <Controllers extends IndexedControllers, ResponseMessage extends Message>(
+        key: KeysOfType<Controllers, WaitingController>,
+    ): EventHandler<Controllers, ResponseMessage, boolean> => {
+        return (controllers, source, _incomingEvent) => (controllers[key] as unknown as WaitingController).isWaitingOnPlayerSubset([source]);
     };
 
-    export const validate = <Controllers extends IndexedControllers, ResponseMessage extends Message> (message: string, condition: EventHandler<Controllers, ResponseMessage, boolean>): EventHandler<Controllers, ResponseMessage, Error | undefined> => (controllers, sourceHandler, event) => condition(controllers, sourceHandler, event) ? new Error(message) : undefined;
+    export const validate =
+        <Controllers extends IndexedControllers, ResponseMessage extends Message>(
+            message: string,
+            condition: EventHandler<Controllers, ResponseMessage, boolean>,
+        ): EventHandler<Controllers, ResponseMessage, Error | undefined> =>
+        (controllers, sourceHandler, event) =>
+            condition(controllers, sourceHandler, event) ? new Error(message) : undefined;
 
-    export const removeWaiting = <Controllers extends IndexedControllers, ResponseMessage extends Message> (key: KeysOfType<Controllers, WaitingController>): EventHandler<Controllers, ResponseMessage, void> => {
+    export const removeWaiting = <Controllers extends IndexedControllers, ResponseMessage extends Message>(
+        key: KeysOfType<Controllers, WaitingController>,
+    ): EventHandler<Controllers, ResponseMessage, void> => {
         return (controllers, source, _incomingEvent) => (controllers[key] as unknown as WaitingController).removePosition(source);
     };
 }

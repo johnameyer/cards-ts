@@ -7,6 +7,6 @@ export class PassResponseMessage extends Message {
     readonly type = 'pass-response';
 
     constructor(public readonly cards: Card[]) {
-        super([ 'Passed', cards ]);
+        super(['Passed', cards]);
     }
 }

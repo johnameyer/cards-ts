@@ -15,27 +15,32 @@ export abstract class Message {
     /**
      * @param components the pieces a message could be made of
      */
-    protected constructor(public readonly components: Presentable[]) { }
+    protected constructor(public readonly components: Presentable[]) {}
 }
 
 export namespace Message {
     export type Transformer = (components: Presentable[], separator?: string) => string;
 
-    export const defaultTransformer: Transformer = (components: Presentable[], joiner = ' ') => components.length ? components.map(component => {
-        if(component === undefined) {
-            return undefined;
-        }
-        if(component === null) {
-            // TODO think about null here
-            return null;
-        }
-        // @ts-expect-error
-        if(component.map) {
-            // @ts-expect-error
-            return defaultTransformer(component, ', ');
-        }
-        return component.toString();
-    }).filter(isDefined)
-        .filter(isNonnull)
-        .join(joiner) : '';
+    export const defaultTransformer: Transformer = (components: Presentable[], joiner = ' ') =>
+        components.length
+            ? components
+                  .map(component => {
+                      if (component === undefined) {
+                          return undefined;
+                      }
+                      if (component === null) {
+                          // TODO think about null here
+                          return null;
+                      }
+                      // @ts-expect-error
+                      if (component.map) {
+                          // @ts-expect-error
+                          return defaultTransformer(component, ', ');
+                      }
+                      return component.toString();
+                  })
+                  .filter(isDefined)
+                  .filter(isNonnull)
+                  .join(joiner)
+            : '';
 }

@@ -23,18 +23,18 @@ describe('Deck', () => {
             const drawn: Card[] = [];
             const card = deck.draw();
             expect(card).to.be.ok;
-            expect(drawn.find((x) => card.equals(x))).to.be.undefined;
+            expect(drawn.find(x => card.equals(x))).to.be.undefined;
             drawn.push(card);
         });
-        
+
         it('should grab and return all 54 cards', () => {
             const deck: Deck = new Deck(1);
             const drawn: Card[] = [];
             let card: Card;
-            for(let i = 0; i < 54; i++) {
+            for (let i = 0; i < 54; i++) {
                 card = deck.draw();
                 expect(card).to.be.ok;
-                expect(drawn.find((x) => card.equals(x))).to.be.undefined;
+                expect(drawn.find(x => card.equals(x))).to.be.undefined;
                 drawn.push(card);
             }
             expect(deck.draw()).to.be.undefined;

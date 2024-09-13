@@ -7,9 +7,9 @@ type CanIHaveThatState = {
     whoseAsk: number;
 
     round: number;
-}
+};
 
-type CanIHaveThatDependencies = { deck: DeckController, params: ParamsController<GameParams> };
+type CanIHaveThatDependencies = { deck: DeckController; params: ParamsController<GameParams> };
 
 export class CanIHaveThatControllerProvider implements GenericControllerProvider<CanIHaveThatState, CanIHaveThatDependencies, CanIHaveThatController> {
     initialState() {
@@ -34,16 +34,16 @@ export class CanIHaveThatController extends AbstractController<CanIHaveThatState
             whoseAsk: this.state.whoseAsk,
             round: this.state.round,
         };
-    }    
+    }
 
     validate(): void {
-        if(!Number.isInteger(this.state.round)) { 
+        if (!Number.isInteger(this.state.round)) {
             throw new Error('Expected integer round');
         }
-        if(this.state.wantCard !== undefined && this.state.wantCard !== true && this.state.wantCard !== false) {
+        if (this.state.wantCard !== undefined && this.state.wantCard !== true && this.state.wantCard !== false) {
             throw new Error('Expected boolean or undefined wantCard');
         }
-        if(!Number.isInteger(this.state.whoseAsk)) {
+        if (!Number.isInteger(this.state.whoseAsk)) {
             throw new Error('Expected integer whoseAsk');
         }
     }
@@ -87,7 +87,7 @@ export class CanIHaveThatController extends AbstractController<CanIHaveThatState
      */
     getNumToDeal() {
         const roundNeeded = this.getRound().reduce((one, two) => one + two, 0);
-        if(this.getRound() === this.controllers.params.get().rounds[-1]) {
+        if (this.getRound() === this.controllers.params.get().rounds[-1]) {
             return roundNeeded; // on the last hand, since there is no discard, deal one less
         }
         return roundNeeded + 1;

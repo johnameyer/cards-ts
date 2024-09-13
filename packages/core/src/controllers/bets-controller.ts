@@ -29,10 +29,10 @@ export class BetsController extends GlobalController<BetsState, {}> {
     }
 
     override validate(): void {
-        if(!Array.isArray(this.state)) { 
+        if (!Array.isArray(this.state)) {
             throw new Error('Expected array');
         }
-        if(this.state.some(bet => !Number.isInteger(bet))) {
+        if (this.state.some(bet => !Number.isInteger(bet))) {
             throw new Error('Expected array of numbers');
         }
     }

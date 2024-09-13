@@ -2,14 +2,13 @@ import { Message, Presentable } from '@cards-ts/core';
 import { Card } from '@cards-ts/core';
 
 function generateMessage(player: string, card: Card): Presentable[] {
-    return [ player, 'played', card ];
+    return [player, 'played', card];
 }
 
 /**
  * Class that denotes to a handler that a card has been played
  */
 export class PlayedMessage extends Message {
-
     public readonly type = 'played-message';
 
     /**

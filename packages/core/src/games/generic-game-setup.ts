@@ -4,8 +4,8 @@ import { Intermediary } from '../intermediary/intermediary.js';
  * Represents possible error messages for the subset of params in T
  */
 type ErrorForKey<T> = {
-    readonly [Key in keyof T]?: string
-}
+    readonly [Key in keyof T]?: string;
+};
 
 /**
  * Gives a nicer way to setup a game
@@ -26,7 +26,7 @@ export interface GenericGameSetup<GameParams> {
     /**
      * Get the parameters as a dict to pass to yargs.options
      */
-    getYargs(): {[alias: string]: any};
+    getYargs(): { [alias: string]: any };
 
     /**
      * Transforms the inputs from yargs into the parameters

@@ -5,6 +5,6 @@ export class TurnResponseMessage extends Message {
 
     constructor(public readonly toDiscard: Card | null, public readonly toPlay: Meld[][]) {
         // @ts-expect-error
-        super([ ...(toDiscard ? [ 'Discarded', toDiscard ] : []), ...(toPlay ? [ 'Played', toPlay as (ThreeCardSet | FourCardRun) ] : []) ]);
+        super([...(toDiscard ? ['Discarded', toDiscard] : []), ...(toPlay ? ['Played', toPlay as ThreeCardSet | FourCardRun] : [])]);
     }
 }

@@ -7,6 +7,6 @@ export class OrderUpResponseMessage extends Message {
     readonly type = 'order-up-response';
 
     constructor(public readonly selectingTrump: boolean) {
-        super(selectingTrump ? [ 'Picked trump' ] : [ 'Passed' ]);
+        super(selectingTrump ? ['Picked trump'] : ['Passed']);
     }
 }

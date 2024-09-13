@@ -4,10 +4,10 @@ import { Presentable } from '../../intermediary/presentable.js';
 import { Message } from '../message.js';
 
 function generateMessage(cards: Card[], meld: Meld, player: string): Presentable[] {
-    if(cards.length === meld.cards.length) {
-        return [ player, 'played', meld.toString() ];
+    if (cards.length === meld.cards.length) {
+        return [player, 'played', meld.toString()];
     }
-    return [ player, 'played', cards, 'on', meld.toString() ];
+    return [player, 'played', cards, 'on', meld.toString()];
 }
 
 /**
@@ -15,9 +15,8 @@ function generateMessage(cards: Card[], meld: Meld, player: string): Presentable
  * @category Message
  */
 export class PlayedMessage extends Message {
-
     public readonly type = 'played-message';
-    
+
     /**
      * @param cards the cards that were played
      * @param meld the run the cards were played on

@@ -12,17 +12,15 @@ import { Suit } from '@cards-ts/core';
 import { Message } from '@cards-ts/core';
 import { Card, Handler, HandlerResponsesQueue, MessageHandlerParams, PlayCardResponseMessage } from '@cards-ts/core';
 
-
 interface HeuristicHandlerData extends Record<string, Serializable> {
     [key: string]: Serializable;
 
-    playerOutOfSuit: {[player: string]: Suit[]};
-    numTimesPlayed: {[letter: string]: number};
+    playerOutOfSuit: { [player: string]: Suit[] };
+    numTimesPlayed: { [letter: string]: number };
 }
 
-
 const emptyCounter = () => {
-    const obj: {[letter: string]: number} = {};
+    const obj: { [letter: string]: number } = {};
     obj[Suit.SPADES.letter] = 0;
     obj[Suit.CLUBS.letter] = 0;
     obj[Suit.HEARTS.letter] = 0;
@@ -31,7 +29,7 @@ const emptyCounter = () => {
 };
 
 function wrapData(handlerData: HandlerData) {
-    if(!handlerData.data?.playerOutOfSuit) {
+    if (!handlerData.data?.playerOutOfSuit) {
         handlerData.data = {
             playerOutOfSuit: {},
             numTimesPlayed: emptyCounter(),
@@ -43,27 +41,34 @@ function wrapData(handlerData: HandlerData) {
 
 export class HeuristicHandler implements Handler<GameHandlerParams & MessageHandlerParams, HandlerData, ResponseMessage> {
     private cardScore(card: Card, trumpSuit: Suit): number {
-        if(card.suit === getComplementarySuit(trumpSuit) && card.rank === Rank.JACK) {
+        if (card.suit === getComplementarySuit(trumpSuit) && card.rank === Rank.JACK) {
             return 4 * Rank.NINE.difference(Rank.ACE) + 1;
-        } else if(card.suit === trumpSuit) {
-            if(card.rank === Rank.JACK) {
+        } else if (card.suit === trumpSuit) {
+            if (card.rank === Rank.JACK) {
                 return 4 * Rank.NINE.difference(Rank.ACE) + 1;
             }
             return 3 * Rank.NINE.difference(Rank.ACE) + Rank.NINE.difference(card.rank);
-        } 
+        }
         return Rank.NINE.difference(card.rank);
-        
     }
 
     private cardsScore(cards: Card[], trumpSuit: Suit) {
-        return cards.map(card => this.cardScore(card, trumpSuit)).map(x => Math.max(x, 0))
+        return cards
+            .map(card => this.cardScore(card, trumpSuit))
+            .map(x => Math.max(x, 0))
             .reduce((a, b) => a + b, 0);
     }
 
     handleOrderUp = (handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): void => {
-        const { hand, players: { position }, deck: { dealer }, euchre: { currentTrump, flippedCard }, params: gameParams } = handlerData;
+        const {
+            hand,
+            players: { position },
+            deck: { dealer },
+            euchre: { currentTrump, flippedCard },
+            params: gameParams,
+        } = handlerData;
         let score = this.cardsScore(hand, currentTrump);
-        if(getTeamFor(position, gameParams).includes(dealer)) {
+        if (getTeamFor(position, gameParams).includes(dealer)) {
             score += this.cardScore(flippedCard, currentTrump);
         }
         /*
@@ -79,11 +84,15 @@ export class HeuristicHandler implements Handler<GameHandlerParams & MessageHand
     };
 
     handleNameTrump = (handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): void => {
-        const { hand, euchre: { flippedCard }} = handlerData;
+        const {
+            hand,
+            euchre: { flippedCard },
+        } = handlerData;
         type SuitScore = [Suit, number];
-        const [ suit, score ] = Suit.suits.filter(suit => suit !== flippedCard.suit)
-            .map(suit => [ suit, this.cardsScore(hand, suit) ] as SuitScore)
-            .reduce((best, next) => next[1] > best[1] ? next : best);
+        const [suit, score] = Suit.suits
+            .filter(suit => suit !== flippedCard.suit)
+            .map(suit => [suit, this.cardsScore(hand, suit)] as SuitScore)
+            .reduce((best, next) => (next[1] > best[1] ? next : best));
 
         /*
          * console.log(suit);
@@ -102,15 +111,19 @@ export class HeuristicHandler implements Handler<GameHandlerParams & MessageHand
 
     handleTurn = (handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): void => {
         const data = wrapData(handlerData);
-        const { hand, euchre: { currentTrump }, trick: { currentTrick }} = handlerData;
+        const {
+            hand,
+            euchre: { currentTrump },
+            trick: { currentTrick },
+        } = handlerData;
         let playable = hand.filter(card => followsTrick(currentTrick, currentTrump, card));
-        if(!playable.length) {
+        if (!playable.length) {
             playable = hand;
         }
         try {
         } catch (e) {
-            const wouldWin = playable.filter(card => winningPlay([ ...currentTrick, card ], currentTrump) === currentTrick.length);
-            if(!wouldWin) {
+            const wouldWin = playable.filter(card => winningPlay([...currentTrick, card], currentTrump) === currentTrick.length);
+            if (!wouldWin) {
                 const throwaway = playable.slice().sort(Card.compare)[0];
                 responsesQueue.push(new PlayCardResponseMessage(throwaway), data);
             } else {
@@ -127,14 +140,18 @@ export class HeuristicHandler implements Handler<GameHandlerParams & MessageHand
 
     handleMessage = (gameState: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>, message: Message): void => {
         const data = wrapData(gameState);
-        const { trick: { currentTrick }} = gameState;
-        if(isPlayedMessage(message)) {
+        const {
+            trick: { currentTrick },
+        } = gameState;
+        if (isPlayedMessage(message)) {
             const followSuit = currentTrick.find(card => card)?.suit;
-            if(followSuit) {
+            if (followSuit) {
                 data.numTimesPlayed[followSuit.letter]++;
             }
-            if(followSuit && message.card.suit !== followSuit) {
-                data.playerOutOfSuit[message.player] = [ ...(data.playerOutOfSuit[message.player] || []) as Suit[], followSuit ].filter((val, index, arr) => arr.indexOf(val) === index);
+            if (followSuit && message.card.suit !== followSuit) {
+                data.playerOutOfSuit[message.player] = [...((data.playerOutOfSuit[message.player] || []) as Suit[]), followSuit].filter(
+                    (val, index, arr) => arr.indexOf(val) === index,
+                );
             }
             responsesQueue.push(undefined, data);
         }

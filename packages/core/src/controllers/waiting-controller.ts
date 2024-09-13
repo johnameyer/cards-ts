@@ -10,7 +10,7 @@ type WaitingState = {
      * Field indicating which of the hands have already responded
      */
     responded: number[];
-}
+};
 
 /**
  * @category Controller Provider
@@ -23,7 +23,7 @@ export class WaitingControllerProvider implements GenericControllerProvider<Wait
     initialState(): WaitingState {
         return {
             waiting: [],
-            responded: [],  
+            responded: [],
         };
     }
 
@@ -47,7 +47,7 @@ export class WaitingController extends GlobalController<WaitingState, {}> {
     }
 
     removePosition(position: number) {
-        if(!Array.isArray(this.state.waiting)) {
+        if (!Array.isArray(this.state.waiting)) {
             throw new Error('waiting is not an array, got: ' + this.state.waiting);
         }
         this.state.waiting.splice(this.state.waiting.indexOf(position), 1);
@@ -60,9 +60,9 @@ export class WaitingController extends GlobalController<WaitingState, {}> {
      */
     isWaitingOnPlayer() {
         const { waiting } = this.get();
-        if(Array.isArray(waiting)) {
+        if (Array.isArray(waiting)) {
             return waiting.length !== 0;
-        } 
+        }
         return waiting > 0;
     }
 
@@ -73,9 +73,9 @@ export class WaitingController extends GlobalController<WaitingState, {}> {
      */
     isWaitingOnPlayerSubset(subset: number[]) {
         const { waiting, responded } = this.get();
-        if(Array.isArray(waiting)) {
+        if (Array.isArray(waiting)) {
             return waiting.length !== 0 && waiting.some(position => subset.includes(position));
-        } 
+        }
         return waiting > 0 && subset.some(position => !responded[position]);
     }
 }

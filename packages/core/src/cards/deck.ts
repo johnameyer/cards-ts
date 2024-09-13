@@ -41,17 +41,17 @@ export class Deck {
      */
     constructor(num = 0, shouldShuffle = true, includeJokers = true, ranks = Rank.ranks) {
         // TODO make this just take cards and move the rest of this to a static function
-        if(num >= 0) {
+        if (num >= 0) {
             this.cards = [];
-            for(let deck = 0; deck < num; deck++) {
-                for(const suit of Suit.suits) {
-                    for(const rank of ranks) {
-                        if(rank !== Rank.JOKER) {
+            for (let deck = 0; deck < num; deck++) {
+                for (const suit of Suit.suits) {
+                    for (const rank of ranks) {
+                        if (rank !== Rank.JOKER) {
                             this.cards.push(new Card(suit, rank, deck));
                         }
                     }
                 }
-                if(includeJokers && Rank.ranks.indexOf(Rank.JOKER) >= 0) {
+                if (includeJokers && Rank.ranks.indexOf(Rank.JOKER) >= 0) {
                     // TODO revisit
                     this.cards.push(new Card(Suit.NONE, Rank.JOKER, deck, 0));
                     this.cards.push(new Card(Suit.NONE, Rank.JOKER, deck, 1));
@@ -60,7 +60,7 @@ export class Deck {
         } else {
             throw new InvalidError('Must have a non-negative number of cards');
         }
-        if(shouldShuffle) {
+        if (shouldShuffle) {
             shuffle(this.cards);
         }
     }
@@ -70,7 +70,7 @@ export class Deck {
      * @returns the top card, or null available
      */
     get top(): Card | null {
-        if(!this.topAvailable || this.discards.length === 0) {
+        if (!this.topAvailable || this.discards.length === 0) {
             return null;
         }
         return this.discards[this.discards.length - 1];
@@ -81,7 +81,7 @@ export class Deck {
      * @returns whether there are still cards in the deck
      */
     public shuffle() {
-        if(this.cards) {
+        if (this.cards) {
             shuffle(this.cards);
             return true;
         }
@@ -95,7 +95,7 @@ export class Deck {
      */
     public flip(): Card {
         const card = this.draw();
-        if(card === undefined) {
+        if (card === undefined) {
             throw new Error('No cards to flip');
         }
         this.discard(card);
@@ -152,10 +152,10 @@ export class Deck {
     }
 
     public static fromObj(obj: any): Deck {
-        if(!(obj instanceof Object)) {
+        if (!(obj instanceof Object)) {
             throw new Error('Object is falsy');
         }
-        if(!Array.isArray(obj.cards) || !Array.isArray(obj.discards) || (obj.topAvailable !== true && obj.topAvailable !== false)) {
+        if (!Array.isArray(obj.cards) || !Array.isArray(obj.discards) || (obj.topAvailable !== true && obj.topAvailable !== false)) {
             throw new Error('Shape of object is wrong');
         }
         const deck = new Deck();

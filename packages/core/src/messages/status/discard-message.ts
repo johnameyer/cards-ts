@@ -3,11 +3,10 @@ import { Presentable } from '../../intermediary/presentable.js';
 import { Message } from '../message.js';
 
 function generateMessage(card: Card, player?: string): Presentable[] {
-    if(player) {
-        return [ player, 'discarded', card ];
-    } 
-    return [ 'First card is', card ];
-    
+    if (player) {
+        return [player, 'discarded', card];
+    }
+    return ['First card is', card];
 }
 
 /**

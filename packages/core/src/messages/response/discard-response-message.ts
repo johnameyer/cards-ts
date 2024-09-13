@@ -9,6 +9,6 @@ export class DiscardResponseMessage extends Message {
     public readonly type = 'discard-response';
 
     constructor(public readonly toDiscard: Card) {
-        super([ 'Discarded', toDiscard ]);
+        super(['Discarded', toDiscard]);
     }
 }

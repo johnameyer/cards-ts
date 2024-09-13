@@ -1,6 +1,16 @@
 import { GameHandlerParams } from '../game-handler-params.js';
 import { ResponseMessage } from '../messages/response-message.js';
-import { AbstractHandsController, Card, DeckController, GenericControllerProvider, GenericHandlerController, GlobalController, Serializable, Suit, SystemHandlerParams } from '@cards-ts/core';
+import {
+    AbstractHandsController,
+    Card,
+    DeckController,
+    GenericControllerProvider,
+    GenericHandlerController,
+    GlobalController,
+    Serializable,
+    Suit,
+    SystemHandlerParams,
+} from '@cards-ts/core';
 
 export interface EuchreState {
     [key: string]: Serializable;
@@ -14,13 +24,13 @@ export interface EuchreState {
     goingAlone: number | undefined;
 }
 
-type EuchreDependencies = { deck: DeckController, hand: AbstractHandsController<any>, players: GenericHandlerController<ResponseMessage, GameHandlerParams & SystemHandlerParams> };
+type EuchreDependencies = { deck: DeckController; hand: AbstractHandsController<any>; players: GenericHandlerController<ResponseMessage, GameHandlerParams & SystemHandlerParams> };
 
 export class EuchreControllerProvider implements GenericControllerProvider<EuchreState, EuchreDependencies, EuchreController> {
     controller(state: EuchreState, controllers: EuchreDependencies): EuchreController {
         return new EuchreController(state, controllers);
     }
-    
+
     initialState(): EuchreState {
         return {
             bidder: undefined,
@@ -36,9 +46,8 @@ export class EuchreControllerProvider implements GenericControllerProvider<Euchr
 }
 
 export class EuchreController extends GlobalController<EuchreState, EuchreDependencies> {
-    validate() {
-    }
-    
+    validate() {}
+
     get bidder() {
         return this.state.bidder;
     }
@@ -60,10 +69,10 @@ export class EuchreController extends GlobalController<EuchreState, EuchreDepend
     }
 
     setBidder(bidder?: number, trump?: Suit) {
-        if(bidder !== undefined) {
+        if (bidder !== undefined) {
             this.state.bidder = bidder;
         }
-        if(trump) {
+        if (trump) {
             this.state.currentTrump = trump;
         }
     }

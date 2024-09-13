@@ -32,8 +32,8 @@ export class PointsControllerProvider implements GenericControllerProvider<Point
  */
 export class PointsController extends GlobalController<PointsState, PointsDependencies> {
     increaseScore(players: number | number[], increment: number) {
-        if(Array.isArray(players)) {
-            for(const player of players) {
+        if (Array.isArray(players)) {
+            for (const player of players) {
                 this.state[player] += increment;
             }
         } else {
@@ -42,8 +42,8 @@ export class PointsController extends GlobalController<PointsState, PointsDepend
     }
 
     decreaseScore(players: number | number[], decrement: number) {
-        if(Array.isArray(players)) {
-            for(const player of players) {
+        if (Array.isArray(players)) {
+            for (const player of players) {
                 this.state[player] -= decrement;
             }
         } else {
@@ -60,7 +60,7 @@ export class PointsController extends GlobalController<PointsState, PointsDepend
     }
 
     playersOver(threshold: number) {
-        return this.state.map((points, index) => points >= threshold ? index : undefined).filter(isDefined);
+        return this.state.map((points, index) => (points >= threshold ? index : undefined)).filter(isDefined);
     }
 
     reset() {

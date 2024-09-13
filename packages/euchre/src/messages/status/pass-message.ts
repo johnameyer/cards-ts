@@ -1,14 +1,13 @@
 import { Message, Presentable } from '@cards-ts/core';
 
 function generateMessage(leader: string): Presentable[] {
-    return [ leader, 'passed' ];
+    return [leader, 'passed'];
 }
 
 /**
  * Class that denotes to a handler that a player has passed
  */
 export class PassMessage extends Message {
-
     public readonly type = 'pass-message';
 
     /**
