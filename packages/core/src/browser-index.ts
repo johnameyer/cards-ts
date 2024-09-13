@@ -10,7 +10,7 @@ export { ValueError } from './cards/value-error.js';
 
 export { AbstractController, AbstractHandsController, BetsController, CompletedController, HiddenHandsControllerProvider, ControllersProviders, UnwrapProviders, ControllerHandlerState, HandsControllerProvider, ControllerState, DataController, DeckController, GameStateController, GlobalController, HandsController, HiddenHandsController, IndexedControllers, NamesController, ParamsController, PointsController, TricksController, ValidatedProviders, WaitingController, MeldController, TurnController, GenericControllerProvider, BetsControllerProvider, CompletedControllerProvider, DataControllerProvider, DeckControllerProvider, GameStateControllerProvider, IndexedProviders, MeldControllerProvider, NamesControllerProvider, ParamsControllerProvider, PointsControllerProvider, StatelessController, TricksControllerProvider, TurnControllerProvider, WaitingControllerProvider } from './controllers/index.js';
 
-export { AbstractGameFactory } from './games/abstract-game-factory.js';
+export { buildGameFactory } from './games/abstract-game-factory.js';
 export { GameDriver } from './games/game-driver.js';
 export { STANDARD_STATES } from './games/game-states.js';
 export { GenericGameSetup } from './games/generic-game-setup.js';
