@@ -134,6 +134,7 @@ export class Rank {
      */
     public readonly order: number;
 
+    // TODO remove value
     private constructor(readonly char: string, readonly value: number) {
         this.order = count++;
         Object.freeze(this);
@@ -177,6 +178,7 @@ export class Rank {
         return other.order - this.order;
     }
 
+    // TODO remove
     /**
      * Tells whether a rank is wild or not
      * @returns if it is wild

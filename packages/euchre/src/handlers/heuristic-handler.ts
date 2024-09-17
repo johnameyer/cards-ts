@@ -41,48 +41,50 @@ function wrapData(handlerData: HandlerData) {
     return handlerData.data as HeuristicHandlerData;
 }
 
-export class HeuristicHandler implements Handler<GameHandlerParams & MessageHandlerParams, HandlerData, ResponseMessage> {
-    private cardScore(card: Card, trumpSuit: Suit): number {
-        if(card.suit === getComplementarySuit(trumpSuit) && card.rank === Rank.JACK) {
-            return 4 * Rank.NINE.difference(Rank.ACE) + 1;
-        } else if(card.suit === trumpSuit) {
-            if(card.rank === Rank.JACK) {
-                return 4 * Rank.NINE.difference(Rank.ACE) + 1;
-            }
-            return 3 * Rank.NINE.difference(Rank.ACE) + Rank.NINE.difference(card.rank);
-        } 
-        return Rank.NINE.difference(card.rank);
-        
+function cardScore(card: Card, trumpSuit: Suit): number {
+    if(card.suit === getComplementarySuit(trumpSuit) && card.rank === Rank.JACK) {
+        return 3 * (Rank.NINE.difference(Rank.ACE) + 1);
+    } else if(card.suit === trumpSuit) {
+        if(card.rank === Rank.JACK) {
+            return 3 * (Rank.NINE.difference(Rank.ACE) + 2);
+        }
+        return 3 * Rank.NINE.difference(Rank.ACE) + Rank.NINE.difference(card.rank);
     }
+    return Rank.NINE.difference(card.rank);
+}
 
-    private cardsScore(cards: Card[], trumpSuit: Suit) {
-        return cards.map(card => this.cardScore(card, trumpSuit)).map(x => Math.max(x, 0))
-            .reduce((a, b) => a + b, 0);
-    }
+function cardsScore(cards: Card[], trumpSuit: Suit) {
+    return cards.map(card => cardScore(card, trumpSuit))
+        .map(x => Math.max(x, 0))
+        .reduce((a, b) => a + b, 0);
+}
+
+export class HeuristicHandler implements Handler<GameHandlerParams & MessageHandlerParams, HandlerData, ResponseMessage> {
 
     handleOrderUp = (handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): void => {
         const { hand, players: { position }, deck: { dealer }, euchre: { currentTrump, flippedCard }, params: gameParams } = handlerData;
-        let score = this.cardsScore(hand, currentTrump);
+        let score = cardsScore(hand, currentTrump);
         if(getTeamFor(position, gameParams).includes(dealer)) {
-            score += this.cardScore(flippedCard, currentTrump);
+            score += cardScore(flippedCard, currentTrump);
         }
+
         /*
          * console.log(flippedCard.toString());
          * console.log(hand.filter(card => followsTrick([flippedCard], currentTrump, card)).map(card => card.toString()));
          * console.log(score);
          * console.log();
          */
-
+        
         // calculate based on who passed so far
 
-        responsesQueue.push(new OrderUpResponseMessage(score > 55)); // 60?
+        responsesQueue.push(new OrderUpResponseMessage(score >= 45));
     };
 
     handleNameTrump = (handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): void => {
         const { hand, euchre: { flippedCard }} = handlerData;
         type SuitScore = [Suit, number];
         const [ suit, score ] = Suit.suits.filter(suit => suit !== flippedCard.suit)
-            .map(suit => [ suit, this.cardsScore(hand, suit) ] as SuitScore)
+            .map(suit => [ suit, cardsScore(hand, suit) ] as SuitScore)
             .reduce((best, next) => next[1] > best[1] ? next : best);
 
         /*
@@ -92,7 +94,7 @@ export class HeuristicHandler implements Handler<GameHandlerParams & MessageHand
          * console.log();
          */
 
-        responsesQueue.push(new NameTrumpResponseMessage(score > 55 ? suit : undefined));
+        responsesQueue.push(new NameTrumpResponseMessage(score >= 45 ? suit : undefined));
     };
 
     handleDealerDiscard = (handlerData: HandlerData, responsesQueue: HandlerResponsesQueue<ResponseMessage>): void => {

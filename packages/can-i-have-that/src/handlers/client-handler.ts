@@ -1,6 +1,7 @@
 import { GameHandler, HandlerData } from '../game-handler.js';
 import { GoDownResponseMessage, PlayResponseMessage, WantCardResponseMessage } from '../messages/response/index.js';
 import { Card, DiscardResponseMessage, distinct, FourCardRun, HandlerResponsesQueue, InvalidError, Meld, ThreeCardSet } from '@cards-ts/core';
+import { bifilter } from '../util/bifilter.js';
 
 /**
  * Breaks up the decisions made during a turn into individual components
@@ -124,7 +125,7 @@ export abstract class ClientHandler extends GameHandler {
         if(num === 3) {
             return new ThreeCardSet(selected);
         } 
-        const [ wilds, nonwilds ] = selected.bifilter(card => card.rank.isWild());
+        const [ wilds, nonwilds ] = bifilter(selected, card => card.rank.isWild());
         const run = nonwilds.sort(Card.compare);
         for(const wild of wilds) {
             const position = await this.insertWild(run, wild, data);

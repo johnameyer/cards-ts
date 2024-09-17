@@ -9,23 +9,6 @@ function flatten<T>(reduction: T[], arr: T[]) {
     return reduction;
 }
 
-declare global {
-    interface Array<T> {
-        bifilter(filter: (item: T) => any): [T[], T[]];
-    }
-}
-
-Array.prototype.bifilter = function<T>(filter: (item: T) => any): [T[], T[]] {
-    return this.reduce(([ match, nonMatch ], item) => {
-        if(filter(item)) {
-            match.push(item);
-        } else {
-            nonMatch.push(item);
-        }
-        return [ match, nonMatch ];
-    }, [[], []]);
-};
-
 const toInquirerValue = <T extends {toString: () => string}>(t: T) => ({
     name: t.toString(),
     value: t,

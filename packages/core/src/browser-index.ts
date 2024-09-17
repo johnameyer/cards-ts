@@ -21,6 +21,7 @@ export { GenericHandlerController } from './games/generic-handler-controller.js'
 export { HandlerResponsesQueue, ResponseQueue } from './games/response-queue.js';
 export { DefaultControllers, DefaultControllerKeys } from './games/default-controllers.js';
 
+export { ArrayMessageHandler } from './handlers/array-message-handler.js';
 export { Handler, HandlerAction, HandlerChain } from './handlers/handler.js';
 export { MessageHandler, MessageHandlerParams } from './handlers/message-handler.js';
 export { SystemHandler, SystemHandlerParams } from './handlers/system-handler.js';

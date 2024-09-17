@@ -5,21 +5,15 @@ import { Card, potentialWilds } from './card.js';
 import { Meld } from './meld.js';
 import { Suit } from './suit.js';
 
-declare global {
-    interface Array<T> {
-        bifilter(filter: (item: T) => any): [T[], T[]];
-    }
-}
-
-Array.prototype.bifilter = function<T>(filter: (item: T) => any): [T[], T[]] {
-    return this.reduce(([ match, nonMatch ], item) => {
+const bifilter = function<T>(array: Array<T>, filter: (item: T) => any): [T[], T[]] {
+    return array.reduce(([ match, nonMatch ], item) => {
         if(filter(item)) {
             match.push(item);
         } else {
             nonMatch.push(item);
         }
         return [ match, nonMatch ];
-    }, [[], []]);
+    }, [[], []] as [T[], T[]]);
 };
 
 /**
@@ -65,7 +59,7 @@ function check(run: FourCardRun): void {
  */
 export function checkFourCardRunPossible(cards: readonly Card[]) {
     const sorted = [ ...cards ].sort(Card.compare);
-    const [ wilds, nonwilds ] = sorted.bifilter(card => card.isWild());
+    const [ wilds, nonwilds ] = bifilter(sorted, card => card.isWild());
     for(let i = 0; i < nonwilds.length - 1; i++) {
         if(nonwilds[i].rank === nonwilds[i + 1].rank && nonwilds[i].suit === nonwilds[i + 1].suit) {
             throw new InvalidError('Non wild card is repeated');

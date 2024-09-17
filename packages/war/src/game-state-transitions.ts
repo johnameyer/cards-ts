@@ -6,7 +6,7 @@ import { SpacingMessage, GenericGameStateTransitions } from '@cards-ts/core';
 export const gameStateTransitions: GenericGameStateTransitions<typeof GameStates, Controllers> = {
     [GameStates.START_GAME](controllers: Controllers) {
         controllers.deck.resetDeck();
-        controllers.hand.dealOut(false);
+        controllers.hand.dealOut(false, false);
 
         controllers.state.set(GameStates.START_BATTLE);
     },
@@ -15,8 +15,10 @@ export const gameStateTransitions: GenericGameStateTransitions<typeof GameStates
         controllers.war.resetPlayed();
 
         controllers.state.set(GameStates.START_FLIP);
+
+        controllers.war.incrementBattleCount();
         
-        if(controllers.war.battleCountAndOne > controllers.params.get().maxBattles) {
+        if(controllers.war.battleCount > controllers.params.get().maxBattles) {
             controllers.state.set(GameStates.END_GAME);
         }
     },

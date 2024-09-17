@@ -38,12 +38,15 @@ export class WarController extends GlobalController<WarState, WarDependencies> {
     public battleWinner() {
         const compared = this.state.playedCards.map(cards => cards[cards.length - 1].rank);
 
+        // find the max, preferring later entries for ties
         let max = 0;
         for(let i = 1; i < compared.length; i++) {
             if(compared[i].difference(compared[max]) <= 0) {
                 max = i;
             }
         }
+
+        // see if the max has a duplicate (i.e. there is another max sooner in the array)
         return compared.findIndex(rank => rank === compared[max]) === max ? max : -1;
     }
 
@@ -56,8 +59,12 @@ export class WarController extends GlobalController<WarState, WarDependencies> {
             .map(() => []);
     }
 
-    public get battleCountAndOne() {
-        return this.state.battleCount++;
+    public incrementBattleCount() {
+        this.state.battleCount++;
+    }
+
+    public get battleCount() {
+        return this.state.battleCount;
     }
 
     public getMaxPlayed() {

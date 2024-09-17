@@ -9,7 +9,7 @@ type TypedDefaultControllers = DefaultControllers<GameParams, typeof GameStates,
 
 export const buildProviders = () => {
     const providers = {
-        deck: new DeckControllerProvider(3, true),
+        deck: new DeckControllerProvider(3, true), // TODO start with different number / add decks as game continues
         hand: new HandsControllerProvider(),
         score: new PointsControllerProvider(),
         turn: new TurnControllerProvider(),

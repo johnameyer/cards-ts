@@ -14,6 +14,7 @@ function generateMessage(card: Card, player?: string, extra = false): Presentabl
     
 }
 
+// TODO remove extra boolean & make more generic
 /**
  * A class designating to a handler that anpther player has picked up a card, or that a card was not picked up at all
  * @category Message

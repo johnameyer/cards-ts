@@ -21,7 +21,7 @@ export class HandlerChain<Handlers extends {[key: string]: any[]}, HandlerData e
      * Create a new chain
      * @param handlers the handlers to include in the chain
      */
-    constructor(private readonly handlers: Handler<Handlers, HandlerData, ResponseMessage>[] = []) { }
+    constructor(private readonly handlers: Array<Handler<Handlers, HandlerData, ResponseMessage>> = []) { }
 
     /**
      * Adds a handler to this chain
