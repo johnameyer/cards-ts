@@ -1,9 +1,9 @@
-import { DealOutMessage, EndRoundMessage, PlayedMessage, WonRoundMessage, NameTrumpMessage, OrderUpMessage, PassMessage, TrumpMessage, WonTrickMessage } from './status/index.js';
+import { EndRoundMessage, PlayedMessage, WonRoundMessage, NameTrumpMessage, OrderUpMessage, PassMessage, TrumpMessage, WonTrickMessage } from './status/index.js';
 import { GoingAloneMessage } from './status/going-alone-message.js';
-import { DealerMessage, LeadsMessage, TurnUpMessage } from '@cards-ts/core';
+import { DealerMessage, DealtOutMessage, LeadsMessage, TurnUpMessage } from '@cards-ts/core';
 
 export type StatusMessage =
-    DealOutMessage
+    DealtOutMessage
     | DealerMessage
     | EndRoundMessage
     | LeadsMessage

@@ -1,4 +1,3 @@
-import 'mocha';
 import { expect } from 'chai';
 import { Card } from '../src/index.js';
 

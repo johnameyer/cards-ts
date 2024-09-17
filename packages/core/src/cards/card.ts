@@ -13,15 +13,15 @@ export class Card {
      * @param str the string to create the card from
      * @returns the card
      */
-    public static fromString(str: string): Card {
+    public static fromString(str: string, deck: number = -1): Card {
         if(str === '*') {
-            return new Card(Suit.NONE, Rank.JOKER);
+            return new Card(Suit.NONE, Rank.JOKER, deck);
         }
         if(str.length < 2 || str.length > 3) {
             throw new ValueError('String is not valid card');
         }
         try {
-            const card = new Card(Suit.fromString(str.substring(str.length - 1)), Rank.fromString(str.substring(0, str.length - 1)));
+            const card = new Card(Suit.fromString(str.substring(str.length - 1)), Rank.fromString(str.substring(0, str.length - 1)), deck);
             return card;
         } catch {
             throw new ValueError('String is not valid card');
@@ -80,6 +80,7 @@ export class Card {
         return this.rank.toString() + ' of ' + this.suit.toString();
     }
 
+    // TODO remove
     /**
      * Tells whether this card is wild
      * @returns if it is wild
@@ -113,6 +114,7 @@ export class Card {
     }
 }
 
+// TODO remove to can-i-have-that
 /**
  * Array of template cards of the cards that are considered wild
  */

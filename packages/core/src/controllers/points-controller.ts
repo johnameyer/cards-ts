@@ -64,6 +64,6 @@ export class PointsController extends GlobalController<PointsState, PointsDepend
     }
 
     reset() {
-        return new Array(this.controllers.players.count).fill(0);
+        this.state = new Array(this.controllers.players.count).fill(0);
     }
 }

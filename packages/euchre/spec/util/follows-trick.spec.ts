@@ -1,5 +1,4 @@
 import { expect } from 'chai';
-import 'mocha';
 import { followsTrick } from '../../src/util/follows-trick.js';
 import { Card, Rank, Suit } from '@cards-ts/core';
 

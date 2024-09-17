@@ -62,7 +62,7 @@ export function buildGameFactory<Handles extends {[key: string]: unknown[]}, Gam
          * Creates a new handler chain containing the intermediary handler and the system intermediary handler
          */
         getIntermediaryHandlerChain(intermediary: Intermediary): HandlerChain<Handles & SystemHandlerParams, ControllerHandlerState<Controllers & DefaultControllers<GameParams, State, ResponseMessage, Handles & SystemHandlerParams>>, ResponseMessage> {
-            return new HandlerChain<Handles & SystemHandlerParams, ControllerHandlerState<Controllers>, ResponseMessage>().append(this.getIntermediaryHandler(intermediary))
+            return new HandlerChain([this.getIntermediaryHandler(intermediary)])
                 .append(new IntermediarySystemHandler(intermediary) as Handler<SystemHandlerParams, ControllerHandlerState<Controllers>, ResponseMessage>);
         },
 

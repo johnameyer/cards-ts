@@ -3,10 +3,6 @@ import { Suit } from './suit.js';
 import { Rank } from './rank.js';
 import { InvalidError } from './invalid-error.js';
 
-function choiceAndRemove<T>(items: T[]): T {
-    return items.splice(Math.floor(Math.random() * items.length), 1)[0];
-}
-
 function shuffle<T>(items: T[]): T[] {
     return items.sort(() => 0.5 - Math.random());
 }
@@ -106,8 +102,8 @@ export class Deck {
      * Selects a card and removes it
      * @returns the card
      */
-    public draw() {
-        return choiceAndRemove(this.cards);
+    public draw() { 
+        return this.cards.splice(0, 1)[0];
     }
 
     /**

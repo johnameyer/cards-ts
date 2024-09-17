@@ -1,4 +1,3 @@
-import 'mocha';
 import { expect } from 'chai';
 import { ControllerState, ControllersProviders, DefaultControllers, EventHandler, EventHandlerInterface, GameDriver, GenericGameState, GenericGameStateTransitions, STANDARD_STATES, SystemHandlerParams, buildEventHandler } from '../../src/browser-index.js';
 import { MockHandler, MockResponseMessage, MockHandlerParams } from '../handlers/mock-handler.js';
