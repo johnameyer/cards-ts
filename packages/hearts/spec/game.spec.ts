@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import { expect, use } from 'chai';
+import { jestSnapshotPlugin } from "mocha-chai-jest-snapshot";
 import { IntermediaryHandler } from '../src/index.js';
 import { eventHandler } from '../src/event-handler.js';
 import { GameSetup } from '../src/game-setup.js';
@@ -13,7 +14,9 @@ import { valueOfCard } from '../src/util/value-of-card.js';
 import { followsTrick } from '../src/util/follows-trick.js';
 import { PlayedMessage } from '../src/messages/status/played-message.js';
 import { StatusMessage } from '../../can-i-have-that/src/messages/status-message.js';
-import { ArrayMessageHandler, buildGameFactory, Card, DeckControllerProvider, EndRoundMessage, HandlerChain, LeadsMessage, PlayCardResponseMessage } from '@cards-ts/core';
+import { ArrayMessageHandler, buildGameFactory, Card, DeckControllerProvider, EndRoundMessage, HandlerChain, LeadsMessage, Message, PlayCardResponseMessage } from '@cards-ts/core';
+
+use(jestSnapshotPlugin());
 
 describe('game', () => {
     // TODO can we build this more simply i.e. deterministic deck controller?
@@ -141,6 +144,31 @@ describe('game', () => {
             expect(messageHandler.arr.at(-1)?.type).to.equal('end-round-message');
 
             expect((messageHandler.arr.at(-1) as EndRoundMessage).scores.reduce((a, b) => a + b, 0) % 26).to.equal(0);
+        }
+    });
+
+    it('has a matching snapshot', async () => {
+        const messageHandlers = Array.from({length: 4}, () => new ArrayMessageHandler<StatusMessage>());
+
+        const gameHandler: () => GameHandler = () => new HeuristicHandler();
+
+        // @ts-expect-error
+        const players = Array.from(messageHandlers, messageHandler => new HandlerChain([ messageHandler, gameHandler() ]));
+
+        const names = Array.from(messageHandlers, (_, i) => String.fromCharCode(65 + i));
+
+        const driver = factory.getGameDriver(players, params, names);
+
+
+        while(!driver.getState().completed) {
+            driver.handleSyncResponses();
+            driver.resume();
+        }
+
+        for(const i in messageHandlers) {
+            const messageHandler = messageHandlers[i];
+
+            expect(messageHandler.arr.map(msg => Message.defaultTransformer(msg.components))).toMatchSnapshot();
         }
     });
 });
