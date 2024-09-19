@@ -1,0 +1,29 @@
+{
+  "preset": "ts-jest",
+  "moduleFileExtensions": [
+    "ts",
+    "tsx",
+    "js",
+    "jsx",
+    "json",
+    "node"
+  ],
+  "transform": {
+      "^.+\\.tsx?$": [
+        "ts-jest",
+        {
+          "tsconfig": "tsconfig.spec.json",
+          "useESM": true
+        }
+      ]
+  },
+  "moduleNameMapper": {
+    "(.+)\\.js": "$1"
+  },
+  "extensionsToTreatAsEsm": [".ts"],
+  "testEnvironment": "node",
+  "testMatch": [
+      "**.spec.ts"
+  ],
+  "testPathIgnorePatterns": ["/node_modules/", "/lib/"]
+}
