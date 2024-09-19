@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`game has a matching snapshot 1`] = `
+Array [
+  "A flipped 2 of Diamonds",
+  "B flipped 3 of Diamonds",
+  "B won the battle",
+  "A flipped 4 of Diamonds",
+  "B flipped 5 of Diamonds",
+  "B won the battle",
+  "Game went over the max number of battles",
+]
+`;
+
+exports[`game has a matching snapshot 2`] = `
+Array [
+  "A flipped 2 of Diamonds",
+  "B flipped 3 of Diamonds",
+  "B won the battle",
+  "A flipped 4 of Diamonds",
+  "B flipped 5 of Diamonds",
+  "B won the battle",
+  "Game went over the max number of battles",
+]
+`;

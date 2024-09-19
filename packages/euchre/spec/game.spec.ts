@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import { expect, use } from 'chai';
+import { jestSnapshotPlugin } from "mocha-chai-jest-snapshot";
 import { IntermediaryHandler } from '../src/index.js';
 import { eventHandler } from '../src/event-handler.js';
 import { GameSetup } from '../src/game-setup.js';
@@ -9,6 +10,8 @@ import { HeuristicHandler } from '../src/handlers/heuristic-handler.js';
 import { ArrayMessageHandler, buildGameFactory, DeckControllerProvider, HandlerChain, Message, Rank } from '@cards-ts/core';
 import { GameHandler } from '../src/game-handler.js';
 import { StatusMessage } from '../../can-i-have-that/src/messages/status-message.js';
+
+use(jestSnapshotPlugin());
 
 describe('game', () => {
     // TODO can we build this more simply i.e. deterministic deck controller?
@@ -81,5 +84,29 @@ describe('game', () => {
         }
 
         // Make additional assertions
+    });
+
+    it('has a matching snapshot', async () => {
+        const messageHandlers = Array.from({length: 4}, () => new ArrayMessageHandler<StatusMessage>());
+
+        const gameHandler: () => GameHandler = () => new HeuristicHandler();
+
+        // @ts-expect-error
+        const players = Array.from(messageHandlers, messageHandler => new HandlerChain([ messageHandler, gameHandler() ]));
+
+        const names = Array.from(messageHandlers, (_, i) => String.fromCharCode(65 + i));
+
+        const driver = factory.getGameDriver(players, params, names);
+
+        while(!driver.getState().completed) {
+            driver.handleSyncResponses();
+            driver.resume();
+        }
+
+        for(const i in messageHandlers) {
+            const messageHandler = messageHandlers[i];
+
+            expect(messageHandler.arr.map(msg => Message.defaultTransformer(msg.components))).toMatchSnapshot();
+        }
     });
 });
