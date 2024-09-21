@@ -1,5 +1,5 @@
-import { EndRoundMessage, NoPassingMessage, PassedMessage, PassingMessage, PlayedMessage, ScoredMessage, ShotTheMoonMessage } from './status/index.js';
-import { DealtOutMessage, LeadsMessage } from '@cards-ts/core';
+import { NoPassingMessage, PassedMessage, PassingMessage, PlayedMessage, ScoredMessage, ShotTheMoonMessage } from './status/index.js';
+import { DealtOutMessage, EndRoundMessage, LeadsMessage } from '@cards-ts/core';
 
 export type StatusMessage =
     DealtOutMessage

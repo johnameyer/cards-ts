@@ -1,4 +1,3 @@
-export { EndRoundMessage } from './end-round-message.js';
 export { NoPassingMessage } from './no-passing-message.js';
 export { PassedMessage } from './passed-message.js';
 export { PassingMessage } from './passing-message.js';
