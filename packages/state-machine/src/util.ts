@@ -18,13 +18,6 @@ export type StronglyTypedMachine<T, K extends string> = { // machine also needs 
     }
 };
 
-/*
- * export type Named<T> = {
- *     id: string,
- *     run: T,
- * }
- */
-
 export type Machine<T> = StronglyTypedMachine<T, string>;
 
 export type MachineLike<T> = Transition<T> | NestedMachine<T>;
@@ -68,7 +61,7 @@ function asMachine<T>(machine: MachineLike<T>, defaultId: string): NestedMachine
 /**
  * Adds a transition onto starting state
  */
-function prependState<T>(machine: NestedMachine<T>, id: string, state: MachineLike<T>): NestedMachine<T> {
+export function prependState<T>(machine: NestedMachine<T>, id: string, state: MachineLike<T>): NestedMachine<T> {
     return {
         start: id,
         states: {
@@ -292,7 +285,11 @@ export function flatten<T>(machine: NestedMachine<T>): Machine<T> {
 }
 
 export function adapt<T extends StatefulControllers>(machine: NestedMachine<T>): GenericGameStateTransitions<typeof STANDARD_STATES, T> {
+    createMermaid(machine);
+
     const flattened = flatten(machine); // TODO simplify
+
+    createMermaid(flattened);
 
     // console.log(printMachine(flattened));
 
@@ -329,3 +326,34 @@ export function adapt<T extends StatefulControllers>(machine: NestedMachine<T>):
 // TODO validate
 
 export type StatefulControllers = IndexedControllers & { state: GameStateController<any>; waiting: WaitingController; completed: CompletedController; };
+
+export function createMermaid(machine: NestedMachine<any>, prefix: string = '', indent: string = '') {
+    const print = (line: string) => console.log(indent + line);
+
+    if(prefix === '') {
+        print('stateDiagram-v2');
+    }
+    const buildName = (name: string) => (prefix ? prefix + '_' : '') + name;
+
+    // TODO generate shorter names for nested machines
+
+    print(`[*] --> ${buildName(machine.start)}`);
+
+    for(const [key, state] of Object.entries(machine.states)) {
+        const run = state.run;
+        if(run && 'start' in run) {
+            print(`state ${buildName(key)} {`);
+            createMermaid(run, buildName(key), indent + '  ');
+            print(`}`);
+        }
+
+        if('defaultTransition' in state) {
+            for(const transition of state.transitions || []) {
+                print(`${buildName(key)} --> ${buildName(transition.state)}`);
+            }
+            print(`${buildName(key)} --> ${buildName(state.defaultTransition)}`);
+        } else {
+            print(`${buildName(key)} --> [*]`);
+        }
+    }
+}
