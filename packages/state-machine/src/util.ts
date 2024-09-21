@@ -18,13 +18,6 @@ export type StronglyTypedMachine<T, K extends string> = { // machine also needs 
     }
 };
 
-/*
- * export type Named<T> = {
- *     id: string,
- *     run: T,
- * }
- */
-
 export type Machine<T> = StronglyTypedMachine<T, string>;
 
 export type MachineLike<T> = Transition<T> | NestedMachine<T>;
@@ -68,7 +61,7 @@ function asMachine<T>(machine: MachineLike<T>, defaultId: string): NestedMachine
 /**
  * Adds a transition onto starting state
  */
-function prependState<T>(machine: NestedMachine<T>, id: string, state: MachineLike<T>): NestedMachine<T> {
+export function prependState<T>(machine: NestedMachine<T>, id: string, state: MachineLike<T>): NestedMachine<T> {
     return {
         start: id,
         states: {
@@ -117,7 +110,7 @@ function renameNode<T>(machine: NestedMachine<T>, oldNode: string, newNode: stri
 }
 
 // null key means to replace terminal transitions
-export function repointTransition<T>(machine: NestedMachine<T>, oldNode: string, newNode: string): NestedMachine<T> {
+export function repointTransition<T>(machine: NestedMachine<T>, oldNode: string | null, newNode: string): NestedMachine<T> {
     const newMachine = { start: machine.start, states: { ...machine.states }};
 
     if(newMachine.start === oldNode) {
@@ -183,38 +176,59 @@ function reverseAdjacencyMatrix(machine: NestedMachine<any>): {[key: string]: Se
 }
 
 /**
- * Attempt to simplify a machine by removing un-necessary nodes
+ * Attempt to simplify a machine by removing un-necessary nodes i.e. those with no logic and only one source / target
  * @param machine 
  * @param transitions 
  */
 function simplify<T>(machine: Machine<T>): Machine<T> {
-    // TODO how do we keep the semantic meaning of nodes
+    // How do we keep the semantic meaning of nodes? Currently we avoid deleting nodes that have their own logic
 
-    const adjacencyMatrix = reverseAdjacencyMatrix(machine);
-    
-    const newMachine: Machine<T> = { ...machine };
+    const reverseMatrix = reverseAdjacencyMatrix(machine);
+
+    const nodesToMergeUp = [];
+
+    const nodesToMergeDown = [];
 
     for(const [ name, state ] of Object.entries(machine.states)) {
-        if(!(name in newMachine.states)) {
-            // TODO better in-place updating?
-            continue;
-        } 
-        // TODO merge adjacent nodes run together if they are 1:1
-        if(state.run === undefined) {
-            // TODO we can have multiple outgoing if the next node also has no logic
-            const singleOutgoing = 'defaultTransition' in state && state.defaultTransition && state.transitions === undefined;
-            if(singleOutgoing) {
-                const next = state.defaultTransition;
-                const singleIncoming = adjacencyMatrix[next].size === 1 && adjacencyMatrix[next].has(name);
-                if(singleIncoming) {
-                    const merged = { ...newMachine.states[next] };
-                    
-                    delete newMachine.states[next];
-
-                    newMachine.states[name] = merged;
+        const singleOutgoing = 'defaultTransition' in state && state.defaultTransition && state.transitions === undefined;
+        if(singleOutgoing) {
+            const next = state.defaultTransition;
+            const singleIncoming = reverseMatrix[next].size === 1 && reverseMatrix[next].has(name);
+            if(singleIncoming) {
+                // TODO is there any issue with removing a node we might try to iterate on
+                if(state.run === undefined) {
+                    nodesToMergeDown.push([name, next] as const);
+                } else if(machine.states[next]?.run === undefined) {
+                    nodesToMergeUp.push([name, next] as const);
                 }
             }
         }
+    }
+
+    let newMachine: Machine<T> = { ...machine };
+
+    for(const [name, next] of nodesToMergeDown) {
+        // console.log(`Merging ${name} down into ${next}`);
+
+        // TODO merge function
+        const merged = { ...newMachine.states[next] };
+        
+        newMachine = repointTransition(newMachine, name, next) as Machine<T>;
+
+        delete newMachine.states[name];
+
+        newMachine.states[next] = merged;
+    }
+
+    for(const [name, next] of nodesToMergeUp) {
+        // console.log(`Merging ${next} up into ${name}`);
+        const state = newMachine.states[name];
+
+        const merged = { ...newMachine.states[next], run: state.run }
+
+        delete newMachine.states[next];
+
+        newMachine.states[name] = merged;
     }
 
     return newMachine;
@@ -254,25 +268,25 @@ export function flatten<T>(machine: NestedMachine<T>): Machine<T> {
         if(state.run !== undefined && 'states' in state.run) {
             delete newMachine.states[name];
 
-            const prefix = globallyUnique ? '' : `${name}_`;
-
             // does the current 'flatten inner' first work well for this?
-            const buildName = (oldName: string) => prefix + oldName;
+            const buildName = (oldName: string) => `${name}_` + oldName;
 
             let nested = { ...state.run } as Machine<T>;
+
+            // No need to rename nodes if they would all be globally unique
             if(!globallyUnique) {
-                // no need to rename nodes if they would all be globally unique
                 for(const nestedState in state.run.states) {
                     nested = renameNode(nested, nestedState, buildName(nestedState)) as Machine<T>;
                 }
             }
 
-            // TODO self-pointing nodes
+            const tempRenameOverlappingNode = name in nested.states;
 
-            // wire other nodes in `machine` pointing to `name` to point to the start
-            newMachine = repointTransition(newMachine, name, nested.start) as Machine<T>;
-        
-            // wire all terminal nodes in `nested` to use the `transitions` of `state` or do not provide transitions (end of machine)
+            if(tempRenameOverlappingNode) {
+                nested = renameNode(nested, name, buildName(name)) as Machine<T>;
+            }
+
+            // Wire all terminal nodes in `nested` to use the `transitions` of `state` or do not provide transitions (end of machine)
             if('defaultTransition' in state && state.defaultTransition) {
                 for(const [ key, nestedState ] of Object.entries(nested.states)) {
                     // @ts-ignore
@@ -283,8 +297,15 @@ export function flatten<T>(machine: NestedMachine<T>): Machine<T> {
             }
 
             newMachine.states = { ...newMachine.states, ...nested.states };
+
+            // Wire other nodes in `newMachine` pointing to `name` to point to the start - including nodes from inside the machine
+            newMachine = repointTransition(newMachine, name, nested.start) as Machine<T>;
+
+            if(tempRenameOverlappingNode) {
+                nested = renameNode(nested, buildName(name), name) as Machine<T>;
+            }
         } else {
-            // do nothing - if the node is empty then we will let `simplify` handle
+            // Do nothing - if the node is empty then we will let `simplify` handle
         }
     }
 
@@ -292,7 +313,11 @@ export function flatten<T>(machine: NestedMachine<T>): Machine<T> {
 }
 
 export function adapt<T extends StatefulControllers>(machine: NestedMachine<T>): GenericGameStateTransitions<typeof STANDARD_STATES, T> {
-    const flattened = flatten(machine); // TODO simplify
+    // createMermaid(machine);
+
+    const flattened = simplify(flatten(machine));
+
+    // createMermaid(flattened);
 
     // console.log(printMachine(flattened));
 
@@ -329,3 +354,34 @@ export function adapt<T extends StatefulControllers>(machine: NestedMachine<T>):
 // TODO validate
 
 export type StatefulControllers = IndexedControllers & { state: GameStateController<any>; waiting: WaitingController; completed: CompletedController; };
+
+export function createMermaid(machine: NestedMachine<any>, prefix: string = '', indent: string = '') {
+    const print = (line: string) => console.log(indent + line);
+
+    if(prefix === '') {
+        print('stateDiagram-v2');
+    }
+    const buildName = (name: string) => (prefix ? prefix + '_' : '') + name;
+
+    // TODO generate shorter names for nested machines
+
+    print(`[*] --> ${buildName(machine.start)}`);
+
+    for(const [key, state] of Object.entries(machine.states)) {
+        const run = state.run;
+        if(run && 'start' in run) {
+            print(`state ${buildName(key)} {`);
+            createMermaid(run, buildName(key), indent + '  ');
+            print(`}`);
+        }
+
+        if('defaultTransition' in state) {
+            for(const transition of state.transitions || []) {
+                print(`${buildName(key)} --> ${buildName(transition.state)}`);
+            }
+            print(`${buildName(key)} --> ${buildName(state.defaultTransition)}`);
+        } else {
+            print(`${buildName(key)} --> [*]`);
+        }
+    }
+}

@@ -16,6 +16,8 @@ describe.only('flatten', () => {
         },
     };
 
+    // TODO toggle updating names
+
     it('keeps machine the same if already flat', () => {
         const flattened = flatten(simple);
 
@@ -37,13 +39,13 @@ describe.only('flatten', () => {
 
         const flattened = flatten(nested);
 
-        expect(flattened.start).to.equal('first_outer_first');
+        expect(flattened.start).to.equal('first');
 
         // @ts-ignore
-        expect(flattened.states.first_outer_first?.defaultTransition).to.equal('first_outer_second');
+        expect(flattened.states.first.defaultTransition).to.equal('second');
 
         // @ts-ignore
-        expect(flattened.states.first_outer_second.defaultTransition).to.equal('second_outer');
+        expect(flattened.states.second.defaultTransition).to.equal('second_outer');
     });
 
     it('keeps transitions when nesting targets', () => {
@@ -61,15 +63,13 @@ describe.only('flatten', () => {
 
         const flattened = flatten(nested);
 
-        console.log(flattened);
-
         expect(flattened.start).to.equal('first_outer');
 
         // @ts-ignore
-        expect(flattened.states.first_outer.defaultTransition).to.equal('second_outer_first');
+        expect(flattened.states.first_outer.defaultTransition).to.equal('first');
 
         // @ts-ignore
-        expect(flattened.states.second_outer_first.defaultTransition).to.equal('second_outer_second');
+        expect(flattened.states.first.defaultTransition).to.equal('second');
     });
 
     // recursive nodes
