@@ -10,7 +10,7 @@ import { Card, InvalidError, SpacingMessage, GenericGameStateTransitions, Pickup
  * @param extra the accompanying extra card, if applicable
  * @param dealt whether or not the card was dealt to the player
  */
-function giveCard(controllers: Controllers, player: number, card: Card, extra?: Card, message = true) {
+export function giveCard(controllers: Controllers, player: number, card: Card, extra?: Card, message = true) {
     controllers.hand.get(player).push(card);
     if(extra) {
         controllers.hand.get(player).push(extra);
@@ -49,6 +49,9 @@ export const gameStateTransitions: GenericGameStateTransitions<typeof GameStates
     },
 
     [GameStates.END_ROUND]: (controllers) => {
+        controllers.players.messageAll(new OutOfCardsMessage(controllers.names.get(controllers.turn.get())));
+        controllers.score.decreaseScore(controllers.turn.get(), 10);
+
         controllers.canIHaveThat.nextRound();
         for(let player = 0; player < controllers.players.count; player++) {
             controllers.score.increaseScore(player, controllers.hand.get(player).map(card => card.rank.value)
@@ -174,8 +177,6 @@ export const gameStateTransitions: GenericGameStateTransitions<typeof GameStates
         }
 
         if(controllers.hand.get(controllers.turn.get()).length === 0) {
-            controllers.players.messageAll(new OutOfCardsMessage(controllers.names.get(controllers.turn.get())));
-            controllers.score.decreaseScore(controllers.turn.get(), 10);
             controllers.state.set(GameStates.END_ROUND);
             return;
         }

@@ -1,46 +1,6 @@
 import { Card } from '@cards-ts/core';
 import { Rank } from '@cards-ts/core';
-
-declare global {
-    interface Array<T> {
-        bifilter(filter: (item: T) => any): [T[], T[]];
-        // toString(): string;
-    }
-}
-
-Array.prototype.bifilter = function<T>(filter: (item: T) => any) {
-    if(!filter) {
-        return [ this, []];
-    }
-    return this.reduce(([ match, nonMatch ]: [T[], T[]], item: T) => {
-        if(filter(item)) {
-            match.push(item);
-        } else {
-            nonMatch.push(item);
-        }
-        return [ match, nonMatch ];
-    }, [[], []]);
-};
-
-/*
- * declare global {
- *     interface Object {
- *         toString(): string;
- *     }
- * }
- */
-
-/*
- * Array.prototype.toString = function() {
- *     return '[ ' + this.map(item => item.toString ? item.toString() : item ).join(', ') + ' ]';
- * };
- */
-
-/*
- * Object.prototype.toString = function() {
- *     return '{ ' + Object.entries(this).map(([key, value]) => key + ': ' + (value && value.toString && value.toString.call && value.toString()) + ',\n') + ' }';
- * };
- */
+import { bifilter } from './bifilter.js';
 
 /**
  * Function that tries to find an optimal utilization of the current cards to achieve the goals of the round
@@ -49,7 +9,7 @@ Array.prototype.bifilter = function<T>(filter: (item: T) => any) {
  * @see findOptimimum for details
  */
 export function find(cards: Card[], sought: (3 | 4)[]) {
-    const [ wilds, nonWilds ] = cards.bifilter(card => card.isWild());
+    const [ wilds, nonWilds ] = bifilter(cards, card => card.isWild());
     nonWilds.sort(Card.compare);
     wilds.sort(Card.compare);
     /*
@@ -62,7 +22,7 @@ export function find(cards: Card[], sought: (3 | 4)[]) {
     for(let index = 0; index < sought.length; index++) {
         if(sought[index] === 4 && result[2][index].length > 0) {
             const sorted: Card[] = [];
-            const [ wilds, nonWilds ] = result[2][index].bifilter(card => card.isWild());
+            const [ wilds, nonWilds ] = bifilter(result[2][index], card => card.isWild());
             let previous = nonWilds.shift() as Card;
             const first = previous;
             sorted.push(previous);
@@ -238,7 +198,7 @@ function findOptimimumWilds(wilds: Card[], wildIndex: number, sought: (3 | 4)[],
     }
 
     const options = [ ...Array(runs.length).keys() ].filter(index => {
-        const [ wilds, nonWilds ] = runs[index].bifilter(card => card.isWild());
+        const [ wilds, nonWilds ] = bifilter(runs[index], card => card.isWild());
         return nonWilds.length > wilds.length;
     }).map(index => {
         const created = [ ...runs[index], wilds[wildIndex] ];

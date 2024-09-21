@@ -1,4 +1,3 @@
-import 'mocha';
 import { expect } from 'chai';
 import { find } from '../src/util/find.js';
 import { Card } from '@cards-ts/core';

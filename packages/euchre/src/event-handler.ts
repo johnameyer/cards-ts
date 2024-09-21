@@ -38,7 +38,7 @@ export const eventHandler = buildEventHandler<Controllers, ResponseMessage>({
         },
     },
     'dealer-discard-response': {
-        canRespond: EventHandler.isTurn('turn'),
+        canRespond: (handlers, handler) => handlers.deck.dealer === handler, // TODO implement TurnController to allow for isTurn?
         validateEvent: {
             validators: [
                 EventHandler.validate('No card provided', (_controllers, _source, { selected }) => !selected),

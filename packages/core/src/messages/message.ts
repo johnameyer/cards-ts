@@ -29,9 +29,7 @@ export namespace Message {
             // TODO think about null here
             return null;
         }
-        // @ts-expect-error
-        if(component.map) {
-            // @ts-expect-error
+        if(Array.isArray(component)) {
             return defaultTransformer(component, ', ');
         }
         return component.toString();

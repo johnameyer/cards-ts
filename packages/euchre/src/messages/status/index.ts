@@ -1,4 +1,3 @@
-export { DealOutMessage } from './deal-out-message.js';
 export { EndRoundMessage } from './end-round-message.js';
 export { PlayedMessage } from './played-message.js';
 export { NameTrumpMessage } from './name-trump-message.js';

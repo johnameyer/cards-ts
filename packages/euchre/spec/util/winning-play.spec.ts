@@ -1,5 +1,4 @@
 import { expect } from 'chai';
-import 'mocha';
 import { winningPlay } from '../../src/util/winning-play.js';
 import { getComplementarySuit } from '../../src/util/suit-colors.js';
 import { Card, Suit } from '@cards-ts/core';

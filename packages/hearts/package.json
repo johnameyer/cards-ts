@@ -27,7 +27,7 @@
     "start": "pnpm build && node lib/start.js",
     "ts-start": "node --loader ts-node/esm src/start.ts",
     "debug": "ts-node-dev --rs=false --inspect --transpileOnly src/start.ts start",
-    "test": "exit && mocha --recursive ./spec --extension spec.ts",
+    "test": "pnpm tsc --project tsconfig.spec.json && mocha --recursive ./spec --extension spec.ts",
     "prepack": "pnpm clean && pnpm build"
   },
   "bugs": {
