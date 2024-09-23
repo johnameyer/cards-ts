@@ -7,5 +7,5 @@
         "includeCategories": true,
     },
     // TODO readme
-    "projectDocuments": ["../../wiki/*"] // TODO ref https://typedoc.org/guides/documents/
+    "projectDocuments": ["./wiki/*"] // TODO ref https://typedoc.org/guides/documents/
 }

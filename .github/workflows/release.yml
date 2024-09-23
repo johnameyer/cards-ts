@@ -38,8 +38,8 @@ jobs:
         id: changesets
         uses: changesets/action@v1
         with:
-          version: pnpm changeset version
-          publish: pnpm changeset tag && pnpm -r publish
+          version: pnpm ci:version
+          publish: pnpm ci:publish
           title: Version packages
           commit: Publish
         env:
