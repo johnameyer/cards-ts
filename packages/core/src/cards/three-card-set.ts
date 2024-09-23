@@ -41,6 +41,7 @@ export function checkThreeCardSet(set: ThreeCardSet) {
 
 /**
  * A class representing a three (or more) of a kind
+ * @category Core
  */
 export class ThreeCardSet extends Meld {
     public readonly type = 'set';

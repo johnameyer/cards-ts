@@ -12,6 +12,7 @@ import { GenericHandlerController, GenericHandlerControllerProvider, GenericHand
  * @param names the names of the players
  * @param proxy the proxy wrapping the handlers
  * @returns the default controllers providers
+ * @category Game Builder
  */
 export const buildDefaultProviders = <GameParams extends Serializable, State extends typeof STANDARD_STATES, ResponseMessage extends Message, Handlers extends {[key: string]: any[]} & SystemHandlerParams>(params: GameParams, names: string[], proxy: GenericHandlerProxy<ResponseMessage, Handlers>) => {
     const controllers = {
@@ -33,6 +34,7 @@ export const buildDefaultProviders = <GameParams extends Serializable, State ext
  * @typeParam State the state enum for this game
  * @typeParam ResponseMessage the response messages this game expects
  * @link buildDefaultProviders
+ * @category Game Builder
  */
 export type DefaultControllers<GameParams extends Serializable, State extends typeof STANDARD_STATES, ResponseMessage extends Message, Handlers extends {[key: string]: any[]} & SystemHandlerParams> = {
     params: ParamsController<GameParams>;
@@ -46,5 +48,6 @@ export type DefaultControllers<GameParams extends Serializable, State extends ty
 
 /**
  * The reserved names that the default controllers use
+ * @category Game Builder
  */
 export type DefaultControllerKeys = 'params' | 'data' | 'state' | 'names' | 'waiting' | 'completed' | 'players';

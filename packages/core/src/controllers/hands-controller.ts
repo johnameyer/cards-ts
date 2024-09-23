@@ -19,6 +19,7 @@ type HandDependencies = {
 /**
  * Handles state for players' hands
  * Has children classes that allow for hiding and showing the hands to handlers
+ * @category Controller
  */
 export abstract class AbstractHandsController<HandlerType extends Serializable> extends AbstractController<HandsState, HandDependencies, HandlerType> {
     override validate() {
@@ -134,6 +135,7 @@ export class HandsControllerProvider extends AbstractHandsControllerProvider<Han
 
 /**
  * Handles state for players' hands and shows it to handlers
+ * @category Controller
  */
 export class HandsController extends AbstractHandsController<Card[]> {
     getFor(position: number) {

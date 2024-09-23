@@ -18,6 +18,7 @@ type PlayerHandlerState = {
  * Class that allows calls to the handlers
  * @typeParam Handlers the custom event handlers that this game has
  * @typeParam ResponseMessage the response messages this game expects
+ * @category Game Builder
  */
 export class GenericHandlerProxy<ResponseMessage extends Message, Handlers extends {[key: string]: any[]} & SystemHandlerParams> {
     constructor(protected players: HandlerChain<Handlers, ControllerHandlerState<any>, ResponseMessage>[], private readonly handlerData: Provider<(position: number) => any>) { }
@@ -117,6 +118,7 @@ type HandlerControllerDependencies = {
  * Provides the handlers controller
  * @typeParam Handlers the custom event handlers that this game has
  * @typeParam ResponseMessage the response messages this game expects
+ * @category Controller Provider
  */
 export class GenericHandlerControllerProvider<ResponseMessage extends Message, Handlers extends {[key: string]: any[]} & SystemHandlerParams> implements GenericControllerProvider<undefined, HandlerControllerDependencies, GenericHandlerController<ResponseMessage, Handlers>> {
     constructor(private readonly handlerProxy: GenericHandlerProxy<ResponseMessage, Handlers>) { }
@@ -139,6 +141,7 @@ export class GenericHandlerControllerProvider<ResponseMessage extends Message, H
  * Allows for controlling the handlers
  * @typeParam Handlers the custom event handlers that this game has
  * @typeParam ResponseMessage the response messages this game expects
+ * @category Controller
  */
 export class GenericHandlerController<ResponseMessage extends Message, Handlers extends {[key: string]: any[]} & SystemHandlerParams> extends AbstractController<undefined, HandlerControllerDependencies, PlayerHandlerState> {
     constructor(private readonly handlerProxy: GenericHandlerProxy<ResponseMessage, Handlers>, controllers: HandlerControllerDependencies) {

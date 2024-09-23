@@ -9,6 +9,7 @@ import { DataController } from '../controllers/data-controller.js';
  * Class for validating and merging incoming events
  * @typeParam Controllers the state controllers for this game
  * @typeParam ResponseMessage the response messages this game expects
+ * @category Game Builder
  */
 export interface EventHandlerInterface<Controllers extends IndexedControllers, ResponseMessage extends Message> {
     /**
@@ -62,7 +63,10 @@ function asArray<T>(t: T): Array<Unarray<T>> {
     return [ t ];
     
 }
-
+/**
+ * 
+ * @category Game Builder
+ */
 export const buildEventHandler = <Controllers extends IndexedControllers & {data: DataController}, ResponseMessage extends Message> (handlers: EventHandlers<Controllers, ResponseMessage>): EventHandlerInterface<Controllers, ResponseMessage> => ({
     validateEvent: (controllers, sourceHandler, incomingEvent) => {
         // @ts-ignore
@@ -120,6 +124,10 @@ type KeysOfType<T, V> = {
     [K in keyof T]-?: T[K] extends V ? K : never;
 }[keyof T];
 
+/**
+ *
+ * @category Game Builder
+ */
 export namespace EventHandler {
     export const isTurn = <Controllers extends IndexedControllers, ResponseMessage extends Message> (key: KeysOfType<Controllers, TurnController>): EventHandler<Controllers, ResponseMessage, boolean> => {
         return (controllers, source, _incomingEvent) => source === (controllers[key] as unknown as TurnController).get();

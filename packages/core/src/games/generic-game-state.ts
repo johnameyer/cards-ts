@@ -4,6 +4,7 @@ import { reconstruct } from '../intermediary/serializable.js';
 /**
  * A class used to track the current state of the game
  * @typeParam Controllers the state controllers for this game
+ * @category Game Builder
  */
 export class GenericGameState<Controllers extends IndexedControllers> {
     // TODO reconsider how to use 'exposed' in contravariant position
