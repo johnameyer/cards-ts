@@ -18,6 +18,7 @@ import { STANDARD_STATES } from './game-states.js';
  * @typeParam Controllers the state controllers for this game
  * @typeParam ResponseMessage the response messages this game expects
  * @typeParam EventHandler the event handler for this game
+ * @category Game Builder
  */
 export class GameDriver<Handlers extends {[key: string]: unknown[]} & SystemHandlerParams, State extends typeof STANDARD_STATES, Controllers extends IndexedControllers & { waiting: WaitingController, completed: CompletedController, state: GameStateController<State> }, ResponseMessage extends Message, EventHandler extends EventHandlerInterface<Controllers, ResponseMessage>> {
 

@@ -18,6 +18,9 @@ export abstract class Message {
     protected constructor(public readonly components: Presentable[]) { }
 }
 
+/**
+ * @category Message
+ */
 export namespace Message {
     export type Transformer = (components: Presentable[], separator?: string) => string;
 

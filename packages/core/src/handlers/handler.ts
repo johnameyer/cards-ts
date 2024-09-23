@@ -2,12 +2,16 @@ import { Message } from '../messages/message.js';
 import { HandlerResponsesQueue } from '../games/response-queue.js';
 import { Serializable } from '../intermediary/serializable.js';
 
+/**
+ * @category Handler
+ */
 export type HandlerAction<HandlerData, ResponseMessage extends Message, Vargs extends any[] = any[]> = (this: any, gameState: HandlerData, response: HandlerResponsesQueue<ResponseMessage>, ...args: Vargs) => void | Promise<void>;
 
 type HandleKeys<Handlers extends {[key: string]: any[]}, Handler extends keyof Handlers> = Handler extends string ? `handle${Capitalize<Handler>}` : never;
 
 /**
  * An element that can listen to events and push response messages
+ * @category Handler
  */
 export type Handler<Handlers extends {[key: string]: any[]}, HandlerData extends Serializable, ResponseMessage extends Message> = {
     [Handler in keyof Handlers as HandleKeys<Handlers, Handler>]: HandlerAction<HandlerData, ResponseMessage, Handlers[Handler]>;
@@ -15,6 +19,7 @@ export type Handler<Handlers extends {[key: string]: any[]}, HandlerData extends
 
 /**
  * A chain of handlers, where the first that can handle an event will handle it
+ * @category Handler
  */
 export class HandlerChain<Handlers extends {[key: string]: any[]}, HandlerData extends Serializable, ResponseMessage extends Message> {
     /**

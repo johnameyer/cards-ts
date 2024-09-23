@@ -102,6 +102,7 @@ export function checkFourCardRun(run: FourCardRun) {
 
 /**
  * A class representing a run (or straight flush) of at least four cards being in sequential order and of the same suit, potentially containing wilds
+ * @category Core
  */
 export class FourCardRun extends Meld {
     public readonly type = 'straight';

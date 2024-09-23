@@ -2,6 +2,7 @@ let count = 0;
 
 /**
  * A class for the rank of a card like 'TWO' or 'KING'
+ * @category Core
  */
 export class Rank {
     public readonly type = 'rank';

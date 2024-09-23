@@ -1,6 +1,7 @@
 
 /**
  * Standard states for the state machine with special purposes
+ * @category Game Builder
  */
 export const STANDARD_STATES = {
     /**

@@ -17,6 +17,7 @@ import { STANDARD_STATES } from './game-states.js';
 
 /**
  * Wraps the classes in a game library into one common interface to make usages less verbose and to hide internal implementation details
+ * @category Game Builder
  */
 export function buildGameFactory<Handles extends {[key: string]: unknown[]}, GameParams extends SerializableObject, State extends typeof STANDARD_STATES, Controllers extends IndexedControllers, ResponseMessage extends Message>(
     transitions: GenericGameStateTransitions<State, Controllers & DefaultControllers<GameParams, State, ResponseMessage, Handles & SystemHandlerParams>>,

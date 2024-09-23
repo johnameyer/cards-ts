@@ -1,6 +1,9 @@
 import { Message } from '../messages/message.js';
 import { MessageHandler } from './message-handler.js';
 
+/**
+ * @category Handler
+ */
 export class ArrayMessageHandler<StatusMessage extends Message> extends MessageHandler<{}, Message> {
     public arr: Array<StatusMessage> = [];
 

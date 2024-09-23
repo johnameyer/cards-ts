@@ -8,6 +8,7 @@ export type MessageHandlerParams = {
 
 /**
  * Interface to listen for message events
+ * @category Handler
  */
 export abstract class MessageHandler<HandlerData extends Serializable, ResponseMessage extends Message> implements Handler<MessageHandlerParams, HandlerData, ResponseMessage> {
    /**

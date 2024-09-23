@@ -8,6 +8,7 @@ export type SystemHandlerParams = MessageHandlerParams & WaitingHandlerParams;
 
 /**
  * Interface to listen for all system events (e.g. message and waiting)
+ * @category Handler
  */
 export abstract class SystemHandler<HandlerData extends Serializable, ResponseMessage extends Message> implements Handler<SystemHandlerParams, HandlerData, ResponseMessage> {
    /**

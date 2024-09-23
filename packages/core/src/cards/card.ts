@@ -4,6 +4,7 @@ import { ValueError } from './value-error.js';
 
 /**
  * Class to represent cards in a deck
+ * @category Core
  */
 export class Card {
     public readonly type = 'card';

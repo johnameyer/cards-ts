@@ -9,6 +9,7 @@ function shuffle<T>(items: T[]): T[] {
 
 /**
  * Class representing N standard 54 card decks' draw and discard pile, tracking the top card
+ * @category Core
  */
 export class Deck {
     public readonly type = 'deck';

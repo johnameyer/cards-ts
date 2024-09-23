@@ -5,6 +5,7 @@ import { STANDARD_STATES } from './game-states.js';
  * A single transforming function, ran when a certain state is entered
  * @typeParam State the state enum for this game
  * @typeParam Controllers the state controllers for this game
+ * @category Game Builder
  */
 type Transition<State extends typeof STANDARD_STATES, Controllers extends IndexedControllers & { waiting: WaitingController, state: GameStateController<State> }> = (this: void, controllers: Controllers) => void;
 

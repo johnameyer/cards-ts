@@ -1,6 +1,11 @@
 {
     "entryPoints": ["packages/*"],
-    "entryPointStrategy": "legacy-packages",
+    "entryPointStrategy": "packages",
     "name": "@Cards-TS",
     "out": "docs",
+    "navigation": {
+        "includeCategories": true,
+    },
+    // TODO readme
+    "projectDocuments": ["../../wiki/*"] // TODO ref https://typedoc.org/guides/documents/
 }

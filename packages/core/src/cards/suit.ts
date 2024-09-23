@@ -2,6 +2,7 @@ let count = -1;
 
 /**
  * Class / Enum representing the possible suits in a deck
+ * @category Core
  */
 export class Suit {
     public readonly type = 'suit';

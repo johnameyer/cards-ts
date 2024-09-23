@@ -8,6 +8,7 @@ export type WaitingHandlerParams = {
 
 /**
  * Interface to listen for waiting events
+ * @category Handler
  */
 export abstract class WaitingHandler<HandlerData extends Serializable, ResponseMessage extends Message> implements Handler<WaitingHandlerParams, HandlerData, ResponseMessage> {
     /**
