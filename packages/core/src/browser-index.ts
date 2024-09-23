@@ -17,7 +17,7 @@ export { GenericGameSetup } from './games/generic-game-setup.js';
 export { GenericGameState } from './games/generic-game-state.js';
 export { EventHandlerInterface, buildEventHandler, EventHandler } from './games/event-handler-interface.js';
 export { GenericGameStateTransitions } from './games/generic-game-state-transitions.js';
-export { GenericHandlerController } from './games/generic-handler-controller.js';
+export { GenericHandlerController, GenericHandlerControllerProvider, GenericHandlerProxy } from './games/generic-handler-controller.js';
 export { HandlerResponsesQueue, ResponseQueue } from './games/response-queue.js';
 export { DefaultControllers, DefaultControllerKeys } from './games/default-controllers.js';
 
@@ -46,4 +46,5 @@ export { combinations } from './util/combinations.js';
 export { distinct } from './util/distinct.js';
 export { isDefined } from './util/is-defined.js';
 export { isPromise } from './util/is-promise.js';
+export { Provider } from './util/provider.js';
 export { zip } from './util/zip.js';

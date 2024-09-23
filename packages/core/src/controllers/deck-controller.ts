@@ -77,6 +77,7 @@ export class DeckController extends AbstractController<DeckState, DeckDependenci
 
     discard() {
         this.deck.discard(this.state.toDiscard as Card);
+        this.state.toDiscard = null;
     }
 
     get toDiscard() {
