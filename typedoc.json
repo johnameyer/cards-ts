@@ -6,6 +6,12 @@
     "navigation": {
         "includeCategories": true,
     },
-    // TODO readme
+    "packageOptions": {
+        "entryPoints": ["src/index.ts"],
+        "validation": {
+            "notExported": false,
+        },
+    },
+    // TODO development-oriented README separate from advertising README
     "projectDocuments": ["./wiki/*"] // TODO ref https://typedoc.org/guides/documents/
 }

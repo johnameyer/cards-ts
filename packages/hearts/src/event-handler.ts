@@ -13,7 +13,7 @@ export const eventHandler = buildEventHandler<Controllers, ResponseMessage>({
                 EventHandler.validate('Not all are cards', (controllers, source, { cards }) => !cards.every(isDefined)), // TODO better condition using message transformation
                 EventHandler.validate('Wrong number of cards passed', (controllers, source, { cards }) => cards.length !== controllers.params.get().numToPass),
                 EventHandler.validate('Cannot pass same card multiple times', (controllers, source, { cards }) => cards.filter(distinct).length !== controllers.params.get().numToPass),
-                EventHandler.validate('Can only pass cards that are in hand', (controllers, source, { cards }) => cards.some(card => controllers.hand.get(source).find(card.equals.bind(card)) === undefined)),
+                EventHandler.hasCards('hand', ({cards}) => cards),
             ],
             fallback: (controllers, source) => new PassResponseMessage(controllers.hand.get(source).slice(0, controllers.params.get().numToPass)),
         },
@@ -27,7 +27,7 @@ export const eventHandler = buildEventHandler<Controllers, ResponseMessage>({
         validateEvent: {
             validators: [
                 EventHandler.validate('No card provided', (controllers, source, { card }) => !card),
-                EventHandler.validate('Cannot play card that is not in hand', (controllers, source, { card }) => !controllers.hand.hasCard(card, source)),
+                EventHandler.hasCard('hand', ({card}) => card),
                 EventHandler.validate('Cannot give points on the first round', (controllers, source, { card }) => controllers.trick.tricks === 0 && (card.suit === Suit.HEARTS || card.equals(QS))),
                 EventHandler.validate('Blood has not been shed yet', (controllers, source, { card }) => controllers.trick.currentTrick[0] === undefined && card.suit === Suit.HEARTS && controllers.trickPoints.get().every(point => point === 0)),
                 EventHandler.validate('Must follow suit if possible', (controllers, source, { card }) => !followsTrick(controllers.trick.currentTrick, card, controllers.hand.get(source))),
@@ -39,7 +39,7 @@ export const eventHandler = buildEventHandler<Controllers, ResponseMessage>({
         },
         merge: [
             EventHandler.removeWaiting('waiting'),
-            (controllers, sourceHandler, incomingEvent) => controllers.trick.setPlayedCard(incomingEvent.card),
+            EventHandler.setTrickPlayedCard('trick', ({card}) => card),
         ],
     },
 });

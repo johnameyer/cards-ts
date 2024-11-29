@@ -6,9 +6,9 @@ import { gameStateTransitions } from '../src/game-state-transitions.js';
 import { GameParams } from '../src/game-params.js';
 import { buildProviders } from '../src/controllers/controllers.js';
 import { HeuristicHandler } from '../src/handlers/heuristic-handler.js';
-import { ArrayMessageHandler, buildGameFactory, DeckControllerProvider, HandlerChain, Message, Rank } from '@cards-ts/core';
 import { GameHandler } from '../src/game-handler.js';
 import { StatusMessage } from '../../can-i-have-that/src/messages/status-message.js';
+import { ArrayMessageHandler, buildGameFactory, DeckControllerProvider, HandlerChain, Rank } from '@cards-ts/core';
 
 describe('game', () => {
     // TODO can we build this more simply i.e. deterministic deck controller?
@@ -34,7 +34,7 @@ describe('game', () => {
     };
 
     it('works as expected', async () => {
-        const messageHandlers = Array.from({length: 4}, () => new ArrayMessageHandler<StatusMessage>());
+        const messageHandlers = Array.from({ length: 4 }, () => new ArrayMessageHandler<StatusMessage>());
 
         const gameHandler: () => GameHandler = () => new HeuristicHandler();
 

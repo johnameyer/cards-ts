@@ -7,10 +7,10 @@ import { DefaultBotHandler } from '../src/handlers/default-bot-handler.js';
 import { GameHandler } from '../src/game-handler.js';
 import { GameParams } from '../src/game-params.js';
 import { buildProviders } from '../src/controllers/controllers.js';
-import { ArrayMessageHandler, buildGameFactory, Card, DeckControllerProvider, HandlerChain, Message } from '@cards-ts/core';
 import { FlippedMessage, StalemateMessage, WonBattleMessage } from '../src/messages/status/index.js';
 import { FlipResponseMessage } from '../src/messages/response/flip-response-message.js';
 import { StatusMessage } from '../../can-i-have-that/src/messages/status-message.js';
+import { ArrayMessageHandler, buildGameFactory, Card, DeckControllerProvider, HandlerChain } from '@cards-ts/core';
 
 describe('game', () => {
     // TODO can we build this more simply i.e. deterministic deck controller?
@@ -35,9 +35,9 @@ describe('game', () => {
     };
 
     it('works as expected', async () => {
-        const messageHandlers = Array.from({length: 2}, () => new ArrayMessageHandler<StatusMessage>());
+        const messageHandlers = Array.from({ length: 2 }, () => new ArrayMessageHandler<StatusMessage>());
 
-        const gameHandler: () => GameHandler =  () => ({
+        const gameHandler: () => GameHandler = () => ({
             handleFlip: (_state, responses) => {
                 responses.push(new FlipResponseMessage());
             },

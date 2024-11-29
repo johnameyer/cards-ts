@@ -102,7 +102,7 @@ export const eventHandler = buildEventHandler<Controllers, ResponseMessage>({
         validateEvent: {
             validators: [
                 EventHandler.validate('Player has already gone down', (controllers, source, event) => controllers.melds.toPlay.length > 0),
-                EventHandler.validate('Player did not have all the cards', (controllers, source, event) => !controllers.hand.hasCards(event.toPlay.flatMap(meld => meld.cards), controllers.turn.get())),
+                EventHandler.hasCards('hand', ({ toPlay }) => toPlay.flatMap(meld => meld.cards)),
             ],
         },
         merge: (controllers, source, incomingEvent) => {
@@ -112,9 +112,6 @@ export const eventHandler = buildEventHandler<Controllers, ResponseMessage>({
              */
             const toPlay = incomingEvent.toPlay.flatMap(meld => meld.cards).filter(distinct);
             
-            if(!controllers.hand.hasCards(toPlay, controllers.turn.get())) {
-                throw new Error('Player did not have all the cards');
-            }
             controllers.hand.removeCards(controllers.turn.get(), toPlay);
             
             controllers.melds.play(incomingEvent.toPlay);
@@ -128,10 +125,10 @@ export const eventHandler = buildEventHandler<Controllers, ResponseMessage>({
         validateEvent: (controllers, source, event) => {
             return new WantCardResponseMessage(event.wantCard);
         },
-        merge: (controllers, source, incomingEvent) => {
-            controllers.canIHaveThat.wantCard = incomingEvent.wantCard;
-            controllers.waiting.removePosition(source);
-        },
+        merge: [
+            (controllers, source, incomingEvent) => controllers.canIHaveThat.wantCard = incomingEvent.wantCard,
+            EventHandler.removeWaiting('waiting'),
+        ],
         transform: event => new WantCardResponseMessage(event.wantCard),
     },
 });
