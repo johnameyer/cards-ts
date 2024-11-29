@@ -48,7 +48,7 @@ export abstract class AbstractHandsController<HandlerType extends Serializable> 
         }
     }
 
-    public removeCards(position: number, cards: Card[]) {
+    public removeCards(position: number, cards: readonly Card[]) {
         for(const card of cards) {
             const index = this.state[position].findIndex(card.equals.bind(card));
             if(index < 0) {

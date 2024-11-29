@@ -17,19 +17,36 @@ import { STANDARD_STATES } from './game-states.js';
 
 /**
  * Wraps the classes in a game library into one common interface to make usages less verbose and to hide internal implementation details
+ * @typeParam Handles The handler parameters type
+ * @typeParam GameParams The game parameters type
+ * @typeParams State The object of valid states
+ * @typeParam Controllers The game state controllers
+ * @typeParam ResponseMessage The messages that a handler can respond with
  * @category Game Builder
  */
 export function buildGameFactory<Handles extends {[key: string]: unknown[]}, GameParams extends SerializableObject, State extends typeof STANDARD_STATES, Controllers extends IndexedControllers, ResponseMessage extends Message>(
+    /**
+     * The game state transitions
+     */
     transitions: GenericGameStateTransitions<State, Controllers & DefaultControllers<GameParams, State, ResponseMessage, Handles & SystemHandlerParams>>,
 
+    /**
+     * The event handler
+     */
     eventHandler: EventHandlerInterface<Controllers, ResponseMessage>,
 
+    /**
+     * The game setup object
+     */
     gameSetup: GenericGameSetup<GameParams>,
 
+    /**
+     * A function returning the game's intermediary handler
+     */
     intermediaryHandlerProvider: (intermediary: Intermediary) => Handler<Handles, ControllerHandlerState<Controllers & DefaultControllers<GameParams, State, ResponseMessage, Handles & SystemHandlerParams>>, ResponseMessage>,
     
     /**
-     * Returns the default bot game handler
+     * A function returning the default bot game handler
      */
     defaultBotHandlerProvider: () => Handler<Handles, ControllerHandlerState<Controllers & DefaultControllers<GameParams, State, ResponseMessage, Handles & SystemHandlerParams>>, ResponseMessage>,
 
@@ -63,7 +80,7 @@ export function buildGameFactory<Handles extends {[key: string]: unknown[]}, Gam
          * Creates a new handler chain containing the intermediary handler and the system intermediary handler
          */
         getIntermediaryHandlerChain(intermediary: Intermediary): HandlerChain<Handles & SystemHandlerParams, ControllerHandlerState<Controllers & DefaultControllers<GameParams, State, ResponseMessage, Handles & SystemHandlerParams>>, ResponseMessage> {
-            return new HandlerChain([this.getIntermediaryHandler(intermediary)])
+            return new HandlerChain([ this.getIntermediaryHandler(intermediary) ])
                 .append(new IntermediarySystemHandler(intermediary) as Handler<SystemHandlerParams, ControllerHandlerState<Controllers>, ResponseMessage>);
         },
 

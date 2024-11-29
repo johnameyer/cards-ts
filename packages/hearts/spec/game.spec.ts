@@ -12,8 +12,8 @@ import { PassingMessage } from '../src/messages/status/passing-message.js';
 import { valueOfCard } from '../src/util/value-of-card.js';
 import { followsTrick } from '../src/util/follows-trick.js';
 import { PlayedMessage } from '../src/messages/status/played-message.js';
-import { ArrayMessageHandler, buildGameFactory, Card, DeckControllerProvider, EndRoundMessage, HandlerChain, LeadsMessage, Message, PlayCardResponseMessage } from '@cards-ts/core';
 import { StatusMessage } from '../../can-i-have-that/src/messages/status-message.js';
+import { ArrayMessageHandler, buildGameFactory, Card, DeckControllerProvider, EndRoundMessage, HandlerChain, LeadsMessage, PlayCardResponseMessage } from '@cards-ts/core';
 
 describe('game', () => {
     // TODO can we build this more simply i.e. deterministic deck controller?
@@ -38,7 +38,7 @@ describe('game', () => {
     };
 
     it('works as expected', async () => {
-        const messageHandlers = Array.from({length: 4}, () => new ArrayMessageHandler<StatusMessage>());
+        const messageHandlers = Array.from({ length: 4 }, () => new ArrayMessageHandler<StatusMessage>());
 
         const gameHandler: () => GameHandler = () => ({
             handlePass: (state, responses) => {

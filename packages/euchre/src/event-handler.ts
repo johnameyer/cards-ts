@@ -42,13 +42,13 @@ export const eventHandler = buildEventHandler<Controllers, ResponseMessage>({
         validateEvent: {
             validators: [
                 EventHandler.validate('No card provided', (_controllers, _source, { selected }) => !selected),
-                EventHandler.validate('Cannot play card that is not in hand', (controllers, source, { selected }) => !controllers.hand.hasCard(selected, source)),
+                EventHandler.hasCard('hand', ({ selected }) => selected),
             ],
             fallback: (controllers, source) => new DealerDiscardResponseMessage(controllers.hand.get(source)[0]),
         },
         merge: [
             EventHandler.removeWaiting('waiting'), 
-            (controllers, sourceHandler, incomingEvent) => controllers.hand.removeCards(sourceHandler, [ incomingEvent.selected ]),
+            EventHandler.removeCards('hand', ({ selected }) => [ selected ]),
         ],
     },
     'turn-response': {
@@ -56,14 +56,15 @@ export const eventHandler = buildEventHandler<Controllers, ResponseMessage>({
         validateEvent: {
             validators: [
                 EventHandler.validate('No card provided', (controllers, source, { card }) => !card),
-                EventHandler.validate('Cannot play card that is not in hand', (controllers, source, { card }) => !controllers.hand.hasCard(card, source)),
+                EventHandler.hasCard('hand', ({ card }) => card),
                 EventHandler.validate('Must follow suit if possible', (controllers, source, { card }) => controllers.trick.currentTrick.some(card => card) && !followsTrick(controllers.trick.currentTrick, controllers.euchre.currentTrump, card) && controllers.hand.get(source).some(card => followsTrick(controllers.trick.currentTrick, controllers.euchre.currentTrump, card))),
             ],
             fallback: (controllers, source) => new PlayCardResponseMessage(controllers.hand.get(source).filter(card => followsTrick(controllers.trick.currentTrick, controllers.euchre.currentTrump, card))[0] || controllers.hand.get(source)[0]),
         },
         merge: [
-            EventHandler.removeWaiting('waiting'), 
-            (controllers, sourceHandler, incomingEvent) => controllers.trick.setPlayedCard(incomingEvent.card),
+            EventHandler.removeWaiting('waiting'),
+            EventHandler.setTrickPlayedCard('trick', ({card}) => card),
+            // TODO remove card from hand here?
         ],
     },
 });
