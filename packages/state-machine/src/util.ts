@@ -1,35 +1,5 @@
 import { GenericGameStateTransitions, STANDARD_STATES, IndexedControllers, GameStateController, WaitingController, CompletedController } from '@cards-ts/core';
-
-export type Transition<T> = (controllers: T) => void; // TODO rename - transition implies change of state
-export type Provider<T, U> = (controllers: T) => U;
-export type Condition<T> = Provider<T, boolean>;
-
-type TransitionOptions<T, K extends string> = {
-    defaultTransition: K,
-    transitions?: {condition: Condition<T>, state: K}[]
-}
-
-export type StronglyTypedMachine<T, K extends string> = { // machine also needs to specify start
-    start: K,
-    states: {
-        [state in K]: {
-            run?: Transition<T>;
-        } & (TransitionOptions<T, K> | {})
-    }
-};
-
-export type Machine<T> = StronglyTypedMachine<T, string>;
-
-export type MachineLike<T> = Transition<T> | NestedMachine<T>;
-
-export type NestedMachine<T> = {
-    start: string,
-    states: {
-        [state: string]: {
-            run?: MachineLike<T>;
-        } & (TransitionOptions<T, string> | {})
-    }
-}
+import { Transition, Machine, MachineLike, NestedMachine, TransitionOptions } from './machine.js';
 
 export function single<T>(id: string, run: Transition<T>): Machine<T> {
     return {
@@ -146,11 +116,13 @@ export function repointTransition<T>(machine: NestedMachine<T>, oldNode: string 
     return newMachine;
 }
 
+function possibleTransitions(state: NestedMachine<any>['states'][string]): Set<string> {
+    return 'defaultTransition' in state && state.defaultTransition ? new Set([ state.defaultTransition, ...(state.transitions?.map(transition => transition.state) ?? []) ]) : new Set();
+}
+
 function adjacencyMatrix(machine: NestedMachine<any>): {[key: string]: Set<string>} {
     return Object.fromEntries(
-        Object.entries(machine.states).map(([ key, state ]) => [ key, 
-            'defaultTransition' in state && state.defaultTransition ? new Set([ state.defaultTransition, ...(state.transitions?.map(transition => transition.state) ?? []) ]) : new Set(),
-        ]),
+        Object.entries(machine.states).map(([ key, state ]) => [ key, possibleTransitions(state) ]),
     );
 }
 
@@ -235,7 +207,7 @@ function simplify<T>(machine: Machine<T>): Machine<T> {
 }
 
 /**
- * Adds a transition onto all terminal states
+ * Flattens a nested machine into a single layer
  */
 export function flatten<T>(machine: NestedMachine<T>): Machine<T> {
     let newMachine: NestedMachine<T> = { start: machine.start, states: { ...machine.states }};
@@ -312,14 +284,12 @@ export function flatten<T>(machine: NestedMachine<T>): Machine<T> {
     return newMachine as Machine<T>;
 }
 
+/**
+ * Adapts a state machine into a flat model for backwards compatibility with the old way of creating the game states
+ * @returns The game state transitions
+ */
 export function adapt<T extends StatefulControllers>(machine: NestedMachine<T>): GenericGameStateTransitions<typeof STANDARD_STATES, T> {
-    // createMermaid(machine);
-
     const flattened = simplify(flatten(machine));
-
-    // createMermaid(flattened);
-
-    // console.log(printMachine(flattened));
 
     if(flattened.start !== 'START_GAME' && !('START_GAME' in flattened.states || 'END_GAME' in flattened.states)) {
         throw new Error('Invalid machine - expected states START_GAME and END_GAME');
@@ -341,8 +311,6 @@ export function adapt<T extends StatefulControllers>(machine: NestedMachine<T>):
                                 break;
                             }
                         }
-
-                        // console.log(key, '->', newState);
 
                         controllers.state.set(newState);
                     }

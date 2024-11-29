@@ -1,25 +1,30 @@
-import { NestedMachine, Machine } from '../src/index.js';
+import { NestedMachine, Machine, game } from '../src/index.js';
 import { StatefulControllers } from '../src/util.js';
 import { MockHandlerParams } from './helpers/mock-handler.js';
 import { MockController, mockControllerProviders } from './helpers/mock-controller.js';
 import { mockHandlerProxy } from './helpers/mock-handler-proxy.js';
 import { GenericGameState, STANDARD_STATES, GameStateControllerProvider, WaitingControllerProvider, CompletedControllerProvider, WaitingController, GenericHandlerController, TurnController, CompletedController, Handler, TurnControllerProvider, GenericHandlerControllerProvider } from '@cards-ts/core';
 
+// TODO add to exported source?
 /**
  * Progress the state machine forward one transition
  * @returns if can continue at this time
  */
 export function advance<T extends StatefulControllers>(gameState: GenericGameState<T>, machine: NestedMachine<T>) {
-    // TODO prevent advancing after completed
-
     if(gameState.controllers.waiting.isWaitingOnPlayer()) { // TODO clean this up
         return false;
     }
 
-    let currentState = gameState.state.state as string;
-    if(currentState === STANDARD_STATES.START_GAME) { // hack
-        currentState = JSON.stringify([ machine.start ]);
+    if(gameState.state.state === STANDARD_STATES.END_GAME) {
+        return false;
     }
+
+    if(gameState.state.state === STANDARD_STATES.START_GAME) { // bit of a hack
+        const currentState = JSON.stringify([ machine.start ]);
+        // console.log(`_ => ${currentState}`);
+        gameState.controllers.state.set(currentState);
+    }
+    const currentState = gameState.state.state as string
     const unnested: string[] = JSON.parse(currentState);
 
     const deepFindState = (state: string[], machine: NestedMachine<T>): NestedMachine<T>['states']['run'] => {
@@ -70,7 +75,6 @@ export function advance<T extends StatefulControllers>(gameState: GenericGameSta
         }
     } 
 
-    // TODO waiting
     const nextState = JSON.stringify(unnested);
 
     // console.log(`${currentState} => ${nextState}`);

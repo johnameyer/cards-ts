@@ -5,7 +5,7 @@ import { MockControllers } from './helpers.js';
 
 /* eslint-disable camelcase */
 
-describe.only('flatten', () => {
+describe('flatten', () => {
     const simple: Machine<MockControllers> = {
         start: 'first',
         states: {
