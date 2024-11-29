@@ -4,7 +4,7 @@
   "description": "Library and console implementation of the game 'Can I Have That' which is a house variation on Continental Rummy.",
   "author": "John Meyer",
   "homepage": "https://github.com/johnameyer/cards-ts/tree/master/packages/can-i-have-that#readme",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "type": "module",
   "main": "lib/index.js",
   "directories": {
