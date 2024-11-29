@@ -36,14 +36,12 @@ export class GameSetup implements GenericGameSetup<GameParams> {
 
     getYargs() {
         return {
-            quickEnd: { description: 'End a round quickly if no points are remaining', type: 'boolean', default: true },
             maxScore: { description: 'Score to play to', type: 'number', default: 10 },
         } satisfies {[key: string]: import('yargs').Options};
     }
 
     setupForYargs(params: any): GameParams {
         return {
-            quickEnd: !!params.quickEnd,
             maxScore: Number(params.maxScore),
         };
     }
