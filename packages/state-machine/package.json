@@ -4,7 +4,7 @@
   "description": "Framework for creating and running new card games.",
   "author": "John Meyer",
   "homepage": "https://github.com/johnameyer/cards-ts/tree/master/packages/state-machine#readme",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "type": "module",
   "main": "lib/index.js",
   "directories": {

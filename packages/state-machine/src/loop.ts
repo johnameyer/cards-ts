@@ -1,23 +1,39 @@
-import { Named } from './sequence.js';
-import { Transition, Condition, MachineLike, NestedMachine, prependState } from './util.js';
+import { Named } from './machine.js';
+import { prependState } from './util.js';
+import { Transition, Condition, MachineLike, NestedMachine } from './machine.js';
 
+/**
+ * @inline
+ */
 type LoopConfig<T> = {
+    /** The core node name / suffix to use */
     id: string,
-    beforeAll?: Transition<T>,
-    beforeEach?: Transition<T>,
-    afterEach?: Transition<T>,
-    afterAll?: Transition<T>,
-    breakingIf: Condition<T>,
+    /** The core transition to run */
     run: MachineLike<T>,
+    /** The condition determining when the machine should break */
+    breakingIf: Condition<T>,
+    /** A transition to run before running the `run` ever */
+    beforeAll?: Transition<T>,
+    /** A transition to run before each time running `run` */
+    beforeEach?: Transition<T>,
+    /** A transition to run after each time running `run` */
+    afterEach?: Transition<T>,
+    /** A transition to run after breaking out */
+    afterAll?: Transition<T>,
 }
 
 // TODO construct for looping N times w/ breaking?
+/**
+ * Creates a machine that loops the `run` machine until the condition is met
+ * @typeParam T The controllers this machine will use
+ * @returns The machine
+ */
 export function loop<T>(config: LoopConfig<T>): Named<NestedMachine<T>> {
     const name = config.id.toUpperCase();
     // TODO shorten if we only need one of either
-    const beforeAll = 'BEFORE_ALL_' + name + 'S';
+    const beforeAll = 'BEFORE_ALL_' + name;
     const beforeEach = 'BEFORE_EACH_' + name;
-    const afterAll = 'AFTER_ALL_' + name + 'S';
+    const afterAll = 'AFTER_ALL_' + name;
     const afterEach = 'AFTER_EACH_' + name;
     
     // TODO should we allow states to be terminal and have conditional transitions?

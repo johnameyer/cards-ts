@@ -1,7 +1,6 @@
 import { expect } from 'chai';
-import { NestedMachine, sequence } from '../src/index.js';
+import { named, NestedMachine, sequence } from '../src/index.js';
 import { MockControllers, buildGameState, advance } from './helpers.js';
-import { named } from '../src/sequence.js';
 
 describe('sequence', () => {
     it('executes steps in order', () => {

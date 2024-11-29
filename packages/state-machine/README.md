@@ -1,12 +1,10 @@
-<h1 align="center">@cards-ts/core</h1>
+<h1 align="center">@cards-ts/state-machine</h1>
 <div align="center">
 
 ![GitHub Latest Commit](https://img.shields.io/github/last-commit/johnameyer/cards-ts)
 </div>
 
-This is a card game framework written in Typescript. This package contains the framework and useful components, including functionality to display a card game in the command line.
-
-Implementations of a card game must share a certain set of exports to be able to be run, see [Hearts](https://github.com/johnameyer/cards-ts/blob/master/packages/hearts/src/index.ts) for an up-to-date example.
+This is a card game framework written in Typescript. This package contains functionality to allow for simple creation and composition of state machines for the games.
 
 Contributions of games to the library are welcome on the Github.
 

@@ -18,6 +18,7 @@ export class MockControllerProvider implements GenericControllerProvider<MockSta
 
 export class MockController extends GlobalController<MockState, {}> {
     add(i: number) {
+        // console.log(`this.state (${this.state}) += ${i}`);
         this.state += i;
     }
 }

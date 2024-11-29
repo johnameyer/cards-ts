@@ -48,7 +48,7 @@ jobs:
         
       - name: Documentation
         if: steps.changesets.outputs.published == 'true'
-        run: pnpm doc
+        run: pnpm doc --hostedBaseUrl https://johnmeyer.dev/cards-ts/
 
       - name: Commit Files
         if: steps.changesets.outputs.published == 'true'

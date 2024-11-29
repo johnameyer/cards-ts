@@ -12,24 +12,26 @@ export class MockResponseMessage extends Message {
     }
 }
 
-export class MockHandler implements Handler<MockHandlerParams, undefined, MockResponseMessage> {
+export class MockHandler implements Handler<MockHandlerParams, undefined, MockResponseMessage> {    
     public timesCalled: number = 0;
 
-    private message?: MockResponseMessage = undefined;
+    private message: number;
+
+    constructor(message: number) {
+        this.message = message;
+    }
 
     handleChoice(_: any, response: HandlerResponsesQueue<MockResponseMessage>): void {
         this.timesCalled += 1;
-        if(!this.message) {
-            throw new Error('Expected a response to be provided ahead of time');
-        }
-        response.push(this.message);
+        // console.log(`Responding with ${this.message}`)
+        response.push(new MockResponseMessage(this.message));
     }
 
     handleMessage(): void {}
 
     handleWaitingFor(): void {}
 
-    setResponse(message: MockResponseMessage): void {
+    setResponse(message: number): void {
         this.message = message;
     }
 }

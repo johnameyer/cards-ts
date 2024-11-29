@@ -1,36 +1,12 @@
 import { IndexedControllers } from '@cards-ts/core';
-import { Machine, MachineLike, NestedMachine, Transition } from './util.js';
+import { NamedMachineLike, NestedMachine } from './machine.js';
 
-// function describer(i: number) {
-//     return [
-//         'first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth',
-//     ][i].toUpperCase();
-// }
-
-export type Named<T> = T & {
-    name: string;
-}
-
-
-export type NamedMachineLike<T extends IndexedControllers> = Named<NestedMachine<T> | {run: Transition<T>}>;
-
-export function named<T extends IndexedControllers>(name: string, machine: MachineLike<T>): NamedMachineLike<T> {
-    if('start' in machine) {
-        return {
-            name,
-            ...machine,
-        }
-    } else {
-        return {
-            name,
-            run: machine,
-        };
-    }
-}
-
-/*
- * TODO fix inference of T - maybe use vararg definition?
- * TODO force naming? (or would we encourage before all / each usages?)
+// TODO fix inference of T - maybe use vararg definition?
+/**
+ * Combines multiple machines into a sequence that will be called one by one
+ * @param machines The machines to chain together
+ * @typeParam T The controllers this machine will use
+ * @returns 
  */
 export function sequence<T extends IndexedControllers>(machines: Array<NamedMachineLike<T>>): NestedMachine<T> {
     // TODO apply before / after for unnamed?
