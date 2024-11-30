@@ -7,13 +7,11 @@ import { GameHandler } from '../src/game-handler.js';
 import { GameParams } from '../src/game-params.js';
 import { buildProviders } from '../src/controllers/controllers.js';
 import { HeuristicHandler } from '../src/handlers/heuristic-handler.js';
-import { PassResponseMessage } from '../src/messages/response/pass-response-message.js';
-import { PassingMessage } from '../src/messages/status/passing-message.js';
 import { valueOfCard } from '../src/util/value-of-card.js';
 import { followsTrick } from '../src/util/follows-trick.js';
-import { PlayedMessage } from '../src/messages/status/played-message.js';
-import { StatusMessage } from '../../can-i-have-that/src/messages/status-message.js';
 import { ArrayMessageHandler, buildGameFactory, Card, DeckControllerProvider, EndRoundMessage, HandlerChain, LeadsMessage, PlayCardResponseMessage } from '@cards-ts/core';
+import { PassingMessage, PlayedMessage, StatusMessage } from '../src/messages/status/index.js';
+import { PassResponseMessage } from '../src/messages/response/index.js';
 
 describe('game', () => {
     // TODO can we build this more simply i.e. deterministic deck controller?
@@ -140,7 +138,7 @@ describe('game', () => {
             const messageHandler = messageHandlers[i];
             expect(messageHandler.arr.at(-1)?.type).to.equal('end-round-message');
 
-            expect((messageHandler.arr.at(-1) as EndRoundMessage).scores.reduce((a, b) => a + b, 0) % 26).to.equal(0);
+            expect((messageHandler.arr.at(-1) as InstanceType<typeof EndRoundMessage>).payload.scores.reduce((a, b) => a + b, 0) % 26).to.equal(0);
         }
     });
 });

@@ -1,10 +1,15 @@
-import { buildMessage, cloneCard, cloneObject, cloneString } from '@cards-ts/core';
+import { buildUnvalidatedMessage, Card, props } from '@cards-ts/core';
 
 /**
  * Class that denotes that a card has been flipped
  */
-export const FlippedMessage = buildMessage(
+export const FlippedMessage = buildUnvalidatedMessage(
     'flipped-message',
-    cloneObject({ player: cloneString, card: cloneCard }),
+    props<{
+        /** The player who flipped the card */
+        player: string,
+        /** The card that was flipped */
+        card: Card,
+    }>(),
     ({player, card}) => [ player, 'flipped', card ],
 );

@@ -1,6 +1,5 @@
 import { Controllers } from './controllers/controllers.js';
-import { DealerDiscardResponseMessage, OrderUpResponseMessage, NameTrumpResponseMessage } from './messages/response/index.js';
-import { ResponseMessage } from './messages/response-message.js';
+import { DealerDiscardResponseMessage, OrderUpResponseMessage, NameTrumpResponseMessage, ResponseMessage } from './messages/response/index.js';
 import { followsTrick } from './util/follows-trick.js';
 import { PlayCardResponseMessage, EventHandler, buildEventHandler } from '@cards-ts/core';
 

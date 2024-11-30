@@ -1,23 +1,15 @@
 import { Card } from '../../cards/card.js';
-import { Presentable } from '../../intermediary/presentable.js';
-import { Message } from '../message.js';
-
-function generateMessage(card: Card): Presentable[] {
-    return [ card, 'was turned over' ];
-}
+import { cloneCard } from '../cloners.js';
+import { buildValidatedMessage, props } from '../message.js';
 
 /**
  * Class that denotes to a handler that a card was flipped over
  * @category Message
+ * @class
  */
-export class TurnUpMessage extends Message {
-
-    public readonly type = 'turn-up-message';
-
-    /**
-     * @param card the card that was turned over
-     */
-    constructor(public readonly card: Card) {
-        super(generateMessage(card));
-    }
-}
+export const TurnUpMessage = buildValidatedMessage(
+    'turn-up',
+    props<Card>(),
+    cloneCard,
+    card => [ card, 'was turned over' ],
+);

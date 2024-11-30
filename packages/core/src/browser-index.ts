@@ -37,7 +37,7 @@ export { Protocol } from './intermediary/protocol.js';
 export { ProtocolIntermediary } from './intermediary/protocol-intermediary.js';
 export { ReadonlySerializable, Serializable, SerializableObject, serialize, deserialize, reconstruct } from './intermediary/serializable.js';
 
-export { Message, buildMessage, buildEmptyMessage } from './messages/message.js';
+export { Message, buildUnvalidatedMessage, buildValidatedMessage, buildEmptyMessage, props, IMessage, MessageBuilder } from './messages/message.js';
 export * from './messages/cloners.js';
 export { SpacingMessage } from './messages/spacing-message.js';
 export * from './messages/status/index.js';

@@ -7,9 +7,8 @@ import { DefaultBotHandler } from '../src/handlers/default-bot-handler.js';
 import { GameHandler } from '../src/game-handler.js';
 import { GameParams } from '../src/game-params.js';
 import { buildProviders } from '../src/controllers/controllers.js';
-import { FlippedMessage, StalemateMessage, WonBattleMessage } from '../src/messages/status/index.js';
+import { FlippedMessage, StalemateMessage, StatusMessage, WonBattleMessage } from '../src/messages/status/index.js';
 import { FlipResponseMessage } from '../src/messages/response/flip-response-message.js';
-import { StatusMessage } from '../../can-i-have-that/src/messages/status-message.js';
 import { ArrayMessageHandler, buildGameFactory, Card, DeckControllerProvider, HandlerChain } from '@cards-ts/core';
 
 describe('game', () => {
@@ -62,8 +61,8 @@ describe('game', () => {
         driver.resume();
 
         const firstFlips = [
-            new FlippedMessage('A', Card.fromString('2D', 0)), // TODO can we avoid specifying the deck number?
-            new FlippedMessage('B', Card.fromString('3D', 0)),
+            new FlippedMessage({player: 'A', card: Card.fromString('2D', 0)}), // TODO can we avoid specifying the deck number?
+            new FlippedMessage({player: 'B', card: Card.fromString('3D', 0)}),
             new WonBattleMessage('B'),
         ];
 
@@ -79,8 +78,8 @@ describe('game', () => {
         driver.resume();
 
         const secondFlips = [
-            new FlippedMessage('A', Card.fromString('4D', 0)),
-            new FlippedMessage('B', Card.fromString('5D', 0)),
+            new FlippedMessage({player: 'A', card: Card.fromString('4D', 0)}),
+            new FlippedMessage({player: 'B', card: Card.fromString('5D', 0)}),
             new WonBattleMessage('B'),
             new StalemateMessage(),
         ];

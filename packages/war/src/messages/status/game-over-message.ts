@@ -1,10 +1,10 @@
-import { buildMessage, cloneString, Message, Presentable } from '@cards-ts/core';
+import { buildUnvalidatedMessage, props } from '@cards-ts/core';
 
 /**
  * Class that denotes that a player won
  */
-export const GameOverMessage = buildMessage(
+export const GameOverMessage = buildUnvalidatedMessage(
     'game-over-message',
-    cloneString,
+    props<string>(),
     player =>  [ player, 'won' ],
 );

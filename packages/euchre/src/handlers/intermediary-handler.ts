@@ -1,6 +1,6 @@
 import { GameHandler, HandlerData } from '../game-handler.js';
 import { OrderUpResponseMessage, NameTrumpResponseMessage, DealerDiscardResponseMessage, GoingAloneResponseMessage } from '../messages/response/index.js';
-import { ResponseMessage } from '../messages/response-message.js';
+import { ResponseMessage } from '../messages/response/index.js';
 import { compare } from '../util/compare.js';
 import { followsTrick } from '../util/follows-trick.js';
 import { Intermediary } from '@cards-ts/core';

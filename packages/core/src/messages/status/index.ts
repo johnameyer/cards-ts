@@ -5,6 +5,6 @@ export { DiscardMessage } from './discard-message.js';
 export { EndRoundMessage } from './end-round-message.js';
 export { LeadsMessage } from './leads-message.js';
 export { OutOfCardsMessage } from './out-of-cards-message.js';
-export { PlayedMessage } from './played-message.js';
+export { PlayedOnMeldMessage } from './played-message.js';
 export { ReshuffleMessage } from './reshuffle-message.js';
 export { TurnUpMessage } from './turn-up-message.js';

@@ -44,7 +44,8 @@ type KeyedPayload = {[key: string]: MessagePayload};
 // }
 
 export type IMessage<Type extends string, T extends MessagePayload> = {
-    type: Type;
+    // TODO readonlys?
+    readonly type: Type;
 
     components: Presentable[];
 
@@ -53,11 +54,18 @@ export type IMessage<Type extends string, T extends MessagePayload> = {
 
 export interface MessageBuilder<Type extends string, Payload extends MessagePayload> {
     readonly type: Type;
-    new(payload: Payload): Readonly<IMessage<Type, Payload>>;
+    new(payload: Payload): IMessage<Type, Payload>;
 }
 
-export function buildMessage<Type extends string, T extends MessagePayload>(type: Type, body: Cloner<T>, stringBuilder: (t: T) => Presentable[]): MessageBuilder<Type, T> {
-    const instance = class MessageInstance {
+// Output is unused - used only for typing in lieu of https://github.com/microsoft/TypeScript/issues/50715
+export const props = <T extends MessagePayload> (): T => undefined as unknown as T;
+
+export function buildUnvalidatedMessage<Type extends string, T extends MessagePayload>(type: Type, props: T, stringBuilder: (t: T) => Presentable[]): MessageBuilder<Type, T> {
+    return buildValidatedMessage(type, props, value => value as T, stringBuilder);
+}
+
+export function buildValidatedMessage<Type extends string, T extends MessagePayload>(type: Type, props: T, cloner: Cloner<T>, stringBuilder: (t: T) => Presentable[]): MessageBuilder<Type, T> {
+    const instance = class MessageInstance implements Message {
         public readonly type: Type = type;
 
         components: Presentable[];
@@ -67,7 +75,7 @@ export function buildMessage<Type extends string, T extends MessagePayload>(type
         constructor(public payload: T) {
             this.components = stringBuilder(payload);
 
-            this.payload = body(payload);
+            this.payload = cloner(payload);
 
             Object.freeze(this);
         }

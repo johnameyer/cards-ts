@@ -1,7 +1,7 @@
 import { GameStates } from './game-states.js';
 import { Controllers } from './controllers/controllers.js';
 import { PickupMessage, StartRoundMessage } from './messages/status/index.js';
-import { Card, InvalidError, SpacingMessage, GenericGameStateTransitions, PickupMessage as PublicPickup, DiscardMessage, EndRoundMessage, OutOfCardsMessage, PlayedMessage, ReshuffleMessage } from '@cards-ts/core';
+import { Card, InvalidError, SpacingMessage, GenericGameStateTransitions, PickupMessage as PublicPickup, DiscardMessage, EndRoundMessage, OutOfCardsMessage, PlayedOnMeldMessage, ReshuffleMessage } from '@cards-ts/core';
 
 /**
  * Gives a card to the player and notifies them
@@ -40,7 +40,7 @@ export const gameStateTransitions: GenericGameStateTransitions<typeof GameStates
         controllers.hand.dealOut(true, true, controllers.canIHaveThat.getNumToDeal());
 
         const top = controllers.deck.deck.flip();
-        controllers.players.messageAll(new DiscardMessage(top));
+        controllers.players.messageAll(new DiscardMessage({card: top, player: ''})); // TODO fix
 
         controllers.turn.set((controllers.deck.dealer + 1) % controllers.players.count);
         controllers.ask.set(controllers.turn.get());
@@ -58,7 +58,7 @@ export const gameStateTransitions: GenericGameStateTransitions<typeof GameStates
                 .reduce((a, b) => a + b, 0));
         }
 
-        controllers.players.messageAll(new EndRoundMessage(controllers.names.get(), controllers.score.get()));
+        controllers.players.messageAll(new EndRoundMessage({players: controllers.names.get(), scores: controllers.score.get()}));
         controllers.players.messageAll(new SpacingMessage());
 
         if(controllers.canIHaveThat.round !== controllers.params.get().rounds.length) {
@@ -153,7 +153,7 @@ export const gameStateTransitions: GenericGameStateTransitions<typeof GameStates
         controllers.deck.discard();
         if(controllers.melds.toPlay.length) {
             for(const meld of controllers.melds.toPlay) {
-                controllers.players.messageOthers(controllers.turn.get(), new PlayedMessage(meld.cards, meld, controllers.names.get(controllers.turn.get())));
+                controllers.players.messageOthers(controllers.turn.get(), new PlayedOnMeldMessage({cards: meld.cards, meld: meld, player: controllers.names.get(controllers.turn.get())}));
             }
             controllers.melds.get()[controllers.turn.get()] = controllers.melds.toPlay;
         }
@@ -167,13 +167,13 @@ export const gameStateTransitions: GenericGameStateTransitions<typeof GameStates
                     if(!controllers.melds.toPlayOnOthers[position][meld] || !controllers.melds.toPlayOnOthers[position][meld].length) {
                         continue;
                     }
-                    controllers.players.messageOthers(controllers.turn.get(), new PlayedMessage(controllers.melds.toPlayOnOthers[position][meld], controllers.melds.get()[position][meld], controllers.names.get(controllers.turn.get())));
+                    controllers.players.messageOthers(controllers.turn.get(), new PlayedOnMeldMessage({cards: controllers.melds.toPlayOnOthers[position][meld], meld: controllers.melds.get()[position][meld], player: controllers.names.get(controllers.turn.get())}));
                 }
             }
         }
 
         if(controllers.deck.toDiscard) {
-            controllers.players.messageOthers(controllers.turn.get(), new DiscardMessage(controllers.deck.toDiscard, controllers.names.get(controllers.turn.get())));
+            controllers.players.messageOthers(controllers.turn.get(), new DiscardMessage({card: controllers.deck.toDiscard, player: controllers.names.get(controllers.turn.get())}));
         }
 
         if(controllers.hand.get(controllers.turn.get()).length === 0) {

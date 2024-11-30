@@ -1,10 +1,10 @@
-import { buildMessage, cloneString } from '@cards-ts/core';
+import { buildUnvalidatedMessage, props } from '@cards-ts/core';
 
 /**
  * Class that denotes that a player won the war
  */
-export const WonWarMessage = buildMessage(
+export const WonWarMessage = buildUnvalidatedMessage(
     'won-war-message',
-    cloneString,
+    props<string>(),
     player =>  [ player, 'won the war' ],
 );

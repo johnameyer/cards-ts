@@ -177,7 +177,7 @@ export const gameStateTransitions: GenericGameStateTransitions<typeof GameStates
 
         controllers.players.messageAll(new WonRoundMessage(winnerTeam.map(i => controllers.names.get(i)), points));
         
-        controllers.players.messageAll(new EndRoundMessage(controllers.names.get(), controllers.score.get()));
+        controllers.players.messageAll(new EndRoundMessage({players: controllers.names.get(), scores: controllers.score.get()}));
         controllers.players.messageAll(new SpacingMessage());
         
         if(controllers.score.playersOver(controllers.params.get().maxScore).length) {

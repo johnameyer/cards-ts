@@ -1,10 +1,10 @@
-import { buildMessage, cloneString } from '@cards-ts/core';
+import { buildUnvalidatedMessage, props } from '@cards-ts/core';
 
 /**
  * Class that denotes that a player won
  */
-export const OutOfCardsMessage = buildMessage(
+export const OutOfCardsMessage = buildUnvalidatedMessage(
     'out-of-cards-message',
-    cloneString,
+    props<string>(),
     player =>  [ player, 'is out of cards' ],
 );

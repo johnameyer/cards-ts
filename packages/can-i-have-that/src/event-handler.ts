@@ -1,6 +1,6 @@
 import { Controllers } from './controllers/controllers.js';
 import { GoDownResponseMessage, PlayResponseMessage, WantCardResponseMessage } from './messages/response/index.js';
-import { ResponseMessage } from './messages/response-message.js';
+import { ResponseMessage } from './messages/response/index.js';
 import { Card, distinct, DiscardResponseMessage, buildEventHandler, EventHandler } from '@cards-ts/core';
 
 export const eventHandler = buildEventHandler<Controllers, ResponseMessage>({

@@ -1,13 +1,11 @@
-import { Message } from './message.js';
+import { buildEmptyMessage, Message } from './message.js';
 
 /**
  * Empty message for adding spacing
  * @category Message
+ * @class
  */
-export class SpacingMessage extends Message {
-    public readonly type = '';
-
-    constructor() {
-        super([]);
-    }
-}
+export const SpacingMessage = buildEmptyMessage(
+    '',
+    () => [],
+);

@@ -35,6 +35,7 @@ export class Card {
      * @returns the card
      */
     public static fromObj(obj: any): Card {
+        console.log(obj);
         const rank = Rank.fromObj(obj.rank);
         if(rank === Rank.JOKER) {
             return new Card(Suit.NONE, rank, obj.deck, obj.jokerNum);

@@ -1,6 +1,6 @@
 import { HandlerData } from '../game-handler.js';
 import { GameHandlerParams } from '../game-handler-params.js';
-import { ResponseMessage } from '../messages/response-message.js';
+import { ResponseMessage } from '../messages/response/index.js';
 import { PlayedMessage } from '../messages/status/index.js';
 import { PassResponseMessage } from '../messages/response/index.js';
 import { Message, combinations, distinct, Handler, HandlerResponsesQueue, isDefined, MessageHandlerParams, Serializable, Suit, Rank, PlayCardResponseMessage, Card } from '@cards-ts/core';
