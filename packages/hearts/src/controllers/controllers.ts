@@ -1,7 +1,7 @@
 import { GameStates } from '../game-states.js';
 import { GameParams } from '../game-params.js';
 import { GameHandlerParams } from '../game-handler-params.js';
-import { ResponseMessage } from '../messages/response-message.js';
+import { ResponseMessage } from '../messages/response/index.js';
 import { PassingControllerProvider } from './passing-controller.js';
 import { DefaultControllerKeys, DefaultControllers, SystemHandlerParams, DeckControllerProvider, HandsControllerProvider, PointsControllerProvider, TricksControllerProvider, TurnControllerProvider, ControllersProviders, UnwrapProviders, ValidatedProviders } from '@cards-ts/core';
 

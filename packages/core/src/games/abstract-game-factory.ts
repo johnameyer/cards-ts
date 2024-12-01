@@ -15,6 +15,7 @@ import { DefaultControllerKeys, DefaultControllers, buildDefaultProviders } from
 import { GenericHandlerProxy } from './generic-handler-controller.js';
 import { STANDARD_STATES } from './game-states.js';
 
+// TODO add interface back for game driver to have nicer typing in typedoc
 /**
  * Wraps the classes in a game library into one common interface to make usages less verbose and to hide internal implementation details
  * @typeParam Handles The handler parameters type

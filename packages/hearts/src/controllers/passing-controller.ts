@@ -1,5 +1,5 @@
 import { GameHandlerParams } from '../game-handler-params.js';
-import { ResponseMessage } from '../messages/response-message.js';
+import { ResponseMessage } from '../messages/response/index.js';
 import { AbstractHandsController, Card, GenericControllerProvider, GenericHandlerController, GlobalController, Serializable, SystemHandlerParams } from '@cards-ts/core';
 
 export interface PassingState {

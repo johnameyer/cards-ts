@@ -1,7 +1,7 @@
 import { Controllers } from './controllers/controllers.js';
 import { GameHandlerParams } from './game-handler-params.js';
 import { PassResponseMessage } from './messages/response/index.js';
-import { ResponseMessage } from './messages/response-message.js';
+import { ResponseMessage } from './messages/response/index.js';
 import { ControllerHandlerState, Handler, HandlerAction, PlayCardResponseMessage } from '@cards-ts/core';
 
 export type HandlerData = ControllerHandlerState<Controllers>;

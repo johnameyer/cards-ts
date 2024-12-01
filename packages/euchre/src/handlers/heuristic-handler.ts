@@ -1,7 +1,6 @@
 import { GameHandlerParams } from '../game-handler-params.js';
 import { HandlerData } from '../game-handler.js';
-import { OrderUpResponseMessage, NameTrumpResponseMessage, DealerDiscardResponseMessage } from '../messages/response/index.js';
-import { ResponseMessage } from '../messages/response-message.js';
+import { OrderUpResponseMessage, NameTrumpResponseMessage, DealerDiscardResponseMessage, ResponseMessage } from '../messages/response/index.js';
 import { PlayedMessage } from '../messages/status/index.js';
 import { followsTrick } from '../util/follows-trick.js';
 import { getTeamFor } from '../util/teams.js';
@@ -143,6 +142,6 @@ export class HeuristicHandler implements Handler<GameHandlerParams & MessageHand
     };
 }
 
-function isPlayedMessage(message: Message): message is PlayedMessage {
+function isPlayedMessage(message: Message): message is InstanceType<typeof PlayedMessage> {
     return message.type === 'played-message';
 }

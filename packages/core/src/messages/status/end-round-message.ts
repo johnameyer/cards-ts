@@ -1,26 +1,28 @@
-import { Presentable } from '../../intermediary/presentable.js';
-import { Message } from '../message.js';
-
-function generateMessage(players: readonly string[], scores: readonly number[]): Presentable[] {
-    const arr: string[] = [];
-    for(let i = 0; i < players.length; i++) {
-        arr[i] = players[i] + ': ' + scores[i];
-    }
-    return arr;
-}
+import { cloneArray, cloneNumber, cloneObject, cloneString } from '../cloners.js';
+import { buildValidatedMessage, props } from '../message.js';
 
 /**
  * Class denoting to handlers that the round has ended
  * @category Message
+ * @class
  */
-export class EndRoundMessage extends Message {
-    public readonly type = 'end-round-message';
-
-    /**
-     * @param players the players' names
-     * @param scores the cummulative scores
-     */
-    constructor(public readonly players: readonly string[], public readonly scores: readonly number[]) {
-        super(generateMessage(players, scores));
-    }
-}
+export const EndRoundMessage = buildValidatedMessage(
+    'endRound',
+    props<{
+        /** the players' names */
+        players: string[],
+        /** the cummulative scores */
+        scores: number[],
+    }>(),
+    cloneObject({
+        players: cloneArray(cloneString),
+        scores: cloneArray(cloneNumber)
+    }),
+    ({players, scores}) => {
+        const arr: string[] = [];
+        for(let i = 0; i < players.length; i++) {
+            arr[i] = players[i] + ': ' + scores[i];
+        }
+        return arr;
+    },
+);

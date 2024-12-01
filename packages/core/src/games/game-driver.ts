@@ -40,6 +40,8 @@ export class GameDriver<Handlers extends {[key: string]: unknown[]} & SystemHand
      * @returns if the message was merged
      */
     public handleEvent(position: number, message: ResponseMessage | undefined, data: Record<string, Serializable> | undefined) {
+        // TODO how to re-generate the event from the provided using its type?
+
         // TODO move only data elsewhere
         if(message !== undefined) {
             const updatedMessage = this.eventHandler.validateEvent(this.gameState.controllers, position, message);

@@ -51,7 +51,7 @@ export const gameStateTransitions: GenericGameStateTransitions<typeof GameStates
             const passedFrom = (player + controllers.passing.pass + controllers.players.count) % controllers.players.count; // TODO consider +- here
             const passed = controllers.passing.passed[passedFrom];
             controllers.hand.removeCards(passedFrom, passed);
-            controllers.players.message(player, new PassedMessage(passed, controllers.names.get()[passedFrom]));
+            controllers.players.message(player, new PassedMessage({cards: passed, from: controllers.names.get()[passedFrom]}));
             controllers.hand.giveCards(player, passed);
         }
 
@@ -148,7 +148,7 @@ export const gameStateTransitions: GenericGameStateTransitions<typeof GameStates
             }
         }
         
-        controllers.players.messageAll(new EndRoundMessage(controllers.names.get(), controllers.score.get()));
+        controllers.players.messageAll(new EndRoundMessage({players: controllers.names.get(), scores: controllers.score.get()}));
 
         controllers.passing.nextPass();
         

@@ -1,6 +1,6 @@
 import { Controllers } from './controllers/controllers.js';
 import { PassResponseMessage } from './messages/response/index.js';
-import { ResponseMessage } from './messages/response-message.js';
+import { ResponseMessage } from './messages/response/index.js';
 import { followsTrick } from './util/follows-trick.js';
 import { Suit, Card, Rank, distinct, isDefined, PlayCardResponseMessage, buildEventHandler, EventHandler } from '@cards-ts/core';
 

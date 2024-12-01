@@ -1,7 +1,7 @@
 #!/usr/bin/env ts-node
 
 import { GameHandlerParams } from './game-handler-params.js';
-import { ResponseMessage } from './messages/response-message.js';
+import { ResponseMessage } from './messages/response/index.js';
 import { GameSetup } from './game-setup.js';
 import { gameFactory } from './game-factory.js';
 import { Controllers } from './controllers/controllers.js';

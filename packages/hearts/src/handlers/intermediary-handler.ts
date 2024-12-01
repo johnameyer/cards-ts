@@ -1,5 +1,5 @@
 import { GameHandler, HandlerData } from '../game-handler.js';
-import { ResponseMessage } from '../messages/response-message.js';
+import { ResponseMessage } from '../messages/response/index.js';
 import { compare } from '../util/compare.js';
 import { PassResponseMessage } from '../messages/response/index.js';
 import { Card, HandlerResponsesQueue, PlayCardResponseMessage } from '@cards-ts/core';

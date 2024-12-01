@@ -2,7 +2,7 @@
 
 import { HandlerData } from './game-handler.js';
 import { GameHandlerParams } from './game-handler-params.js';
-import { ResponseMessage } from './messages/response-message.js';
+import { ResponseMessage } from './messages/response/index.js';
 import { GameSetup } from './game-setup.js';
 import { gameFactory } from './game-factory.js';
 import { HandlerChain, IncrementalIntermediary, InquirerPresenter, SystemHandlerParams } from '@cards-ts/core';

@@ -1,13 +1,17 @@
-import { Message } from '../message.js';
+import { cloneString } from '../cloners.js';
+import { buildValidatedMessage, props } from '../message.js';
 
 /**
  * Designates that a player ran out of cards
  * @category Message
+ * @class
  */
-export class OutOfCardsMessage extends Message {
-    public readonly type = 'out-of-cards-message';
-
-    constructor(public readonly name: string) {
-        super([ name, 'is out of cards' ]);
-    }
-}
+export const OutOfCardsMessage = buildValidatedMessage(
+    'outOfCards',
+    props<
+    /** the player who is out of cards */
+    string
+    >(),
+    cloneString,
+    name => [ name, 'is out of cards' ]
+);

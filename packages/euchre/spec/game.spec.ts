@@ -7,8 +7,8 @@ import { GameParams } from '../src/game-params.js';
 import { buildProviders } from '../src/controllers/controllers.js';
 import { HeuristicHandler } from '../src/handlers/heuristic-handler.js';
 import { GameHandler } from '../src/game-handler.js';
-import { StatusMessage } from '../../can-i-have-that/src/messages/status-message.js';
 import { ArrayMessageHandler, buildGameFactory, DeckControllerProvider, HandlerChain, Rank } from '@cards-ts/core';
+import { StatusMessage } from '../src/messages/status/index.js';
 
 describe('game', () => {
     // TODO can we build this more simply i.e. deterministic deck controller?

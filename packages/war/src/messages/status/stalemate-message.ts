@@ -1,17 +1,9 @@
-import { Message, Presentable } from '@cards-ts/core';
-
-function generateMessage(): Presentable[] {
-    return [ 'Game went over the max number of battles' ];
-}
+import { buildEmptyMessage } from '@cards-ts/core';
 
 /**
  * Class that denotes that a player won
  */
-export class StalemateMessage extends Message {
-
-    public readonly type = 'stalemate-message';
-
-    constructor() {
-        super(generateMessage());
-    }
-}
+export const StalemateMessage = buildEmptyMessage(
+    'stalemate-message',
+    () =>  [ 'Game went over the max number of battles' ],
+);

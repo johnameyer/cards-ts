@@ -33,6 +33,7 @@ export abstract class AbstractHandsController<HandlerType extends Serializable> 
      * TODO use shouldAnnounceDealer
      */
     public dealOut(shouldMessage = true, shouldAnnounceDealer = false, numCards = -1) {
+        // TODO shouldAnnounceDealer names controller
         const deck = this.controllers.deck.deck;
         while(deck.cards.length && numCards !== 0) {
             for(let j = 0; j < this.controllers.players.count; j++) {

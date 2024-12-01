@@ -1,22 +1,16 @@
-import { Presentable } from '../../intermediary/presentable.js';
-import { Message } from '../message.js';
+import { cloneString } from '../cloners.js';
+import { buildValidatedMessage, props } from '../message.js';
 
-function generateMessage(leader: string): Presentable[] {
-    return [ leader, 'leads next trick' ];
-}
-
+// TODO should we wrap all types in an object so the message can be passed on instead of needing this param workaround?
 /**
  * Class that denotes to a handler that a certain player is leading this round
  * @category Message
+ * @class
+ * @param payload The hand that is leading
  */
-export class LeadsMessage extends Message {
-
-    public readonly type = 'leads-message';
-
-    /**
-     * @param leader the hand that is leading
-     */
-    constructor(public readonly leader: string) {
-        super(generateMessage(leader));
-    }
-}
+export const LeadsMessage = buildValidatedMessage(
+    'leads',
+    props<string>(),
+    cloneString,
+    leader => [ leader, 'leads next trick' ],
+);
