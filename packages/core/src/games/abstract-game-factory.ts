@@ -19,12 +19,12 @@ import { STANDARD_STATES } from './game-states.js';
  * Wraps the classes in a game library into one common interface to make usages less verbose and to hide internal implementation details
  * @typeParam Handles The handler parameters type
  * @typeParam GameParams The game parameters type
- * @typeParams State The object of valid states
+ * @typeParam State The object of valid states
  * @typeParam Controllers The game state controllers
  * @typeParam ResponseMessage The messages that a handler can respond with
  * @category Game Builder
  */
-export function buildGameFactory<Handles extends {[key: string]: unknown[]}, GameParams extends SerializableObject, State extends typeof STANDARD_STATES, Controllers extends IndexedControllers, ResponseMessage extends Message>(
+export const buildGameFactory = <Handles extends {[key: string]: unknown[]}, GameParams extends SerializableObject, State extends typeof STANDARD_STATES, Controllers extends IndexedControllers, ResponseMessage extends Message>(
     /**
      * The game state transitions
      */
@@ -54,57 +54,55 @@ export function buildGameFactory<Handles extends {[key: string]: unknown[]}, Gam
      * Returns the controller providers specific to the game, to be merged with the default controllers
      */
     providers: () => Omit<ControllersProviders<Controllers>, DefaultControllerKeys>,
-) {
-    return {
-        getEventHandler(): EventHandlerInterface<Controllers, ResponseMessage> {
-            return eventHandler;
-        },
+) => ({
+    getEventHandler(): EventHandlerInterface<Controllers, ResponseMessage> {
+        return eventHandler;
+    },
 
-        getGameSetup(): GenericGameSetup<GameParams> {
-            return gameSetup;
-        },
+    getGameSetup(): GenericGameSetup<GameParams> {
+        return gameSetup;
+    },
 
-        getIntermediaryHandler(intermediary: Intermediary): Handler<Handles, ControllerHandlerState<Controllers & DefaultControllers<GameParams, State, ResponseMessage, Handles & SystemHandlerParams>>, ResponseMessage> {
-            return intermediaryHandlerProvider(intermediary);
-        },
+    getIntermediaryHandler(intermediary: Intermediary): Handler<Handles, ControllerHandlerState<Controllers & DefaultControllers<GameParams, State, ResponseMessage, Handles & SystemHandlerParams>>, ResponseMessage> {
+        return intermediaryHandlerProvider(intermediary);
+    },
 
-        getDefaultBotHandler(): Handler<Handles, ControllerHandlerState<Controllers & DefaultControllers<GameParams, State, ResponseMessage, Handles & SystemHandlerParams>>, ResponseMessage> {
-            return defaultBotHandlerProvider();
-        },
+    getDefaultBotHandler(): Handler<Handles, ControllerHandlerState<Controllers & DefaultControllers<GameParams, State, ResponseMessage, Handles & SystemHandlerParams>>, ResponseMessage> {
+        return defaultBotHandlerProvider();
+    },
 
-        getProviders(): Omit<ControllersProviders<Controllers>, DefaultControllerKeys> {
-            return providers();
-        },
+    getProviders(): Omit<ControllersProviders<Controllers>, DefaultControllerKeys> {
+        return providers();
+    },
 
-        /**
-         * Creates a new handler chain containing the intermediary handler and the system intermediary handler
-         */
-        getIntermediaryHandlerChain(intermediary: Intermediary): HandlerChain<Handles & SystemHandlerParams, ControllerHandlerState<Controllers & DefaultControllers<GameParams, State, ResponseMessage, Handles & SystemHandlerParams>>, ResponseMessage> {
-            return new HandlerChain([ this.getIntermediaryHandler(intermediary) ])
-                .append(new IntermediarySystemHandler(intermediary) as Handler<SystemHandlerParams, ControllerHandlerState<Controllers>, ResponseMessage>);
-        },
+    /**
+     * Creates a new handler chain containing the intermediary handler and the system intermediary handler
+     */
+    getIntermediaryHandlerChain(intermediary: Intermediary): HandlerChain<Handles & SystemHandlerParams, ControllerHandlerState<Controllers & DefaultControllers<GameParams, State, ResponseMessage, Handles & SystemHandlerParams>>, ResponseMessage> {
+        return new HandlerChain([ this.getIntermediaryHandler(intermediary) ])
+            .append(new IntermediarySystemHandler(intermediary) as Handler<SystemHandlerParams, ControllerHandlerState<Controllers>, ResponseMessage>);
+    },
 
-        /**
-         * Creates a new handler chain containing only the bot handler for the game events
-         */
-        getDefaultBotHandlerChain(): HandlerChain<Handles & SystemHandlerParams, ControllerHandlerState<Controllers & DefaultControllers<GameParams, State, ResponseMessage, Handles & SystemHandlerParams>>, ResponseMessage> {
-            return new HandlerChain<Handles & SystemHandlerParams, ControllerHandlerState<Controllers>, ResponseMessage>().append(this.getDefaultBotHandler());
-        },
+    /**
+     * Creates a new handler chain containing only the bot handler for the game events
+     */
+    getDefaultBotHandlerChain(): HandlerChain<Handles & SystemHandlerParams, ControllerHandlerState<Controllers & DefaultControllers<GameParams, State, ResponseMessage, Handles & SystemHandlerParams>>, ResponseMessage> {
+        return new HandlerChain<Handles & SystemHandlerParams, ControllerHandlerState<Controllers>, ResponseMessage>().append(this.getDefaultBotHandler());
+    },
 
-        /**
-         * Creates a new driver using elements from this game factory
-         * @param players the players in the game
-         * @param params the params to run this game under
-         * @param names the initial names of the players
-         * @param state the state to wrap
-         */
-        getGameDriver(players: HandlerChain<Handles & SystemHandlerParams, ControllerHandlerState<Controllers & DefaultControllers<GameParams, State, ResponseMessage, Handles & SystemHandlerParams>>, ResponseMessage>[], params: GameParams, names: string[], state?: ControllerState<Controllers>) {
-            const handlerData = new Provider<(position: number) => any>();
-            const handlerProxy = new GenericHandlerProxy(players, handlerData);
-            const providers = { ...this.getProviders(), ...buildDefaultProviders(params, names, handlerProxy) } as any as ControllersProviders<Controllers & DefaultControllers<GameParams, State, ResponseMessage, Handles & SystemHandlerParams>>;
-            const gameState = new GenericGameState<Controllers & DefaultControllers<GameParams, State, ResponseMessage, Handles & SystemHandlerParams>>(providers, state);
-            handlerData.set((position) => gameState.asHandlerData(position));
-            return new GameDriver(handlerProxy, gameState, transitions, eventHandler);
-        },
-    };
-}
+    /**
+     * Creates a new driver using elements from this game factory
+     * @param players the players in the game
+     * @param params the params to run this game under
+     * @param names the initial names of the players
+     * @param state the state to wrap
+     */
+    getGameDriver(players: HandlerChain<Handles & SystemHandlerParams, ControllerHandlerState<Controllers & DefaultControllers<GameParams, State, ResponseMessage, Handles & SystemHandlerParams>>, ResponseMessage>[], params: GameParams, names: string[], state?: ControllerState<Controllers>) {
+        const handlerData = new Provider<(position: number) => any>();
+        const handlerProxy = new GenericHandlerProxy(players, handlerData);
+        const providers = { ...this.getProviders(), ...buildDefaultProviders(params, names, handlerProxy) } as any as ControllersProviders<Controllers & DefaultControllers<GameParams, State, ResponseMessage, Handles & SystemHandlerParams>>;
+        const gameState = new GenericGameState<Controllers & DefaultControllers<GameParams, State, ResponseMessage, Handles & SystemHandlerParams>>(providers, state);
+        handlerData.set((position) => gameState.asHandlerData(position));
+        return new GameDriver(handlerProxy, gameState, transitions, eventHandler);
+    },
+});

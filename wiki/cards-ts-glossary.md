@@ -20,7 +20,7 @@ A handler is the interface by which a player (or bot) reacts to various events. 
 
 ## Message
 
-A {@link @cards-ts/core!Message | Message} is a serializable element of communication, which takes two flavors: status/game-generated events which inform handlers about what has changed in the game state, as well as response/handler-generated events which tell the game that a handler would like to respond to something (like an opportunity to bid, discard, or play a card). A {@link @cards-ts/core!Presentable | Presentable } should contain a message that can be displayed to an end user, as well as any other data that may be helpful for a bot to process the event without parsing the message.
+A {@link @cards-ts/core!Message:class | Message} is a serializable element of communication, which takes two flavors: status/game-generated events which inform handlers about what has changed in the game state, as well as response/handler-generated events which tell the game that a handler would like to respond to something (like an opportunity to bid, discard, or play a card). A {@link @cards-ts/core!Presentable | Presentable } should contain a message that can be displayed to an end user, as well as any other data that may be helpful for a bot to process the event without parsing the message.
 
 ## Game
 

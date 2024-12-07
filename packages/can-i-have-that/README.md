@@ -12,18 +12,6 @@ This is an implementation of the game Can I Have That in Typescript written on t
 npx @cards-ts/can-i-have-that
 ```
 
-## Running a card game locally
-
-```bash
-npm run start
-```
-
-## Running the tests
-
-```bash
-npm test
-```
-
 ## Versioning
 
 We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/johnameyer/cards-ts/tags).

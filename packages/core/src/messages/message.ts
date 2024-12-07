@@ -4,7 +4,8 @@ import { isDefined } from '../util/is-defined.js';
 import { isNonnull } from '../util/is-nonnull.js';
 
 /**
- * Parent class for any message to be delivered to handlers
+ * A serializable object designating a change in the game state.
+ * [See Glossary](../../../../wiki/cards-ts-glossary.md#controller)
  * @category Message
  */
 export abstract class Message {

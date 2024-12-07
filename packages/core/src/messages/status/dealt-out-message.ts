@@ -15,7 +15,7 @@ export class DealtOutMessage extends Message {
     public readonly type = 'dealt-out-message';
 
     /**
-     * @param card the cards being received
+     * @param cards the cards being received
      */
     constructor(public readonly cards: Card[]) {
         super(generateMessage(cards));
