@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import { expect, use } from 'chai';
+import { jestSnapshotPlugin } from "mocha-chai-jest-snapshot";
 import { IntermediaryHandler } from '../src/index.js';
 import { eventHandler } from '../src/event-handler.js';
 import { GameSetup } from '../src/game-setup.js';
@@ -10,8 +11,9 @@ import { LocalMaximumHandler } from '../src/handlers/local-maximum-handler.js';
 import { StartRoundMessage } from '../src/messages/status/start-round-message.js';
 import { PickupMessage } from '../src/messages/status/pickup-message.js';
 import { StatusMessage } from '../src/messages/status-message.js';
-import { PickupMessage as PublicPickupMessage } from '@cards-ts/core';
-import { ArrayMessageHandler, buildGameFactory, Card, DeckControllerProvider, DiscardMessage, HandlerChain } from '@cards-ts/core';
+import { Message, PickupMessage as PublicPickupMessage, ArrayMessageHandler, buildGameFactory, Card, DeckControllerProvider, DiscardMessage, HandlerChain } from '@cards-ts/core';
+
+use(jestSnapshotPlugin());
 
 describe('game', () => {
     // TODO can we build this more simply i.e. deterministic deck controller?
@@ -89,6 +91,32 @@ describe('game', () => {
             expect(messageHandler.arr.filter(message => message.type === 'start-round-message').length).to.equal(2);
             expect(messageHandler.arr.filter(message => message.type === 'end-round-message').length).to.equal(3);
             expect(messageHandler.arr.at(-1)?.type).to.equal('end-round-message');
+        }
+    });
+
+    it('has a matching snapshot', async () => {
+        const messageHandlers = Array.from({length: 4}, () => new ArrayMessageHandler<StatusMessage>());
+
+        const gameHandler: () => GameHandler = () => new LocalMaximumHandler();
+
+        // @ts-expect-error
+        const players = Array.from(messageHandlers, messageHandler => new HandlerChain([ messageHandler, gameHandler() ]));
+
+        const names = Array.from(messageHandlers, (_, i) => String.fromCharCode(65 + i));
+
+        const driver = factory.getGameDriver(players, params, names);
+
+
+        while(!driver.getState().completed) {
+            driver.handleSyncResponses();
+            driver.resume();
+        }
+
+        // TODO record the responses separately, capture messages with who they were delivered to (i.e. observer)
+        for(const i in messageHandlers) {
+            const messageHandler = messageHandlers[i];
+
+            expect(messageHandler.arr.map(msg => Message.defaultTransformer(msg.components))).toMatchSnapshot();
         }
     });
 });
