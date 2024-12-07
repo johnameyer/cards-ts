@@ -173,7 +173,6 @@ export class GenericHandlerController<ResponseMessage extends Message, Handlers 
 
     /**
      * Send a message to all the players minus the excluded
-     * @param players the array of players
      * @param excludedPosition the player to not send to
      * @param message the message to send
      */
@@ -183,7 +182,6 @@ export class GenericHandlerController<ResponseMessage extends Message, Handlers 
 
     /**
      * Calls the handler chain at the specified position
-     * @param gameState the game state
      * @param position the position of the handler to call
      * @param method the event type to call
      * @param args the args to call with
@@ -195,7 +193,6 @@ export class GenericHandlerController<ResponseMessage extends Message, Handlers 
 
     /**
      * Calls all the handlers and waits for N to respond
-     * @param gameState the game state
      * @param method the event type to call
      * @param numToWaitFor the number of handlers to wait for
      * @param args the args to call with
@@ -207,7 +204,6 @@ export class GenericHandlerController<ResponseMessage extends Message, Handlers 
 
     /**
      * Calls all the handlers and wait for a response
-     * @param gameState the game state
      * @param method the event type to call
      * @param args the args to call with
      */

@@ -10,12 +10,6 @@ Implementations of a card game must share a certain set of exports to be able to
 
 Contributions of games to the library are welcome on the Github.
 
-## Running the tests
-
-```bash
-npm test
-```
-
 ## Versioning
 
 We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/johnameyer/cards-ts/tags).

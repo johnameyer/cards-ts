@@ -14,18 +14,46 @@ Can I Have That is a house variation on [Continental Rummy](https://en.wikipedia
 [Hearts](https://en.wikipedia.org/wiki/Hearts_(card_game)) and [Euchre](https://en.wikipedia.org/wiki/Euchre) are trick-taking games.
 Other implementations of card games or expansions of the core library are welcome.
 
-## Running a card game with npx
+## Getting Started
+
+We use pnpm workspaces to support a number of games on top of the core library. See the documentation pages [here](https://johnameyer.github.io/cards-ts) or see the wiki articles [here](https://github.com/johnameyer/cards-ts/tree/master/wiki).
+
+### Running a card game locally
+
+#### Building
 
 ```bash
-npx @cards-ts/hearts # or can-i-have-that, etc.
+pnpm i # typically only needed the first time
+pnpm -w buildall
 ```
 
-## Versioning
+or
 
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/johnameyer/cards-ts/tags).
 
-## Authors
+```bash
+pnpm i # typically only needed the first time
+cd packages/hearts
+pnpm -F {.}... build
+```
 
-* **John Meyer** - *Initial work* - [johnameyer](https://github.com/johnameyer)
+All packages also expose the commands `lint`, `clean`, `madge`, and `test`.
 
-See also the list of [contributors](https://github.com/johnameyer/cards-ts/contributors) who participated in this project.
+#### Running
+
+All game packages also expose a `start` command to build and run the game as well as a `ts-start` command to run the typescript directly.
+
+```bash
+pnpm start -F hearts
+```
+
+or
+
+```bash
+cd packages/$GAME
+pnpm start
+```
+
+## Testing
+
+The tests in [spec folder](https://github.com/johnameyer/cards-ts/tree/spec) test that each game exports a minimum number of fields and that the bots will be able to complete the game successfully (Run with `pnpm start` in the folder locally). Each package can also contain a spec folder as well for unit testing components with mocha (Run all with `pnpm testall` or in a package with `pnpm test`).
+

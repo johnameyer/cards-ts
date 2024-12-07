@@ -150,7 +150,7 @@ export namespace EventHandler {
     /**
      * Creates a validator to see if the source handler has a card they are attempting to play
      * @param key The key of the hands controller to use
-     * @param cards A function that extracts the card from the response message
+     * @param card A function that extracts the card from the response message
      * @returns A validator
      */
     export const hasCard = <Controllers extends IndexedControllers, ResponseMessage extends Message> (key: KeysOfType<Controllers, HandsController>, card: (message: ResponseMessage) => Card) => validate<Controllers, ResponseMessage>(
@@ -199,7 +199,7 @@ export namespace EventHandler {
     /**
      * Creates a merger function to set the played trick card
      * @param key The key of the tricks controller
-     * @param cards A function that extracts the card from the response message
+     * @param card A function that extracts the card from the response message
      * @returns A merger
      */
     export const setTrickPlayedCard = <Controllers extends IndexedControllers, ResponseMessage extends Message> (key: KeysOfType<Controllers, TricksController>, card: (message: ResponseMessage) => Card): EventHandler<Controllers, ResponseMessage, void> => {

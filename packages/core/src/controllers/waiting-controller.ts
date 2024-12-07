@@ -55,8 +55,7 @@ export class WaitingController extends GlobalController<WaitingState, {}> {
     }
 
     /**
-     * Tells if the game is waiting on a player
-     * @param state the state to analyze
+     * Tells if the game is waiting on any player
      */
     isWaitingOnPlayer() {
         const { waiting } = this.get();
@@ -67,8 +66,7 @@ export class WaitingController extends GlobalController<WaitingState, {}> {
     }
 
     /**
-     * Tells if the game is waiting on any of the following players
-     * @param state the state to analyze
+     * Tells if the game is waiting on any of the provided players
      * @param subset the subset to check against
      */
     isWaitingOnPlayerSubset(subset: number[]) {

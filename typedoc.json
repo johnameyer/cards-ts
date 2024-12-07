@@ -12,6 +12,7 @@
             "notExported": false,
         },
     },
+    "useFirstParagraphOfCommentAsSummary": true,
     // TODO development-oriented README separate from advertising README
     "projectDocuments": ["./wiki/*"] // TODO ref https://typedoc.org/guides/documents/
 }

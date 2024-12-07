@@ -12,18 +12,6 @@ This is an implementation of the game [Hearts](https://en.wikipedia.org/wiki/Hea
 npx @cards-ts/hearts
 ```
 
-## Running a card game locally
-
-```bash
-npm run start
-```
-
-## Running the tests
-
-```bash
-npm test
-```
-
 ## Versioning
 
 We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/johnameyer/cards-ts/tags).
