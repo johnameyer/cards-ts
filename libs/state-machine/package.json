@@ -1,0 +1,39 @@
+{
+  "name": "@cards-ts/state-machine",
+  "version": "0.8.0",
+  "description": "Framework for creating and running new card games.",
+  "author": "John Meyer",
+  "homepage": "https://github.com/johnameyer/cards-ts/tree/master/libs/state-machine#readme",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/index.js",
+  "directories": {
+    "lib": "dist",
+    "test": "spec"
+  },
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/johnameyer/cards-ts.git"
+  },
+  "scripts": {
+    "lint": "eslint '**/*.ts' --fix",
+    "build": "tsc",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
+    "madge": "pnpm dlx madge --circular --extensions ts ./src",
+    "test": "pnpm tsc --project tsconfig.spec.json && mocha --recursive ./spec --extension spec.ts",
+    "prepack": "pnpm clean && pnpm build"
+  },
+  "bugs": {
+    "url": "https://github.com/johnameyer/cards-ts/issues"
+  },
+  "dependencies": {
+    "@cards-ts/core": "workspace:*"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "sideEffects": false
+}

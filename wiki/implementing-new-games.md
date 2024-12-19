@@ -14,11 +14,11 @@ Start by clearing out any parameters in `game-params` and `game-setup`, since yo
 
 Then identify the user inputs your game has (e.g. will the user be prompted to discard a card? or to play a single card or a meld?), and implement an initial version of your `game-handler-params`, `game-handler`, and response messages.
 
-Think about the states and flow your game goes through and then put together a start to your `game-states`. While doing so, think about what state/controllers you will need, giving you a first start on your custom controllers and `controllers/controllers` file.
+Think about the states and flow your game goes through and then begin putting together your `state-machine`. While doing so, think about what state/controllers you will need, giving you a first start on your custom controllers and `controllers/controllers` file.
 
 Once you've generally settled on your custom events and state, you can start to put together your `event-handler` to validate and respond to events, and your bot and intermediary handlers to respond to events (typically starting with a very basic valid response for bots).
 
-At this point, you should be good to start on your `game-state-transitions` and implement the transitions between each of your states. Also at this point, you should be able to compile and be able to incrementally run and test your game.
+At this point, you should be good to finalize on your `state-machine`. Also at this point, you should be able to compile and be able to incrementally run and test your game.
 
 Once the basic game is in place, you can enhance the params, bot handler, or any other part of the game! Add it to `games.txt` and make sure it passes the basic package test which verifies the game finishes as well.
 
@@ -30,13 +30,10 @@ The following are files you'll generally need to modify in the course of creatin
 
 - `event-handler` via calling {@link @cards-ts/core!buildEventHandler | buildEventHandler} or implementing {@link @cards-ts/core!EventHandlerInterface | EventHandlerInterface}
   - The class that handles validating and merging in responses from the handlers
-  - [Hearts example](../packages/hearts/src/event-handler.ts)
-- `buildProviders`
+- `controllers` / `buildProviders`
   - Allows for defining the shape of the data state of your game
-- `game-states`
-  - Describes all the custom states this game might enter as a const object enum
-- `game-state-transitions` via implementing {@link @cards-ts/core!GenericGameStateTransitions | GenericGameStateTransitions}
-  - The class that manages transitioning from game state to game state (similar to a finite state machine)
+- `state-machine`
+  - Allows for defining the flow of the game (as a finite state machine using the constructs of {@link @cards-ts/state-machine!})
 - `game-handler-params`
   - Spells out what custom events the game might send to handlers
 - `game-handler` via implementing {@link @cards-ts/core!Handler | Handler}
