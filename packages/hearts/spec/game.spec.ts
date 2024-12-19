@@ -2,7 +2,6 @@ import { expect } from 'chai';
 import { IntermediaryHandler } from '../src/index.js';
 import { eventHandler } from '../src/event-handler.js';
 import { GameSetup } from '../src/game-setup.js';
-import { gameStateTransitions } from '../src/game-state-transitions.js';
 import { GameHandler } from '../src/game-handler.js';
 import { GameParams } from '../src/game-params.js';
 import { buildProviders } from '../src/controllers/controllers.js';
@@ -14,6 +13,8 @@ import { followsTrick } from '../src/util/follows-trick.js';
 import { PlayedMessage } from '../src/messages/status/played-message.js';
 import { StatusMessage } from '../../can-i-have-that/src/messages/status-message.js';
 import { ArrayMessageHandler, buildGameFactory, Card, DeckControllerProvider, EndRoundMessage, HandlerChain, LeadsMessage, PlayCardResponseMessage } from '@cards-ts/core';
+import { stateMachine } from '../src/state-machine.js';
+import { adapt } from '@cards-ts/state-machine';
 
 describe('game', () => {
     // TODO can we build this more simply i.e. deterministic deck controller?
@@ -23,7 +24,7 @@ describe('game', () => {
     });
 
     const factory = buildGameFactory(
-        gameStateTransitions,
+        adapt(stateMachine),
         eventHandler,
         // TODO can we avoid specifying the setup and intermediary since they are not critical to the driver construction?
         new GameSetup(),

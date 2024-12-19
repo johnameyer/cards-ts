@@ -66,6 +66,9 @@ importers:
       '@cards-ts/core':
         specifier: workspace:*
         version: link:../core
+      '@cards-ts/state-machine':
+        specifier: workspace:*
+        version: link:../state-machine
       yargs:
         specifier: ^17.7.2
         version: 17.7.2
@@ -104,6 +107,9 @@ importers:
       '@cards-ts/core':
         specifier: workspace:*
         version: link:../core
+      '@cards-ts/state-machine':
+        specifier: workspace:*
+        version: link:../state-machine
       yargs:
         specifier: ^17.7.2
         version: 17.7.2
@@ -117,6 +123,9 @@ importers:
       '@cards-ts/core':
         specifier: workspace:*
         version: link:../core
+      '@cards-ts/state-machine':
+        specifier: workspace:*
+        version: link:../state-machine
       yargs:
         specifier: ^17.7.2
         version: 17.7.2
@@ -136,6 +145,9 @@ importers:
       '@cards-ts/core':
         specifier: workspace:*
         version: link:../core
+      '@cards-ts/state-machine':
+        specifier: workspace:*
+        version: link:../state-machine
       yargs:
         specifier: ^17.7.2
         version: 17.7.2
