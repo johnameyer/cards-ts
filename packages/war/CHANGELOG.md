@@ -1,5 +1,11 @@
 # @cards-ts/war
 
+## 0.8.1
+
+### Patch Changes
+
+- [#143](https://github.com/johnameyer/cards-ts/pull/143) [`950ab36`](https://github.com/johnameyer/cards-ts/commit/950ab36ef72cd3233b9b13e3c448d7bef4f2094b) Thanks [@johnameyer](https://github.com/johnameyer)! - Migrate to use compositional state machine
+
 ## 0.8.0
 
 ### Minor Changes
