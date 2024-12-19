@@ -1,6 +1,7 @@
 import { Controllers } from './controllers/controllers.js';
 import { StartRoundMessage } from './messages/status/index.js';
-import { giveCard, setupRound } from './game-state-transitions.js';
+import { setupRound } from './util/setup-round.js';
+import { giveCard } from './util/give-card.js';
 import { PickupMessage as PublicPickup, PlayedMessage, InvalidError, ReshuffleMessage, DiscardMessage, OutOfCardsMessage, EndRoundMessage, SpacingMessage } from '@cards-ts/core';
 import { handleRoundRobinFirst, handleSingle, loop, sequence, game } from '@cards-ts/state-machine';
 

@@ -1,11 +1,10 @@
-import { GameStates } from '../game-states.js';
 import { GameParams } from '../game-params.js';
 import { GameHandlerParams } from '../game-handler-params.js';
 import { ResponseMessage } from '../messages/response-message.js';
 import { CanIHaveThatControllerProvider } from './can-i-have-that-controller.js';
-import { DefaultControllers, SystemHandlerParams, DeckControllerProvider, PointsControllerProvider, TurnControllerProvider, MeldControllerProvider, DefaultControllerKeys, ValidatedProviders, HandsControllerProvider, ControllersProviders, UnwrapProviders } from '@cards-ts/core';
+import { DefaultControllers, SystemHandlerParams, DeckControllerProvider, PointsControllerProvider, TurnControllerProvider, MeldControllerProvider, DefaultControllerKeys, ValidatedProviders, HandsControllerProvider, ControllersProviders, UnwrapProviders, STANDARD_STATES } from '@cards-ts/core';
 
-type TypedDefaultControllers = DefaultControllers<GameParams, typeof GameStates, ResponseMessage, GameHandlerParams & SystemHandlerParams>;
+type TypedDefaultControllers = DefaultControllers<GameParams, typeof STANDARD_STATES, ResponseMessage, GameHandlerParams & SystemHandlerParams>;
 
 export const buildProviders = () => {
     const providers = {
