@@ -30,7 +30,6 @@ The following are files you'll generally need to modify in the course of creatin
 
 - `event-handler` via calling {@link @cards-ts/core!buildEventHandler | buildEventHandler} or implementing {@link @cards-ts/core!EventHandlerInterface | EventHandlerInterface}
   - The class that handles validating and merging in responses from the handlers
-  - [Hearts example](../packages/hearts/src/event-handler.ts)
 - `buildProviders`
   - Allows for defining the shape of the data state of your game
 - `game-states`

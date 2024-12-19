@@ -61,7 +61,7 @@
   },
   "exclude": [
     "spec/",
-    "lib/"
+    "dist/"
   ],
   "types": [
     "node"
