@@ -24,7 +24,7 @@
         "import"
     ],
     "settings": {
-        "import/external-module-folders": [ "packages" ]
+        "import/external-module-folders": [ "libs" ]
     },
     "overrides": [
         {

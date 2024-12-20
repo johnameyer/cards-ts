@@ -1,5 +1,5 @@
-/packages/*/lib/
-node_modules/
+dist
+node_modules
 tsconfig.tsbuildinfo
 npm-debug.log
 docs
