@@ -5,8 +5,7 @@ import { isNonnull } from '../util/is-nonnull.js';
 
 /**
  * A serializable object designating a change in the game state.
- * [See Glossary](../../../../wiki/glossary.md)
- * {@includeCode ./message.ts}
+ * {@include ../../../../wiki/glossary.md#message}
  * @category Message
  */
 export abstract class Message {
