@@ -1,5 +1,13 @@
 # @cards-ts/war
 
+## 0.8.2
+
+### Patch Changes
+
+- Updated dependencies [[`3fe2a5b`](https://github.com/johnameyer/cards-ts/commit/3fe2a5b96fe81618e01573ed946fda0cfc76ee11)]:
+  - @cards-ts/core@0.8.1
+  - @cards-ts/state-machine@0.8.1
+
 ## 0.8.1
 
 ### Patch Changes

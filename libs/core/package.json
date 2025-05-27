@@ -1,6 +1,6 @@
 {
   "name": "@cards-ts/core",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "Framework for creating and running new card games.",
   "author": "John Meyer",
   "homepage": "https://github.com/johnameyer/cards-ts/tree/master/libs/core#readme",

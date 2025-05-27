@@ -1,6 +1,6 @@
 {
   "name": "@cards-ts/hearts",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "description": "Implementation of the card game hearts.",
   "author": "John Meyer",
   "homepage": "https://github.com/johnameyer/cards-ts/tree/master/libs/hearts#readme",

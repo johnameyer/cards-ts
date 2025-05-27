@@ -1,5 +1,11 @@
 # @cards-ts/core
 
+## 0.8.1
+
+### Patch Changes
+
+- [`3fe2a5b`](https://github.com/johnameyer/cards-ts/commit/3fe2a5b96fe81618e01573ed946fda0cfc76ee11) Thanks [@johnameyer](https://github.com/johnameyer)! - Add buildGameFactory and additional common EventHandler methods
+
 ## 0.8.0
 
 ### Minor Changes
