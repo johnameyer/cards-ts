@@ -1,0 +1,55 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>Creating a New Game | @Cards-TS</title><meta name="description" content="Documentation for @Cards-TS"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar"><div class="tsd-toolbar-contents container"><a href="../index.html" class="title">@Cards-TS</a><div id="tsd-toolbar-links"></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/><ul role="listbox" id="tsd-search-results"></ul><div id="tsd-search-status" aria-live="polite" aria-atomic="true"><div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header><div class="container container-main"><div class="col-content"><div class="tsd-page-title"><ul class="tsd-breadcrumb" aria-label="Breadcrumb"><li><a href="" aria-current="page">Creating a New Game</a></li></ul></div><div class="tsd-panel tsd-typography"><h1 id="implementing-a-new-card-game" class="tsd-anchor-link">Implementing a New (Card) Game<a href="#implementing-a-new-card-game" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h1><p>(Reference <a href="../modules/_cards-ts_war.html" class="tsd-kind-module">@cards-ts/war</a> for an implementation of a very simple card game)</p>
+<h2 id="typical-process" class="tsd-anchor-link">Typical Process<a href="#typical-process" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>The very first thing is to think about if any of the existing card games are like your desired game, then just directly copy the files from that card game package and tear out any logic that isn't needed. If none are a particularly close match, War has by far the least amount of logic / oddness and so is a good scaffold.</p>
+<p>Start by clearing out any parameters in <code>game-params</code> and <code>game-setup</code>, since you can customize ways to play your game later and this only introduces noise in the meantime.</p>
+<p>Then identify the user inputs your game has (e.g. will the user be prompted to discard a card? or to play a single card or a meld?), and implement an initial version of your <code>game-handler-params</code>, <code>game-handler</code>, and response messages.</p>
+<p>Think about the states and flow your game goes through and then begin putting together your <code>state-machine</code>. While doing so, think about what state/controllers you will need, giving you a first start on your custom controllers and <code>controllers/controllers</code> file.</p>
+<p>Once you've generally settled on your custom events and state, you can start to put together your <code>event-handler</code> to validate and respond to events, and your bot and intermediary handlers to respond to events (typically starting with a very basic valid response for bots).</p>
+<p>At this point, you should be good to finalize on your <code>state-machine</code>. Also at this point, you should be able to compile and be able to incrementally run and test your game.</p>
+<p>Once the basic game is in place, you can enhance the params, bot handler, or any other part of the game! Add it to <code>games.txt</code> and make sure it passes the basic package test which verifies the game finishes as well.</p>
+<p>(Note that library major version changes are planned to be owned by the library maintainer)</p>
+<h2 id="card-game-requirements" class="tsd-anchor-link">Card Game Requirements<a href="#card-game-requirements" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2><p>The following are files you'll generally need to modify in the course of creating your game.</p>
+<ul>
+<li><code>event-handler</code> via calling <a href="../functions/_cards-ts_core.buildEventHandler.html" class="tsd-kind-function">buildEventHandler</a> or implementing <a href="../interfaces/_cards-ts_core.EventHandlerInterface.html" class="tsd-kind-interface">EventHandlerInterface</a>
+<ul>
+<li>The class that handles validating and merging in responses from the handlers</li>
+</ul>
+</li>
+<li><code>controllers</code> / <code>buildProviders</code>
+<ul>
+<li>Allows for defining the shape of the data state of your game</li>
+</ul>
+</li>
+<li><code>state-machine</code>
+<ul>
+<li>Allows for defining the flow of the game (as a finite state machine using the constructs of <a href="../modules/_cards-ts_state-machine.html" class="tsd-kind-module"> @cards-ts/state-machine!</a>)</li>
+</ul>
+</li>
+<li><code>game-handler-params</code>
+<ul>
+<li>Spells out what custom events the game might send to handlers</li>
+</ul>
+</li>
+<li><code>game-handler</code> via implementing <a href="../types/_cards-ts_core.Handler.html" class="tsd-kind-type-alias">Handler</a>
+<ul>
+<li>Describes what events are expected in response to the events</li>
+</ul>
+</li>
+<li><code>game-factory</code> via calling <a href="../functions/_cards-ts_core.buildGameFactory.html" class="tsd-kind-function">buildGameFactory</a>
+<ul>
+<li>The class that bundles together all of your custom game logic to present a unified interface for consumers</li>
+<li>You likely won't need to modify this from the default unless you have some customizations to the handlers (e.g. multiple bot handlers)</li>
+</ul>
+</li>
+<li><code>game-params</code>
+<ul>
+<li>A plain object interface describing possible variations upon the game</li>
+</ul>
+</li>
+<li><code>game-setup</code> via implementing <a href="../interfaces/_cards-ts_core.GenericGameSetup.html" class="tsd-kind-interface">GenericGameSetup</a>
+<ul>
+<li>The class that allows you to customize the game params and gives information about the params</li>
+</ul>
+</li>
+</ul>
+<p>You will then also need to provide any additional custom message types, custom controllers, and at least one bot handler and intermediary handler.</p>
+</div></div><div class="col-sidebar"><div class="page-menu"><div class="tsd-navigation settings"><details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg><h3>Settings</h3></summary><div class="tsd-accordion-details"><div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span><ul id="tsd-filter-options"><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div><div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div><details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg><h3>On This Page</h3></summary><div class="tsd-accordion-details"><a href="#implementing-a-new-card-game"><span>Implementing a <wbr/>New (<wbr/>Card) <wbr/>Game</span></a><ul><li><a href="#typical-process"><span>Typical <wbr/>Process</span></a></li><li><a href="#card-game-requirements"><span>Card <wbr/>Game <wbr/>Requirements</span></a></li></ul></div></details></div><div class="site-menu"><nav class="tsd-navigation"><a href="../modules.html">@Cards-TS</a><ul class="tsd-small-nested-navigation" id="tsd-nav-container"><li>Loading...</li></ul></nav></div></div></div><footer><p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></footer><div class="overlay"></div></body></html>
