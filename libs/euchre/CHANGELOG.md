@@ -1,5 +1,13 @@
 # @cards-ts/euchre
 
+## 0.8.3
+
+### Patch Changes
+
+- Updated dependencies [[`c7a1049`](https://github.com/johnameyer/cards-ts/commit/c7a10499509edb0ec3e3d6ba9a4bba81e714c62f)]:
+  - @cards-ts/core@0.8.2
+  - @cards-ts/state-machine@0.8.2
+
 ## 0.8.2
 
 ### Patch Changes
