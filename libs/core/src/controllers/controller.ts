@@ -164,7 +164,7 @@ export function initializeControllers<T extends IndexedControllers>(providers: C
 }
 
 export type ControllerState<T> = {
-    [key in keyof T]: T[key] extends AbstractController<infer State, any> ? State : never
+    [key in keyof T]: T[key] extends AbstractController<infer State, any, any> ? State : never
 }
 
 /**
@@ -172,5 +172,5 @@ export type ControllerState<T> = {
  * @category Controller
  */
 export type ControllerHandlerState<T> = {
-    [key in keyof T]: T[key] extends AbstractController<any, any> ? ReturnType<T[key]['getFor']> : never
+    [key in keyof T]: T[key] extends AbstractController<any, any, any> ? ReturnType<T[key]['getFor']> : never
 }
