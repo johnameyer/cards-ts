@@ -1,5 +1,11 @@
 # @cards-ts/core
 
+## 0.8.2
+
+### Patch Changes
+
+- [#157](https://github.com/johnameyer/cards-ts/pull/157) [`c7a1049`](https://github.com/johnameyer/cards-ts/commit/c7a10499509edb0ec3e3d6ba9a4bba81e714c62f) Thanks [@johnameyer](https://github.com/johnameyer)! - Fix controller state type extraction
+
 ## 0.8.1
 
 ### Patch Changes
