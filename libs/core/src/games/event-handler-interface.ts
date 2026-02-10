@@ -11,6 +11,11 @@ import { DataController, HandsController, IndexedControllers, TricksController, 
  */
 export interface EventHandlerInterface<Controllers extends IndexedControllers, ResponseMessage extends Message> {
     /**
+     * Tells if a certain event would fail validation and returns the reason why
+     */
+    getValidationError(this: void, controllers: Controllers, sourceHandler: number, event: ResponseMessage): string | undefined,
+
+    /**
      * Tells whether the incoming event is valid or not and makes default moves for the players
      * @param controllers the current game state
      * @param sourceHandler the handler or player the event is coming in from
@@ -34,16 +39,34 @@ type EventHandler<Controllers extends IndexedControllers, ResponseMessage extend
 type SingularOrArray<T> = T | T[];
 
 // TODO naming
-type Validator<Controllers extends IndexedControllers, ResponseMessage extends Message> = EventHandler<Controllers, ResponseMessage, ResponseMessage> | {
+type Validator<Controllers extends IndexedControllers, ResponseMessage extends Message> = {
     validators: SingularOrArray<EventHandler<Controllers, ResponseMessage, Error | undefined>>,
+    /**
+     * If the event fails validation, an event to merge in its place
+     * I.e. forfeiting the players turn with a default response
+     */
     fallback?: EventHandler<Controllers, ResponseMessage, ResponseMessage>,
 };
 
+// TODO build transforms generically across event types
 type TypeHandlers<Controllers extends IndexedControllers, ResponseMessage extends Message> = {
-    // TODO build generically across event types
+    /**
+     * Allows for reconstructing the event using the message constructor to ensure presence of prototype
+     * @example event => new DiscardResponseMessage(event.toDiscard)
+     */
     transform?: (event: ResponseMessage) => ResponseMessage,
+    /**
+     * Tells if the player is allowed to respond (true if allowed)
+     * @example EventHandler.isTurn('turn')
+     */
     canRespond?: SingularOrArray<EventHandler<Controllers, ResponseMessage, boolean>>;
+    /**
+     * Tells if the event itself is actually valid
+     */
     validateEvent?: Validator<Controllers, ResponseMessage>;
+    /**
+     * Merges the message into the game state
+     */
     merge: SingularOrArray<EventHandler<Controllers, ResponseMessage, void>>;
 };
 
@@ -67,45 +90,63 @@ function asArray<T>(t: T): Array<Unarray<T>> {
  * @typeParam ResponseMessage the response messages this game expects
  * @category Game Builder
  */
-export const buildEventHandler = <Controllers extends IndexedControllers & {data: DataController}, ResponseMessage extends Message> (handlers: EventHandlers<Controllers, ResponseMessage>): EventHandlerInterface<Controllers, ResponseMessage> => ({
-    validateEvent: (controllers, sourceHandler, incomingEvent) => {
-        // @ts-ignore
-        const typeHandlers = handlers[incomingEvent.type as ResponseMessage['type']] as TypeHandlers<Controllers, ResponseMessage>;
-
-        if(typeHandlers.canRespond) {
-            for(const validator of asArray(typeHandlers.canRespond)) {
-                const result = validator(controllers, sourceHandler, incomingEvent);
-                if(!result) {
-                    /*
-                     * @ts-ignore
-                     * console.warn('Error!');
-                     * console.warn('Error:', result, incomingEvent.toDiscard, controllers.deck.toDiscard);
-                     */
-                    return undefined;
-                }
+export const buildEventHandler = <Controllers extends IndexedControllers & {data: DataController}, ResponseMessage extends Message> (handlers: EventHandlers<Controllers, ResponseMessage>): EventHandlerInterface<Controllers, ResponseMessage> => {
+    const getHandler = (incomingEvent: ResponseMessage) => 
+        handlers[incomingEvent.type as ResponseMessage['type']] as TypeHandlers<Controllers, ResponseMessage>;
+    
+    const canRespond = (controllers: Controllers, sourceHandler: number, incomingEvent: ResponseMessage) => {
+        for(const canRespondHandler of asArray(getHandler(incomingEvent).canRespond ?? [])) {
+            const result = canRespondHandler(controllers, sourceHandler, incomingEvent);
+            if(!result) {
+                // console.warn('Error:', result, incomingEvent.toDiscard, controllers.deck.toDiscard);
+                return false;
             }
         }
-        if(typeHandlers.validateEvent === undefined) {
-            return (typeHandlers.transform) ? typeHandlers.transform(incomingEvent) : incomingEvent;
-        } else if(typeof typeHandlers.validateEvent === 'function') {
-            return typeHandlers.validateEvent(controllers, sourceHandler, incomingEvent);
-        } 
-        let passed = true;
-        for(const validator of asArray(typeHandlers.validateEvent.validators)) {
+        return true;
+    }
+
+    const getValidationErrorMessage = (controllers: Controllers, sourceHandler: number, incomingEvent: ResponseMessage) => {
+        for(const validator of asArray(getHandler(incomingEvent)?.validateEvent?.validators ?? [])) {
             const result = validator(controllers, sourceHandler, incomingEvent);
             if(result) {
-                console.warn('Error:', result.message);
-                passed = false;
-                break;
+                return result.message;
             }
         }
-        if(passed) {
-            return (typeHandlers.transform) ? typeHandlers.transform(incomingEvent) : incomingEvent;
-        } 
-        return typeHandlers.validateEvent.fallback ? typeHandlers.validateEvent.fallback(controllers, sourceHandler, incomingEvent) : undefined;
+        return undefined;
+    }
+
+    const getValidationError = (controllers: Controllers, sourceHandler: number, incomingEvent: ResponseMessage) => {
+        if(!canRespond(controllers, sourceHandler, incomingEvent)) {
+            return 'Not allowed to respond';
+        }
+
+        return getValidationErrorMessage(controllers, sourceHandler, incomingEvent);
+    };
+
+    const validateEvent = (controllers: Controllers, sourceHandler: number, incomingEvent: ResponseMessage) => {
+        if(!canRespond(controllers, sourceHandler, incomingEvent)) {
+            return undefined;
+        }
+
+        const typeHandler = getHandler(incomingEvent);
         
-    },
-    merge: (controllers, sourceHandler, incomingEvent, data) => {
+        const transform = (event: ResponseMessage) => (typeHandler.transform) ? typeHandler.transform(event) : event;
+
+        if(typeHandler.validateEvent === undefined) {
+            return transform(incomingEvent);
+        }
+
+        const validationError = getValidationErrorMessage(controllers, sourceHandler, incomingEvent);
+
+        if(!validationError) {
+            return transform(incomingEvent);
+        }
+
+        console.log('Failed to validate event:', validationError);
+        return typeHandler.validateEvent.fallback ? typeHandler.validateEvent.fallback(controllers, sourceHandler, incomingEvent) : undefined;
+    };
+
+    const merge = (controllers: Controllers, sourceHandler: number, incomingEvent: ResponseMessage, data: any) => {
         // TODO move upstream?
         if(data) {
             controllers.data.setDataFor(sourceHandler, data);
@@ -117,8 +158,14 @@ export const buildEventHandler = <Controllers extends IndexedControllers & {data
                 merge(controllers, sourceHandler, incomingEvent);
             }
         }
-    },
-});
+    };
+    
+    return ({
+        getValidationError,
+        validateEvent, 
+        merge,
+    });
+};
 
 type KeysOfType<T, V> = {
     [K in keyof T]-?: T[K] extends V ? K : never;
