@@ -27,6 +27,7 @@ export const eventHandler = buildEventHandler<Controllers, ResponseMessage>({
                 return new DiscardResponseMessage(possibleDiscard);
             },
         },
+        transform: event => new DiscardResponseMessage(event.toDiscard),
         merge: (controllers, source, incomingEvent) => {
             if(!controllers.hand.hasCard(incomingEvent.toDiscard, controllers.turn.get())) {
                 throw new Error('Player did not have card ' + incomingEvent.toDiscard);
@@ -35,7 +36,6 @@ export const eventHandler = buildEventHandler<Controllers, ResponseMessage>({
             controllers.deck.toDiscard = incomingEvent.toDiscard;
             controllers.waiting.removePosition(source);
         },
-        transform: event => new DiscardResponseMessage(event.toDiscard),
     },
     'play-response': {
         canRespond: EventHandler.isTurn('turn'),
@@ -62,6 +62,7 @@ export const eventHandler = buildEventHandler<Controllers, ResponseMessage>({
                 }
             },
         },
+        transform: event => new PlayResponseMessage(event.playOn, event.toPlay, event.newMeld),
         merge: (controllers, source, incomingEvent) => {
             const toPlay = incomingEvent.toPlay.filter(distinct);
             const oldMeld = incomingEvent.playOn;
@@ -95,7 +96,6 @@ export const eventHandler = buildEventHandler<Controllers, ResponseMessage>({
             
             controllers.waiting.removePosition(source);
         },
-        transform: event => new PlayResponseMessage(event.playOn, event.toPlay, event.newMeld),
     },
     'go-down-response': {
         canRespond: EventHandler.isTurn('turn'),
@@ -105,6 +105,7 @@ export const eventHandler = buildEventHandler<Controllers, ResponseMessage>({
                 EventHandler.hasCards('hand', ({ toPlay }) => toPlay.flatMap(meld => meld.cards)),
             ],
         },
+        transform: event => new GoDownResponseMessage(event.toPlay),
         merge: (controllers, source, incomingEvent) => {
             /*
              * TODO full logic
@@ -118,17 +119,13 @@ export const eventHandler = buildEventHandler<Controllers, ResponseMessage>({
             
             controllers.waiting.removePosition(source);
         },
-        transform: event => new GoDownResponseMessage(event.toPlay),
     },
     'want-card-response': {
         canRespond: EventHandler.isWaiting('waiting'), // TODO allow people to say they want card ahead of time,
-        validateEvent: (controllers, source, event) => {
-            return new WantCardResponseMessage(event.wantCard);
-        },
+        transform: ({wantCard}) => new WantCardResponseMessage(wantCard),
         merge: [
-            (controllers, source, incomingEvent) => controllers.canIHaveThat.wantCard = incomingEvent.wantCard,
+            (controllers, _source, incomingEvent) => controllers.canIHaveThat.wantCard = incomingEvent.wantCard,
             EventHandler.removeWaiting('waiting'),
         ],
-        transform: event => new WantCardResponseMessage(event.wantCard),
     },
 });

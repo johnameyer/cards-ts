@@ -33,6 +33,10 @@ export class GameDriver<Handlers extends {[key: string]: unknown[]} & SystemHand
         // this.gameState.names = handlerProxy.getNames();
     }
 
+    public getValidationError(position: number, message: ResponseMessage) {
+        return this.eventHandler.getValidationError(this.gameState.controllers, position, message);
+    }
+
     /**
      * Handle an incoming event from one of the handlers
      * @param position the position the event is coming from

@@ -1,5 +1,5 @@
 import { Controllers } from './controllers/controllers.js';
-import { DealerDiscardResponseMessage, OrderUpResponseMessage, NameTrumpResponseMessage } from './messages/response/index.js';
+import { DealerDiscardResponseMessage, OrderUpResponseMessage, NameTrumpResponseMessage, GoingAloneResponseMessage } from './messages/response/index.js';
 import { ResponseMessage } from './messages/response-message.js';
 import { followsTrick } from './util/follows-trick.js';
 import { PlayCardResponseMessage, EventHandler, buildEventHandler } from '@cards-ts/core';
@@ -12,9 +12,7 @@ export const eventHandler = buildEventHandler<Controllers, ResponseMessage>({
          * TODO make even shorter hand?
          */
         canRespond: EventHandler.isTurn('turn'),
-        validateEvent: (controllers, source, { selectingTrump }) => {
-            return new OrderUpResponseMessage(selectingTrump);
-        },
+        transform: ({ selectingTrump }) => new OrderUpResponseMessage(selectingTrump),
         merge: [
             EventHandler.removeWaiting('waiting'),
             (controllers, sourceHandler, incomingEvent) => controllers.euchre.setBidder(incomingEvent.selectingTrump ? sourceHandler : undefined),
@@ -26,14 +24,15 @@ export const eventHandler = buildEventHandler<Controllers, ResponseMessage>({
             validators: EventHandler.validate('Can\'t select the current trump suit as the trump', (controllers, _source, { trump }) => controllers.euchre.currentTrump === trump),
             fallback: () => new NameTrumpResponseMessage(undefined),
         },
+        transform: ({ trump }) => new NameTrumpResponseMessage(trump),
         merge: [
             EventHandler.removeWaiting('waiting'),
             (controllers, sourceHandler, incomingEvent) => controllers.euchre.setBidder(incomingEvent.trump ? sourceHandler : undefined, incomingEvent.trump || controllers.euchre.currentTrump),
         ],
     },
     'going-alone-response': {
-        // TODO wrap response if somehow not proper object?
-        merge: (controllers, sourceHandler, incomingEvent) => {
+        transform: () => new GoingAloneResponseMessage(),
+        merge: (controllers, sourceHandler, _incomingEvent) => {
             controllers.euchre.setGoingAlone(sourceHandler);
         },
     },
@@ -46,6 +45,7 @@ export const eventHandler = buildEventHandler<Controllers, ResponseMessage>({
             ],
             fallback: (controllers, source) => new DealerDiscardResponseMessage(controllers.hand.get(source)[0]),
         },
+        transform: ({ selected }) => new DealerDiscardResponseMessage(selected),
         merge: [
             EventHandler.removeWaiting('waiting'), 
             EventHandler.removeCards('hand', ({ selected }) => [ selected ]),
@@ -55,15 +55,16 @@ export const eventHandler = buildEventHandler<Controllers, ResponseMessage>({
         canRespond: EventHandler.isTurn('turn'),
         validateEvent: {
             validators: [
-                EventHandler.validate('No card provided', (controllers, source, { card }) => !card),
+                EventHandler.validate('No card provided', (_controllers, _source, { card }) => !card),
                 EventHandler.hasCard('hand', ({ card }) => card),
                 EventHandler.validate('Must follow suit if possible', (controllers, source, { card }) => controllers.trick.currentTrick.some(card => card) && !followsTrick(controllers.trick.currentTrick, controllers.euchre.currentTrump, card) && controllers.hand.get(source).some(card => followsTrick(controllers.trick.currentTrick, controllers.euchre.currentTrump, card))),
             ],
             fallback: (controllers, source) => new PlayCardResponseMessage(controllers.hand.get(source).filter(card => followsTrick(controllers.trick.currentTrick, controllers.euchre.currentTrump, card))[0] || controllers.hand.get(source)[0]),
         },
+        transform: ({ card }) => new PlayCardResponseMessage(card),
         merge: [
             EventHandler.removeWaiting('waiting'),
-            EventHandler.setTrickPlayedCard('trick', ({card}) => card),
+            EventHandler.setTrickPlayedCard('trick', ({ card }) => card),
             // TODO remove card from hand here?
         ],
     },

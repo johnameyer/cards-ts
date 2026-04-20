@@ -62,7 +62,7 @@ function buildMockGameDriver(handlerProxy: GenericHandlerProxy<MockResponseMessa
 const eventHandler = buildEventHandler<Controllers, MockResponseMessage>({
     'mock-response': {
         canRespond: [ EventHandler.isWaiting('waiting'), (controller, sourceHandler, incomingEvent) => incomingEvent.value > 0 ],
-        validateEvent: (controller, sourceHandler, incomingEvent) => new MockResponseMessage(incomingEvent.value),
+        transform: (incomingEvent) => new MockResponseMessage(incomingEvent.value),
         merge: (controllers, sourceHandler, incomingEvent) => {
             controllers.mock.add(incomingEvent.value);
             controllers.waiting.set((controllers.waiting.get().waiting as number) - 1);
