@@ -101,7 +101,24 @@ export type ValidatedProviders<T extends IndexedProviders> = {
     [key in keyof T]: T[key] extends GenericControllerProvider<any, infer U, any> ? (UnwrapProviders<T> extends U ? T[key] : never) : never
 }
 
+/*
+ * Memoized by the `controllers`/`providers` object's identity. The dependency
+ * graph is static per game type - the same providers object is passed to
+ * validate() and initializeControllers() (directly, and again internally)
+ * on every GenericGameState construction, which happens repeatedly per
+ * ISMCTS iteration (selection/expansion/action-generation/simulation each
+ * build their own). Recomputing an identical sort every time was measured
+ * as a real hot path; a WeakMap avoids retaining providers objects that
+ * would otherwise be garbage.
+ */
+const topologicalOrderingCache = new WeakMap<IndexedProviders, string[]>();
+
 function getTopologicalOrdering<T extends IndexedProviders>(controllers: T): (string & keyof T)[] {
+    const cached = topologicalOrderingCache.get(controllers);
+    if(cached) {
+        return cached as (string & keyof T)[];
+    }
+
     const sortedKeys = [];
     const children = new Set();
     const edgesByDestination = new Map<string, Set<string>>();
@@ -120,7 +137,7 @@ function getTopologicalOrdering<T extends IndexedProviders>(controllers: T): (st
             }
         }
     }
-    
+
     while(children.size) {
         const node = children.keys().next().value as string;
         children.delete(node);
@@ -139,7 +156,9 @@ function getTopologicalOrdering<T extends IndexedProviders>(controllers: T): (st
     if(edgesByDestination.size) {
         throw new Error('Graph has loops');
     }
-    return sortedKeys;
+
+    topologicalOrderingCache.set(controllers, sortedKeys);
+    return sortedKeys as (string & keyof T)[];
 }
 
 export function validate<T extends IndexedProviders>(controllers: T): ValidatedProviders<T> {
@@ -151,13 +170,39 @@ export function validate<T extends IndexedProviders>(controllers: T): ValidatedP
 export function initializeControllers<T extends IndexedControllers>(providers: ControllersProviders<T>, state: ControllerState<T>) {
     const retained: T = {} as T;
 
-    for(const name of getTopologicalOrdering(validate(providers)) as (keyof T)[]) {
+    /*
+     * Equivalent to getTopologicalOrdering(validate(providers)): validate()
+     * filters providers down to exactly the keys getTopologicalOrdering
+     * already determined are valid (reachable, no missing dependencies), so
+     * re-running the sort on that filtered set always reproduces the same
+     * order. Calling it directly on `providers` instead avoids a second
+     * (redundant) sort and hits the same cache entry validate() already
+     * populated for this providers object.
+     */
+    for(const name of getTopologicalOrdering(providers) as (keyof T)[]) {
         const dependencyKeys = Object.keys(providers[name].dependencies());
         const dependencyControllers = Object.fromEntries(Object.entries(retained).filter(([ key, _val ]) => dependencyKeys.includes(key)));
+        
+        if(process.env.DEBUG_RECONSTRUCTION === 'true' && name === 'turnState') {
+            console.error('[INIT-CONTROLLERS] Processing controller:', name);
+            console.error('[INIT-CONTROLLERS] state[name] exists:', name in state);
+            console.error('[INIT-CONTROLLERS] state[name] value:', JSON.stringify((state as any)[name]));
+        }
+        
         if(!state[name]) {
             state[name] = providers[name].initialState(dependencyControllers) as any;
+            if(process.env.DEBUG_RECONSTRUCTION === 'true' && name === 'turnState') {
+                console.error('[INIT-CONTROLLERS] Created initial state for', name);
+            }
         }
-        retained[name] = providers[name].controller(state[name], dependencyControllers);
+        
+        const controller = providers[name].controller(state[name], dependencyControllers);
+        retained[name] = controller;
+        
+        if(process.env.DEBUG_RECONSTRUCTION === 'true' && name === 'turnState') {
+            console.error('[INIT-CONTROLLERS] Created controller for', name);
+            console.error('[INIT-CONTROLLERS] controller.get():', JSON.stringify((controller as any).get?.()));
+        }
     }
 
     return retained;
