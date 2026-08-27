@@ -159,4 +159,13 @@ export class GameDriver<Handlers extends {[key: string]: unknown[]} & SystemHand
     public getState() {
         return this.gameState.state; // TODO avoid external updates here
     }
+
+    /**
+     * See GenericGameState.getRawState() - skips type-restoration, only
+     * safe for callers that don't need it and provide their own copy
+     * guarantee downstream.
+     */
+    public getRawState() {
+        return this.gameState.getRawState();
+    }
 }

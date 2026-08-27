@@ -80,4 +80,17 @@ export class GenericGameState<Controllers extends IndexedControllers> {
     get state() {
         return Object.fromEntries(Object.entries(this.allControllers).map(([ key, value ]) => [ key, reconstruct((value as any).state) ])) as ControllerState<Controllers>;
     }
+
+    /**
+     * Each controller's raw internal state, skipping reconstruct()'s
+     * type-restoration walk (see `state` above). Only safe for callers that
+     * don't need typed instances restored (e.g. games with no Serializable
+     * subtypes registered in `reconstruct`'s dispatch) and that provide
+     * their own copy/isolation guarantee downstream (e.g. cloning the
+     * result themselves) - `state` remains the safe general-purpose default
+     * for everyone else.
+     */
+    getRawState(): ControllerState<Controllers> {
+        return Object.fromEntries(Object.entries(this.allControllers).map(([ key, value ]) => [ key, (value as any).state ])) as ControllerState<Controllers>;
+    }
 }
